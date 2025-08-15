@@ -1,0 +1,223 @@
+import express, { Request, Response } from 'express';
+import { z } from 'zod';
+import { PrismaClient } from '../generated/prisma/index.js';
+import { authRequired, AuthenticatedRequest } from '../middleware/auth.js';
+import { tenantRequired, TenantRequest } from '../middleware/tenant.js';
+import {
+  createStripeCheckoutSession,
+  applyEntitlement,
+  verifyStripeWebhook,
+  CheckoutSessionRequest,
+} from '../services/billing.js';
+
+const prisma = new PrismaClient();
+
+const router = express.Router();
+
+// Validation schemas
+const createCheckoutSessionSchema = z.object({
+  planId: z.string().uuid(),
+});
+
+// POST /v1/billing/checkout/session
+// Create a checkout session for plan purchase
+router.post('/checkout/session', async (req: Request, res: Response) => {
+  try {
+    const { planId } = createCheckoutSessionSchema.parse(req.body);
+
+    // Get company ID if user is authenticated
+    let companyId: string | undefined;
+    if (req.headers.authorization || req.cookies?.accessToken) {
+      // Try to get authenticated user context
+      try {
+        // Re-run auth middleware to get user context
+        const authMiddleware = authRequired();
+        const tenantMiddleware = tenantRequired();
+        
+        await new Promise<void>((resolve, reject) => {
+          authMiddleware(req as AuthenticatedRequest, res, (err) => {
+            if (err) return reject(err);
+            tenantMiddleware(req as TenantRequest, res, (err) => {
+              if (err) return reject(err);
+              resolve();
+            });
+          });
+        });
+
+        companyId = (req as TenantRequest).tenant?.companyId;
+      } catch (error) {
+        // User not authenticated, continue without company context
+        console.log('User not authenticated for checkout, proceeding anonymously');
+      }
+    }
+
+    const baseUrl = process.env.APP_URL || 'http://localhost:7777';
+    const sessionRequest: CheckoutSessionRequest = {
+      planId,
+      companyId,
+      successUrl: `${baseUrl}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancelUrl: `${baseUrl}/planes?canceled=true`,
+    };
+
+    const session = await createStripeCheckoutSession(sessionRequest);
+
+    res.json(session);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Validation error', errors: error.errors });
+    }
+
+    console.error('Checkout session creation error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to create checkout session';
+    res.status(500).json({ message });
+  }
+});
+
+// POST /v1/billing/webhook/stripe
+// Handle Stripe webhook events
+router.post('/webhook/stripe', express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+  try {
+    const signature = req.headers['stripe-signature'] as string;
+    
+    if (!signature) {
+      return res.status(400).json({ message: 'Missing stripe-signature header' });
+    }
+
+    // Verify webhook signature
+    const event = verifyStripeWebhook(req.body.toString(), signature);
+
+    console.log(`Received Stripe webhook: ${event.type} (${event.id})`);
+
+    // Process the webhook
+    await applyEntitlement({
+      provider: 'stripe',
+      eventId: event.id,
+      eventType: event.type,
+      data: event.data.object,
+    });
+
+    res.json({ received: true });
+  } catch (error) {
+    console.error('Stripe webhook error:', error);
+    const message = error instanceof Error ? error.message : 'Webhook processing failed';
+    res.status(400).json({ message });
+  }
+});
+
+// GET /v1/billing/subscription
+// Get current subscription for authenticated company
+router.get('/subscription', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
+  try {
+    const { companyId } = req.tenant!;
+
+    const subscription = await prisma.subscription.findFirst({
+      where: { companyId },
+      include: {
+        plan: {
+          select: {
+            id: true,
+            code: true,
+            name: true,
+            priceMxnCents: true,
+            billingCycle: true,
+          },
+        },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    if (!subscription) {
+      return res.status(404).json({ message: 'No subscription found' });
+    }
+
+    res.json({ subscription });
+  } catch (error) {
+    console.error('Get subscription error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// POST /v1/billing/subscription/cancel
+// Cancel current subscription
+router.post('/subscription/cancel', authRequired(['owner']), tenantRequired(), async (req: TenantRequest, res: Response) => {
+  try {
+    const { companyId } = req.tenant!;
+
+    const subscription = await prisma.subscription.findFirst({
+      where: { 
+        companyId,
+        status: 'active',
+      },
+    });
+
+    if (!subscription) {
+      return res.status(404).json({ message: 'No active subscription found' });
+    }
+
+    // For now, just mark as canceled in our database
+    // In production, you'd also cancel with the payment provider
+    await prisma.subscription.update({
+      where: { id: subscription.id },
+      data: { 
+        status: 'canceled',
+        cancelAtPeriodEnd: true,
+      },
+    });
+
+    // Remove plan from company
+    await prisma.company.update({
+      where: { id: companyId },
+      data: { planId: null },
+    });
+
+    res.json({ message: 'Subscription canceled successfully' });
+  } catch (error) {
+    console.error('Cancel subscription error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+// GET /v1/billing/invoices
+// Get billing history for authenticated company
+router.get('/invoices', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
+  try {
+    const { companyId } = req.tenant!;
+    const { limit = '20', offset = '0' } = req.query;
+
+    const limitNum = Math.min(parseInt(limit as string, 10), 100);
+    const offsetNum = parseInt(offset as string, 10);
+
+    const [invoices, total] = await Promise.all([
+      prisma.invoice.findMany({
+        where: { companyId },
+        include: {
+          payments: {
+            select: {
+              id: true,
+              provider: true,
+              status: true,
+              paidMxnCents: true,
+              createdAt: true,
+            },
+          },
+        },
+        orderBy: { issuedAt: 'desc' },
+        take: limitNum,
+        skip: offsetNum,
+      }),
+      prisma.invoice.count({ where: { companyId } }),
+    ]);
+
+    res.json({
+      invoices,
+      total,
+      limit: limitNum,
+      offset: offsetNum,
+    });
+  } catch (error) {
+    console.error('Get invoices error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+export default router;

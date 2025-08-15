@@ -10,21 +10,19 @@ export default function CheckoutSuccessPage() {
   const searchParams = useSearchParams();
   const { user } = useAuth();
 
-  const membershipId = searchParams.get('membershipId');
-  const provider = searchParams.get('provider');
+  const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
     // Track successful checkout
-    if (typeof window !== 'undefined' && membershipId && provider) {
+    if (typeof window !== 'undefined' && sessionId) {
       import('posthog-js').then(({ default: posthog }) => {
         posthog.capture('checkout.success', {
-          membershipId,
-          provider,
+          sessionId,
           companyId: user?.company?.id,
         });
       });
     }
-  }, [membershipId, provider, user?.company?.id]);
+  }, [sessionId, user?.company?.id]);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
@@ -54,15 +52,15 @@ export default function CheckoutSuccessPage() {
                 <span className="text-gray-900 dark:text-white">{user?.company?.name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500 dark:text-gray-400">Método de pago:</span>
+                <span className="text-gray-500 dark:text-gray-400">RFC:</span>
                 <span className="text-gray-900 dark:text-white">
-                  {provider === 'stripe' ? 'Tarjeta de Crédito' : 'Mercado Pago'}
+                  {user?.company?.rfc}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500 dark:text-gray-400">ID de Membresía:</span>
-                <span className="text-gray-900 dark:text-white font-mono text-xs">
-                  {membershipId?.slice(0, 8)}...
+                <span className="text-gray-500 dark:text-gray-400">Estado:</span>
+                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                  Activa
                 </span>
               </div>
             </div>

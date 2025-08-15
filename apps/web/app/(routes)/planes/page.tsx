@@ -81,21 +81,10 @@ export default function PlanesPage() {
 
   const handleSelectPlan = async (planId: string) => {
     if (selectedPlan === planId) return; // Prevent double-clicks
-    
+
     setSelectedPlan(planId);
-    
+
     try {
-      const response = await apiClient.memberships.create({
-        planId,
-        draft: true,
-      });
-
-      if (isAPIError(response)) {
-        setError(response.message);
-        setSelectedPlan(null);
-        return;
-      }
-
       // Track analytics
       if (typeof window !== 'undefined') {
         import('posthog-js').then(({ default: posthog }) => {
@@ -109,12 +98,8 @@ export default function PlanesPage() {
         });
       }
 
-      // Show success toast
-      // In a real app, you'd use a toast library
-      console.log('Plan seleccionado exitosamente');
-
-      // Redirect to checkout
-      router.push(`/checkout?membershipId=${response.membership.id}`);
+      // Redirect to checkout with plan ID
+      router.push(`/checkout?planId=${planId}`);
     } catch (err) {
       console.error('Error selecting plan:', err);
       setError('Error al seleccionar el plan');

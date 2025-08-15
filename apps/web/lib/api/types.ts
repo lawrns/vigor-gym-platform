@@ -136,6 +136,13 @@ export interface KPIOverview {
   gyms: number;
   wellnessProviders: number;
   avgActivationHours: number;
+  monthlyRevenue: number | null;
+  totalVisits: number;
+  filteredVisits?: number;
+  dateRange?: {
+    from: string;
+    to: string;
+  };
 }
 
 export interface PlansResponse {

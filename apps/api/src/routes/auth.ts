@@ -97,7 +97,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
 
     if (!user) {
       await handleFailedLogin(email);
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Email o contraseña inválidos' });
     }
 
     // Check if account is locked
@@ -117,7 +117,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     const isValidPassword = await argon2.verify(user.passwordHash, password);
     if (!isValidPassword) {
       await handleFailedLogin(email);
-      return res.status(401).json({ message: 'Invalid email or password' });
+      return res.status(401).json({ message: 'Email o contraseña inválidos' });
     }
 
     // Reset failed login attempts

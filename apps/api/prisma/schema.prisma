@@ -65,6 +65,16 @@ enum PaymentStatus {
   refunded
 }
 
+enum SubscriptionStatus {
+  active
+  past_due
+  canceled
+  incomplete
+  incomplete_expired
+  trialing
+  unpaid
+}
+
 // Auth and User Management
 enum UserRole {
   owner
@@ -105,14 +115,17 @@ model Company {
   billingEmail String   @map("billing_email")
   timezone     String   @default("America/Mexico_City")
   industry     String?
+  planId       String?  @map("plan_id") @db.Uuid
   createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
   updatedAt    DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  users       User[]
-  members     Member[]
-  memberships Membership[]
-  invoices    Invoice[]
+  users         User[]
+  members       Member[]
+  memberships   Membership[]
+  invoices      Invoice[]
+  subscriptions Subscription[]
+  currentPlan   Plan?    @relation(fields: [planId], references: [id])
 
   @@map("companies")
 }
@@ -142,9 +155,13 @@ model Plan {
   priceMxnCents  Int?         @map("price_mxn_cents")
   billingCycle   BillingCycle @map("billing_cycle")
   featuresJson   Json?        @map("features_json") @db.JsonB
+  stripePriceId  String?      @map("stripe_price_id")
+  mpPriceId      String?      @map("mp_price_id")
 
   // Relations
-  memberships Membership[]
+  memberships   Membership[]
+  subscriptions Subscription[]
+  companies     Company[]
 
   @@map("plans")
 }
@@ -256,6 +273,40 @@ model Payment {
   invoice Invoice @relation(fields: [invoiceId], references: [id])
 
   @@map("payments")
+}
+
+model Subscription {
+  id                String             @id @default(uuid()) @db.Uuid
+  companyId         String             @map("company_id") @db.Uuid
+  planId            String             @map("plan_id") @db.Uuid
+  provider          PaymentProvider
+  externalId        String             @map("external_id")
+  status            SubscriptionStatus @default(active)
+  currentPeriodEnd  DateTime?          @map("current_period_end") @db.Timestamptz
+  cancelAtPeriodEnd Boolean            @default(false) @map("cancel_at_period_end")
+  createdAt         DateTime           @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime?          @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  company Company @relation(fields: [companyId], references: [id])
+  plan    Plan    @relation(fields: [planId], references: [id])
+
+  @@map("subscriptions")
+  @@unique([provider, externalId])
+  @@index([companyId])
+  @@index([status])
+}
+
+model WebhookEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  provider  String   // 'stripe' | 'mercadopago'
+  eventId   String   @unique @map("event_id")
+  eventType String   @map("event_type")
+  processed Boolean  @default(false)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("webhook_events")
+  @@index([provider, processed])
 }
 
 model AuditLog {

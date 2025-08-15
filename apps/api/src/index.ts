@@ -1,11 +1,12 @@
 import 'dotenv/config';
+import dotenv from 'dotenv';
 import path from 'node:path';
 import fs from 'node:fs';
 
 // Ensure .env.local takes precedence over .env
 const localEnv = path.join(process.cwd(), '.env.local');
 if (fs.existsSync(localEnv)) {
-  require('dotenv').config({ path: localEnv });
+  dotenv.config({ path: localEnv });
 }
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
@@ -16,9 +17,14 @@ import { PrismaClient } from './generated/prisma/index.js';
 import { authRequired, AuthenticatedRequest, setPrismaInstance as setAuthPrismaInstance } from './middleware/auth.js';
 import { tenantRequired, withTenantFilter, TenantRequest, logTenantAction } from './middleware/tenant.js';
 import authRoutes, { setPrismaInstance } from './routes/auth.js';
+import billingRoutes from './routes/billing.js';
 import companiesRoutes, { setPrismaInstance as setCompaniesPrismaInstance } from './routes/companies.js';
 import plansRoutes, { setPrismaInstance as setPlansPrismaInstance } from './routes/plans.js';
+import membersRoutes from './routes/members.js';
 import membershipsRoutes, { setPrismaInstance as setMembershipsPrismaInstance } from './routes/memberships.js';
+import visitsRoutes from './routes/visits.js';
+import classesRoutes from './routes/classes.js';
+import bookingsRoutes from './routes/bookings.js';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -72,14 +78,29 @@ const createMembershipSchema = z.object({
 // Auth routes
 app.use('/auth', authRoutes);
 
+// Billing routes (raw body middleware for webhooks)
+app.use('/v1/billing', billingRoutes);
+
 // Companies routes
 app.use('/v1/companies', companiesRoutes);
 
 // Plans routes
 app.use('/v1/plans', plansRoutes);
 
+// Members routes
+app.use('/v1/members', membersRoutes);
+
 // Memberships routes
 app.use('/v1/memberships', membershipsRoutes);
+
+// Visits routes
+app.use('/v1/visits', visitsRoutes);
+
+// Classes routes
+app.use('/v1/classes', classesRoutes);
+
+// Bookings routes
+app.use('/v1/bookings', bookingsRoutes);
 
 // Healthcheck
 app.get('/health', (_req: Request, res: Response) => {
@@ -234,28 +255,67 @@ app.get('/v1/kpi/overview', authRequired(['owner', 'manager', 'staff']), tenantR
   try {
     const tenantFilter = withTenantFilter(req);
 
-    const [activeMembers, gyms, wellnessProviders, recentVisits] = await Promise.all([
+    // Parse date range filters (default to last 30 days)
+    const { from, to } = req.query;
+    const defaultFrom = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000); // 30 days ago
+    const defaultTo = new Date(); // Now
+
+    const fromDate = from ? new Date(from as string) : defaultFrom;
+    const toDate = to ? new Date(to as string) : defaultTo;
+
+    // Validate dates
+    if (isNaN(fromDate.getTime()) || isNaN(toDate.getTime())) {
+      return res.status(400).json({ message: 'Invalid date format. Use ISO 8601 format (YYYY-MM-DDTHH:mm:ss.sssZ)' });
+    }
+
+    if (fromDate > toDate) {
+      return res.status(400).json({ message: 'From date cannot be after to date' });
+    }
+
+    const [activeMembers, gyms, wellnessProviders, filteredVisits, totalVisits, monthlyRevenue] = await Promise.all([
       prisma.member.count({ where: { ...tenantFilter, status: 'active' } }),
       prisma.gym.count(), // Gyms are not tenant-scoped in current schema
       1, // Current company count (always 1 for the current tenant)
+      // Visits within the specified date range
       prisma.visit.findMany({
         where: {
           membership: {
             member: { companyId: req.tenant!.companyId }
           },
           checkIn: {
-            gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) // Last 30 days
+            gte: fromDate,
+            lte: toDate
           }
         },
         select: {
           checkIn: true,
           checkOut: true
         }
-      })
+      }),
+      // Total visits count (all time)
+      prisma.visit.count({
+        where: {
+          membership: {
+            member: { companyId: req.tenant!.companyId }
+          }
+        }
+      }),
+      // Monthly revenue calculation (sum of active memberships' plan prices)
+      prisma.membership.findMany({
+        where: {
+          member: { companyId: req.tenant!.companyId },
+          status: 'active'
+        },
+        include: {
+          plan: true
+        }
+      }).then(memberships =>
+        memberships.reduce((total, membership) => total + membership.plan.price, 0)
+      )
     ]);
 
-    // Calculate average activation hours (time between check-in and check-out)
-    const activationTimes = recentVisits
+    // Calculate average activation hours (time between check-in and check-out) for filtered period
+    const activationTimes = filteredVisits
       .filter(visit => visit.checkOut)
       .map(visit => {
         const checkIn = new Date(visit.checkIn);
@@ -271,7 +331,14 @@ app.get('/v1/kpi/overview', authRequired(['owner', 'manager', 'staff']), tenantR
       activeMembers,
       gyms,
       wellnessProviders,
-      avgActivationHours: Math.round(avgActivationHours * 100) / 100 // Round to 2 decimal places
+      avgActivationHours: Math.round(avgActivationHours * 100) / 100, // Round to 2 decimal places
+      monthlyRevenue,
+      totalVisits,
+      filteredVisits: filteredVisits.length, // Visits in the selected date range
+      dateRange: {
+        from: fromDate.toISOString(),
+        to: toDate.toISOString()
+      }
     });
   } catch (error) {
     console.error('Error fetching KPI overview:', error);
@@ -324,6 +391,7 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
+// In development, fail fast if port is busy to avoid drift
 if (process.env.NODE_ENV === 'development') {
   const server = app.listen(initialPort, () => {
     console.log(`🚀 API listening on http://localhost:${initialPort}`);
@@ -331,12 +399,15 @@ if (process.env.NODE_ENV === 'development') {
   });
   server.on('error', (err: any) => {
     if (err?.code === 'EADDRINUSE') {
-      console.error(`[DEV] Port ${initialPort} busy. Stop the other process or update NEXT_PUBLIC_API_URL.`);
+      console.error(`❌ [DEV] Port ${initialPort} is busy!`);
+      console.error(`   Stop the other process or update NEXT_PUBLIC_API_URL in apps/web/.env.local`);
+      console.error(`   Current NEXT_PUBLIC_API_URL should be: http://localhost:${initialPort}`);
       process.exit(1);
     }
     throw err;
   });
 } else {
+  // In production, allow port auto-increment
   startServer(initialPort);
 }
 

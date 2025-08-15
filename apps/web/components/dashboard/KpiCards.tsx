@@ -187,25 +187,25 @@ export function KpiCards() {
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       <KpiCard
         title="Miembros Activos"
-        value={kpiData.activeMembers.toLocaleString()}
+        value={(kpiData.activeMembers || 0).toLocaleString()}
         icon="Users"
         description="Usuarios con membresías activas"
       />
       <KpiCard
-        title="Gimnasios"
-        value={kpiData.gyms.toLocaleString()}
-        icon="Building2"
-        description="Ubicaciones disponibles"
+        title="Ingresos Mensuales"
+        value={`$${(kpiData.monthlyRevenue || 0).toLocaleString()}`}
+        icon="Wallet"
+        description="Ingresos de membresías activas"
       />
       <KpiCard
-        title="Proveedores Wellness"
-        value={kpiData.wellnessProviders.toLocaleString()}
+        title="Visitas Totales"
+        value={(kpiData.totalVisits || 0).toLocaleString()}
         icon="Activity"
-        description="Empresas registradas"
+        description="Total de visitas registradas"
       />
       <KpiCard
         title="Tiempo Promedio"
-        value={`${kpiData.avgActivationHours.toFixed(1)}h`}
+        value={`${(kpiData.avgActivationHours || 0).toFixed(1)}h`}
         icon="Clock3"
         description="Duración promedio de visitas"
       />

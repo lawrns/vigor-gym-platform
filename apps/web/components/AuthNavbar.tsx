@@ -35,15 +35,40 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
         <div className="flex items-center gap-6">
           {/* Navigation Links */}
           <div className="hidden md:flex gap-6 text-sm">
-            {visibleLinks.map((l) => (
-              <Link 
-                key={l.href} 
-                href={l.href} 
-                className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
-              >
-                {l.label}
-              </Link>
-            ))}
+            {user ? (
+              // Authenticated user links
+              visibleLinks.map((l) => (
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  {l.label}
+                </Link>
+              ))
+            ) : (
+              // Public navigation links for unauthenticated users
+              <>
+                <Link
+                  href="/planes"
+                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  Planes
+                </Link>
+                <Link
+                  href="/contacto"
+                  className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  Contacto
+                </Link>
+                <Link
+                  href="/demo"
+                  className="text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 transition-colors font-medium"
+                >
+                  Solicitar Demo
+                </Link>
+              </>
+            )}
           </div>
 
           {/* User Menu or CTA */}
@@ -132,14 +157,12 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
               )}
             </div>
           ) : (
-            cta && (
-              <Link 
-                href={cta.href}
-                className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium text-sm transition-colors"
-              >
-                {cta.label}
-              </Link>
-            )
+            <Link
+              href="/login"
+              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 font-medium text-sm transition-colors"
+            >
+              Iniciar Sesión
+            </Link>
           )}
         </div>
       </div>

@@ -58,8 +58,9 @@ async function main() {
       code: 'TP_ON',
       name: 'TP ON',
       priceType: 'fixed' as const,
-      priceMxnCents: 0,
+      priceMxnCents: 99900, // $999 MXN
       billingCycle: 'monthly' as const,
+      stripePriceId: process.env.STRIPE_PRICE_TP_ON || 'price_test_tp_on',
       featuresJson: {
         features: ['Basic gym access', 'Standard equipment'],
         limits: { monthlyVisits: 30 }
@@ -69,8 +70,9 @@ async function main() {
       code: 'TP_PRO',
       name: 'TP PRO',
       priceType: 'fixed' as const,
-      priceMxnCents: 0,
+      priceMxnCents: 199900, // $1999 MXN
       billingCycle: 'monthly' as const,
+      stripePriceId: process.env.STRIPE_PRICE_TP_PRO || 'price_test_tp_pro',
       featuresJson: {
         features: ['Premium gym access', 'All equipment', 'Group classes'],
         limits: { monthlyVisits: -1 }
@@ -80,8 +82,9 @@ async function main() {
       code: 'TP_PLUS',
       name: 'TP+',
       priceType: 'custom' as const,
-      priceMxnCents: null,
-      billingCycle: 'custom' as const,
+      priceMxnCents: 299900, // $2999 MXN
+      billingCycle: 'monthly' as const,
+      stripePriceId: process.env.STRIPE_PRICE_TP_PLUS || 'price_test_tp_plus',
       featuresJson: {
         features: ['Custom plan', 'Personalized training', 'Nutrition consulting'],
         limits: { monthlyVisits: -1 }

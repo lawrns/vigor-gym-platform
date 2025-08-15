@@ -4,7 +4,7 @@ import type { NextRequest } from 'next/server';
 // Define route classifications explicitly
 const AUTH_ROUTES = ['/login', '/register'];
 const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/partner'];
-const PUBLIC_ROUTES = ['/', '/planes', '/checkout', '/checkout/success'];
+const PUBLIC_ROUTES = ['/', '/planes', '/checkout', '/checkout/success', '/demo', '/contacto'];
 
 function isAuthRoute(path: string): boolean {
   return AUTH_ROUTES.includes(path);

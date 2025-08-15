@@ -20,7 +20,17 @@ export type IconName =
   | 'Brackets'
   | 'GraduationCap'
   | 'Building2'
-  | 'Check';
+  | 'Check'
+  | 'Edit'
+  | 'Trash'
+  | 'ChevronLeft'
+  | 'ChevronRight'
+  | 'Plus'
+  | 'Search'
+  | 'Upload'
+  | 'X'
+  | 'AlertCircle'
+  | 'CheckCircle';
 
 type SvgProps = React.SVGProps<SVGSVGElement> & { title?: string };
 
@@ -190,6 +200,67 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <path d="M10 10h4" />
       <path d="M10 14h4" />
       <path d="M10 18h4" />
+    </Svg>
+  ),
+  Edit: (props) => (
+    <Svg {...props}>
+      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+      <path d="m18.5 2.5 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </Svg>
+  ),
+  Trash: (props) => (
+    <Svg {...props}>
+      <path d="M3 6h18" />
+      <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    </Svg>
+  ),
+  ChevronLeft: (props) => (
+    <Svg {...props}>
+      <path d="m15 18-6-6 6-6" />
+    </Svg>
+  ),
+  ChevronRight: (props) => (
+    <Svg {...props}>
+      <path d="m9 18 6-6-6-6" />
+    </Svg>
+  ),
+  Plus: (props) => (
+    <Svg {...props}>
+      <path d="M5 12h14" />
+      <path d="m12 5v14" />
+    </Svg>
+  ),
+  Search: (props) => (
+    <Svg {...props}>
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
+    </Svg>
+  ),
+  Upload: (props) => (
+    <Svg {...props}>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7,10 12,5 17,10" />
+      <line x1="12" x2="12" y1="5" y2="15" />
+    </Svg>
+  ),
+  X: (props) => (
+    <Svg {...props}>
+      <path d="m18 6-12 12" />
+      <path d="m6 6 12 12" />
+    </Svg>
+  ),
+  AlertCircle: (props) => (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" x2="12" y1="8" y2="12" />
+      <line x1="12" x2="12.01" y1="16" y2="16" />
+    </Svg>
+  ),
+  CheckCircle: (props) => (
+    <Svg {...props}>
+      <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+      <polyline points="22,4 12,14.01 9,11.01" />
     </Svg>
   )
 };

@@ -196,19 +196,35 @@ export const apiClient = {
     },
   },
 
+  // Billing
+  billing: {
+    createCheckoutSession: (planId: string) =>
+      api.post<{ provider: string; url: string; sessionId: string }>('/v1/billing/checkout/session', { planId }),
+    getSubscription: () =>
+      api.get<{ subscription: any }>('/v1/billing/subscription'),
+    cancelSubscription: () =>
+      api.post<{ message: string }>('/v1/billing/subscription/cancel', {}),
+    getInvoices: (params?: { limit?: number; offset?: number }) =>
+      api.get<{ invoices: any[]; total: number; limit: number; offset: number }>('/v1/billing/invoices', params),
+  },
+
   // Members
   members: {
-    list: (companyId: string, params?: { limit?: string; offset?: string }) =>
-      api.get<PaginatedResponse<Member>>('/v1/members', { companyId, ...params }),
-    
-    get: (id: string) => api.get<Member>(`/v1/members/${id}`),
-    
-    create: (data: CreateMemberRequest) =>
-      api.post<Member>('/v1/members', data),
-    
-    update: (id: string, data: UpdateMemberRequest) =>
-      api.patch<Member>(`/v1/members/${id}`, data),
+    list: (params?: { search?: string; page?: string; pageSize?: string; status?: string }) =>
+      api.get<{ members: any[]; pagination: any }>('/v1/members', params),
+    get: (id: string) =>
+      api.get<{ member: any }>(`/v1/members/${id}`),
+    create: (data: { email: string; firstName: string; lastName: string; status?: string }) =>
+      api.post<{ member: any }>('/v1/members', data),
+    update: (id: string, data: Partial<{ email: string; firstName: string; lastName: string; status: string }>) =>
+      api.patch<{ member: any }>(`/v1/members/${id}`, data),
+    delete: (id: string) =>
+      api.delete<{ message: string }>(`/v1/members/${id}`),
+    import: (data: { members: any[] }) =>
+      api.post<{ message: string; members: any[]; count: number }>('/v1/members/import', data),
   },
+
+
 
   // Companies
   companies: {

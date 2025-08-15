@@ -51,7 +51,7 @@ describe('Auth Routes', () => {
         });
 
       expect(response.status).toBe(401);
-      expect(response.body.message).toBe('Invalid email or password');
+      expect(response.body.message).toBe('Email o contraseña inválidos');
     });
 
     it('should return 400 for invalid email format', async () => {
