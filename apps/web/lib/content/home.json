@@ -1,0 +1,117 @@
+{
+  "hero": {
+    "left": {
+      "eyebrow": "+4,500 gimnasios • +250 salud mental",
+      "title": "Los mejores gimnasios, estudios y centros en un solo beneficio corporativo",
+      "subtitle": "Con una sola membresía mensual tus colaboradores acceden a la mejor red de gimnasios y clases.",
+      "ctas": [
+        { "label": "Únete ahora", "href": "/registro", "variant": "primary" },
+        { "label": "Ver planes", "href": "/planes", "variant": "ghost" }
+      ],
+      "appBadges": true,
+      "badges": [
+        { "icon": "ShieldCheck", "text": "CFDI 4.0 listo" },
+        { "icon": "CreditCard", "text": "Pagos Stripe/Mercado Pago" },
+        { "icon": "Smartphone", "text": "App iOS/Android" }
+      ]
+    },
+    "right": {
+      "media": "phone-mock",
+      "stats": [
+        { "label": "MRR", "value": "$—", "delta": "+—%" },
+        { "label": "Churn 30d", "value": "—%", "delta": "-—%" },
+        { "label": "Asist./miembro", "value": "—", "delta": "+—%" }
+      ]
+    }
+  },
+  "logoMarquee": {
+    "title": "Confiado por gimnasios innovadores",
+    "logos": ["/images/logo-1.png", "/images/logo-1.png", "/images/logo-1.png", "/images/logo-1.png", "/images/logo-1.png"]
+  },
+  "featureTriad": {
+    "intro": "Con un solo pago mensual, tus colaboradores tienen acceso a:",
+    "cards": [
+      {
+        "icon": "Dumbbell",
+        "title": "Training",
+        "desc": "Más de 4,500 espacios y 250 centros de bienestar a nivel nacional.",
+        "cta": { "label": "Saber más", "href": "/beneficios#training" }
+      },
+      {
+        "icon": "GraduationCap",
+        "title": "Clases",
+        "desc": "Reserva clases cerca de tu oficina o casa, con visibilidad de capacidad.",
+        "cta": { "label": "Saber más", "href": "/beneficios#clases" }
+      },
+      {
+        "icon": "Brain",
+        "title": "Wellness",
+        "desc": "Contenido y beneficios de salud mental incluidos en tu membresía.",
+        "cta": { "label": "Saber más", "href": "/beneficios#wellness" }
+      }
+    ]
+  },
+  "activityCarousel": {
+    "title": "Más de 250 actividades",
+    "items": [
+      { "label": "Hipertrofia", "image": "/images/activity-a.png" },
+      { "label": "Pilates", "image": "/images/activity-b.png" },
+      { "label": "Natación", "image": "/images/activity-c.png" },
+      { "label": "Circuit Training", "image": "/images/activity-a.png" }
+    ]
+  },
+  "appPromo": {
+    "title": "Todo en la palma de tu mano",
+    "subtitle": "Reserva, accede y gestiona tu membresía desde la app.",
+    "appBadges": true
+  },
+  "plans": {
+    "title": "Planes para colaboradores",
+    "tiers": [
+      { "name": "TP ON", "price": "$", "features": ["Activación simple", "Cobertura nacional", "Soporte por chat"], "cta": { "label": "Comenzar", "href": "/registro" } },
+      { "name": "TP PRO (Recomendado)", "price": "$$", "features": ["Beneficios ampliados", "Control por colaborador", "Reportes básicos"], "highlight": true, "cta": { "label": "Elegir PRO", "href": "/registro" } },
+      { "name": "TP+", "price": "$$$", "features": ["Integraciones", "Analítica avanzada", "Cuenta ejecutiva dedicada"], "cta": { "label": "Hablar con ventas", "href": "/contacto" } }
+    ]
+  },
+  "howItWorks": {
+    "title": "¿Cómo funciona Vigor?",
+    "steps": [
+      { "icon": "Building2", "title": "Activa tu empresa", "desc": "Configura membresías y políticas." },
+      { "icon": "Users", "title": "Invita a tu equipo", "desc": "Asignación y control por colaborador." },
+      { "icon": "Activity", "title": "Empieza a entrenar", "desc": "Reserva y entra con la app." }
+    ],
+    "cta": { "label": "Agendar demo", "href": "/demo" }
+  },
+  "cta": {
+    "title": "Comienza hoy",
+    "desc": "Activa tu prueba y configura membresías, clases y facturación en minutos.",
+    "cta": { "label": "Crear cuenta", "href": "/registro" },
+    "secondary": { "label": "Ver planes", "href": "/planes" }
+  },
+  "testimonials": {
+    "title": "¿Qué dicen de nosotros?",
+    "items": [
+      { "quote": "Reducimos el churn 25% y aumentamos asistencia con recordatorios y escaneos.", "author": "María López · Dueña de Sportía", "avatar": "/images/logo-1.png" },
+      { "quote": "CFDI y pagos integrados nos ahorran horas cada semana.", "author": "Carlos Pérez · Gerente en FuerzaFit", "avatar": "/images/logo-1.png" }
+    ]
+  },
+  "faq": {
+    "title": "Preguntas frecuentes",
+    "items": [
+      { "q": "¿Cómo facturan mensualmente?", "a": "Emitimos CFDI 4.0 con almacenamiento 5 años." },
+      { "q": "¿Qué métodos de pago aceptan?", "a": "Stripe, Mercado Pago, OXXO y SPEI." },
+      { "q": "¿Cómo funciona el control por colaborador?", "a": "Asignación, límites y reportes por empleado." },
+      { "q": "¿Cumplen con privacidad?", "a": "Consentimiento biométrico, cifrado y retención mínima; residencia de datos preferente en MX." }
+    ]
+  },
+  "footer": {
+    "columns": [
+      { "title": "Producto", "links": [["Panel", "/panel"], ["Miembros", "/miembros"], ["Escaneos", "/escaneos"], ["Facturación", "/facturacion"]] },
+      { "title": "Empresa", "links": [["Nosotros", "/about"], ["Contacto", "/contacto"], ["Términos", "/terminos"], ["Privacidad", "/privacidad"]] },
+      { "title": "Recursos", "links": [["Blog", "/blog"], ["Ayuda", "/help"], ["Estado", "/status"]] }
+    ],
+    "bottom": "© Vigor — Plataforma de gestión de gimnasios para México"
+  }
+}
+
+

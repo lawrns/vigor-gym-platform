@@ -1,0 +1,34 @@
+{
+  "$schema": "https://schema.primer/specs/ui-library.v1.json",
+  "components": [
+    {
+      "id": "navbar",
+      "base": "shadcn/navigation-menu",
+      "props": {"logo": "string", "links": "NavLink[]", "userRole": "role"},
+      "access": ["owner", "manager", "trainer", "staff", "member"],
+      "classNames": {"root": "bg-neutral-50 text-neutral-900 border-b border-neutral-200"},
+      "usedOnRoutes": ["/", "/dashboard", "/admin/members", "/scans", "/billing/invoices"],
+      "motion": {"enter": "fade-slide-down", "duration": "base"}
+    },
+    {
+      "id": "scan-progress-card",
+      "base": "shadcn/card",
+      "props": {"memberId": "uuid", "lastScanAt": "iso-datetime", "deltaFatPct": "number"},
+      "classNames": {"root": "shadow-card rounded-lg bg-white"},
+      "usedOnRoutes": ["/scans"],
+      "motion": {"enter": "pop", "duration": "fast"}
+    },
+    {
+      "id": "cfdi-invoice-form",
+      "base": "custom/form",
+      "props": {"rfc": "string", "usoCFDI": "enum", "regimenFiscal": "enum"},
+      "validation": {"rfc": "regex:^[A-Z&Ñ]{3,4}\\d{6}[A-Z0-9]{3}$"},
+      "classNames": {"root": "bg-neutral-50 p-4 rounded-md"},
+      "usedOnRoutes": ["/billing/invoices"]
+    }
+  ],
+  "motions": {
+    "fade-slide-down": {"initial": {"opacity": 0, "y": -8}, "animate": {"opacity": 1, "y": 0}},
+    "pop": {"initial": {"opacity": 0, "scale": 0.96}, "animate": {"opacity": 1, "scale": 1}}
+  }
+}

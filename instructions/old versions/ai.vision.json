@@ -1,0 +1,64 @@
+{
+  "$schema": "https://schema.primer/specs/ai-vision.v1.json",
+  "pipeline": {
+    "mode": "hybrid",
+    "steps": [
+      {"id": "consent-gate", "type": "guard", "requires": "member.consentBiometric == true"},
+      {"id": "capture", "type": "mobile-capture", "inputs": ["front", "side"], "compression": "hevc", "maxDurationSec": 10},
+      {"id": "upload", "type": "upload", "storage": "s3", "path": "body-scans/{memberId}/{scanId}"},
+      {"id": "enqueue", "type": "queue", "queue": "vision"},
+      {"id": "preprocess", "type": "image-preprocess", "ops": ["normalize", "resize"], "targetPx": 2048},
+      {"id": "pose", "type": "model", "modelId": "movenet", "device": "cpu", "outputs": ["keypoints"]},
+      {"id": "segmentation", "type": "model", "modelId": "mediapipe-body-seg", "outputs": ["mask"]},
+      {"id": "composition", "type": "model", "modelId": "composition-v1", "outputs": ["bodyFatPct", "leanMassKg", "waistCm", "hipCm"]},
+      {"id": "persist", "type": "db.update", "entity": "BodyScan", "fields": ["bodyFatPct", "leanMassKg", "waistCm", "hipCm", "processedAt"]},
+      {"id": "emit", "type": "event", "eventId": "vision.scan.processed"}
+    ]
+  },
+  "models": [
+    {"id": "movenet", "provider": "google", "version": "v2"},
+    {"id": "mediapipe-body-seg", "provider": "google", "version": "0.10"},
+    {"id": "composition-v1", "provider": "custom", "backend": "python", "version": "0.1"}
+  ],
+  "outputs": {
+    "entity": "BodyScan",
+    "mapping": {
+      "bodyFatPct": {"source": "composition.bodyFatPct", "type": "number", "precision": 1},
+      "leanMassKg": {"source": "composition.leanMassKg", "type": "number", "precision": 1},
+      "waistCm": {"source": "composition.waistCm", "type": "number", "precision": 1},
+      "hipCm": {"source": "composition.hipCm", "type": "number", "precision": 1},
+      "processedAt": {"source": "now", "type": "datetime"}
+    }
+  },
+  "privacy": {
+    "requireConsent": true,
+    "storeRawImages": false,
+    "retentionDaysRaw": 0,
+    "retentionDaysDerived": 1825,
+    "faceBlur": true,
+    "encryptAtRest": true
+  },
+  "storage": {
+    "type": "s3-compatible",
+    "bucket": "env:S3_BUCKET",
+    "endpoint": "env:S3_ENDPOINT",
+    "keyTemplate": "body-scans/{memberId}/{scanId}/{timestamp}.jpg",
+    "public": false
+  },
+  "deviceSupport": {
+    "minIOS": "15.0",
+    "minAndroid": "10",
+    "network": "wifi-or-5g",
+    "camera": "12MP+"
+  },
+  "rolesAllowedToOperate": ["member", "trainer"],
+  "localization": {
+    "consentCopy": {
+      "es-MX": "Autorizo el uso de mis datos biométricos para análisis corporal. Puedo retirar mi consentimiento en cualquier momento."
+    }
+  },
+  "analytics": {
+    "eventsEmitted": ["vision.scan.started", "vision.scan.completed"],
+    "properties": ["bodyFatPct", "leanMassKg", "waistCm", "hipCm"]
+  }
+}

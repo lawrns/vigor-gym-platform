@@ -1,0 +1,493 @@
+{
+  "meta": {
+    "project": "GymOS MX - Mexican Gym Management Platform",
+    "created": "2025-01-08",
+    "market": "Mexico (es-MX)",
+    "target_audience": "Gym owners, managers, fitness entrepreneurs",
+    "positioning": "AI-powered gym management with Mexican compliance"
+  },
+  "brand_names": [
+    {
+      "name": "FitTrack",
+      "pronunciation": "FIT-trak",
+      "length": 8,
+      "memorability": 9,
+      "pronounceability": 9,
+      "category_fit": 9,
+      "distinctiveness": 8,
+      "total_score": 43,
+      "rationale": "Combines 'Fit' (universal fitness term) with 'Track' (monitoring/analytics). Easy to pronounce in Spanish, no negative connotations.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative domains available"
+      },
+      "social_handles": {
+        "instagram": "@fittrack_mx",
+        "twitter": "@FitTrackMX",
+        "tiktok": "@fittrack.mx"
+      },
+      "trademark_risk": "Medium - common fitness terms"
+    },
+    {
+      "name": "GymFlow",
+      "pronunciation": "YIM-flow",
+      "length": 7,
+      "memorability": 8,
+      "pronounceability": 9,
+      "category_fit": 9,
+      "distinctiveness": 8,
+      "total_score": 42,
+      "rationale": "Suggests smooth operations and workflow management. 'Flow' translates well to Spanish concept of flujo.",
+      "domain_availability": {
+        "com": "Check required",
+        "mx": "Likely available",
+        "status": "Good availability prospects"
+      },
+      "social_handles": {
+        "instagram": "@gymflow_mx",
+        "twitter": "@GymFlowMX",
+        "tiktok": "@gymflow.mexico"
+      },
+      "trademark_risk": "Low - unique combination"
+    },
+    {
+      "name": "Fitero",
+      "pronunciation": "fi-TE-ro",
+      "length": 6,
+      "memorability": 8,
+      "pronounceability": 10,
+      "category_fit": 8,
+      "distinctiveness": 9,
+      "total_score": 43,
+      "rationale": "Spanish-sounding name combining 'Fit' with Spanish suffix '-ero' (like 'compañero'). Natural for Mexican speakers.",
+      "domain_availability": {
+        "com": "Likely available",
+        "mx": "High availability",
+        "status": "Excellent prospects"
+      },
+      "social_handles": {
+        "instagram": "@fitero_oficial",
+        "twitter": "@FiteroMX",
+        "tiktok": "@fitero.mx"
+      },
+      "trademark_risk": "Low - invented name"
+    },
+    {
+      "name": "Gimnex",
+      "pronunciation": "YIM-neks",
+      "length": 6,
+      "memorability": 8,
+      "pronounceability": 9,
+      "category_fit": 9,
+      "distinctiveness": 9,
+      "total_score": 43,
+      "rationale": "Combines 'Gimn' (from gimnasio) with 'ex' (excellence/experience). Tech-sounding with Spanish roots.",
+      "domain_availability": {
+        "com": "Check required",
+        "mx": "Likely available",
+        "status": "Good prospects"
+      },
+      "social_handles": {
+        "instagram": "@gimnex_mx",
+        "twitter": "@GimnexMX",
+        "tiktok": "@gimnex.oficial"
+      },
+      "trademark_risk": "Low - unique combination"
+    },
+    {
+      "name": "Pulso",
+      "pronunciation": "PUL-so",
+      "length": 5,
+      "memorability": 9,
+      "pronounceability": 10,
+      "category_fit": 8,
+      "distinctiveness": 8,
+      "total_score": 43,
+      "rationale": "Spanish word meaning 'pulse' - suggests vitality, monitoring, and life. Short, memorable, perfect pronunciation.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative TLDs available"
+      },
+      "social_handles": {
+        "instagram": "@pulso_gym",
+        "twitter": "@PulsoGym",
+        "tiktok": "@pulso.fitness"
+      },
+      "trademark_risk": "Medium - common Spanish word"
+    },
+    {
+      "name": "Nexfit",
+      "pronunciation": "NEKS-fit",
+      "length": 6,
+      "memorability": 8,
+      "pronounceability": 9,
+      "category_fit": 9,
+      "distinctiveness": 8,
+      "total_score": 42,
+      "rationale": "Combines 'Next' concept with 'Fit'. Suggests next-generation fitness technology. Easy to pronounce.",
+      "domain_availability": {
+        "com": "Check required",
+        "mx": "Likely available",
+        "status": "Good prospects"
+      },
+      "social_handles": {
+        "instagram": "@nexfit_mx",
+        "twitter": "@NexfitMX",
+        "tiktok": "@nexfit.mexico"
+      },
+      "trademark_risk": "Low - unique combination"
+    },
+    {
+      "name": "Vitalis",
+      "pronunciation": "vi-TA-lis",
+      "length": 7,
+      "memorability": 8,
+      "pronounceability": 10,
+      "category_fit": 8,
+      "distinctiveness": 8,
+      "total_score": 42,
+      "rationale": "Latin-derived name meaning 'vital/life force'. Sophisticated, easy to pronounce in Spanish, suggests health and vitality.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative domains available"
+      },
+      "social_handles": {
+        "instagram": "@vitalis_gym",
+        "twitter": "@VitalisMX",
+        "tiktok": "@vitalis.fitness"
+      },
+      "trademark_risk": "Medium - may conflict with supplements"
+    },
+    {
+      "name": "Forza",
+      "pronunciation": "FOR-sa",
+      "length": 5,
+      "memorability": 9,
+      "pronounceability": 10,
+      "category_fit": 9,
+      "distinctiveness": 7,
+      "total_score": 43,
+      "rationale": "Italian/Spanish word meaning 'strength/force'. Short, powerful, easy to remember and pronounce.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "May need creative TLD"
+      },
+      "social_handles": {
+        "instagram": "@forza_gym",
+        "twitter": "@ForzaGym",
+        "tiktok": "@forza.fitness"
+      },
+      "trademark_risk": "High - used by Microsoft (Forza racing)"
+    },
+    {
+      "name": "Activo",
+      "pronunciation": "ak-TI-vo",
+      "length": 6,
+      "memorability": 8,
+      "pronounceability": 10,
+      "category_fit": 9,
+      "distinctiveness": 7,
+      "total_score": 42,
+      "rationale": "Spanish word meaning 'active'. Perfect fit for fitness industry, natural pronunciation, positive connotations.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative TLDs needed"
+      },
+      "social_handles": {
+        "instagram": "@activo_gym",
+        "twitter": "@ActivoMX",
+        "tiktok": "@activo.fitness"
+      },
+      "trademark_risk": "Medium - common Spanish word"
+    },
+    {
+      "name": "Zenfit",
+      "pronunciation": "SEN-fit",
+      "length": 6,
+      "memorability": 8,
+      "pronounceability": 9,
+      "category_fit": 8,
+      "distinctiveness": 8,
+      "total_score": 41,
+      "rationale": "Combines 'Zen' (balance/mindfulness) with 'Fit'. Suggests holistic approach to fitness management.",
+      "domain_availability": {
+        "com": "Check required",
+        "mx": "Likely available",
+        "status": "Good prospects"
+      },
+      "social_handles": {
+        "instagram": "@zenfit_mx",
+        "twitter": "@ZenfitMX",
+        "tiktok": "@zenfit.mexico"
+      },
+      "trademark_risk": "Low - unique combination"
+    },
+    {
+      "name": "Impulso",
+      "pronunciation": "im-PUL-so",
+      "length": 7,
+      "memorability": 8,
+      "pronounceability": 10,
+      "category_fit": 8,
+      "distinctiveness": 8,
+      "total_score": 42,
+      "rationale": "Spanish word meaning 'impulse/drive'. Suggests motivation and forward movement. Natural for Spanish speakers.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative domains available"
+      },
+      "social_handles": {
+        "instagram": "@impulso_gym",
+        "twitter": "@ImpulsoMX",
+        "tiktok": "@impulso.fitness"
+      },
+      "trademark_risk": "Medium - common Spanish word"
+    },
+    {
+      "name": "Flexo",
+      "pronunciation": "FLEK-so",
+      "length": 5,
+      "memorability": 8,
+      "pronounceability": 10,
+      "category_fit": 8,
+      "distinctiveness": 8,
+      "total_score": 42,
+      "rationale": "Short, catchy name suggesting flexibility and adaptability. Easy to pronounce, tech-friendly sound.",
+      "domain_availability": {
+        "com": "Check required",
+        "mx": "Likely available",
+        "status": "Good prospects"
+      },
+      "social_handles": {
+        "instagram": "@flexo_gym",
+        "twitter": "@FlexoMX",
+        "tiktok": "@flexo.fitness"
+      },
+      "trademark_risk": "Low - unique in fitness context"
+    },
+    {
+      "name": "Ritmo",
+      "pronunciation": "RIT-mo",
+      "length": 5,
+      "memorability": 9,
+      "pronounceability": 10,
+      "category_fit": 8,
+      "distinctiveness": 8,
+      "total_score": 43,
+      "rationale": "Spanish word meaning 'rhythm'. Suggests consistency, flow, and musical connection to fitness.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative domains available"
+      },
+      "social_handles": {
+        "instagram": "@ritmo_gym",
+        "twitter": "@RitmoMX",
+        "tiktok": "@ritmo.fitness"
+      },
+      "trademark_risk": "Medium - common Spanish word"
+    },
+    {
+      "name": "Dynamo",
+      "pronunciation": "DI-na-mo",
+      "length": 6,
+      "memorability": 8,
+      "pronounceability": 9,
+      "category_fit": 8,
+      "distinctiveness": 8,
+      "total_score": 41,
+      "rationale": "Suggests energy, power, and dynamic movement. International recognition with Spanish pronunciation.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative TLDs needed"
+      },
+      "social_handles": {
+        "instagram": "@dynamo_gym",
+        "twitter": "@DynamoMX",
+        "tiktok": "@dynamo.fitness"
+      },
+      "trademark_risk": "High - used by sports teams"
+    },
+    {
+      "name": "Elevate",
+      "pronunciation": "e-le-VEIT",
+      "length": 7,
+      "memorability": 8,
+      "pronounceability": 8,
+      "category_fit": 9,
+      "distinctiveness": 7,
+      "total_score": 40,
+      "rationale": "English word meaning 'to lift up'. Suggests improvement and growth. Moderate pronunciation difficulty in Spanish.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative domains needed"
+      },
+      "social_handles": {
+        "instagram": "@elevate_mx",
+        "twitter": "@ElevateMX",
+        "tiktok": "@elevate.mexico"
+      },
+      "trademark_risk": "High - common business term"
+    },
+    {
+      "name": "Vigor",
+      "pronunciation": "vi-GOR",
+      "length": 5,
+      "memorability": 9,
+      "pronounceability": 10,
+      "category_fit": 9,
+      "distinctiveness": 8,
+      "total_score": 44,
+      "rationale": "Spanish/English word meaning 'strength/energy'. Perfect pronunciation, strong fitness association, memorable.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative domains available"
+      },
+      "social_handles": {
+        "instagram": "@vigor_gym",
+        "twitter": "@VigorMX",
+        "tiktok": "@vigor.fitness"
+      },
+      "trademark_risk": "Medium - common word in fitness"
+    },
+    {
+      "name": "Motiva",
+      "pronunciation": "mo-TI-va",
+      "length": 6,
+      "memorability": 8,
+      "pronounceability": 10,
+      "category_fit": 8,
+      "distinctiveness": 8,
+      "total_score": 42,
+      "rationale": "Spanish word meaning 'motivate'. Suggests inspiration and drive. Natural for Spanish speakers.",
+      "domain_availability": {
+        "com": "Check required",
+        "mx": "Likely available",
+        "status": "Good prospects"
+      },
+      "social_handles": {
+        "instagram": "@motiva_gym",
+        "twitter": "@MotivaMX",
+        "tiktok": "@motiva.fitness"
+      },
+      "trademark_risk": "Low - unique in fitness context"
+    },
+    {
+      "name": "Fuerza",
+      "pronunciation": "FUER-sa",
+      "length": 6,
+      "memorability": 9,
+      "pronounceability": 10,
+      "category_fit": 10,
+      "distinctiveness": 7,
+      "total_score": 44,
+      "rationale": "Spanish word meaning 'strength/force'. Perfect fitness association, natural pronunciation, powerful meaning.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative domains available"
+      },
+      "social_handles": {
+        "instagram": "@fuerza_gym",
+        "twitter": "@FuerzaMX",
+        "tiktok": "@fuerza.fitness"
+      },
+      "trademark_risk": "Medium - common Spanish word"
+    },
+    {
+      "name": "Optimo",
+      "pronunciation": "OP-ti-mo",
+      "length": 6,
+      "memorability": 8,
+      "pronounceability": 10,
+      "category_fit": 8,
+      "distinctiveness": 8,
+      "total_score": 42,
+      "rationale": "Spanish word meaning 'optimal'. Suggests best performance and efficiency. Tech-friendly sound.",
+      "domain_availability": {
+        "com": "Check required",
+        "mx": "Likely available",
+        "status": "Good prospects"
+      },
+      "social_handles": {
+        "instagram": "@optimo_gym",
+        "twitter": "@OptimoMX",
+        "tiktok": "@optimo.fitness"
+      },
+      "trademark_risk": "Low - unique in fitness context"
+    },
+    {
+      "name": "Energia",
+      "pronunciation": "e-ner-HI-a",
+      "length": 7,
+      "memorability": 8,
+      "pronounceability": 10,
+      "category_fit": 9,
+      "distinctiveness": 7,
+      "total_score": 42,
+      "rationale": "Spanish word meaning 'energy'. Perfect fitness association, natural pronunciation, positive connotations.",
+      "domain_availability": {
+        "com": "Likely taken",
+        "mx": "Check required",
+        "status": "Alternative domains available"
+      },
+      "social_handles": {
+        "instagram": "@energia_gym",
+        "twitter": "@EnergiaMX",
+        "tiktok": "@energia.fitness"
+      },
+      "trademark_risk": "Medium - common Spanish word"
+    }
+  ],
+  "top_5_recommendations": [
+    {
+      "rank": 1,
+      "name": "Vigor",
+      "score": 44,
+      "rationale": "Highest scoring name with perfect pronunciation, strong fitness association, and memorable 5-letter length. Works in both Spanish and English markets."
+    },
+    {
+      "rank": 2,
+      "name": "Fuerza",
+      "score": 44,
+      "rationale": "Tied for highest score. Pure Spanish word meaning 'strength' - perfect category fit and natural for Mexican market. Strong brand positioning potential."
+    },
+    {
+      "rank": 3,
+      "name": "FitTrack",
+      "score": 43,
+      "rationale": "Strong tech positioning with clear fitness connection. Easy to pronounce and remember. Good for international expansion."
+    },
+    {
+      "rank": 4,
+      "name": "Fitero",
+      "score": 43,
+      "rationale": "Unique invented name with Spanish feel. Excellent domain availability prospects and low trademark risk. Distinctive in market."
+    },
+    {
+      "rank": 5,
+      "name": "Ritmo",
+      "score": 43,
+      "rationale": "Spanish word meaning 'rhythm' - suggests consistency and flow. Short, memorable, and perfect pronunciation for Mexican market."
+    }
+  ],
+  "availability_check_methodology": "Domain availability assessed through general market knowledge and common patterns. Actual availability requires real-time DNS lookup and registrar verification. Social handle availability estimated based on naming patterns and platform conventions.",
+  "trademark_disclaimer": "Trademark risk assessment is preliminary and based on general knowledge. Professional trademark search and legal consultation required before final selection.",
+  "recommended_next_steps": [
+    "Conduct real-time domain availability checks for top 5 names",
+    "Perform comprehensive trademark searches in Mexico and key markets",
+    "Test pronunciation and memorability with Mexican focus groups",
+    "Verify social media handle availability across all platforms",
+    "Assess cultural connotations and potential negative associations"
+  ]
+}
+

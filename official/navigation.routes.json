@@ -1,0 +1,26 @@
+{
+  "$schema": "https://schema.primer/specs/routes.v1.json",
+  "web": {
+    "public": ["/", "/login", "/register"],
+    "protected": [
+      {"path": "/dashboard", "roles": ["owner", "manager", "trainer", "staff", "member"], "layout": "root-layout", "components": ["navbar"]},
+      {"path": "/admin/members", "roles": ["owner", "manager", "staff"], "layout": "admin-layout", "components": ["navbar"]},
+      {"path": "/scans", "roles": ["member", "trainer", "manager"], "layout": "root-layout", "components": ["navbar", "scan-progress-card"]},
+      {"path": "/billing/invoices", "roles": ["owner", "manager"], "layout": "admin-layout", "components": ["navbar", "cfdi-invoice-form"]}
+    ],
+    "layouts": {"root": "root-layout", "admin": "admin-layout"}
+  },
+  "mobile": {
+    "tabs": [
+      {"id": "home", "icon": "home", "routes": ["/home"]},
+      {"id": "classes", "icon": "calendar", "routes": ["/classes"]},
+      {"id": "scan", "icon": "camera", "routes": ["/scan"]},
+      {"id": "profile", "icon": "user", "routes": ["/profile"]}
+    ],
+    "stacks": [{"id": "auth", "routes": ["/login", "/register", "/forgot-password"]}]
+  },
+  "guards": {
+    "auth": {"strategy": "jwt", "redirectUnauthed": "/login"},
+    "rbac": {"roles": ["owner", "manager", "trainer", "staff", "member", "superadmin"]}
+  }
+}

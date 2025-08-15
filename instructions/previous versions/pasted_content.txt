@@ -1,0 +1,86 @@
+Prompt Title:
+Dominating the Mexican Gym Software Market with AI-Driven Innovation
+
+Objective:
+I want to design, launch, and scale the ultimate gym management and engagement software for all gyms in Mexico, aiming for market dominance. The solution must outperform existing competitors on features, pricing, and technological innovation — especially through AI-powered capabilities.
+
+Key Research Areas:
+1. Competitive Landscape & Differentiation
+Identify and analyze all major gym software currently operating in Mexico (e.g., Zenoti, Mindbody, GymMaster, local players).
+
+List their core features, strengths, weaknesses, and price points.
+
+Highlight the gaps or underserved needs in the Mexican market that we can exploit.
+
+2. Core Features for Market Leadership
+Gym owner tools: membership management, billing, scheduling, staff management, CRM, reporting.
+
+Gym-goer tools: class booking, progress tracking, gamification, workout plans, nutrition tracking.
+
+AI-powered innovations:
+
+Vision AI (on-premise & in-app) for body scanning, progress tracking, and gain/loss visualizations.
+
+Personalized workout and diet recommendations.
+
+Predictive analytics for churn prevention and upselling.
+
+3. Hardware & Deployment Options
+Evaluate whether body scan feature should be a kiosk/device in every gym vs. entirely in the mobile app.
+
+Assess cost, maintenance, and ease of rollout for each option.
+
+4. Pricing Model & Revenue Strategy
+Recommend ideal pricing tiers for gyms (per-location, per-active-member, or revenue-share).
+
+Determine sweet spots for small gyms, mid-size gyms, and large chains in Mexico.
+
+Suggest upsells (AI scanning, nutrition coaching, marketing services).
+
+5. AI Infrastructure & Implementation
+Propose architecture for vision model hosting (edge devices vs. centralized servers) to serve thousands of gyms.
+
+Suggest models and datasets for accurate body measurement & composition analysis.
+
+Explore partnerships with local ISPs or cloud providers for low-latency AI service.
+
+6. Go-to-Market Strategy for Mexico
+Identify early adopter segments (premium gyms, chains, boutique studios, low-cost gyms).
+
+Recommend sales strategy and marketing campaigns to quickly penetrate the market.
+
+Explore white-label partnerships for gym chains.
+
+7. Regulatory & Data Compliance
+Summarize Mexican regulations on biometric data, AI data storage, and consumer privacy.
+
+Recommend compliance steps to avoid legal and operational risks.
+
+8. Global Best Practices & Adaptation for Mexico
+Identify top global gym software leaders (e.g., Mindbody, ABC Fitness Solutions, Trainerize, Glofox, Perfect Gym, EGYM).
+
+List their most successful features, innovations, and integrations.
+
+Highlight emerging fitness tech trends worldwide (AI coaches, VR training, wearables integration, social fitness communities).
+
+Suggest how to adapt or improve these innovations for the Mexican market’s cultural, economic, and technological context.
+
+Include examples of gym software AI integrations from other countries and their impact on retention and revenue.
+
+Output Format:
+Provide findings in a structured format with:
+
+Competitor Comparison Table (Mexico + Global Leaders)
+
+Feature Roadmap (core + differentiators)
+
+Pricing Table with reasoning
+
+Technical Deployment Architecture Diagram
+
+Go-to-Market Playbook for first 12 months
+
+Regulatory Checklist
+
+Global-to-Mexico Adaptation Recommendations
+

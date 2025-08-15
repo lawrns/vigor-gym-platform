@@ -1,0 +1,23 @@
+{
+  "name": "vigor-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=18.17.0"
+  },
+  "scripts": {
+    "build": "npm run build -w @vigor/api && npm run build -w @vigor/web && npm run build -w @vigor/mobile",
+    "dev": "PORT=4001 npm run dev -w @vigor/api & npm run dev -w @vigor/web",
+    "typecheck": "npm -ws run typecheck",
+    "lint": "echo 'No lint configured'",
+    "lint:unsplash": "grep -R --line-number --color=never 'images.unsplash.com' apps || true",
+    "smoke": "bash ./.scripts/smoke.sh"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
+  }
+}

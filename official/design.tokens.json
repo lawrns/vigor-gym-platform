@@ -1,0 +1,73 @@
+{
+  "$schema": "https://schema.primer/specs/design-tokens.v1.json",
+  "brand": {"name": "Vigor", "locale": "es-MX"},
+  "color": {
+    "primary": {"500": "#1E5BFF", "600": "#174BCC", "700": "#123A99"},
+    "secondary": {"500": "#3B82F6"},
+    "accent": {"500": "#00C6A2", "600": "#009E81"},
+    "neutral": {"50": "#FFFFFF", "100": "#F8F9FB", "200": "#F2F4F8", "900": "#0B0F19"},
+    "success": {"500": "#10B981"},
+    "warning": {"500": "#F59E0B"},
+    "danger": {"500": "#EF4444"},
+    "semantic": {
+      "bg.default": "#FFFFFF",
+      "bg.soft": "#F8F9FB",
+      "surface.default": "#F8F9FB",
+      "surface.alt": "#F2F4F8",
+      "text.default": "#0B0F19",
+      "text.muted": "#4B5563",
+      "heading": "#0B0F19",
+      "primary": "#1E5BFF",
+      "primary.emph": "#174BCC",
+      "secondary": "#3B82F6",
+      "accent": "#00C6A2",
+      "outline": "rgba(17,24,39,.12)",
+      "success": "#22C55E",
+      "warning": "#F59E0B",
+      "danger": "#EF4444"
+    }
+  },
+  "typography": {
+    "fontFamily": {"sans": "Inter, ui-sans-serif", "display": "Sora, ui-sans-serif"},
+    "family.display": "Sora",
+    "family.sans": "Inter",
+    "scale": {"xs": 12, "sm": 14, "base": 16, "lg": 18, "xl": 20, "2xl": 24, "3xl": 30, "4xl": 36, "5xl": 48, "6xl": 60},
+    "leading": {"tight": 1.1, "snug": 1.25, "normal": 1.5}
+  },
+  "radius": {"xs": 8, "sm": 12, "md": 16, "lg": 20, "xl": 28, "full": 999},
+  "shadow": {"card": "0 4px 14px rgba(0,0,0,.06)", "elevated": "0 8px 24px rgba(0,0,0,.10)", "soft": "0 4px 14px rgba(0,0,0,.06)", "glow.primary": "0 0 0 4px rgba(0,179,134,.18)"},
+  "motion": {
+    "duration": {"fast": 120, "base": 240, "slow": 420},
+    "easing": {"standard": [0.2, 0.8, 0.2, 1], "emph": [0.16, 1, 0.3, 1]}
+  },
+  "color.gradient": {
+    "hero.primary": "linear-gradient(135deg, #E9F0FF 0%, #F8FBFF 50%, #EAF7FF 100%)",
+    "accent.rainbow": "linear-gradient(90deg, #00C6A2 0%, #13A0F6 45%, #F59E0B 100%)",
+    "glass.stroke": "linear-gradient(180deg, rgba(255,255,255,.18), rgba(255,255,255,.04))"
+  },
+  "cta": {
+    "primary": {"bg": "{color.primary.500}", "text": "#FFFFFF", "hover": "{color.primary.600}"},
+    "secondary": {"bg": "#E0E7FF", "text": "{color.primary.500}", "hover": "#C7D2FE"}
+  },
+  "dark": {
+    "semantic": {
+      "bg.default": "#0A0F0D",
+      "surface.default": "#0F1513",
+      "text.default": "#E7F3EE",
+      "text.muted": "#94A3A7",
+      "primary": "#1E5BFF"
+    }
+  }
+  "fx": {
+    "glass.bg": "rgba(255,255,255,0.04)",
+    "glass.border": "rgba(255,255,255,0.12)",
+    "glow.primary": "0 0 32px rgba(0,198,162,.25)",
+    "borderGradientWidth": 1
+  },
+  "shape": { "blobRadius": 420, "sectionCurve": 48 },
+  "motion.extras": {
+    "spring": { "stiffness": 260, "damping": 22 },
+    "parallax": { "maxTranslate": 18 }
+  },
+  "shadcn": {"preset": "new-york", "border": "neutral-200", "background": "neutral-50", "foreground": "neutral-900"}
+}

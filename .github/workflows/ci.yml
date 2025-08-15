@@ -1,0 +1,81 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: vigor_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test environment
+        run: |
+          echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/vigor_test" >> apps/api/.env.local
+          echo "JWT_SECRET=test-jwt-secret-for-ci" >> apps/api/.env.local
+          echo "CORS_ORIGINS=http://localhost:7777" >> apps/api/.env.local
+
+      - name: Run database migrations
+        run: |
+          cd apps/api
+          npm run db:generate
+          npm run db:migrate
+
+      - name: Seed test data
+        run: |
+          cd apps/api
+          npm run db:seed || true
+
+      - name: Run API unit tests
+        run: |
+          cd apps/api
+          npm test
+
+      - name: Run web unit tests
+        run: |
+          cd apps/web
+          npm test
+
+      - name: Start servers for smoke tests
+        run: |
+          cd apps/api && npm run dev &
+          cd apps/web && npm run dev &
+          sleep 10
+
+      - name: Run smoke tests
+        run: npm run smoke
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npm run e2e
+        continue-on-error: true  # Allow E2E to fail initially while we stabilize

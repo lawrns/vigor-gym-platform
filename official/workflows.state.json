@@ -1,0 +1,53 @@
+{
+  "$schema": "https://schema.primer/specs/workflows-state.v1.json",
+  "events": [
+    {"id": "member.created", "source": "api", "payload": {"memberId": "uuid"}, "triggers": ["journey.welcome-email"]},
+    {"id": "class.booking.created", "source": "api", "payload": {"bookingId": "uuid", "memberId": "uuid", "classId": "uuid"}, "triggers": ["notification.class-reminder"]},
+    {"id": "invoice.created", "source": "api", "payload": {"invoiceId": "uuid"}, "triggers": ["billing.cfdi.issue"]},
+    {"id": "billing.cfdi.issued", "source": "worker", "payload": {"invoiceId": "uuid"}},
+    {"id": "payment.succeeded", "source": "webhook", "payload": {"invoiceId": "uuid"}},
+    {"id": "payment.failed_final", "source": "webhook", "payload": {"invoiceId": "uuid"}},
+    {"id": "invoice.due", "source": "cron", "payload": {"invoiceId": "uuid"}, "triggers": ["billing.payment-reminder"]},
+    {"id": "body-scan.created", "source": "api", "payload": {"scanId": "uuid", "memberId": "uuid"}, "triggers": ["vision.process-scan"]},
+    {"id": "vision.scan.processed", "source": "worker", "payload": {"scanId": "uuid"}, "triggers": ["analytics.track.vision.scan.completed"]},
+    {"id": "ml.churn.scored", "source": "worker", "payload": {"memberId": "uuid", "score": "number", "tier": "string"}, "triggers": ["analytics.track.ml.churn.scored"]}
+  ],
+  "crons": [
+    {"id": "cron.class-reminders", "schedule": "*/15 * * * *", "action": "notification.class-reminder"},
+    {"id": "cron.churn-risk-daily", "schedule": "0 6 * * *", "action": "ml.churn.score"},
+    {"id": "cron.invoice-dunning", "schedule": "0 9 * * *", "action": "billing.dunning"}
+  ],
+  "machines": [
+    {
+      "id": "vision.processing",
+      "entity": "BodyScan",
+      "states": ["created", "processing", "processed"],
+      "transitions": [
+        {"from": "created", "to": "processing", "on": "body-scan.created"},
+        {"from": "processing", "to": "processed", "on": "vision.scan.processed"}
+      ],
+      "doneWhen": "processedAt != null"
+    },
+    {
+      "id": "invoice.lifecycle",
+      "entity": "Invoice",
+      "states": ["draft", "sent", "paid", "void"],
+      "transitions": [
+        {"from": "draft", "to": "sent", "on": "billing.cfdi.issued"},
+        {"from": "sent", "to": "paid", "on": "payment.succeeded"},
+        {"from": "sent", "to": "void", "on": "payment.failed_final"}
+      ]
+    }
+  ],
+  "actions": [
+    {"id": "vision.process-scan", "type": "queue", "queue": "vision", "payload": {"scanId": "uuid"}},
+    {"id": "analytics.track.vision.scan.completed", "type": "analytics", "event": "vision.scan.completed"},
+    {"id": "analytics.track.ml.churn.scored", "type": "analytics", "event": "ml.churn.scored"},
+    {"id": "billing.cfdi.issue", "type": "function", "function": "cfdi.issue"},
+    {"id": "billing.payment-reminder", "type": "function", "function": "billing.sendReminder"},
+    {"id": "ml.churn.score", "type": "function", "function": "ml.churnScore"},
+    {"id": "billing.dunning", "type": "function", "function": "billing.dunning"},
+    {"id": "notification.class-reminder", "type": "function", "function": "notify.classReminder"},
+    {"id": "journey.welcome-email", "type": "function", "function": "notify.welcomeEmail"}
+  ]
+}

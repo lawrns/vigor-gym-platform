@@ -1,0 +1,1420 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Vigor - Gym Management API",
+    "version": "1.0.0",
+    "description": "AI-powered gym management platform for Mexico"
+  },
+  "servers": [
+    {"url": "https://api.vigor.mx/v1", "description": "Production"},
+    {"url": "https://staging-api.vigor.mx/v1", "description": "Staging"}
+  ],
+  "security": [{"bearerAuth": []}],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "operationId": "login",
+        "summary": "Authenticate user",
+        "tags": ["Authentication"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/LoginInput"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AuthResponse"}
+              }
+            }
+          },
+          "401": {"$ref": "#/components/responses/Unauthorized"}
+        }
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "operationId": "refreshToken",
+        "summary": "Refresh access token",
+        "tags": ["Authentication"],
+        "responses": {
+          "200": {
+            "description": "Token refreshed",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/AuthResponse"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/gyms": {
+      "get": {
+        "operationId": "listGyms",
+        "summary": "List gyms (admin only)",
+        "tags": ["Gyms"],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Gym"}
+                }
+              }
+            }
+          }
+        },
+        "x-roles": ["superadmin"],
+        "x-entity": "Gym"
+      },
+      "post": {
+        "operationId": "createGym",
+        "summary": "Create gym",
+        "tags": ["Gyms"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateGymInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Gym"}
+              }
+            }
+          }
+        },
+        "x-roles": ["superadmin"],
+        "x-entity": "Gym"
+      }
+    },
+    "/gyms/{id}": {
+      "get": {
+        "operationId": "getGym",
+        "summary": "Get gym details",
+        "tags": ["Gyms"],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Gym"}
+              }
+            }
+          },
+          "404": {"$ref": "#/components/responses/NotFound"}
+        },
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Gym"
+      },
+      "patch": {
+        "operationId": "updateGym",
+        "summary": "Update gym",
+        "tags": ["Gyms"],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/UpdateGymInput"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Gym"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner"],
+        "x-entity": "Gym"
+      }
+    },
+    "/plans": {
+      "get": {
+        "operationId": "listPlans",
+        "summary": "List membership plans",
+        "tags": ["Plans"],
+        "parameters": [
+          {"name": "gymId", "in": "query", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Plan"}
+                }
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "staff", "member"],
+        "x-entity": "Plan"
+      },
+      "post": {
+        "operationId": "createPlan",
+        "summary": "Create membership plan",
+        "tags": ["Plans"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreatePlanInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Plan"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Plan"
+      }
+    },
+    "/subscriptions": {
+      "get": {
+        "operationId": "listSubscriptions",
+        "summary": "List subscriptions",
+        "tags": ["Subscriptions"],
+        "parameters": [
+          {"name": "gymId", "in": "query", "schema": {"type": "string", "format": "uuid"}},
+          {"name": "memberId", "in": "query", "schema": {"type": "string", "format": "uuid"}},
+          {"name": "status", "in": "query", "schema": {"$ref": "#/components/schemas/SubscriptionStatus"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Subscription"}
+                }
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "member"],
+        "x-entity": "Subscription"
+      },
+      "post": {
+        "operationId": "createSubscription",
+        "summary": "Create subscription",
+        "tags": ["Subscriptions"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateSubscriptionInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Subscription"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "staff"],
+        "x-entity": "Subscription"
+      }
+    },
+    "/subscriptions/{id}": {
+      "get": {
+        "operationId": "getSubscription",
+        "summary": "Get subscription",
+        "tags": ["Subscriptions"],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Subscription"}
+              }
+            }
+          },
+          "404": {"$ref": "#/components/responses/NotFound"}
+        },
+        "x-roles": ["owner", "manager", "member"],
+        "x-entity": "Subscription"
+      },
+      "patch": {
+        "operationId": "updateSubscription",
+        "summary": "Update subscription",
+        "tags": ["Subscriptions"],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/UpdateSubscriptionInput"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Subscription"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Subscription"
+      }
+    },
+    "/subscriptions/{id}/cancel": {
+      "post": {
+        "operationId": "cancelSubscription",
+        "summary": "Cancel subscription",
+        "tags": ["Subscriptions"],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Subscription"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "member"],
+        "x-entity": "Subscription"
+      }
+    },
+    "/payment-methods": {
+      "get": {
+        "operationId": "listPaymentMethods",
+        "summary": "List payment methods",
+        "tags": ["Payments"],
+        "parameters": [
+          {"name": "memberId", "in": "query", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/PaymentMethod"}
+                }
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "member"],
+        "x-entity": "PaymentMethod"
+      },
+      "post": {
+        "operationId": "createPaymentMethod",
+        "summary": "Add payment method",
+        "tags": ["Payments"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreatePaymentMethodInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/PaymentMethod"}
+              }
+            }
+          }
+        },
+        "x-roles": ["member"],
+        "x-entity": "PaymentMethod"
+      }
+    },
+    "/referrals": {
+      "get": {
+        "operationId": "listReferrals",
+        "summary": "List referrals",
+        "tags": ["Referrals"],
+        "parameters": [
+          {"name": "gymId", "in": "query", "schema": {"type": "string", "format": "uuid"}},
+          {"name": "referrerId", "in": "query", "schema": {"type": "string", "format": "uuid"}},
+          {"name": "status", "in": "query", "schema": {"$ref": "#/components/schemas/ReferralStatus"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Referral"}
+                }
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "member"],
+        "x-entity": "Referral"
+      },
+      "post": {
+        "operationId": "createReferral",
+        "summary": "Create referral",
+        "tags": ["Referrals"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateReferralInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Referral"}
+              }
+            }
+          }
+        },
+        "x-roles": ["member"],
+        "x-entity": "Referral"
+      }
+    },
+    "/referrals/{code}/redeem": {
+      "post": {
+        "operationId": "redeemReferral",
+        "summary": "Redeem referral code",
+        "tags": ["Referrals"],
+        "parameters": [
+          {"name": "code", "in": "path", "required": true, "schema": {"type": "string"}}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "memberId": {"type": "string", "format": "uuid"}
+                },
+                "required": ["memberId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Referral"}
+              }
+            }
+          }
+        },
+        "x-roles": ["member"],
+        "x-entity": "Referral"
+      }
+    },
+    "/campaigns": {
+      "get": {
+        "operationId": "listCampaigns",
+        "summary": "List marketing campaigns",
+        "tags": ["Campaigns"],
+        "parameters": [
+          {"name": "gymId", "in": "query", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Campaign"}
+                }
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Campaign"
+      },
+      "post": {
+        "operationId": "createCampaign",
+        "summary": "Create campaign",
+        "tags": ["Campaigns"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateCampaignInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Campaign"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Campaign"
+      }
+    },
+    "/journeys": {
+      "get": {
+        "operationId": "listJourneys",
+        "summary": "List automated journeys",
+        "tags": ["Journeys"],
+        "parameters": [
+          {"name": "gymId", "in": "query", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Journey"}
+                }
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Journey"
+      },
+      "post": {
+        "operationId": "createJourney",
+        "summary": "Create automated journey",
+        "tags": ["Journeys"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateJourneyInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Journey"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Journey"
+      }
+    },
+    "/members": {
+      "get": {
+        "operationId": "listMembers",
+        "summary": "List members",
+        "tags": ["Members"],
+        "parameters": [
+          {"name": "gymId", "in": "query", "required": true, "schema": {"type": "string", "format": "uuid"}},
+          {"name": "status", "in": "query", "schema": {"$ref": "#/components/schemas/MemberStatus"}},
+          {"name": "churnRisk", "in": "query", "schema": {"$ref": "#/components/schemas/ChurnRisk"}},
+          {"name": "limit", "in": "query", "schema": {"type": "integer", "default": 50}},
+          {"name": "offset", "in": "query", "schema": {"type": "integer", "default": 0}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "data": {
+                      "type": "array",
+                      "items": {"$ref": "#/components/schemas/Member"}
+                    },
+                    "total": {"type": "integer"},
+                    "limit": {"type": "integer"},
+                    "offset": {"type": "integer"}
+                  }
+                }
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "staff"],
+        "x-entity": "Member"
+      },
+      "post": {
+        "operationId": "createMember",
+        "summary": "Create member",
+        "tags": ["Members"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateMemberInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Member"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "staff"],
+        "x-entity": "Member"
+      }
+    },
+    "/members/{id}": {
+      "get": {
+        "operationId": "getMember",
+        "summary": "Get member",
+        "tags": ["Members"],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Member"}
+              }
+            }
+          },
+          "404": {"$ref": "#/components/responses/NotFound"}
+        },
+        "x-roles": ["owner", "manager", "staff", "member"],
+        "x-entity": "Member"
+      },
+      "patch": {
+        "operationId": "updateMember",
+        "summary": "Update member",
+        "tags": ["Members"],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/UpdateMemberInput"}
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Member"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "staff", "member"],
+        "x-entity": "Member"
+      }
+    },
+    "/body-scans": {
+      "post": {
+        "operationId": "createBodyScan",
+        "summary": "Create body scan",
+        "tags": ["Body Scans"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateBodyScanInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/BodyScan"}
+              }
+            }
+          }
+        },
+        "x-roles": ["member", "trainer"],
+        "x-entity": "BodyScan",
+        "x-guards": ["biometricConsent"]
+      }
+    },
+    "/body-scans/{id}": {
+      "get": {
+        "operationId": "getBodyScan",
+        "summary": "Get body scan",
+        "tags": ["Body Scans"],
+        "parameters": [
+          {"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/BodyScan"}
+              }
+            }
+          },
+          "404": {"$ref": "#/components/responses/NotFound"}
+        },
+        "x-roles": ["member", "trainer", "manager"],
+        "x-entity": "BodyScan"
+      }
+    },
+    "/invoices": {
+      "get": {
+        "operationId": "listInvoices",
+        "summary": "List invoices",
+        "tags": ["Invoices"],
+        "parameters": [
+          {"name": "gymId", "in": "query", "required": true, "schema": {"type": "string", "format": "uuid"}},
+          {"name": "memberId", "in": "query", "schema": {"type": "string", "format": "uuid"}},
+          {"name": "status", "in": "query", "schema": {"$ref": "#/components/schemas/InvoiceStatus"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Invoice"}
+                }
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "member"],
+        "x-entity": "Invoice"
+      },
+      "post": {
+        "operationId": "createInvoice",
+        "summary": "Create invoice (CFDI supported)",
+        "tags": ["Invoices"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateInvoiceInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Invoice"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Invoice"
+      }
+    },
+    "/classes": {
+      "get": {
+        "operationId": "listClasses",
+        "summary": "List classes",
+        "tags": ["Classes"],
+        "parameters": [
+          {"name": "gymId", "in": "query", "required": true, "schema": {"type": "string", "format": "uuid"}},
+          {"name": "locationId", "in": "query", "schema": {"type": "string", "format": "uuid"}},
+          {"name": "startDate", "in": "query", "schema": {"type": "string", "format": "date"}},
+          {"name": "endDate", "in": "query", "schema": {"type": "string", "format": "date"}}
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {"$ref": "#/components/schemas/Class"}
+                }
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "trainer", "member"],
+        "x-entity": "Class"
+      },
+      "post": {
+        "operationId": "createClass",
+        "summary": "Create class",
+        "tags": ["Classes"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateClassInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/Class"}
+              }
+            }
+          }
+        },
+        "x-roles": ["owner", "manager", "trainer"],
+        "x-entity": "Class"
+      }
+    },
+    "/class-bookings": {
+      "post": {
+        "operationId": "createClassBooking",
+        "summary": "Book a class",
+        "tags": ["Class Bookings"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateClassBookingInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/ClassBooking"}
+              }
+            }
+          }
+        },
+        "x-roles": ["member"],
+        "x-entity": "ClassBooking"
+      }
+    },
+    "/check-ins": {
+      "post": {
+        "operationId": "createCheckIn",
+        "summary": "Check in member",
+        "tags": ["Check-ins"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {"$ref": "#/components/schemas/CreateCheckInInput"}
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created",
+            "content": {
+              "application/json": {
+                "schema": {"$ref": "#/components/schemas/CheckIn"}
+              }
+            }
+          }
+        },
+        "x-roles": ["staff", "member"],
+        "x-entity": "CheckIn"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "responses": {
+      "NotFound": {
+        "description": "Resource not found",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/Error"}
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Authentication required",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/Error"}
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Access denied",
+        "content": {
+          "application/json": {
+            "schema": {"$ref": "#/components/schemas/Error"}
+          }
+        }
+      }
+    },
+    "schemas": {
+      "UUID": {"type": "string", "format": "uuid"},
+      "ISODate": {"type": "string", "format": "date-time"},
+      "Date": {"type": "string", "format": "date"},
+      "MemberStatus": {"type": "string", "enum": ["active", "inactive", "suspended", "cancelled"]},
+      "SubscriptionStatus": {"type": "string", "enum": ["trialing", "active", "past_due", "canceled", "unpaid"]},
+      "InvoiceStatus": {"type": "string", "enum": ["draft", "sent", "paid", "void", "overdue"]},
+      "BookingStatus": {"type": "string", "enum": ["booked", "cancelled", "attended", "no_show"]},
+      "ScanMethod": {"type": "string", "enum": ["mobile", "kiosk"]},
+      "PaymentMethodType": {"type": "string", "enum": ["card", "bank_transfer", "oxxo", "mercado_pago"]},
+      "PaymentProvider": {"type": "string", "enum": ["stripe", "mercado_pago", "conekta"]},
+      "ReferralStatus": {"type": "string", "enum": ["issued", "redeemed", "rewarded", "expired"]},
+      "RewardType": {"type": "string", "enum": ["discount", "free_month", "cash", "credit"]},
+      "CampaignType": {"type": "string", "enum": ["email", "sms", "push", "in_app"]},
+      "CampaignStatus": {"type": "string", "enum": ["draft", "scheduled", "active", "paused", "completed"]},
+      "JourneyTrigger": {"type": "string", "enum": ["member_joined", "subscription_started", "trial_ending", "churn_risk", "referral_made"]},
+      "ChurnRisk": {"type": "string", "enum": ["low", "medium", "high"]},
+      "BillingCycle": {"type": "string", "enum": ["monthly", "quarterly", "annually", "lifetime"]},
+      "CheckInMethod": {"type": "string", "enum": ["qr_code", "rfid", "manual", "app"]},
+      "LoginInput": {
+        "type": "object",
+        "properties": {
+          "email": {"type": "string", "format": "email"},
+          "password": {"type": "string", "minLength": 8}
+        },
+        "required": ["email", "password"]
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "accessToken": {"type": "string"},
+          "refreshToken": {"type": "string"},
+          "user": {"$ref": "#/components/schemas/User"}
+        },
+        "required": ["accessToken", "refreshToken", "user"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "email": {"type": "string", "format": "email"},
+          "fullName": {"type": "string"},
+          "role": {"type": "string", "enum": ["owner", "manager", "trainer", "staff", "member"]},
+          "gymId": {"$ref": "#/components/schemas/UUID"}
+        },
+        "required": ["id", "email", "fullName", "role"]
+      },
+      "Gym": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "timezone": {"type": "string"},
+          "rfc": {"type": "string", "nullable": true},
+          "address": {"type": "string", "nullable": true},
+          "phone": {"type": "string", "nullable": true},
+          "email": {"type": "string", "format": "email", "nullable": true},
+          "website": {"type": "string", "nullable": true},
+          "subscriptionTier": {"type": "string", "enum": ["basic", "professional", "enterprise"]},
+          "isActive": {"type": "boolean"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"},
+          "updatedAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "name", "timezone", "subscriptionTier", "isActive", "createdAt", "updatedAt"]
+      },
+      "CreateGymInput": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "timezone": {"type": "string", "default": "America/Mexico_City"},
+          "rfc": {"type": "string"},
+          "address": {"type": "string"},
+          "phone": {"type": "string"},
+          "email": {"type": "string", "format": "email"},
+          "website": {"type": "string"},
+          "subscriptionTier": {"type": "string", "enum": ["basic", "professional", "enterprise"], "default": "basic"}
+        },
+        "required": ["name"]
+      },
+      "UpdateGymInput": {
+        "type": "object",
+        "properties": {
+          "name": {"type": "string"},
+          "rfc": {"type": "string"},
+          "address": {"type": "string"},
+          "phone": {"type": "string"},
+          "email": {"type": "string", "format": "email"},
+          "website": {"type": "string"},
+          "subscriptionTier": {"type": "string", "enum": ["basic", "professional", "enterprise"]}
+        }
+      },
+      "Plan": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "description": {"type": "string", "nullable": true},
+          "priceMXN": {"type": "integer"},
+          "billingCycle": {"$ref": "#/components/schemas/BillingCycle"},
+          "trialDays": {"type": "integer"},
+          "features": {"type": "object", "nullable": true},
+          "isActive": {"type": "boolean"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "gymId", "name", "priceMXN", "billingCycle", "trialDays", "isActive", "createdAt"]
+      },
+      "CreatePlanInput": {
+        "type": "object",
+        "properties": {
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "priceMXN": {"type": "integer", "minimum": 0},
+          "billingCycle": {"$ref": "#/components/schemas/BillingCycle"},
+          "trialDays": {"type": "integer", "minimum": 0, "default": 0},
+          "features": {"type": "object"}
+        },
+        "required": ["gymId", "name", "priceMXN", "billingCycle"]
+      },
+      "Member": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "locationId": {"$ref": "#/components/schemas/UUID"},
+          "email": {"type": "string", "format": "email"},
+          "fullName": {"type": "string"},
+          "phone": {"type": "string", "nullable": true},
+          "birthdate": {"$ref": "#/components/schemas/Date"},
+          "gender": {"type": "string", "enum": ["male", "female", "other", "prefer_not_to_say"], "nullable": true},
+          "emergencyContact": {"type": "object", "nullable": true},
+          "consentBiometric": {"type": "boolean"},
+          "consentMarketing": {"type": "boolean"},
+          "status": {"$ref": "#/components/schemas/MemberStatus"},
+          "joinedAt": {"$ref": "#/components/schemas/ISODate"},
+          "lastVisitAt": {"$ref": "#/components/schemas/ISODate"},
+          "churnScore": {"type": "number", "nullable": true},
+          "churnRisk": {"$ref": "#/components/schemas/ChurnRisk"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"},
+          "updatedAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "gymId", "email", "fullName", "consentBiometric", "consentMarketing", "status", "joinedAt", "createdAt", "updatedAt"]
+      },
+      "CreateMemberInput": {
+        "type": "object",
+        "properties": {
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "locationId": {"$ref": "#/components/schemas/UUID"},
+          "email": {"type": "string", "format": "email"},
+          "fullName": {"type": "string"},
+          "phone": {"type": "string"},
+          "birthdate": {"$ref": "#/components/schemas/Date"},
+          "gender": {"type": "string", "enum": ["male", "female", "other", "prefer_not_to_say"]},
+          "emergencyContact": {"type": "object"},
+          "consentBiometric": {"type": "boolean", "default": false},
+          "consentMarketing": {"type": "boolean", "default": false}
+        },
+        "required": ["gymId", "email", "fullName"]
+      },
+      "UpdateMemberInput": {
+        "type": "object",
+        "properties": {
+          "email": {"type": "string", "format": "email"},
+          "fullName": {"type": "string"},
+          "phone": {"type": "string"},
+          "birthdate": {"$ref": "#/components/schemas/Date"},
+          "gender": {"type": "string", "enum": ["male", "female", "other", "prefer_not_to_say"]},
+          "emergencyContact": {"type": "object"},
+          "consentBiometric": {"type": "boolean"},
+          "consentMarketing": {"type": "boolean"},
+          "status": {"$ref": "#/components/schemas/MemberStatus"}
+        }
+      },
+      "Subscription": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "planId": {"$ref": "#/components/schemas/UUID"},
+          "status": {"$ref": "#/components/schemas/SubscriptionStatus"},
+          "currentPeriodStart": {"$ref": "#/components/schemas/ISODate"},
+          "currentPeriodEnd": {"$ref": "#/components/schemas/ISODate"},
+          "trialStart": {"$ref": "#/components/schemas/ISODate"},
+          "trialEnd": {"$ref": "#/components/schemas/ISODate"},
+          "canceledAt": {"$ref": "#/components/schemas/ISODate"},
+          "cancelReason": {"type": "string", "nullable": true},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"},
+          "updatedAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "memberId", "planId", "status", "currentPeriodStart", "currentPeriodEnd", "createdAt", "updatedAt"]
+      },
+      "CreateSubscriptionInput": {
+        "type": "object",
+        "properties": {
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "planId": {"$ref": "#/components/schemas/UUID"},
+          "trialDays": {"type": "integer", "minimum": 0}
+        },
+        "required": ["memberId", "planId"]
+      },
+      "UpdateSubscriptionInput": {
+        "type": "object",
+        "properties": {
+          "planId": {"$ref": "#/components/schemas/UUID"},
+          "status": {"$ref": "#/components/schemas/SubscriptionStatus"}
+        }
+      },
+      "PaymentMethod": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "type": {"$ref": "#/components/schemas/PaymentMethodType"},
+          "provider": {"$ref": "#/components/schemas/PaymentProvider"},
+          "externalId": {"type": "string"},
+          "last4": {"type": "string", "nullable": true},
+          "brand": {"type": "string", "nullable": true},
+          "isDefault": {"type": "boolean"},
+          "isActive": {"type": "boolean"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "memberId", "type", "provider", "externalId", "isDefault", "isActive", "createdAt"]
+      },
+      "CreatePaymentMethodInput": {
+        "type": "object",
+        "properties": {
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "type": {"$ref": "#/components/schemas/PaymentMethodType"},
+          "provider": {"$ref": "#/components/schemas/PaymentProvider"},
+          "externalId": {"type": "string"},
+          "isDefault": {"type": "boolean", "default": false}
+        },
+        "required": ["memberId", "type", "provider", "externalId"]
+      },
+      "Referral": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "referrerId": {"$ref": "#/components/schemas/UUID"},
+          "referredId": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "code": {"type": "string"},
+          "status": {"$ref": "#/components/schemas/ReferralStatus"},
+          "rewardType": {"$ref": "#/components/schemas/RewardType"},
+          "rewardValueMXN": {"type": "integer"},
+          "redeemedAt": {"$ref": "#/components/schemas/ISODate"},
+          "rewardedAt": {"$ref": "#/components/schemas/ISODate"},
+          "expiresAt": {"$ref": "#/components/schemas/ISODate"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "referrerId", "gymId", "code", "status", "rewardType", "rewardValueMXN", "expiresAt", "createdAt"]
+      },
+      "CreateReferralInput": {
+        "type": "object",
+        "properties": {
+          "referrerId": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "rewardType": {"$ref": "#/components/schemas/RewardType"},
+          "rewardValueMXN": {"type": "integer", "minimum": 0},
+          "expiresAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["referrerId", "gymId", "rewardType", "rewardValueMXN", "expiresAt"]
+      },
+      "Campaign": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "type": {"$ref": "#/components/schemas/CampaignType"},
+          "status": {"$ref": "#/components/schemas/CampaignStatus"},
+          "targetSegment": {"type": "object", "nullable": true},
+          "content": {"type": "object"},
+          "scheduledAt": {"$ref": "#/components/schemas/ISODate"},
+          "sentAt": {"$ref": "#/components/schemas/ISODate"},
+          "completedAt": {"$ref": "#/components/schemas/ISODate"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "gymId", "name", "type", "status", "content", "createdAt"]
+      },
+      "CreateCampaignInput": {
+        "type": "object",
+        "properties": {
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "type": {"$ref": "#/components/schemas/CampaignType"},
+          "targetSegment": {"type": "object"},
+          "content": {"type": "object"},
+          "scheduledAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["gymId", "name", "type", "content"]
+      },
+      "Journey": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "trigger": {"$ref": "#/components/schemas/JourneyTrigger"},
+          "steps": {"type": "array", "items": {"type": "object"}},
+          "isActive": {"type": "boolean"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "gymId", "name", "trigger", "steps", "isActive", "createdAt"]
+      },
+      "CreateJourneyInput": {
+        "type": "object",
+        "properties": {
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "trigger": {"$ref": "#/components/schemas/JourneyTrigger"},
+          "steps": {"type": "array", "items": {"type": "object"}},
+          "isActive": {"type": "boolean", "default": true}
+        },
+        "required": ["gymId", "name", "trigger", "steps"]
+      },
+      "BodyScan": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "method": {"$ref": "#/components/schemas/ScanMethod"},
+          "bodyFatPct": {"type": "number", "nullable": true},
+          "leanMassKg": {"type": "number", "nullable": true},
+          "waistCm": {"type": "number", "nullable": true},
+          "hipCm": {"type": "number", "nullable": true},
+          "postureScore": {"type": "number", "nullable": true},
+          "confidenceScore": {"type": "number", "nullable": true},
+          "rawAssetKey": {"type": "string", "nullable": true},
+          "processedAt": {"$ref": "#/components/schemas/ISODate"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "memberId", "method", "createdAt"]
+      },
+      "CreateBodyScanInput": {
+        "type": "object",
+        "properties": {
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "method": {"$ref": "#/components/schemas/ScanMethod"},
+          "rawAssetKey": {"type": "string"}
+        },
+        "required": ["memberId", "method"]
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "subscriptionId": {"$ref": "#/components/schemas/UUID"},
+          "invoiceNumber": {"type": "string"},
+          "amountMXN": {"type": "integer"},
+          "taxMXN": {"type": "integer"},
+          "totalMXN": {"type": "integer"},
+          "cfdi": {"type": "object", "nullable": true},
+          "paymentMethodId": {"$ref": "#/components/schemas/UUID"},
+          "status": {"$ref": "#/components/schemas/InvoiceStatus"},
+          "dueAt": {"$ref": "#/components/schemas/ISODate"},
+          "paidAt": {"$ref": "#/components/schemas/ISODate"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"},
+          "updatedAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "gymId", "invoiceNumber", "amountMXN", "taxMXN", "totalMXN", "status", "dueAt", "createdAt", "updatedAt"]
+      },
+      "CreateInvoiceInput": {
+        "type": "object",
+        "properties": {
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "subscriptionId": {"$ref": "#/components/schemas/UUID"},
+          "amountMXN": {"type": "integer", "minimum": 0},
+          "taxMXN": {"type": "integer", "minimum": 0, "default": 0},
+          "cfdi": {
+            "type": "object",
+            "properties": {
+              "rfc": {"type": "string"},
+              "usoCFDI": {"type": "string"},
+              "regimenFiscal": {"type": "string"}
+            }
+          },
+          "paymentMethodId": {"$ref": "#/components/schemas/UUID"},
+          "dueAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["gymId", "amountMXN", "dueAt"]
+      },
+      "Class": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "locationId": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "description": {"type": "string", "nullable": true},
+          "instructorId": {"$ref": "#/components/schemas/UUID"},
+          "startAt": {"$ref": "#/components/schemas/ISODate"},
+          "endAt": {"$ref": "#/components/schemas/ISODate"},
+          "capacity": {"type": "integer"},
+          "priceMXN": {"type": "integer", "nullable": true},
+          "isRecurring": {"type": "boolean"},
+          "recurrenceRule": {"type": "string", "nullable": true},
+          "status": {"type": "string", "enum": ["scheduled", "in_progress", "completed", "cancelled"]},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "gymId", "name", "startAt", "endAt", "capacity", "isRecurring", "status", "createdAt"]
+      },
+      "CreateClassInput": {
+        "type": "object",
+        "properties": {
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "locationId": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "description": {"type": "string"},
+          "instructorId": {"$ref": "#/components/schemas/UUID"},
+          "startAt": {"$ref": "#/components/schemas/ISODate"},
+          "endAt": {"$ref": "#/components/schemas/ISODate"},
+          "capacity": {"type": "integer", "minimum": 1, "default": 20},
+          "priceMXN": {"type": "integer", "minimum": 0},
+          "isRecurring": {"type": "boolean", "default": false},
+          "recurrenceRule": {"type": "string"}
+        },
+        "required": ["gymId", "name", "startAt", "endAt"]
+      },
+      "ClassBooking": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "classId": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "priceMXN": {"type": "integer", "nullable": true},
+          "status": {"$ref": "#/components/schemas/BookingStatus"},
+          "bookedAt": {"$ref": "#/components/schemas/ISODate"},
+          "cancelledAt": {"$ref": "#/components/schemas/ISODate"},
+          "attendedAt": {"$ref": "#/components/schemas/ISODate"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "classId", "memberId", "status", "bookedAt", "createdAt"]
+      },
+      "CreateClassBookingInput": {
+        "type": "object",
+        "properties": {
+          "classId": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "priceMXN": {"type": "integer", "minimum": 0}
+        },
+        "required": ["classId", "memberId"]
+      },
+      "CheckIn": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "locationId": {"$ref": "#/components/schemas/UUID"},
+          "method": {"$ref": "#/components/schemas/CheckInMethod"},
+          "checkedInAt": {"$ref": "#/components/schemas/ISODate"},
+          "checkedOutAt": {"$ref": "#/components/schemas/ISODate"},
+          "duration": {"type": "integer", "nullable": true}
+        },
+        "required": ["id", "memberId", "method", "checkedInAt"]
+      },
+      "CreateCheckInInput": {
+        "type": "object",
+        "properties": {
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "locationId": {"$ref": "#/components/schemas/UUID"},
+          "method": {"$ref": "#/components/schemas/CheckInMethod"}
+        },
+        "required": ["memberId", "method"]
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "message": {"type": "string"},
+          "code": {"type": "string"},
+          "details": {"type": "object"}
+        },
+        "required": ["message"]
+      }
+    }
+  }
+}
+

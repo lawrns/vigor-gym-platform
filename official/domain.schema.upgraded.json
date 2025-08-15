@@ -1,0 +1,345 @@
+{
+  "$schema": "https://schema.primer/specs/domain-schema.v1.json",
+  "entities": [
+    {
+      "name": "Gym",
+      "table": "gyms",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "name", "type": "string", "unique": true},
+        {"name": "timezone", "type": "string", "default": "America/Mexico_City"},
+        {"name": "rfc", "type": "string", "nullable": true},
+        {"name": "address", "type": "string", "nullable": true},
+        {"name": "phone", "type": "string", "nullable": true},
+        {"name": "email", "type": "string", "nullable": true},
+        {"name": "website", "type": "string", "nullable": true},
+        {"name": "subscriptionTier", "type": "enum", "values": ["basic", "professional", "enterprise"], "default": "basic"},
+        {"name": "isActive", "type": "boolean", "default": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true},
+        {"name": "updatedAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["name"], ["rfc"], ["subscriptionTier"], ["isActive"]]
+    },
+    {
+      "name": "Location",
+      "table": "locations",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "name", "type": "string"},
+        {"name": "address", "type": "string"},
+        {"name": "city", "type": "string"},
+        {"name": "state", "type": "string"},
+        {"name": "postalCode", "type": "string"},
+        {"name": "phone", "type": "string", "nullable": true},
+        {"name": "isActive", "type": "boolean", "default": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["city"], ["state"]]
+    },
+    {
+      "name": "Plan",
+      "table": "plans",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "name", "type": "string"},
+        {"name": "description", "type": "text", "nullable": true},
+        {"name": "priceMXN", "type": "int"},
+        {"name": "billingCycle", "type": "enum", "values": ["monthly", "quarterly", "annually", "lifetime"]},
+        {"name": "trialDays", "type": "int", "default": 0},
+        {"name": "features", "type": "json", "nullable": true},
+        {"name": "isActive", "type": "boolean", "default": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["isActive"], ["billingCycle"]]
+    },
+    {
+      "name": "Member",
+      "table": "members",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "locationId", "type": "uuid", "ref": "Location.id", "nullable": true},
+        {"name": "email", "type": "string", "unique": true},
+        {"name": "fullName", "type": "string"},
+        {"name": "phone", "type": "string", "nullable": true},
+        {"name": "birthdate", "type": "date", "nullable": true},
+        {"name": "gender", "type": "enum", "values": ["male", "female", "other", "prefer_not_to_say"], "nullable": true},
+        {"name": "emergencyContact", "type": "json", "nullable": true},
+        {"name": "consentBiometric", "type": "boolean", "default": false},
+        {"name": "consentMarketing", "type": "boolean", "default": false},
+        {"name": "status", "type": "enum", "values": ["active", "inactive", "suspended", "cancelled"], "default": "active"},
+        {"name": "joinedAt", "type": "timestamptz", "defaultNow": true},
+        {"name": "lastVisitAt", "type": "timestamptz", "nullable": true},
+        {"name": "churnScore", "type": "decimal", "nullable": true},
+        {"name": "churnRisk", "type": "enum", "values": ["low", "medium", "high"], "nullable": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true},
+        {"name": "updatedAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["email"], ["status"], ["churnRisk"], ["lastVisitAt"]]
+    },
+    {
+      "name": "Subscription",
+      "table": "subscriptions",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "memberId", "type": "uuid", "ref": "Member.id"},
+        {"name": "planId", "type": "uuid", "ref": "Plan.id"},
+        {"name": "status", "type": "enum", "values": ["trialing", "active", "past_due", "canceled", "unpaid"], "default": "trialing"},
+        {"name": "currentPeriodStart", "type": "timestamptz"},
+        {"name": "currentPeriodEnd", "type": "timestamptz"},
+        {"name": "trialStart", "type": "timestamptz", "nullable": true},
+        {"name": "trialEnd", "type": "timestamptz", "nullable": true},
+        {"name": "canceledAt", "type": "timestamptz", "nullable": true},
+        {"name": "cancelReason", "type": "string", "nullable": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true},
+        {"name": "updatedAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["memberId"], ["planId"], ["status"], ["currentPeriodEnd"], ["trialEnd"]]
+    },
+    {
+      "name": "PaymentMethod",
+      "table": "payment_methods",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "memberId", "type": "uuid", "ref": "Member.id"},
+        {"name": "type", "type": "enum", "values": ["card", "bank_transfer", "oxxo", "mercado_pago"]},
+        {"name": "provider", "type": "enum", "values": ["stripe", "mercado_pago", "conekta"]},
+        {"name": "externalId", "type": "string"},
+        {"name": "last4", "type": "string", "nullable": true},
+        {"name": "brand", "type": "string", "nullable": true},
+        {"name": "isDefault", "type": "boolean", "default": false},
+        {"name": "isActive", "type": "boolean", "default": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["memberId"], ["type"], ["provider"], ["isDefault"]]
+    },
+    {
+      "name": "Referral",
+      "table": "referrals",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "referrerId", "type": "uuid", "ref": "Member.id"},
+        {"name": "referredId", "type": "uuid", "ref": "Member.id", "nullable": true},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "code", "type": "string", "unique": true},
+        {"name": "status", "type": "enum", "values": ["issued", "redeemed", "rewarded", "expired"], "default": "issued"},
+        {"name": "rewardType", "type": "enum", "values": ["discount", "free_month", "cash", "credit"]},
+        {"name": "rewardValueMXN", "type": "int"},
+        {"name": "redeemedAt", "type": "timestamptz", "nullable": true},
+        {"name": "rewardedAt", "type": "timestamptz", "nullable": true},
+        {"name": "expiresAt", "type": "timestamptz"},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["referrerId"], ["referredId"], ["gymId"], ["code"], ["status"], ["expiresAt"]]
+    },
+    {
+      "name": "Campaign",
+      "table": "campaigns",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "name", "type": "string"},
+        {"name": "type", "type": "enum", "values": ["email", "sms", "push", "in_app"]},
+        {"name": "status", "type": "enum", "values": ["draft", "scheduled", "active", "paused", "completed"], "default": "draft"},
+        {"name": "targetSegment", "type": "json", "nullable": true},
+        {"name": "content", "type": "json"},
+        {"name": "scheduledAt", "type": "timestamptz", "nullable": true},
+        {"name": "sentAt", "type": "timestamptz", "nullable": true},
+        {"name": "completedAt", "type": "timestamptz", "nullable": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["type"], ["status"], ["scheduledAt"]]
+    },
+    {
+      "name": "Journey",
+      "table": "journeys",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "name", "type": "string"},
+        {"name": "trigger", "type": "enum", "values": ["member_joined", "subscription_started", "trial_ending", "churn_risk", "referral_made"]},
+        {"name": "steps", "type": "json"},
+        {"name": "isActive", "type": "boolean", "default": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["trigger"], ["isActive"]]
+    },
+    {
+      "name": "Tag",
+      "table": "tags",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "name", "type": "string"},
+        {"name": "color", "type": "string", "default": "#6B7280"},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["name"]]
+    },
+    {
+      "name": "MemberTag",
+      "table": "member_tags",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "memberId", "type": "uuid", "ref": "Member.id"},
+        {"name": "tagId", "type": "uuid", "ref": "Tag.id"},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["memberId"], ["tagId"]],
+      "unique": [["memberId", "tagId"]]
+    },
+    {
+      "name": "BodyScan",
+      "table": "body_scans",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "memberId", "type": "uuid", "ref": "Member.id"},
+        {"name": "method", "type": "enum", "values": ["mobile", "kiosk"]},
+        {"name": "bodyFatPct", "type": "decimal", "nullable": true},
+        {"name": "leanMassKg", "type": "decimal", "nullable": true},
+        {"name": "waistCm", "type": "decimal", "nullable": true},
+        {"name": "hipCm", "type": "decimal", "nullable": true},
+        {"name": "postureScore", "type": "decimal", "nullable": true},
+        {"name": "confidenceScore", "type": "decimal", "nullable": true},
+        {"name": "rawAssetKey", "type": "string", "secure": true, "nullable": true},
+        {"name": "processedAt", "type": "timestamptz", "nullable": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["memberId"], ["createdAt"], ["processedAt"]]
+    },
+    {
+      "name": "Invoice",
+      "table": "invoices",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "memberId", "type": "uuid", "ref": "Member.id", "nullable": true},
+        {"name": "subscriptionId", "type": "uuid", "ref": "Subscription.id", "nullable": true},
+        {"name": "invoiceNumber", "type": "string", "unique": true},
+        {"name": "amountMXN", "type": "int"},
+        {"name": "taxMXN", "type": "int", "default": 0},
+        {"name": "totalMXN", "type": "int"},
+        {"name": "cfdi", "type": "json", "nullable": true},
+        {"name": "paymentMethodId", "type": "uuid", "ref": "PaymentMethod.id", "nullable": true},
+        {"name": "status", "type": "enum", "values": ["draft", "sent", "paid", "void", "overdue"], "default": "draft"},
+        {"name": "dueAt", "type": "timestamptz"},
+        {"name": "paidAt", "type": "timestamptz", "nullable": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true},
+        {"name": "updatedAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["memberId"], ["subscriptionId"], ["status"], ["dueAt"], ["invoiceNumber"]]
+    },
+    {
+      "name": "Class",
+      "table": "classes",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "locationId", "type": "uuid", "ref": "Location.id", "nullable": true},
+        {"name": "name", "type": "string"},
+        {"name": "description", "type": "text", "nullable": true},
+        {"name": "instructorId", "type": "uuid", "ref": "Member.id", "nullable": true},
+        {"name": "startAt", "type": "timestamptz"},
+        {"name": "endAt", "type": "timestamptz"},
+        {"name": "capacity", "type": "int", "default": 20},
+        {"name": "priceMXN", "type": "int", "nullable": true},
+        {"name": "isRecurring", "type": "boolean", "default": false},
+        {"name": "recurrenceRule", "type": "string", "nullable": true},
+        {"name": "status", "type": "enum", "values": ["scheduled", "in_progress", "completed", "cancelled"], "default": "scheduled"},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["locationId"], ["instructorId"], ["startAt"], ["status"]]
+    },
+    {
+      "name": "ClassBooking",
+      "table": "class_bookings",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "classId", "type": "uuid", "ref": "Class.id"},
+        {"name": "memberId", "type": "uuid", "ref": "Member.id"},
+        {"name": "priceMXN", "type": "int", "nullable": true},
+        {"name": "status", "type": "enum", "values": ["booked", "cancelled", "attended", "no_show"], "default": "booked"},
+        {"name": "bookedAt", "type": "timestamptz", "defaultNow": true},
+        {"name": "cancelledAt", "type": "timestamptz", "nullable": true},
+        {"name": "attendedAt", "type": "timestamptz", "nullable": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["classId"], ["memberId"], ["status"], ["bookedAt"]],
+      "unique": [["classId", "memberId"]]
+    },
+    {
+      "name": "CheckIn",
+      "table": "check_ins",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "memberId", "type": "uuid", "ref": "Member.id"},
+        {"name": "locationId", "type": "uuid", "ref": "Location.id", "nullable": true},
+        {"name": "method", "type": "enum", "values": ["qr_code", "rfid", "manual", "app"]},
+        {"name": "checkedInAt", "type": "timestamptz", "defaultNow": true},
+        {"name": "checkedOutAt", "type": "timestamptz", "nullable": true},
+        {"name": "duration", "type": "int", "nullable": true}
+      ],
+      "indexes": [["memberId"], ["locationId"], ["checkedInAt"]]
+    }
+  ],
+  "seeds": [
+    {
+      "entity": "Plan",
+      "data": [
+        {
+          "name": "Plan Básico",
+          "description": "Acceso completo al gimnasio",
+          "priceMXN": 50000,
+          "billingCycle": "monthly",
+          "trialDays": 7,
+          "features": {"gym_access": true, "classes": false, "personal_training": false}
+        },
+        {
+          "name": "Plan Premium",
+          "description": "Acceso completo + clases grupales",
+          "priceMXN": 80000,
+          "billingCycle": "monthly",
+          "trialDays": 14,
+          "features": {"gym_access": true, "classes": true, "personal_training": false}
+        },
+        {
+          "name": "Plan VIP",
+          "description": "Acceso completo + clases + entrenamiento personal",
+          "priceMXN": 120000,
+          "billingCycle": "monthly",
+          "trialDays": 14,
+          "features": {"gym_access": true, "classes": true, "personal_training": true}
+        }
+      ]
+    },
+    {
+      "entity": "Tag",
+      "data": [
+        {"name": "Nuevo Miembro", "color": "#10B981"},
+        {"name": "VIP", "color": "#F59E0B"},
+        {"name": "En Riesgo", "color": "#EF4444"},
+        {"name": "Activo", "color": "#3B82F6"},
+        {"name": "Referido", "color": "#8B5CF6"}
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,270 @@
+// Vigor Gym Management Platform - Database Schema
+// Generated for Supabase PostgreSQL database
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum MemberStatus {
+  active
+  invited
+  paused
+  cancelled
+}
+
+enum PriceType {
+  fixed
+  custom
+}
+
+enum BillingCycle {
+  monthly
+  annual
+  custom
+}
+
+enum MembershipStatus {
+  draft
+  active
+  trial
+  paused
+  cancelled
+  expired
+}
+
+enum BookingStatus {
+  reserved
+  checked_in
+  no_show
+  cancelled
+}
+
+enum InvoiceStatus {
+  draft
+  issued
+  paid
+  void
+}
+
+enum PaymentProvider {
+  stripe
+  mercadopago
+}
+
+enum PaymentStatus {
+  requires_action
+  succeeded
+  failed
+  refunded
+}
+
+// Auth and User Management
+enum UserRole {
+  owner
+  manager
+  staff
+  member
+  partner_admin
+}
+
+model User {
+  id                String    @id @default(uuid()) @db.Uuid
+  email             String    @unique
+  passwordHash      String    @map("password_hash")
+  firstName         String    @map("first_name")
+  lastName          String    @map("last_name")
+  role              UserRole  @default(member)
+  companyId         String?   @map("company_id") @db.Uuid
+  isActive          Boolean   @default(true) @map("is_active")
+  lastLoginAt       DateTime? @map("last_login_at") @db.Timestamptz
+  failedLoginCount  Int       @default(0) @map("failed_login_count")
+  lockedUntil       DateTime? @map("locked_until") @db.Timestamptz
+  createdAt         DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  company Company? @relation(fields: [companyId], references: [id])
+
+  @@map("users")
+  @@index([email])
+  @@index([companyId])
+}
+
+// Core Business Tables
+model Company {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  rfc          String   @unique
+  billingEmail String   @map("billing_email")
+  timezone     String   @default("America/Mexico_City")
+  industry     String?
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  users       User[]
+  members     Member[]
+  memberships Membership[]
+  invoices    Invoice[]
+
+  @@map("companies")
+}
+
+model Member {
+  id        String       @id @default(uuid()) @db.Uuid
+  companyId String       @map("company_id") @db.Uuid
+  email     String       @unique
+  firstName String       @map("first_name")
+  lastName  String       @map("last_name")
+  status    MemberStatus @default(active)
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  company     Company      @relation(fields: [companyId], references: [id])
+  memberships Membership[]
+
+  @@map("members")
+  @@index([email])
+}
+
+model Plan {
+  id             String       @id @default(uuid()) @db.Uuid
+  code           String       @unique
+  name           String
+  priceType      PriceType    @map("price_type")
+  priceMxnCents  Int?         @map("price_mxn_cents")
+  billingCycle   BillingCycle @map("billing_cycle")
+  featuresJson   Json?        @map("features_json") @db.JsonB
+
+  // Relations
+  memberships Membership[]
+
+  @@map("plans")
+}
+
+model Membership {
+  id        String           @id @default(uuid()) @db.Uuid
+  memberId  String?          @map("member_id") @db.Uuid
+  companyId String           @map("company_id") @db.Uuid
+  planId    String           @map("plan_id") @db.Uuid
+  status    MembershipStatus @default(draft)
+  startsAt  DateTime?        @map("starts_at") @db.Timestamptz
+  endsAt    DateTime?        @map("ends_at") @db.Timestamptz
+  createdAt DateTime         @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  member   Member?   @relation(fields: [memberId], references: [id])
+  company  Company   @relation(fields: [companyId], references: [id])
+  plan     Plan      @relation(fields: [planId], references: [id])
+  visits   Visit[]
+  bookings Booking[]
+
+  @@map("memberships")
+  @@index([companyId, status])
+}
+
+model Gym {
+  id   String  @id @default(uuid()) @db.Uuid
+  name String
+  city String
+  state String
+  lat  Decimal @db.Decimal(9, 6)
+  lng  Decimal @db.Decimal(9, 6)
+
+  // Relations
+  visits  Visit[]
+  classes Class[]
+
+  @@map("gyms")
+}
+
+model Visit {
+  id           String    @id @default(uuid()) @db.Uuid
+  membershipId String    @map("membership_id") @db.Uuid
+  gymId        String    @map("gym_id") @db.Uuid
+  checkIn      DateTime  @map("check_in") @db.Timestamptz
+  checkOut     DateTime? @map("check_out") @db.Timestamptz
+
+  // Relations
+  membership Membership @relation(fields: [membershipId], references: [id])
+  gym        Gym        @relation(fields: [gymId], references: [id])
+
+  @@map("visits")
+  @@index([membershipId, checkIn])
+}
+
+model Class {
+  id       String   @id @default(uuid()) @db.Uuid
+  gymId    String   @map("gym_id") @db.Uuid
+  title    String
+  startsAt DateTime @map("starts_at") @db.Timestamptz
+  capacity Int
+
+  // Relations
+  gym      Gym       @relation(fields: [gymId], references: [id])
+  bookings Booking[]
+
+  @@map("classes")
+}
+
+model Booking {
+  id           String        @id @default(uuid()) @db.Uuid
+  classId      String        @map("class_id") @db.Uuid
+  membershipId String        @map("membership_id") @db.Uuid
+  status       BookingStatus @default(reserved)
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  class      Class      @relation(fields: [classId], references: [id])
+  membership Membership @relation(fields: [membershipId], references: [id])
+
+  @@map("bookings")
+}
+
+model Invoice {
+  id             String        @id @default(uuid()) @db.Uuid
+  companyId      String        @map("company_id") @db.Uuid
+  cfdiUuid       String?       @unique @map("cfdi_uuid")
+  status         InvoiceStatus @default(draft)
+  totalMxnCents  Int           @map("total_mxn_cents")
+  issuedAt       DateTime?     @map("issued_at") @db.Timestamptz
+
+  // Relations
+  company  Company   @relation(fields: [companyId], references: [id])
+  payments Payment[]
+
+  @@map("invoices")
+}
+
+model Payment {
+  id            String        @id @default(uuid()) @db.Uuid
+  invoiceId     String        @map("invoice_id") @db.Uuid
+  provider      PaymentProvider
+  providerRef   String        @map("provider_ref")
+  status        PaymentStatus @default(requires_action)
+  paidMxnCents  Int           @map("paid_mxn_cents")
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  invoice Invoice @relation(fields: [invoiceId], references: [id])
+
+  @@map("payments")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  actorId   String?  @map("actor_id") @db.Uuid
+  action    String
+  target    String
+  meta      Json?    @db.JsonB
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("audit_logs")
+}

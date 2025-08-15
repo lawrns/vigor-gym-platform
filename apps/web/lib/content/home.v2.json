@@ -1,0 +1,133 @@
+{
+  "sections_order": [
+    "NavbarSticky",
+    "HeroCinematic",
+    "KPI_Counters",
+    "LogoMarqueeDense",
+    "FeatureMatrix",
+    "DiscoveryStrip",
+    "ShowcaseCollage",
+    "PlansShowcase",
+    "ComparisonTable",
+    "HowItWorksCards",
+    "IntegrationsWall",
+    "ComplianceRibbon",
+    "ROIProofWithScroller",
+    "TestimonialsCarousel",
+    "FAQAccordion",
+    "FinalCTA",
+    "FooterMega"
+  ],
+  "NavbarLight": {
+    "links": [
+      { "label": "Beneficios", "href": "#beneficios" },
+      { "label": "Planes", "href": "#planes" },
+      { "label": "Integraciones", "href": "#integraciones" },
+      { "label": "Contacto", "href": "/contacto" }
+    ],
+    "cta": { "label": "Probar gratis", "href": "/register", "variant": "primary" }
+  },
+  "HeroCinematic": {
+    "bg": "@gradient.hero",
+    "image": { "src": "/images/hero-dashboard.png", "alt": "Vista del dashboard de Vigor" },
+    "left": {
+      "eyebrow": "Plataforma corporativa de fitness y bienestar",
+      "title": "La forma más fácil de ofrecer gimnasios y salud mental a tu equipo",
+      "subtitle": "Conecta a tus colaboradores con +4,500 gimnasios, clases en vivo y recursos de salud mental. Facturación CFDI 4.0 y reportes claros para tu empresa.",
+      "primaryCta": { "label": "Solicitar demo", "href": "/demo", "data-cta": "hero-primary" },
+      "secondaryCta": { "label": "Ver planes", "href": "#planes", "variant": "secondary", "data-cta": "hero-secondary" },
+      "trustBadges": [
+        { "icon": "ShieldCheck", "label": "CFDI 4.0 listo" },
+        { "icon": "CreditCard", "label": "Stripe • Mercado Pago" },
+        { "icon": "Smartphone", "label": "iOS • Android" }
+      ]
+    }
+  },
+  "ActivityCarousel": {
+    "title": "Más de 250 actividades",
+    "items": [
+      { "label": "Hipertrofia", "image": "/images/activity-a.png" },
+      { "label": "Pilates", "image": "/images/activity-b.png" },
+      { "label": "Natación", "image": "/images/activity-c.png" },
+      { "label": "Circuit Training", "image": "/images/activity-a.png" }
+    ]
+  },
+  "AppPromo": {
+    "title": "Todo en la palma de tu mano",
+    "subtitle": "Reserva, accede y gestiona tu membresía desde la app.",
+    "appBadges": true
+  },
+  "KPI_Counters": {
+    "items": [
+      { "icon": "Users", "label": "Colaboradores activos", "value": 35000, "suffix": "+", "animate": true },
+      { "icon": "Dumbbell", "label": "Gimnasios y estudios", "value": 4500, "suffix": "+", "animate": true },
+      { "icon": "Brain", "label": "Plataformas de salud mental", "value": 250, "suffix": "+", "animate": true },
+      { "icon": "Clock3", "label": "Activación promedio", "value": 24, "suffix": " h", "animate": true }
+    ]
+  },
+  "LogoMarquee": {
+    "title": "Confiado por empresas innovadoras",
+    "logos": [
+      "/images/logo-1.png",
+      "/images/logo-1.png",
+      "/images/logo-1.png",
+      "/images/logo-1.png",
+      "/images/logo-1.png"
+    ]
+  },
+  "PlansV2": {
+    "title": "Planes para colaboradores",
+    "tiers": [
+      { "name": "TP ON", "price": "$", "features": ["Activación simple", "Cobertura nacional", "Soporte por chat"], "cta": { "label": "Comenzar", "href": "/registro", "data-cta": "plan" } },
+      { "name": "TP PRO (Recomendado)", "badge": "Recomendado", "price": "$$$", "features": ["Beneficios ampliados", "Control por colaborador", "Reportes básicos"], "highlight": true, "cta": { "label": "Elegir PRO", "href": "/registro", "data-cta": "plan" } },
+      { "name": "TP+", "price": "$$$$", "features": ["Integraciones", "Analítica avanzada", "Cuenta ejecutiva dedicada"], "cta": { "label": "Hablar con ventas", "href": "/contacto", "data-cta": "plan" } }
+    ]
+  },
+  "PlanComparison": {
+    "cols": ["Característica", "TP ON", "TP PRO", "TP+"],
+    "rows": [
+      ["Analítica básica", "—", "✔", "✔"],
+      ["Integraciones", "—", "Opcionales", "Incluidas"],
+      ["Cuenta ejecutiva", "—", "—", "✔"],
+      ["Precio por colaborador", "MXN —", "MXN —", "A medida"]
+    ]
+  },
+  "IntegrationsGrid": {
+    "intro": "Conecta Vigor con tus herramientas",
+    "items": [
+      { "label": "Stripe", "icon": "CreditCard" },
+      { "label": "Mercado Pago", "icon": "Wallet" },
+      { "label": "SAT CFDI 4.0", "icon": "FileDigit" },
+      { "label": "OXXO/SPEI", "icon": "Banknote" },
+      { "label": "Slack", "icon": "MessageSquare" },
+      { "label": "SAP/Oracle (API)", "icon": "Brackets" }
+    ]
+  },
+  "FeatureGridLight": {
+    "intro": "Un solo pago, todo el acceso",
+    "cards": [
+      { "icon": "Dumbbell", "title": "Training", "desc": "4,500+ espacios y 250 centros de bienestar." },
+      { "icon": "CalendarCheck2", "title": "Clases", "desc": "Reserva con visibilidad de capacidad." },
+      { "icon": "Brain", "title": "Wellness", "desc": "Contenido y beneficios de salud mental." }
+    ]
+  },
+  "ComplianceStrip": {
+    "title": "Cumplimiento y privacidad",
+    "points": [
+      "CFDI 4.0 con resguardo 5 años",
+      "Pagos con Stripe/Mercado Pago; OXXO/SPEI",
+      "Consentimiento biométrico y cifrado",
+      "Residencia de datos preferente en MX"
+    ]
+  },
+  "ROIProof": {
+    "bullets": [
+      { "icon": "TrendingUp", "label": "−25% churn en 90 días" },
+      { "icon": "Activity", "label": "+38% asistencia por miembro" },
+      { "icon": "TimerReset", "label": "−6 h/semana en tareas" }
+    ],
+    "footnote": "Resultados reales; pueden variar según el caso."
+  }
+}
+
+

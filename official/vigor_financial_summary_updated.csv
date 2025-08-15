@@ -1,0 +1,4 @@
+Scenario,Final Customers,Final MRR (MXN),Final ARR (MXN),Annual Revenue (MXN),Final Monthly Profit (MXN),Annual Profit (MXN),Final ARPU (MXN),Final LTV/CAC Ratio,Avg Payback (Months),Break-even Month,Target Achievement
+Base,866,"8,164,419","97,973,032","35,632,123","-2,281,840","-47,159,875","6,502",20.2,3.0,Not achieved,489.9%
+Optimistic,1432,"14,824,436","177,893,237","63,816,919","289,787","-36,495,021","7,137",31.7,2.7,12,889.5%
+Pessimistic,538,"4,564,188","54,770,255","20,228,689","-3,594,747","-52,600,721","5,851",14.0,3.3,Not achieved,273.9%

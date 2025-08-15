@@ -1,0 +1,268 @@
+{
+  "openapi": "3.1.0",
+  "info": {"title": "GymOS MX API", "version": "0.1.0"},
+  "servers": [{"url": "https://api.gymos.mx/v1"}],
+  "security": [{"bearerAuth": []}],
+  "paths": {
+    "/members": {
+      "get": {
+        "operationId": "listMembers",
+        "summary": "List members",
+        "parameters": [{"name": "gymId", "in": "query", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": "#/components/schemas/Member"}}}}}},
+        "x-roles": ["owner", "manager", "staff"],
+        "x-entity": "Member"
+      },
+      "post": {
+        "operationId": "createMember",
+        "summary": "Create member",
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateMemberInput"}}}},
+        "responses": {"201": {"description": "Created", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Member"}}}}},
+        "x-roles": ["owner", "manager", "staff"],
+        "x-entity": "Member"
+      }
+    },
+    "/members/{id}": {
+      "get": {
+        "operationId": "getMember",
+        "summary": "Get member",
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Member"}}}}, "404": {"description": "Not Found"}},
+        "x-roles": ["owner", "manager", "staff", "member"],
+        "x-entity": "Member"
+      },
+      "patch": {
+        "operationId": "updateMember",
+        "summary": "Update member",
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/UpdateMemberInput"}}}},
+        "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Member"}}}}},
+        "x-roles": ["owner", "manager", "staff", "member"],
+        "x-entity": "Member"
+      }
+    },
+    "/body-scans": {
+      "post": {
+        "operationId": "createBodyScan",
+        "summary": "Create body scan",
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateBodyScanInput"}}}},
+        "responses": {"201": {"description": "Created", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/BodyScan"}}}}},
+        "x-roles": ["member", "trainer"],
+        "x-entity": "BodyScan",
+        "x-guards": ["biometricConsent"]
+      }
+    },
+    "/body-scans/{id}": {
+      "get": {
+        "operationId": "getBodyScan",
+        "summary": "Get body scan",
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/BodyScan"}}}}, "404": {"description": "Not Found"}},
+        "x-roles": ["member", "trainer", "manager"],
+        "x-entity": "BodyScan"
+      }
+    },
+    "/invoices": {
+      "get": {
+        "operationId": "listInvoices",
+        "summary": "List invoices",
+        "parameters": [{"name": "gymId", "in": "query", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": "#/components/schemas/Invoice"}}}}}},
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Invoice"
+      },
+      "post": {
+        "operationId": "createInvoice",
+        "summary": "Create invoice (CFDI supported)",
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateInvoiceInput"}}}},
+        "responses": {"201": {"description": "Created", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Invoice"}}}}},
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Invoice"
+      }
+    },
+    "/invoices/{id}": {
+      "get": {
+        "operationId": "getInvoice",
+        "summary": "Get invoice",
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Invoice"}}}}, "404": {"description": "Not Found"}},
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Invoice"
+      },
+      "patch": {
+        "operationId": "updateInvoice",
+        "summary": "Update invoice status",
+        "parameters": [{"name": "id", "in": "path", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"type": "object", "properties": {"status": {"$ref": "#/components/schemas/InvoiceStatus"}}}}}},
+        "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Invoice"}}}}},
+        "x-roles": ["owner", "manager"],
+        "x-entity": "Invoice"
+      }
+    },
+    "/classes": {
+      "get": {
+        "operationId": "listClasses",
+        "summary": "List classes",
+        "parameters": [{"name": "gymId", "in": "query", "required": true, "schema": {"type": "string", "format": "uuid"}}],
+        "responses": {"200": {"description": "OK", "content": {"application/json": {"schema": {"type": "array", "items": {"$ref": "#/components/schemas/Class"}}}}}},
+        "x-roles": ["owner", "manager", "trainer", "member"],
+        "x-entity": "Class"
+      },
+      "post": {
+        "operationId": "createClass",
+        "summary": "Create class",
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateClassInput"}}}},
+        "responses": {"201": {"description": "Created", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/Class"}}}}},
+        "x-roles": ["owner", "manager", "trainer"],
+        "x-entity": "Class"
+      }
+    },
+    "/class-bookings": {
+      "post": {
+        "operationId": "createClassBooking",
+        "summary": "Book a class",
+        "requestBody": {"required": true, "content": {"application/json": {"schema": {"$ref": "#/components/schemas/CreateClassBookingInput"}}}},
+        "responses": {"201": {"description": "Created", "content": {"application/json": {"schema": {"$ref": "#/components/schemas/ClassBooking"}}}}},
+        "x-roles": ["member"],
+        "x-entity": "ClassBooking"
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {"bearerAuth": {"type": "http", "scheme": "bearer", "bearerFormat": "JWT"}},
+    "schemas": {
+      "UUID": {"type": "string", "format": "uuid"},
+      "ISODate": {"type": "string", "format": "date-time"},
+      "InvoiceStatus": {"type": "string", "enum": ["draft", "sent", "paid", "void"]},
+      "BookingStatus": {"type": "string", "enum": ["booked", "cancelled", "attended"]},
+      "ScanMethod": {"type": "string", "enum": ["mobile", "kiosk"]},
+      "Member": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "email": {"type": "string", "format": "email"},
+          "fullName": {"type": "string"},
+          "birthdate": {"type": "string", "format": "date"},
+          "consentBiometric": {"type": "boolean"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "gymId", "email", "fullName", "consentBiometric", "createdAt"]
+      },
+      "CreateMemberInput": {
+        "type": "object",
+        "properties": {
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "email": {"type": "string", "format": "email"},
+          "fullName": {"type": "string"},
+          "birthdate": {"type": "string", "format": "date"},
+          "consentBiometric": {"type": "boolean"}
+        },
+        "required": ["gymId", "email", "fullName"]
+      },
+      "UpdateMemberInput": {
+        "type": "object",
+        "properties": {
+          "email": {"type": "string", "format": "email"},
+          "fullName": {"type": "string"},
+          "birthdate": {"type": "string", "format": "date"},
+          "consentBiometric": {"type": "boolean"}
+        }
+      },
+      "BodyScan": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "method": {"$ref": "#/components/schemas/ScanMethod"},
+          "bodyFatPct": {"type": "number"},
+          "leanMassKg": {"type": "number"},
+          "waistCm": {"type": "number"},
+          "hipCm": {"type": "number"},
+          "rawAssetKey": {"type": "string", "nullable": true},
+          "processedAt": {"$ref": "#/components/schemas/ISODate"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "memberId", "method", "createdAt"]
+      },
+      "CreateBodyScanInput": {
+        "type": "object",
+        "properties": {
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "method": {"$ref": "#/components/schemas/ScanMethod"},
+          "rawAssetKey": {"type": "string", "nullable": true}
+        },
+        "required": ["memberId", "method"]
+      },
+      "Invoice": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "amountMXN": {"type": "integer"},
+          "cfdi": {"type": "object", "nullable": true},
+          "status": {"$ref": "#/components/schemas/InvoiceStatus"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "gymId", "amountMXN", "status", "createdAt"]
+      },
+      "CreateInvoiceInput": {
+        "type": "object",
+        "properties": {
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "amountMXN": {"type": "integer"},
+          "cfdi": {"type": "object", "properties": {"rfc": {"type": "string"}, "usoCFDI": {"type": "string"}, "regimenFiscal": {"type": "string"}}}
+        },
+        "required": ["gymId", "amountMXN"]
+      },
+      "Class": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "startAt": {"$ref": "#/components/schemas/ISODate"},
+          "endAt": {"$ref": "#/components/schemas/ISODate"},
+          "capacity": {"type": "integer"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "gymId", "name", "startAt", "endAt", "capacity", "createdAt"]
+      },
+      "CreateClassInput": {
+        "type": "object",
+        "properties": {
+          "gymId": {"$ref": "#/components/schemas/UUID"},
+          "name": {"type": "string"},
+          "startAt": {"$ref": "#/components/schemas/ISODate"},
+          "endAt": {"$ref": "#/components/schemas/ISODate"},
+          "capacity": {"type": "integer"}
+        },
+        "required": ["gymId", "name", "startAt", "endAt", "capacity"]
+      },
+      "ClassBooking": {
+        "type": "object",
+        "properties": {
+          "id": {"$ref": "#/components/schemas/UUID"},
+          "classId": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "priceMXN": {"type": "integer", "nullable": true},
+          "status": {"$ref": "#/components/schemas/BookingStatus"},
+          "createdAt": {"$ref": "#/components/schemas/ISODate"}
+        },
+        "required": ["id", "classId", "memberId", "status", "createdAt"]
+      },
+      "CreateClassBookingInput": {
+        "type": "object",
+        "properties": {
+          "classId": {"$ref": "#/components/schemas/UUID"},
+          "memberId": {"$ref": "#/components/schemas/UUID"},
+          "priceMXN": {"type": "integer", "nullable": true}
+        },
+        "required": ["classId", "memberId"]
+      },
+      "Error": {"type": "object", "properties": {"message": {"type": "string"}}}
+    }
+  }
+}

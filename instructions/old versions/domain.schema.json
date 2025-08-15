@@ -1,0 +1,95 @@
+{
+  "$schema": "https://schema.primer/specs/domain-schema.v1.json",
+  "entities": [
+    {
+      "name": "Gym",
+      "table": "gyms",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "name", "type": "string", "unique": true},
+        {"name": "timezone", "type": "string", "default": "America/Mexico_City"},
+        {"name": "rfc", "type": "string", "nullable": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["name"]]
+    },
+    {
+      "name": "Member",
+      "table": "members",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "email", "type": "string", "unique": true},
+        {"name": "fullName", "type": "string"},
+        {"name": "birthdate", "type": "date", "nullable": true},
+        {"name": "consentBiometric", "type": "boolean", "default": false},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["email"]]
+    },
+    {
+      "name": "BodyScan",
+      "table": "body_scans",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "memberId", "type": "uuid", "ref": "Member.id"},
+        {"name": "method", "type": "enum", "values": ["mobile", "kiosk"]},
+        {"name": "bodyFatPct", "type": "decimal", "nullable": true},
+        {"name": "leanMassKg", "type": "decimal", "nullable": true},
+        {"name": "waistCm", "type": "decimal", "nullable": true},
+        {"name": "hipCm", "type": "decimal", "nullable": true},
+        {"name": "rawAssetKey", "type": "string", "secure": true, "nullable": true},
+        {"name": "processedAt", "type": "timestamptz", "nullable": true},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["memberId"], ["createdAt"]]
+    },
+    {
+      "name": "Invoice",
+      "table": "invoices",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "memberId", "type": "uuid", "ref": "Member.id", "nullable": true},
+        {"name": "amountMXN", "type": "int"},
+        {"name": "cfdi", "type": "json", "nullable": true},
+        {"name": "status", "type": "enum", "values": ["draft", "sent", "paid", "void"]},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["memberId"], ["status"]]
+    },
+    {
+      "name": "Class",
+      "table": "classes",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "gymId", "type": "uuid", "ref": "Gym.id"},
+        {"name": "name", "type": "string"},
+        {"name": "startAt", "type": "timestamptz"},
+        {"name": "endAt", "type": "timestamptz"},
+        {"name": "capacity", "type": "int", "default": 20},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["gymId"], ["startAt"]]
+    },
+    {
+      "name": "ClassBooking",
+      "table": "class_bookings",
+      "pk": "id",
+      "fields": [
+        {"name": "id", "type": "uuid"},
+        {"name": "classId", "type": "uuid", "ref": "Class.id"},
+        {"name": "memberId", "type": "uuid", "ref": "Member.id"},
+        {"name": "priceMXN", "type": "int", "nullable": true},
+        {"name": "status", "type": "enum", "values": ["booked", "cancelled", "attended"]},
+        {"name": "createdAt", "type": "timestamptz", "defaultNow": true}
+      ],
+      "indexes": [["classId"], ["memberId"]]
+    }
+  ]
+}

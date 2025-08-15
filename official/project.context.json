@@ -1,0 +1,115 @@
+{
+  "project": {
+    "name": "Vigor (GymOS MX)",
+    "framework": {
+      "web": "Next.js 14 (App Router, RSC + client islands)",
+      "api": "Express (apps/api), auto-increment port starting at 4001"
+    },
+    "monorepo": true,
+    "ports": {
+      "web_dev": 7777,
+      "web_prod": 3000,
+      "api_default": 4001,
+      "api_autoincrement": true
+    }
+  },
+  "design_system": {
+    "tokens_file": "official/design.tokens.json",
+    "globals": "apps/web/app/globals.css",
+    "theme": "Luminous corporate wellness (light by default)",
+    "css_vars": [
+      "--bg","--surface","--surface-alt","--card","--muted","--text","--heading",
+      "--primary","--primary-emph","--secondary","--secondary-hover","--accent",
+      "--warning","--danger","--outline","--shadow-card","--shadow-elevated",
+      "--text-primary","--text-secondary"
+    ],
+    "fonts": { "display": "Sora", "sans": "Inter" },
+    "ctas": {
+      "selector": "[data-cta]",
+      "variants": ["primary","secondary","ghost"],
+      "notes": "Use data-variant to get unified styles; do not hand-roll CTA classes."
+    }
+  },
+  "images": {
+    "policy": "Local only",
+    "dir": "apps/public/images",
+    "symlink_used": "apps/web/public/images -> ../../public/images",
+    "hero": ["/images/hero-dashboard.png","/images/hero-app.png"],
+    "activity": ["/images/activity-a.png","/images/activity-b.png","/images/activity-c.png"],
+    "logo_placeholder": "/images/logo-1.png",
+    "next_image_remote_patterns": []
+  },
+  "icons": {
+    "strategy": "Inline SVG registry (SSR-safe)",
+    "file": "apps/web/lib/icons/registry.tsx",
+    "replace_lucide": true,
+    "available": ["Dumbbell","Brain","CalendarCheck2","CreditCard","ShieldCheck","Smartphone","Sun","Moon","MapPin","Users","Clock3","Activity","TrendingUp","TimerReset","Wallet","FileDigit","Banknote","MessageSquare","Brackets","GraduationCap","Building2","Check"]
+  },
+  "motion": {
+    "presets_file": "apps/web/lib/motion/presets.ts",
+    "reduced_motion": "Respected via maybeDisable"
+  },
+  "content": {
+    "home_v2": "apps/web/lib/content/home.v2.json",
+    "homepage_uses": [
+      "HeroCinematic (from v2)",
+      "KPI_Counters (v2)",
+      "FeatureGridLight (v2)",
+      "LogoMarquee (v2)",
+      "ActivityCarousel (v2)",
+      "AppPromo (v2)",
+      "PlansSection (v2)",
+      "HowItWorks (v2)",
+      "CTA_Banner (v2)",
+      "FAQAccordion (v2)"
+    ],
+    "navbar": "wired to content v2 (NavbarLight)"
+  },
+  "analytics": {
+    "posthog": "client-side cta.click via data-cta in apps/web/lib/utils.ts",
+    "events": [
+      { "name": "cta.click", "selector": "[data-cta]", "props": ["placement","label","href"] },
+      { "name": "plan.select", "selector": "[data-cta=plan]", "props": ["plan"] }
+    ]
+  },
+  "status": {
+    "hydration": "Resolved; inline SVGs + consistent SSR-safe components",
+    "server_error": "Fixed; '/' loads successfully",
+    "ports": "web 7777, api 4001 with auto-increment",
+    "images": "All local and loading",
+    "icons": "lucide-react removed from dependencies"
+  },
+  "roadmap": {
+    "near_term": [
+      "Finish migrating all legacy sections to v2 content source",
+      "Add PostHog key env and enable production analytics",
+      "Expand icon registry with any missing symbols",
+      "Add dark mode token set to globals and verify",
+      "Add blur placeholders to hero images"
+    ],
+    "mid_term": [
+      "ComparisonTable, IntegrationsWall, ComplianceRibbon, ROIProofWithScroller",
+      "TestimonialsCarousel with local avatars",
+      "Migrate all page copy to JSON-driven content",
+      "Add motion variants consistently to all sections"
+    ],
+    "infra": [
+      "CI to lint/build/test web and api",
+      "Image optimization pass (pre-generate blurDataURL where needed)",
+      "Add lint:unsplash script"
+    ]
+  },
+  "acceptance_criteria": [
+    "Hero communicates clearly in <5s with product visuals",
+    "Inter ExtraBold headlines; AA contrast",
+    "Primary #1E5BFF for CTAs; secondary light blue",
+    "KPIs under hero, blue icons, white cards",
+    "Homepage fully from home.v2.json",
+    "No Unsplash references in repo",
+    "Lighthouse mobile >= 90 (Perf/SEO/A11y)"
+  ]
+}
+
+
+
+

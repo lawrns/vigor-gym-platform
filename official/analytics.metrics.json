@@ -1,0 +1,164 @@
+{
+  "$schema": "https://schema.primer/specs/analytics-metrics.v1.json",
+  "provider": "posthog",
+  "locale": "es-MX",
+  "identities": {
+    "userId": {"type": "uuid", "description": "ID del usuario autenticado (miembro o staff)"},
+    "memberId": {"type": "uuid", "nullable": true},
+    "gymId": {"type": "uuid"},
+    "role": {"type": "enum", "values": ["owner", "manager", "trainer", "staff", "member", "superadmin"]},
+    "deviceId": {"type": "string"},
+    "sessionId": {"type": "string"}
+  },
+  "events": [
+    {
+      "id": "app.opened",
+      "description": "La app se abre (web o móvil)",
+      "props": {
+        "platform": {"type": "enum", "values": ["web", "ios", "android"]},
+        "version": {"type": "string"},
+        "locale": {"type": "string", "default": "es-MX"}
+      }
+    },
+    {
+      "id": "member.created",
+      "description": "Nuevo miembro creado",
+      "entity": "Member",
+      "props": {
+        "source": {"type": "enum", "values": ["admin", "self-serve"]}
+      },
+      "sources": ["workflows:member.created", "api:listMembers|createMember"]
+    },
+    {
+      "id": "class.booking.created",
+      "description": "Reserva de clase creada",
+      "entity": "ClassBooking",
+      "props": {
+        "classId": {"type": "uuid"},
+        "priceMXN": {"type": "integer", "nullable": true}
+      },
+      "sources": ["workflows:class.booking.created", "api:createClassBooking"]
+    },
+    {
+      "id": "class.booking.attended",
+      "description": "Asistencia confirmada a clase",
+      "entity": "ClassBooking",
+      "props": {"classId": {"type": "uuid"}},
+      "derivedFrom": {"entity": "ClassBooking", "when": "status == 'attended'"}
+    },
+    {
+      "id": "invoice.created",
+      "description": "Factura creada (CFDI compatible)",
+      "entity": "Invoice",
+      "props": {"amountMXN": {"type": "integer"}},
+      "sources": ["api:createInvoice", "workflows:invoice.created"]
+    },
+    {
+      "id": "billing.cfdi.issued",
+      "description": "CFDI emitido para una factura",
+      "entity": "Invoice",
+      "props": {"rfc": {"type": "string", "pii": "personal"}},
+      "sources": ["workflows:billing.cfdi.issued"]
+    },
+    {
+      "id": "invoice.paid",
+      "description": "Factura pagada",
+      "entity": "Invoice",
+      "props": {"amountMXN": {"type": "integer"}, "method": {"type": "enum", "values": ["card", "spei", "oxxo"]}},
+      "sources": ["workflows:payment.succeeded"]
+    },
+    {
+      "id": "vision.scan.started",
+      "description": "Escaneo corporal iniciado",
+      "entity": "BodyScan",
+      "props": {"method": {"type": "enum", "values": ["mobile", "kiosk"]}}
+    },
+    {
+      "id": "vision.scan.completed",
+      "description": "Escaneo corporal completado (resultados disponibles)",
+      "entity": "BodyScan",
+      "props": {
+        "bodyFatPct": {"type": "number", "nullable": true},
+        "leanMassKg": {"type": "number", "nullable": true},
+        "waistCm": {"type": "number", "nullable": true},
+        "hipCm": {"type": "number", "nullable": true}
+      },
+      "sources": ["workflows:vision.scan.processed", "ai-vision:persist"]
+    },
+    {
+      "id": "ml.churn.scored",
+      "description": "Riesgo de churn calculado",
+      "entity": "Member",
+      "props": {
+        "score": {"type": "number"},
+        "tier": {"type": "enum", "values": ["low", "medium", "high"]}
+      },
+      "sources": ["workflows:ml.churn.scored"]
+    }
+  ],
+  "funnels": [
+    {
+      "id": "onboarding.member",
+      "name": "Onboarding de miembro",
+      "steps": ["member.created", "invoice.created", "invoice.paid", "class.booking.created", "vision.scan.completed"],
+      "windowDays": 30
+    },
+    {
+      "id": "adoption.vision",
+      "name": "Adopción de escaneo corporal",
+      "steps": ["vision.scan.started", "vision.scan.completed"],
+      "windowDays": 7
+    }
+  ],
+  "kpis": [
+    {
+      "id": "mrr_mxn",
+      "name": "MRR (MXN)",
+      "period": "monthly",
+      "formula": "sum(invoice.paid.amountMXN) in month"
+    },
+    {
+      "id": "arpu_mxn",
+      "name": "ARPU (MXN)",
+      "period": "monthly",
+      "formula": "mrr_mxn / distinct_count(memberId)"
+    },
+    {
+      "id": "churn_rate_30d",
+      "name": "Churn 30d",
+      "period": "monthly",
+      "formula": "(members_cancelled_30d / members_active_start)"
+    },
+    {
+      "id": "scan_completion_rate",
+      "name": "Tasa de finalización de escaneo",
+      "period": "weekly",
+      "formula": "count(vision.scan.completed) / count(vision.scan.started)"
+    },
+    {
+      "id": "attendance_per_member",
+      "name": "Asistencias por miembro",
+      "period": "weekly",
+      "formula": "count(class.booking.attended) / distinct_count(memberId)"
+    }
+  ],
+  "governance": {
+    "pii": {
+      "personal": ["member.email", "billing.cfdi.issued.rfc"],
+      "sensitive_biometric_derived": ["vision.scan.completed.bodyFatPct", "vision.scan.completed.leanMassKg", "vision.scan.completed.waistCm", "vision.scan.completed.hipCm"]
+    },
+    "consents": {
+      "biometric": {"requiredFor": ["vision.scan.started", "vision.scan.completed"], "source": "Member.consentBiometric"}
+    },
+    "retention": {
+      "defaultMonths": 25,
+      "biometricDerivedYears": 5,
+      "rawImagesTracked": false
+    },
+    "locale": "es-MX",
+    "dataResidency": "mx-preferred"
+  },
+  "destinations": [
+    {"type": "posthog", "apiKey": "env:NEXT_PUBLIC_POSTHOG_KEY"}
+  ]
+}

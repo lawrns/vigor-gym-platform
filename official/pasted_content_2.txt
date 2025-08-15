@@ -1,0 +1,223 @@
+{
+  "meta": {
+    "task": "Market research + brand + wireframes + GTM + cross-file spec upgrades for a Mexican-first AI gym platform",
+    "locale": "es-MX",
+    "currency": "MXN",
+    "style": "concise, evidence-backed, implementation-ready",
+    "version": "1.0.0"
+  },
+  "context": {
+    "project_name": "GymOS MX",
+    "diagnostics": {
+      "current_strengths": [
+        "Coherent 9-spec structure tied to PRD and cross-file checks",
+        "Clear MX compliance direction (CFDI 4.0, biometric consent)",
+        "Vision pipeline defined; analytics KPIs and funnels started",
+        "Base routes, roles, components present; Postgres/Prisma stack"
+      ],
+      "gaps_to_close": [
+        "No subscription/membership plans or lifecycle (trial/active/past_due/canceled)",
+        "No referral/growth loop entities, GTM artifacts, or distribution integrations",
+        "Limited CRM/journey automation entities and endpoints",
+        "Brand identity only partially expressed; brand exploration/names missing",
+        "API breadth thin (payments, subscriptions, referrals, campaigns)",
+        "Wireframes not yet captured as component-mapped, route-aligned screens"
+      ],
+      "non_goals_to_respect": [
+        "No heavy IoT integrations in R1",
+        "No telemedicine/genetic data"
+      ]
+    },
+    "cross_file_validation_requirements": [
+      "Routes reference components that exist in ui.components.json and vice versa",
+      "API schemas mirror domain.schema.json shapes/enums/IDs",
+      "Workflows reference valid events/entities and map to analytics events",
+      "ai.vision.json outputs map to BodyScan fields and analytics properties",
+      "Design tokens referenced by components via classNames"
+    ]
+  },
+  "inputs": {
+    "files": [
+      {"path": "/instructions/PRD.md", "content": "<<< paste current content of PRD.md >>>"},
+      {"path": "/instructions/project.manifest.json", "content": "<<< paste current content of project.manifest.json >>>"},
+      {"path": "/instructions/design.tokens.json", "content": "<<< paste current content of design.tokens.json >>>"},
+      {"path": "/instructions/ui.components.json", "content": "<<< paste current content of ui.components.json >>>"},
+      {"path": "/instructions/navigation.routes.json", "content": "<<< paste current content of navigation.routes.json >>>"},
+      {"path": "/instructions/domain.schema.json", "content": "<<< paste current content of domain.schema.json >>>"},
+      {"path": "/instructions/api.openapi.json", "content": "<<< paste current content of api.openapi.json >>>"},
+      {"path": "/instructions/workflows.state.json", "content": "<<< paste current content of workflows.state.json >>>"},
+      {"path": "/instructions/ai.vision.json", "content": "<<< paste current content of ai.vision.json >>>"},
+      {"path": "/instructions/analytics.metrics.json", "content": "<<< paste current content of analytics.metrics.json >>>"}
+    ]
+  },
+  "objectives": [
+    "Produce a data-backed market opportunity report for Mexico and adjacent LATAM, with TAM/SAM/SOM, competitive matrix, and regulatory lens",
+    "Upgrade all 9 JSON specs and PRD to support monetization, retention, and referrals to reach MXN 20–40M ARR potential in Year 1",
+    "Generate low-fidelity wireframes mapped to existing/new components and routes",
+    "Conceptualize brand identity and top-scoring brand names with availability checks",
+    "Deliver a 12‑month, experiment-driven GTM plan with budgets, KPIs, and weekly cadence"
+  ],
+  "constraints": [
+    "User-facing copy in Spanish (es-MX); currency in MXN",
+    "Security/compliance: explicit biometric consent, encrypted storage, CFDI 4.0",
+    "Prefer minimal, correct stubs that satisfy schemas and cross-links",
+    "Keep additions pragmatic for a 3-release roadmap; R1 must be shippable fast"
+  ],
+  "tasks": [
+    {
+      "id": "market_research",
+      "instructions": "Research Mexico’s gym/fitness software and body-scanning market; include TAM/SAM/SOM, price points, buyer personas (owner/manager/trainer), procurement process, switching costs, integrations needed (Mercado Pago, Stripe, CFDI PAC). Benchmark competitors (Mindbody, ABC Fitness, Trainerize, Evolt 360, Sporttia, Fitpass MX, local ERPs). Provide sources with dates.",
+      "deliverables": {
+        "path": "/instructions/market.report.md",
+        "sections": [
+          "Executive Summary (MXN sizes, urgency, wedge)",
+          "TAM/SAM/SOM (methodology)",
+          "Competitive Matrix (features, MX readiness, pricing, gaps we exploit)",
+          "Regulatory & Payments Landscape (CFDI PAC options, OXXO/SPEI cards)",
+          "Segments & ICPs (gyms, studios, franchises; ACV, CAC, sales cycle)",
+          "Go-To-Market Implications (channel, partnerships, roll-ups, pricing)"
+        ]
+      }
+    },
+    {
+      "id": "brand_identity",
+      "instructions": "Propose 12–20 brand names optimized for Spanish-speaking market (memorable, 5–10 chars, easy to spell in ES/EN, no accents, avoid negative connotations). Score for distinctiveness, pronounceability, category fit, domain and handle availability. Provide rationale and sample voice/positioning.",
+      "requirements": {
+        "checks": [
+          ".com and .mx domain availability (best-effort; cite method or limitation)",
+          "Instagram/TikTok/Twitter handle availability (best-effort; cite method or limitation)",
+          "Trademark quick screen risk (obvious conflicts)"
+        ],
+        "outputs": [
+          "Tone of Voice (ES examples)",
+          "Taglines (ES, with literal EN gloss)",
+          "Value Prop Pyramid (pain → gain → proof)",
+          "Naming Shortlist (top 5 with decision matrix)"
+        ]
+      },
+      "deliverables": [
+        {"path": "/instructions/brand.options.json", "description": "Names, scoring, availability notes, rationale"},
+        {"path": "/instructions/design.tokens.json", "description": "Update brand name and color/type tokens to match chosen direction; ensure contrast AA+"}
+      ]
+    },
+    {
+      "id": "wireframes",
+      "instructions": "Create low-fidelity wireframes mapped to routes and components. Reuse existing components and introduce only essential new ones for monetization, onboarding, and referrals. Provide screen JSON that references `ui.components.json` IDs with props.",
+      "deliverables": {
+        "path": "/instructions/wireframes.screens.json",
+        "format": {
+          "$schema": "https://schema.primer/specs/wireframes.v1.json",
+          "screens": [
+            {"route": "/dashboard", "components": [{"id": "navbar"}, {"id": "kpi-card"}, {"id": "scan-progress-card"}]},
+            {"route": "/pricing", "components": [{"id": "navbar"}, {"id": "pricing-card-mx"}, {"id": "plan-selector"}]},
+            {"route": "/referrals", "components": [{"id": "navbar"}, {"id": "referral-banner"}, {"id": "referral-stats-card"}]},
+            {"route": "/billing/invoices", "components": [{"id": "navbar"}, {"id": "cfdi-invoice-form"}]},
+            {"route": "/scans", "components": [{"id": "navbar"}, {"id": "scan-progress-card"}, {"id": "consent-modal-biometric"}]}
+          ]
+        }
+      }
+    },
+    {
+      "id": "spec_upgrades",
+      "instructions": "Upgrade PRD and all 9 specs to enable subscriptions, referrals, onboarding journeys, dunning, and richer analytics while preserving cross-file consistency.",
+      "edits": [
+        {
+          "path": "/instructions/domain.schema.json",
+          "changes": "Add entities: Plan, Subscription, Referral, PaymentMethod, Campaign, Journey, Tag, MemberTag, Location, ChurnScore. Ensure FKs, enums, indexes."
+        },
+        {
+          "path": "/instructions/api.openapi.json",
+          "changes": "Add endpoints: /plans, /subscriptions, /referrals, /payments/methods, /campaigns, /journeys, /gyms, minimal /auth. Include x-roles, x-entity, guards, error shapes."
+        },
+        {
+          "path": "/instructions/workflows.state.json",
+          "changes": "Add machines: subscription.lifecycle (trialing→active→past_due→canceled), referral.flow (issued→redeemed→rewarded). Add events: referral.created, referral.redeemed, subscription.started, subscription.renewal_due, subscription.canceled; map to analytics."
+        },
+        {
+          "path": "/instructions/analytics.metrics.json",
+          "changes": "Add events: referral.created|redeemed, subscription.started|renewed|canceled, onboarding.completed. Funnels: trial_to_paid, referral_k. KPIs: k_factor, cac_mxn, ltv_mxn, activation_rate."
+        },
+        {
+          "path": "/instructions/navigation.routes.json",
+          "changes": "Add protected routes: /pricing, /referrals, /reports, /campaigns, /playbooks, /admin/plans, /integrations, /locations; ensure roles and layouts."
+        },
+        {
+          "path": "/instructions/ui.components.json",
+          "changes": "Add: pricing-card-mx, plan-selector, referral-banner, referral-stats-card, onboarding-wizard, consent-modal-biometric, kpi-card. Set classNames using tokens; map to routes."
+        },
+        {
+          "path": "/instructions/design.tokens.json",
+          "changes": "If brand choice changes, update brand.name and color/typography tokens; add semantic tokens (success/warning/danger) for growth surfaces; ensure contrast."
+        },
+        {
+          "path": "/instructions/ai.vision.json",
+          "changes": "Add outputs for posture/segment confidence where useful; confirm consent copy; ensure events include scan.started/completed; keep retention windows."
+        },
+        {
+          "path": "/instructions/PRD.md",
+          "changes": "Expand roadmap with growth loops (referrals, shareable progress), sales enablement, partnerships (franchises, equipment vendors), pricing tiers, and success metrics."
+        }
+      ]
+    },
+    {
+      "id": "gtm_12_months",
+      "instructions": "Create a 12‑month GTM with monthly goals, channel mix (direct sales, reseller/partners, founder-led, community/ambassadors), budgets, CAC targets, and experiment backlog tied to KPIs. Include email/SMS templates (ES), ad creative briefs, partner list (MX gyms/franchises, PAC providers, Mercado Pago/Stripe co-marketing), and a lighthouse-customer plan.",
+      "deliverables": [
+        {"path": "/instructions/go_to_market.plan.md", "description": "Timeline, budget, KPIs, experiments"},
+        {"path": "/instructions/growth.experiments.csv", "description": "ICE/PIE-scored backlog with owners and metrics"}
+      ]
+    },
+    {
+      "id": "economics_and_targets",
+      "instructions": "Model paths to MXN 20–40M in Year 1: scenarios for gym count, ARPA, conversion to paid, expansion revenue, K-factor. Provide an assumption table and sensitivity analysis; tie to KPIs.",
+      "deliverables": [
+        {"path": "/instructions/economics.model.md", "description": "Assumptions, scenarios, sensitivity"},
+        {"path": "/instructions/economics.inputs.json", "description": "Editable inputs for recalculation"}
+      ]
+    }
+  ],
+  "acceptance_criteria": [
+    "All edits compile logically: entity/enum alignment across domain.schema.json, api.openapi.json, workflows, analytics",
+    "Routes only reference components that exist; components show usedOnRoutes",
+    "All new events in workflows have corresponding analytics events and are referenced by funnels/KPIs",
+    "Spanish copy present for end-user text; currency MXN",
+    "Brand tokens meet contrast AA+; typography is legible; names are scored with rationale",
+    "Provide sources for market claims; flag any limitations of availability checks"
+  ],
+  "return_format": {
+    "type": "multifile",
+    "edits": [
+      {"path": "/instructions/PRD.md", "action": "replace", "content": "string"},
+      {"path": "/instructions/project.manifest.json", "action": "replace", "content": "string"},
+      {"path": "/instructions/design.tokens.json", "action": "replace", "content": "string"},
+      {"path": "/instructions/ui.components.json", "action": "replace", "content": "string"},
+      {"path": "/instructions/navigation.routes.json", "action": "replace", "content": "string"},
+      {"path": "/instructions/domain.schema.json", "action": "replace", "content": "string"},
+      {"path": "/instructions/api.openapi.json", "action": "replace", "content": "string"},
+      {"path": "/instructions/workflows.state.json", "action": "replace", "content": "string"},
+      {"path": "/instructions/ai.vision.json", "action": "replace", "content": "string"},
+      {"path": "/instructions/analytics.metrics.json", "action": "replace", "content": "string"}
+    ],
+    "new_files": [
+      {"path": "/instructions/market.report.md", "content": "string"},
+      {"path": "/instructions/brand.options.json", "content": "string"},
+      {"path": "/instructions/wireframes.screens.json", "content": "string"},
+      {"path": "/instructions/go_to_market.plan.md", "content": "string"},
+      {"path": "/instructions/growth.experiments.csv", "content": "string"},
+      {"path": "/instructions/economics.model.md", "content": "string"},
+      {"path": "/instructions/economics.inputs.json", "content": "string"}
+    ],
+    "summary": "Bullet list of the most important changes and business impact"
+  },
+  "quality_bar": {
+    "evidence": "Cite at least 8–12 reputable sources with dates for market/competitor claims",
+    "coherence": "No type drift across files; enums and IDs match",
+    "pragmatism": "R1 scope shippable within 90 days with clear growth loops",
+    "growth": "Explicit K-factor target and referral mechanic wired to product and analytics"
+  },
+  "notes": {
+    "mx_regulatory": "Recommend top 2–3 PACs for CFDI (e.g., Finkok, Solución Factible) and justify selection",
+    "payments": "Clarify split of Mercado Pago vs Stripe by segment; include OXXO/SPEI/card flows",
+    "privacy_copy": "Provide ES consent and disclosure copy for biometric processing"
+  }
+}
