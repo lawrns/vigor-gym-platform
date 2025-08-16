@@ -44,6 +44,7 @@ import visitsRoutes from './routes/visits.js';
 import classesRoutes from './routes/classes.js';
 import bookingsRoutes from './routes/bookings.js';
 import aiRoutes from './routes/ai.js';
+import metricsRoutes from './routes/metrics.js';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -136,6 +137,9 @@ app.use('/v1/bookings', bookingsRoutes);
 
 // AI routes
 app.use('/v1/ai', aiRoutes);
+
+// Metrics routes
+app.use('/v1/metrics', metricsRoutes);
 
 // Healthcheck
 app.get('/health', (_req: Request, res: Response) => {

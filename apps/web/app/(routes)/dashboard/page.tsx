@@ -8,7 +8,35 @@ import { cookies } from 'next/headers';
 async function fetchInitialKPIs(searchParams: URLSearchParams): Promise<KPIOverview | null> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:7777';
-    const queryString = searchParams.toString();
+
+    // Build KPI query parameters from search params
+    const kpiParams = new URLSearchParams();
+
+    // Add date range parameters if present
+    const from = searchParams.get('from');
+    const to = searchParams.get('to');
+    const compareFrom = searchParams.get('compareFrom');
+    const compareTo = searchParams.get('compareTo');
+
+    if (from) kpiParams.set('from', from);
+    if (to) kpiParams.set('to', to);
+    if (compareFrom) kpiParams.set('compareFrom', compareFrom);
+    if (compareTo) kpiParams.set('compareTo', compareTo);
+
+    // If no date range is specified, default to 30 days
+    if (!from && !to) {
+      const defaultTo = new Date();
+      const defaultFrom = new Date();
+      defaultFrom.setDate(defaultTo.getDate() - 30 + 1);
+
+      defaultTo.setHours(23, 59, 59, 999);
+      defaultFrom.setHours(0, 0, 0, 0);
+
+      kpiParams.set('from', defaultFrom.toISOString());
+      kpiParams.set('to', defaultTo.toISOString());
+    }
+
+    const queryString = kpiParams.toString();
     const url = `${baseUrl}/api/kpi/overview${queryString ? `?${queryString}` : ''}`;
 
     // Get cookies from the request to forward authentication
@@ -17,6 +45,7 @@ async function fetchInitialKPIs(searchParams: URLSearchParams): Promise<KPIOverv
 
     console.debug('[DASHBOARD-SSR] Fetching initial KPIs:', url);
     console.debug('[DASHBOARD-SSR] Has cookies:', !!cookieHeader);
+    console.debug('[DASHBOARD-SSR] Query params:', Object.fromEntries(kpiParams));
 
     const response = await fetch(url, {
       cache: 'no-store',

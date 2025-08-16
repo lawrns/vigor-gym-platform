@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { PrismaClient } from '../generated/prisma/index.js';
 import { authRequired, AuthenticatedRequest } from '../middleware/auth.js';
 import { tenantRequired, TenantRequest } from '../middleware/tenant.js';
+import { logBillingEvent } from '../utils/logger.js';
 import {
   createStripeCheckoutSession,
   createStripeSetupIntent,
@@ -344,6 +345,13 @@ router.post('/webhook/stripe', express.raw({ type: 'application/json' }), async 
     const rawBody = req.body as Buffer;
     const event = verifyStripeWebhook(rawBody, signature);
     eventId = event.id;
+
+    // Log webhook received
+    logBillingEvent('webhook_received', {
+      provider: 'stripe',
+      eventId: event.id,
+      requestId: (req as any).requestId,
+    });
 
     console.log(`[WEBHOOK] Received Stripe webhook: ${event.type} (${event.id})`);
 

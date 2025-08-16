@@ -108,20 +108,24 @@ export function KpiCards({ initialData }: KpiCardsProps) {
     status: 'loading' | 'guest' | 'ready' | 'error';
     data?: KPIOverview;
     error?: string;
+    isSSR?: boolean; // Track if we're using SSR data
   }>({
     status: initialData ? 'ready' : 'loading',
-    data: initialData || undefined
+    data: initialData || undefined,
+    isSSR: !!initialData
   });
 
   const fetchKpiData = async () => {
     try {
-      setState({ status: 'loading' });
+      setState(prev => ({ ...prev, status: 'loading', isSSR: false }));
 
       // Get date range and comparison parameters from URL
       const from = searchParams.get('from') ?? undefined;
       const to = searchParams.get('to') ?? undefined;
       const compareFrom = searchParams.get('compareFrom') ?? undefined;
       const compareTo = searchParams.get('compareTo') ?? undefined;
+
+      console.debug('[KPI] Client-side fetch with params:', { from, to, compareFrom, compareTo });
 
       const kpiParams: any = {};
       if (from) kpiParams.from = from;
@@ -134,13 +138,13 @@ export function KpiCards({ initialData }: KpiCardsProps) {
       if (isAPIError(response)) {
         // Handle guest 401s silently
         if ('status' in response && response.status === 401) {
-          setState({ status: 'guest' });
+          setState({ status: 'guest', isSSR: false });
           return;
         }
         throw new Error(response.message);
       }
 
-      setState({ status: 'ready', data: response });
+      setState({ status: 'ready', data: response, isSSR: false });
 
       // Track dashboard view
       if (typeof window !== 'undefined') {
@@ -150,7 +154,8 @@ export function KpiCards({ initialData }: KpiCardsProps) {
             gyms: response.gyms,
             wellnessProviders: response.wellnessProviders,
             dateRange: { from, to },
-            hasComparison: !!(compareFrom && compareTo)
+            hasComparison: !!(compareFrom && compareTo),
+            dataSource: 'client-side'
           });
         });
       }
@@ -161,19 +166,34 @@ export function KpiCards({ initialData }: KpiCardsProps) {
       if (errorMessage.includes('Authentication required') ||
           errorMessage.includes('401') ||
           (isAPIError(err) && 'status' in err && err.status === 401)) {
-        setState({ status: 'guest' });
+        setState({ status: 'guest', isSSR: false });
         // Don't log auth errors for guests - they're expected
         console.debug('[KPI] Expected 401 for guest or expired session');
       } else {
         console.error('[KPI] Failed to fetch KPI data:', err);
-        setState({ status: 'error', error: errorMessage });
+        setState({ status: 'error', error: errorMessage, isSSR: false });
       }
     }
   };
 
   useEffect(() => {
-    // If we have initial data and search params haven't changed, don't refetch
+    // If we have initial SSR data, check if search params match
     if (initialData && state.status === 'ready') {
+      // Check if current search params match the initial data
+      const currentFrom = searchParams.get('from');
+      const currentTo = searchParams.get('to');
+      const currentCompareFrom = searchParams.get('compareFrom');
+      const currentCompareTo = searchParams.get('compareTo');
+
+      // If search params have changed, we need to refetch
+      const paramsChanged = !!(currentFrom || currentTo || currentCompareFrom || currentCompareTo);
+
+      if (paramsChanged) {
+        console.debug('[KPI] Search params changed, refetching data');
+        fetchKpiData();
+      } else {
+        console.debug('[KPI] Using SSR data, no refetch needed');
+      }
       return;
     }
 
@@ -243,35 +263,44 @@ export function KpiCards({ initialData }: KpiCardsProps) {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-      <KpiCard
-        title="Miembros Activos"
-        value={(kpiData.activeMembers || 0).toLocaleString()}
-        icon="Users"
-        description="Usuarios con membresías activas"
-        trend={getTrend(kpiData.changes?.activeMembers)}
-      />
-      <KpiCard
-        title="Ingresos Mensuales"
-        value={`$${(kpiData.monthlyRevenue || 0).toLocaleString()}`}
-        icon="Wallet"
-        description="Ingresos de membresías activas"
-        trend={getTrend(kpiData.changes?.monthlyRevenue)}
-      />
-      <KpiCard
-        title="Visitas Totales"
-        value={(kpiData.totalVisits || 0).toLocaleString()}
-        icon="Activity"
-        description="Total de visitas registradas"
-        trend={getTrend(kpiData.changes?.totalVisits)}
-      />
-      <KpiCard
-        title="Tiempo Promedio"
-        value={`${(kpiData.avgActivationHours || 0).toFixed(1)}h`}
-        icon="Clock3"
-        description="Duración promedio de visitas"
-        trend={getTrend(kpiData.changes?.avgActivationHours)}
-      />
+    <div className="space-y-4">
+      {/* Debug info for development */}
+      {process.env.NEXT_PUBLIC_DEBUG === '1' && (
+        <div className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 p-2 rounded">
+          Data source: {state.isSSR ? 'SSR' : 'Client-side'} | Status: {state.status}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <KpiCard
+          title="Miembros Activos"
+          value={(kpiData.activeMembers || 0).toLocaleString()}
+          icon="Users"
+          description="Usuarios con membresías activas"
+          trend={getTrend(kpiData.changes?.activeMembers)}
+        />
+        <KpiCard
+          title="Ingresos Mensuales"
+          value={`$${(kpiData.monthlyRevenue || 0).toLocaleString()}`}
+          icon="Wallet"
+          description="Ingresos de membresías activas"
+          trend={getTrend(kpiData.changes?.monthlyRevenue)}
+        />
+        <KpiCard
+          title="Visitas Totales"
+          value={(kpiData.totalVisits || 0).toLocaleString()}
+          icon="Activity"
+          description="Total de visitas registradas"
+          trend={getTrend(kpiData.changes?.totalVisits)}
+        />
+        <KpiCard
+          title="Tiempo Promedio"
+          value={`${(kpiData.avgActivationHours || 0).toFixed(1)}h`}
+          icon="Clock3"
+          description="Duración promedio de visitas"
+          trend={getTrend(kpiData.changes?.avgActivationHours)}
+        />
+      </div>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import argon2 from 'argon2';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import { generateTokens, verifyToken, authRequired, AuthenticatedRequest } from '../middleware/auth.js';
+import { logAuthEvent, logSecurityEvent } from '../utils/logger.js';
 
 const router = Router();
 
@@ -130,6 +131,14 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
 
     // Check if user is active
     if (!user.isActive) {
+      logAuthEvent('auth_failure', {
+        userId: user.id,
+        email: user.email,
+        ip: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent'),
+        reason: 'Account deactivated',
+        requestId: (req as any).requestId,
+      });
       return res.status(401).json({ message: 'Account is deactivated' });
     }
 
@@ -137,6 +146,13 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     const isValidPassword = await argon2.verify(user.passwordHash, password);
     if (!isValidPassword) {
       await handleFailedLogin(email);
+      logAuthEvent('auth_failure', {
+        email,
+        ip: req.ip || req.connection.remoteAddress,
+        userAgent: req.get('User-Agent'),
+        reason: 'Invalid password',
+        requestId: (req as any).requestId,
+      });
       return res.status(401).json({ message: 'Email o contraseña inválidos' });
     }
 
@@ -165,6 +181,15 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
       secure: isProduction,
       sameSite: 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // Log successful login
+    logAuthEvent('login', {
+      userId: user.id,
+      email: user.email,
+      ip: req.ip || req.connection.remoteAddress,
+      userAgent: req.get('User-Agent'),
+      requestId: (req as any).requestId,
     });
 
     // Return user info (no sensitive data)

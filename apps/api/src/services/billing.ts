@@ -1,5 +1,6 @@
 import Stripe from 'stripe';
 import { PrismaClient } from '../generated/prisma/index.js';
+import { logBillingEvent } from '../utils/logger.js';
 
 const prisma = new PrismaClient();
 
@@ -210,6 +211,14 @@ export async function createStripeSubscription(request: CreateSubscriptionReques
         }
       }
     }
+
+    // Log successful subscription creation
+    logBillingEvent('subscription_created', {
+      companyId: company.id,
+      amount: plan.priceMxnCents || undefined,
+      currency: 'MXN',
+      provider: 'stripe',
+    });
 
     console.log(`Created subscription ${subscription.id} for company ${company.id}`);
     return response;
