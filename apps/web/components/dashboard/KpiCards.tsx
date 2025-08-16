@@ -97,14 +97,21 @@ function ErrorState({ onRetry, error }: { onRetry: () => void; error: string }) 
   );
 }
 
-export function KpiCards() {
+interface KpiCardsProps {
+  initialData?: KPIOverview | null;
+}
+
+export function KpiCards({ initialData }: KpiCardsProps) {
   const { user, status } = useAuth();
   const searchParams = useSearchParams();
   const [state, setState] = useState<{
     status: 'loading' | 'guest' | 'ready' | 'error';
     data?: KPIOverview;
     error?: string;
-  }>({ status: 'loading' });
+  }>({
+    status: initialData ? 'ready' : 'loading',
+    data: initialData || undefined
+  });
 
   const fetchKpiData = async () => {
     try {
@@ -163,6 +170,11 @@ export function KpiCards() {
   };
 
   useEffect(() => {
+    // If we have initial data and search params haven't changed, don't refetch
+    if (initialData && state.status === 'ready') {
+      return;
+    }
+
     // Only fetch KPI data when user is authenticated
     if (status === 'authenticated' && user) {
       fetchKpiData();
@@ -170,7 +182,7 @@ export function KpiCards() {
       // Set guest state immediately for guests
       setState({ status: 'guest' });
     }
-  }, [status, user, searchParams]);
+  }, [status, user, searchParams, initialData]);
 
   // Show loading state
   if (state.status === 'loading') {

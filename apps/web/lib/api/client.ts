@@ -2,6 +2,7 @@ import type {
   Member,
   Plan,
   Membership,
+  PaymentMethod,
   Company,
   KPIOverview,
   PaginatedResponse,
@@ -222,6 +223,10 @@ type PlansAPI = {
 
 type BillingAPI = {
   createCheckoutSession: (planId: string) => Promise<{ provider: string; url: string; sessionId: string }>;
+  createSetupIntent: (memberId?: string) => Promise<{ clientSecret: string; setupIntentId: string }>;
+  getPaymentMethods: () => Promise<{ paymentMethods: PaymentMethod[] }>;
+  setDefaultPaymentMethod: (paymentMethodId: string) => Promise<{ paymentMethod: PaymentMethod }>;
+  createPortalSession: () => Promise<{ url: string }>;
   getSubscription: () => Promise<{ subscription: any }>;
   cancelSubscription: () => Promise<{ message: string }>;
   getInvoices: (params?: { limit?: number; offset?: number }) => Promise<{ invoices: any[]; total: number; limit: number; offset: number }>;
@@ -283,6 +288,14 @@ export const apiClient: ApiClient = {
   billing: {
     createCheckoutSession: (planId: string) =>
       api.post<{ provider: string; url: string; sessionId: string }>('/v1/billing/checkout/session', { planId }),
+    createSetupIntent: (memberId?: string) =>
+      api.post<{ clientSecret: string; setupIntentId: string }>('/v1/billing/stripe/setup-intent', { memberId }),
+    getPaymentMethods: () =>
+      api.get<{ paymentMethods: PaymentMethod[] }>('/v1/billing/payment-methods'),
+    setDefaultPaymentMethod: (paymentMethodId: string) =>
+      api.post<{ paymentMethod: PaymentMethod }>('/v1/billing/payment-methods/default', { paymentMethodId }),
+    createPortalSession: () =>
+      api.post<{ url: string }>('/v1/billing/stripe/portal', {}),
     getSubscription: () =>
       api.get<{ subscription: any }>('/v1/billing/subscription'),
     cancelSubscription: () =>

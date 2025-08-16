@@ -30,7 +30,13 @@ export type IconName =
   | 'Upload'
   | 'X'
   | 'AlertCircle'
-  | 'CheckCircle';
+  | 'CheckCircle'
+  | 'ArrowLeft'
+  | 'ExternalLink'
+  | 'Shield'
+  | 'Loader2'
+  | 'CameraIcon'
+  | 'Upload';
 
 type SvgProps = React.SVGProps<SVGSVGElement> & { title?: string };
 
@@ -261,6 +267,35 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
     <Svg {...props}>
       <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
       <polyline points="22,4 12,14.01 9,11.01" />
+    </Svg>
+  ),
+  ArrowLeft: (props) => (
+    <Svg {...props}>
+      <path d="m12 19-7-7 7-7" />
+      <path d="M19 12H5" />
+    </Svg>
+  ),
+  ExternalLink: (props) => (
+    <Svg {...props}>
+      <path d="M15 3h6v6" />
+      <path d="M10 14 21 3" />
+      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+    </Svg>
+  ),
+  Shield: (props) => (
+    <Svg {...props}>
+      <path d="M20 13c0 5-3.5 7.5-8 7.5S4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.5-2.5a1 1 0 0 1 1 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z" />
+    </Svg>
+  ),
+  Loader2: (props) => (
+    <Svg {...props}>
+      <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+    </Svg>
+  ),
+  CameraIcon: (props) => (
+    <Svg {...props}>
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+      <circle cx="12" cy="13" r="3" />
     </Svg>
   )
 };

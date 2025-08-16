@@ -1,8 +1,7 @@
-// @ts-nocheck - Temporarily disable strict checks for sprint focus
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { PrismaClient } from '../generated/prisma/index.js';
 import { authRequired } from '../middleware/auth.js';
-import { tenantRequired } from '../middleware/tenant.js';
+import { tenantRequired, TenantRequest } from '../middleware/tenant.js';
 import { z } from 'zod';
 
 const router = Router();
@@ -27,7 +26,7 @@ const updateClassSchema = z.object({
 router.get('/',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const { page = 1, limit = 20, gymId, from, to } = req.query;
       const skip = (Number(page) - 1) * Number(limit);
@@ -98,7 +97,7 @@ router.get('/',
 router.post('/',
   authRequired(['manager', 'owner']),
   tenantRequired(),
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const validation = createClassSchema.safeParse(req.body);
       if (!validation.success) {
@@ -182,7 +181,7 @@ router.post('/',
 router.get('/:id',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const classId = req.params.id;
 
@@ -221,13 +220,13 @@ router.get('/:id',
         bookings: classData.bookings.map(booking => ({
           id: booking.id,
           status: booking.status,
-          bookedAt: booking.bookedAt,
-          member: {
+          bookedAt: booking.createdAt, // Use createdAt instead of bookedAt
+          member: booking.membership.member ? {
             id: booking.membership.member.id,
             firstName: booking.membership.member.firstName,
             lastName: booking.membership.member.lastName,
             email: booking.membership.member.email
-          }
+          } : null
         }))
       });
 
@@ -242,10 +241,10 @@ router.get('/:id',
 router.patch('/:id',
   authRequired(['manager', 'owner']),
   tenantRequired(),
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const classId = req.params.id;
-      
+
       const validation = updateClassSchema.safeParse(req.body);
       if (!validation.success) {
         return res.status(400).json({ 
@@ -266,14 +265,15 @@ router.patch('/:id',
       const updateData = validation.data;
 
       // Convert startsAt to Date if provided
-      if (updateData.startsAt) {
-        updateData.startsAt = new Date(updateData.startsAt);
-      }
+      const processedData = {
+        ...updateData,
+        ...(updateData.startsAt && { startsAt: new Date(updateData.startsAt) })
+      };
 
       // Update the class
       const updatedClass = await prisma.class.update({
         where: { id: classId },
-        data: updateData,
+        data: processedData,
         include: {
           gym: true,
           _count: {
@@ -307,7 +307,7 @@ router.patch('/:id',
 router.delete('/:id',
   authRequired(['manager', 'owner']),
   tenantRequired(),
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const classId = req.params.id;
 

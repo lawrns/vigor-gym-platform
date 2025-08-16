@@ -5,9 +5,14 @@ import { authRequired, AuthenticatedRequest } from '../middleware/auth.js';
 import { tenantRequired, TenantRequest } from '../middleware/tenant.js';
 import {
   createStripeCheckoutSession,
+  createStripeSetupIntent,
+  getPaymentMethods,
+  setDefaultPaymentMethod,
+  createStripePortalSession,
   applyEntitlement,
   verifyStripeWebhook,
   CheckoutSessionRequest,
+  SetupIntentRequest,
 } from '../services/billing.js';
 
 const prisma = new PrismaClient();
@@ -69,6 +74,91 @@ router.post('/checkout/session', async (req: Request, res: Response) => {
 
     console.error('Checkout session creation error:', error);
     const message = error instanceof Error ? error.message : 'Failed to create checkout session';
+    res.status(500).json({ message });
+  }
+});
+
+// POST /v1/billing/stripe/setup-intent
+// Create SetupIntent for saving payment methods
+router.post('/stripe/setup-intent', authRequired(['owner', 'manager', 'staff']), tenantRequired(), async (req: TenantRequest, res: Response) => {
+  try {
+    const companyId = req.tenant?.companyId;
+    if (!companyId) {
+      return res.status(400).json({ message: 'Company ID is required' });
+    }
+
+    const setupIntentRequest: SetupIntentRequest = {
+      companyId,
+      memberId: req.body.memberId, // Optional member ID
+    };
+
+    const setupIntent = await createStripeSetupIntent(setupIntentRequest);
+    res.json(setupIntent);
+  } catch (error) {
+    console.error('SetupIntent creation error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to create SetupIntent';
+    res.status(500).json({ message });
+  }
+});
+
+// GET /v1/billing/payment-methods
+// List payment methods for the company
+router.get('/payment-methods', authRequired(['owner', 'manager', 'staff']), tenantRequired(), async (req: TenantRequest, res: Response) => {
+  try {
+    const companyId = req.tenant?.companyId;
+    if (!companyId) {
+      return res.status(400).json({ message: 'Company ID is required' });
+    }
+
+    const paymentMethods = await getPaymentMethods(companyId);
+    res.json({ paymentMethods });
+  } catch (error) {
+    console.error('Payment methods fetch error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to fetch payment methods';
+    res.status(500).json({ message });
+  }
+});
+
+// POST /v1/billing/payment-methods/default
+// Set default payment method
+router.post('/payment-methods/default', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
+  try {
+    const companyId = req.tenant?.companyId;
+    if (!companyId) {
+      return res.status(400).json({ message: 'Company ID is required' });
+    }
+
+    const { paymentMethodId } = req.body;
+    if (!paymentMethodId) {
+      return res.status(400).json({ message: 'Payment method ID is required' });
+    }
+
+    const paymentMethod = await setDefaultPaymentMethod(companyId, paymentMethodId);
+    res.json({ paymentMethod });
+  } catch (error) {
+    console.error('Set default payment method error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to set default payment method';
+    res.status(500).json({ message });
+  }
+});
+
+// POST /v1/billing/stripe/portal
+// Create Stripe customer portal session
+router.post('/stripe/portal', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
+  try {
+    const companyId = req.tenant?.companyId;
+    if (!companyId) {
+      return res.status(400).json({ message: 'Company ID is required' });
+    }
+
+    const baseUrl = process.env.APP_URL || 'http://localhost:7777';
+    const returnUrl = `${baseUrl}/admin/billing`;
+
+    const portalSession = await createStripePortalSession(companyId, returnUrl);
+    res.json(portalSession);
+  } catch (error) {
+    console.error('Portal session creation error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to create portal session';
     res.status(500).json({ message });
   }
 });

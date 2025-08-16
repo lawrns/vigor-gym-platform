@@ -1,8 +1,7 @@
-// @ts-nocheck - Temporarily disable strict checks for sprint focus
-import { Router } from 'express';
+import { Router, Response } from 'express';
 import { PrismaClient } from '../generated/prisma/index.js';
 import { authRequired } from '../middleware/auth.js';
-import { tenantRequired } from '../middleware/tenant.js';
+import { tenantRequired, TenantRequest } from '../middleware/tenant.js';
 import { rateLimit } from 'express-rate-limit';
 
 const router = Router();
@@ -22,7 +21,7 @@ router.post('/',
   checkInRateLimit,
   authRequired(['staff', 'manager', 'owner']), 
   tenantRequired(), 
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const { membershipId, gymId } = req.body;
       const companyId = req.tenant!.companyId;
@@ -115,11 +114,11 @@ router.post('/',
         gymId: visit.gymId,
         checkIn: visit.checkIn,
         status: 'in_progress',
-        member: {
+        member: visit.membership.member ? {
           id: visit.membership.member.id,
           firstName: visit.membership.member.firstName,
           lastName: visit.membership.member.lastName
-        },
+        } : null,
         gym: {
           id: visit.gym.id,
           name: visit.gym.name
@@ -137,7 +136,7 @@ router.post('/',
 router.patch('/:id/checkout',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const visitId = req.params.id;
       const companyId = req.tenant!.companyId;
@@ -198,11 +197,11 @@ router.patch('/:id/checkout',
         checkOut: updatedVisit.checkOut,
         durationMinutes: durationMinutes,
         status: 'completed',
-        member: {
+        member: updatedVisit.membership.member ? {
           id: updatedVisit.membership.member.id,
           firstName: updatedVisit.membership.member.firstName,
           lastName: updatedVisit.membership.member.lastName
-        },
+        } : null,
         gym: {
           id: updatedVisit.gym.id,
           name: updatedVisit.gym.name
@@ -220,7 +219,7 @@ router.patch('/:id/checkout',
 router.get('/',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const companyId = req.tenant!.companyId;
       const { page = 1, limit = 20, memberId, gymId, from, to } = req.query;
@@ -281,11 +280,11 @@ router.get('/',
             ? Math.round((visit.checkOut.getTime() - visit.checkIn.getTime()) / (1000 * 60))
             : null,
           status: visit.checkOut ? 'completed' : 'in_progress',
-          member: {
+          member: visit.membership.member ? {
             id: visit.membership.member.id,
             firstName: visit.membership.member.firstName,
             lastName: visit.membership.member.lastName
-          },
+          } : null,
           gym: {
             id: visit.gym.id,
             name: visit.gym.name

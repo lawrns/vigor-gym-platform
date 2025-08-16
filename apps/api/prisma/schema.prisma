@@ -65,6 +65,12 @@ enum PaymentStatus {
   refunded
 }
 
+enum PaymentMethodType {
+  card
+  bank_account
+  wallet
+}
+
 enum SubscriptionStatus {
   active
   past_due
@@ -120,12 +126,13 @@ model Company {
   updatedAt    DateTime? @updatedAt @map("updated_at") @db.Timestamptz
 
   // Relations
-  users         User[]
-  members       Member[]
-  memberships   Membership[]
-  invoices      Invoice[]
-  subscriptions Subscription[]
-  currentPlan   Plan?    @relation(fields: [planId], references: [id])
+  users          User[]
+  members        Member[]
+  memberships    Membership[]
+  invoices       Invoice[]
+  subscriptions  Subscription[]
+  paymentMethods PaymentMethod[]
+  currentPlan    Plan?    @relation(fields: [planId], references: [id])
 
   @@map("companies")
 }
@@ -140,8 +147,9 @@ model Member {
   createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz
 
   // Relations
-  company     Company      @relation(fields: [companyId], references: [id])
-  memberships Membership[]
+  company        Company         @relation(fields: [companyId], references: [id])
+  memberships    Membership[]
+  paymentMethods PaymentMethod[]
 
   @@map("members")
   @@index([email])
@@ -295,6 +303,28 @@ model Subscription {
   @@unique([provider, externalId])
   @@index([companyId])
   @@index([status])
+}
+
+model PaymentMethod {
+  id                     String            @id @default(uuid()) @db.Uuid
+  companyId              String            @map("company_id") @db.Uuid
+  memberId               String?           @map("member_id") @db.Uuid
+  type                   PaymentMethodType
+  brand                  String?           // 'visa', 'mastercard', etc.
+  last4                  String?           // Last 4 digits
+  stripePaymentMethodId  String?           @unique @map("stripe_payment_method_id")
+  isDefault              Boolean           @default(false) @map("is_default")
+  createdAt              DateTime          @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt              DateTime?         @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  company Company @relation(fields: [companyId], references: [id])
+  member  Member? @relation(fields: [memberId], references: [id])
+
+  @@map("payment_methods")
+  @@index([companyId])
+  @@index([memberId])
+  @@index([isDefault])
 }
 
 model WebhookEvent {

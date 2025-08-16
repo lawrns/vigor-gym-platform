@@ -1,4 +1,3 @@
-// @ts-nocheck - Temporarily disable strict checks for sprint focus
 import { Router, Response } from 'express';
 import { PrismaClient } from '../generated/prisma/index.js';
 import { authRequired } from '../middleware/auth.js';
@@ -18,7 +17,7 @@ const createBookingSchema = z.object({
 router.post('/',
   authRequired(['staff', 'manager', 'owner', 'member']),
   tenantRequired(),
-  async (req: any, res: Response) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const validation = createBookingSchema.safeParse(req.body);
       if (!validation.success) {
@@ -133,12 +132,12 @@ router.post('/',
             city: booking.class.gym.city
           }
         },
-        member: {
+        member: booking.membership.member ? {
           id: booking.membership.member.id,
           firstName: booking.membership.member.firstName,
           lastName: booking.membership.member.lastName,
           email: booking.membership.member.email
-        }
+        } : null
       });
 
     } catch (error) {
@@ -152,7 +151,7 @@ router.post('/',
 router.get('/',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const companyId = req.tenant!.companyId;
       const { page = 1, limit = 20, classId, memberId, status, from, to } = req.query;
@@ -224,12 +223,12 @@ router.get('/',
               city: booking.class.gym.city
             }
           },
-          member: {
+          member: booking.membership.member ? {
             id: booking.membership.member.id,
             firstName: booking.membership.member.firstName,
             lastName: booking.membership.member.lastName,
             email: booking.membership.member.email
-          }
+          } : null
         })),
         pagination: {
           page: Number(page),
@@ -250,7 +249,7 @@ router.get('/',
 router.patch('/:id/checkin',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const bookingId = req.params.id;
       const companyId = req.tenant!.companyId;
@@ -330,12 +329,12 @@ router.patch('/:id/checkin',
             city: updatedBooking.class.gym.city
           }
         },
-        member: {
+        member: updatedBooking.membership.member ? {
           id: updatedBooking.membership.member.id,
           firstName: updatedBooking.membership.member.firstName,
           lastName: updatedBooking.membership.member.lastName,
           email: updatedBooking.membership.member.email
-        }
+        } : null
       });
 
     } catch (error) {
@@ -349,7 +348,7 @@ router.patch('/:id/checkin',
 router.delete('/:id',
   authRequired(['staff', 'manager', 'owner', 'member']),
   tenantRequired(),
-  async (req, res) => {
+  async (req: TenantRequest, res: Response) => {
     try {
       const bookingId = req.params.id;
       const companyId = req.tenant!.companyId;

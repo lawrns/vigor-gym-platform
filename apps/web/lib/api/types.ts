@@ -8,6 +8,7 @@ export type BookingStatus = 'reserved' | 'checked_in' | 'no_show' | 'cancelled';
 export type InvoiceStatus = 'draft' | 'issued' | 'paid' | 'void';
 export type PaymentProvider = 'stripe' | 'mercadopago';
 export type PaymentStatus = 'requires_action' | 'succeeded' | 'failed' | 'refunded';
+export type PaymentMethodType = 'card' | 'bank_account' | 'wallet';
 
 export interface Company {
   id: string;
@@ -103,6 +104,63 @@ export interface Payment {
   paidMxnCents: number;
   createdAt: string;
   invoice?: Invoice;
+}
+
+export interface PaymentMethod {
+  id: string;
+  companyId: string;
+  memberId: string | null;
+  type: PaymentMethodType;
+  brand: string | null;
+  last4: string | null;
+  stripePaymentMethodId: string | null;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string | null;
+  member?: Member;
+}
+
+export interface BodyScanResult {
+  scanId: string;
+  bodyFatPercentage: number;
+  muscleMass: number;
+  bmi: number;
+  recommendations: string[];
+  poseQuality: 'excellent' | 'good' | 'fair' | 'poor';
+  confidence: number;
+  measurements: {
+    chest?: number;
+    waist?: number;
+    hips?: number;
+    arms?: number;
+    thighs?: number;
+  };
+}
+
+export interface ChurnPrediction {
+  memberId: string;
+  churnRisk: 'low' | 'medium' | 'high';
+  churnProbability: number;
+  riskFactors: string[];
+  recommendations: string[];
+  nextPredictedAction: string;
+}
+
+export interface MemberInsights {
+  member: {
+    id: string;
+    name: string;
+    email: string;
+    status: string;
+  };
+  churnPrediction: ChurnPrediction;
+  engagement: {
+    visitsThisMonth: number;
+    daysSinceLastVisit: number | null;
+    membershipDuration: number;
+  };
+  recommendations: string[];
+  lastBodyScan: BodyScanResult | null;
 }
 
 export interface AuditLog {

@@ -1,5 +1,5 @@
-// OpenTelemetry temporarily disabled for type compatibility
-// import './otel.js';
+// OpenTelemetry setup (simplified)
+import './otel.js';
 
 import 'dotenv/config';
 import dotenv from 'dotenv';
@@ -19,7 +19,7 @@ import { z } from 'zod';
 import { PrismaClient } from './generated/prisma/index.js';
 import { authRequired, AuthenticatedRequest, setPrismaInstance as setAuthPrismaInstance } from './middleware/auth.js';
 import { tenantRequired, withTenantFilter, TenantRequest, logTenantAction } from './middleware/tenant.js';
-// import { requestTiming } from './middleware/requestTiming.js';
+import { requestTiming } from './middleware/requestTiming.js';
 import authRoutes, { setPrismaInstance } from './routes/auth.js';
 import billingRoutes from './routes/billing.js';
 import companiesRoutes, { setPrismaInstance as setCompaniesPrismaInstance } from './routes/companies.js';
@@ -29,14 +29,15 @@ import membershipsRoutes, { setPrismaInstance as setMembershipsPrismaInstance } 
 import visitsRoutes from './routes/visits.js';
 import classesRoutes from './routes/classes.js';
 import bookingsRoutes from './routes/bookings.js';
+import aiRoutes from './routes/ai.js';
 
 const app = express();
 const prisma = new PrismaClient();
 
 app.use(helmet());
 
-// Request timing and correlation middleware (temporarily disabled)
-// app.use(requestTiming);
+// Request timing and correlation middleware
+app.use(requestTiming);
 
 const origins = (process.env.CORS_ORIGINS || 'http://localhost:7777').split(',');
 app.use(cors({
@@ -109,6 +110,9 @@ app.use('/v1/classes', classesRoutes);
 
 // Bookings routes
 app.use('/v1/bookings', bookingsRoutes);
+
+// AI routes
+app.use('/v1/ai', aiRoutes);
 
 // Healthcheck
 app.get('/health', (_req: Request, res: Response) => {
