@@ -229,8 +229,11 @@ type PlansAPI = {
 type BillingAPI = {
   createCheckoutSession: (planId: string) => Promise<{ provider: string; url: string; sessionId: string }>;
   createSetupIntent: (memberId?: string) => Promise<{ clientSecret: string; setupIntentId: string }>;
+  createSubscription: (data: { planId: string; paymentMethodId?: string; memberId?: string }) => Promise<{ subscriptionId: string; status: string; clientSecret?: string }>;
   getPaymentMethods: () => Promise<{ paymentMethods: PaymentMethod[] }>;
   setDefaultPaymentMethod: (paymentMethodId: string) => Promise<{ paymentMethod: PaymentMethod }>;
+  updatePaymentMethod: (paymentMethodId: string, data: { memberId?: string }) => Promise<{ paymentMethod: PaymentMethod }>;
+  deletePaymentMethod: (paymentMethodId: string) => Promise<{ success: boolean }>;
   createPortalSession: () => Promise<{ url: string }>;
   getSubscription: () => Promise<{ subscription: any }>;
   cancelSubscription: () => Promise<{ message: string }>;
@@ -295,10 +298,16 @@ export const apiClient: ApiClient = {
       api.post<{ provider: string; url: string; sessionId: string }>('/v1/billing/checkout/session', { planId }),
     createSetupIntent: (memberId?: string) =>
       api.post<{ clientSecret: string; setupIntentId: string }>('/v1/billing/stripe/setup-intent', { memberId }),
+    createSubscription: (data: { planId: string; paymentMethodId?: string; memberId?: string }) =>
+      api.post<{ subscriptionId: string; status: string; clientSecret?: string }>('/v1/billing/subscription', data),
     getPaymentMethods: () =>
       api.get<{ paymentMethods: PaymentMethod[] }>('/v1/billing/payment-methods'),
     setDefaultPaymentMethod: (paymentMethodId: string) =>
       api.post<{ paymentMethod: PaymentMethod }>('/v1/billing/payment-methods/default', { paymentMethodId }),
+    updatePaymentMethod: (paymentMethodId: string, data: { memberId?: string }) =>
+      api.patch<{ paymentMethod: PaymentMethod }>(`/v1/billing/payment-methods/${paymentMethodId}`, data),
+    deletePaymentMethod: (paymentMethodId: string) =>
+      api.delete<{ success: boolean }>(`/v1/billing/payment-methods/${paymentMethodId}`),
     createPortalSession: () =>
       api.post<{ url: string }>('/v1/billing/stripe/portal', {}),
     getSubscription: () =>

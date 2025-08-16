@@ -1,11 +1,13 @@
 import express, { Request, Response } from 'express';
 import { z } from 'zod';
+import Stripe from 'stripe';
 import { PrismaClient } from '../generated/prisma/index.js';
 import { authRequired, AuthenticatedRequest } from '../middleware/auth.js';
 import { tenantRequired, TenantRequest } from '../middleware/tenant.js';
 import {
   createStripeCheckoutSession,
   createStripeSetupIntent,
+  createStripeSubscription,
   getPaymentMethods,
   setDefaultPaymentMethod,
   createStripePortalSession,
@@ -14,15 +16,26 @@ import {
   verifyStripeWebhook,
   CheckoutSessionRequest,
   SetupIntentRequest,
+  CreateSubscriptionRequest,
 } from '../services/billing.js';
 
 const prisma = new PrismaClient();
+
+// Initialize Stripe (only if API key is provided)
+const stripeApiKey = process.env.STRIPE_SECRET_KEY;
+const stripe = stripeApiKey ? new Stripe(stripeApiKey) : null;
 
 const router = express.Router();
 
 // Validation schemas
 const createCheckoutSessionSchema = z.object({
   planId: z.string().uuid(),
+});
+
+const createSubscriptionSchema = z.object({
+  planId: z.string().uuid(),
+  paymentMethodId: z.string().optional(),
+  memberId: z.string().uuid().optional(),
 });
 
 // POST /v1/billing/checkout/session
@@ -102,6 +115,51 @@ router.post('/stripe/setup-intent', authRequired(['owner', 'manager', 'staff']),
   }
 });
 
+// POST /v1/billing/subscription
+// Create subscription with saved payment method
+router.post('/subscription', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
+  try {
+    const companyId = req.tenant?.companyId;
+    if (!companyId) {
+      return res.status(400).json({ message: 'Company ID is required' });
+    }
+
+    const { planId, paymentMethodId, memberId } = createSubscriptionSchema.parse(req.body);
+
+    // Validate payment method belongs to company if provided
+    if (paymentMethodId) {
+      const paymentMethod = await prisma.paymentMethod.findFirst({
+        where: {
+          id: paymentMethodId,
+          companyId,
+        },
+      });
+
+      if (!paymentMethod) {
+        return res.status(400).json({ message: 'Payment method not found or does not belong to company' });
+      }
+    }
+
+    const subscriptionRequest: CreateSubscriptionRequest = {
+      companyId,
+      planId,
+      paymentMethodId,
+      memberId,
+    };
+
+    const subscription = await createStripeSubscription(subscriptionRequest);
+    res.json(subscription);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return res.status(400).json({ message: 'Validation error', errors: error.errors });
+    }
+
+    console.error('Subscription creation error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to create subscription';
+    res.status(500).json({ message });
+  }
+});
+
 // GET /v1/billing/payment-methods
 // List payment methods for the company
 router.get('/payment-methods', authRequired(['owner', 'manager', 'staff']), tenantRequired(), async (req: TenantRequest, res: Response) => {
@@ -139,6 +197,110 @@ router.post('/payment-methods/default', authRequired(['owner', 'manager']), tena
   } catch (error) {
     console.error('Set default payment method error:', error);
     const message = error instanceof Error ? error.message : 'Failed to set default payment method';
+    res.status(500).json({ message });
+  }
+});
+
+// PATCH /v1/billing/payment-methods/:id
+// Update payment method (e.g., associate with member)
+router.patch('/payment-methods/:id', authRequired(['owner', 'manager', 'staff']), tenantRequired(), async (req: TenantRequest, res: Response) => {
+  try {
+    const companyId = req.tenant?.companyId;
+    if (!companyId) {
+      return res.status(400).json({ message: 'Company ID is required' });
+    }
+
+    const { id: paymentMethodId } = req.params;
+    const { memberId } = req.body;
+
+    // Validate member belongs to company if provided
+    if (memberId) {
+      const member = await prisma.member.findFirst({
+        where: {
+          id: memberId,
+          companyId,
+        },
+      });
+
+      if (!member) {
+        return res.status(400).json({ message: 'Member not found or does not belong to company' });
+      }
+    }
+
+    // Update payment method
+    const paymentMethod = await prisma.paymentMethod.update({
+      where: {
+        id: paymentMethodId,
+        companyId, // Ensure tenant isolation
+      },
+      data: {
+        memberId: memberId || null,
+      },
+      include: {
+        member: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    res.json({ paymentMethod });
+  } catch (error) {
+    console.error('Update payment method error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to update payment method';
+    res.status(500).json({ message });
+  }
+});
+
+// DELETE /v1/billing/payment-methods/:id
+// Remove payment method
+router.delete('/payment-methods/:id', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
+  try {
+    const companyId = req.tenant?.companyId;
+    if (!companyId) {
+      return res.status(400).json({ message: 'Company ID is required' });
+    }
+
+    const { id: paymentMethodId } = req.params;
+
+    // Get payment method to check if it exists and get Stripe ID
+    const paymentMethod = await prisma.paymentMethod.findFirst({
+      where: {
+        id: paymentMethodId,
+        companyId,
+      },
+    });
+
+    if (!paymentMethod) {
+      return res.status(404).json({ message: 'Payment method not found' });
+    }
+
+    // Detach from Stripe if it has a Stripe ID
+    if (paymentMethod.stripePaymentMethodId && stripe) {
+      try {
+        await stripe.paymentMethods.detach(paymentMethod.stripePaymentMethodId);
+      } catch (stripeError) {
+        console.warn('Failed to detach payment method from Stripe:', stripeError);
+        // Continue with database deletion even if Stripe detach fails
+      }
+    }
+
+    // Delete from database
+    await prisma.paymentMethod.delete({
+      where: {
+        id: paymentMethodId,
+        companyId, // Ensure tenant isolation
+      },
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Delete payment method error:', error);
+    const message = error instanceof Error ? error.message : 'Failed to delete payment method';
     res.status(500).json({ message });
   }
 });

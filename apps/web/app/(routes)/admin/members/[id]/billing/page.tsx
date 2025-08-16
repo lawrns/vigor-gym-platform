@@ -66,7 +66,7 @@ export default function MemberBillingPage() {
   const handleSetDefault = async (paymentMethodId: string) => {
     try {
       const response = await apiClient.billing.setDefaultPaymentMethod(paymentMethodId);
-      
+
       if (isAPIError(response)) {
         throw new Error(response.message);
       }
@@ -75,6 +75,64 @@ export default function MemberBillingPage() {
       await loadPaymentMethods();
     } catch (error) {
       console.error('Error setting default payment method:', error);
+      // You could add a toast notification here
+    }
+  };
+
+  const handleAssignToMember = async (paymentMethodId: string) => {
+    try {
+      const response = await apiClient.billing.updatePaymentMethod(paymentMethodId, { memberId });
+
+      if (isAPIError(response)) {
+        throw new Error(response.message);
+      }
+
+      // Refresh payment methods
+      await loadPaymentMethods();
+    } catch (error) {
+      console.error('Error assigning payment method to member:', error);
+      // You could add a toast notification here
+    }
+  };
+
+  const handleDeletePaymentMethod = async (paymentMethodId: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este método de pago?')) {
+      return;
+    }
+
+    try {
+      const response = await apiClient.billing.deletePaymentMethod(paymentMethodId);
+
+      if (isAPIError(response)) {
+        throw new Error(response.message);
+      }
+
+      // Refresh payment methods
+      await loadPaymentMethods();
+    } catch (error) {
+      console.error('Error deleting payment method:', error);
+      // You could add a toast notification here
+    }
+  };
+
+  const handleCreateSubscription = async (paymentMethodId: string) => {
+    try {
+      // For demo purposes, we'll use a default plan ID
+      // In a real app, you'd let the user select a plan
+      const response = await apiClient.billing.createSubscription({
+        planId: 'default-plan-id', // This should come from plan selection
+        paymentMethodId,
+        memberId,
+      });
+
+      if (isAPIError(response)) {
+        throw new Error(response.message);
+      }
+
+      console.log('Subscription created:', response);
+      // You could redirect to subscription management or show success message
+    } catch (error) {
+      console.error('Error creating subscription:', error);
       // You could add a toast notification here
     }
   };
@@ -208,21 +266,50 @@ export default function MemberBillingPage() {
                               Predeterminada
                             </span>
                           )}
+                          {pm.memberId === memberId && (
+                            <span className="px-2 py-1 text-xs bg-green-100 text-green-800 rounded-full">
+                              Asignada
+                            </span>
+                          )}
                         </div>
                         <p className="text-sm text-gray-600 dark:text-gray-400">
                           {pm.type === 'card' ? 'Tarjeta de crédito/débito' : pm.type}
+                          {pm.member && pm.memberId !== memberId && (
+                            <span className="ml-2">
+                              (Asignada a {pm.member.firstName} {pm.member.lastName})
+                            </span>
+                          )}
                         </p>
                       </div>
                     </div>
-                    {!pm.isDefault && (
+                    <div className="flex items-center gap-2">
+                      {!pm.isDefault && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleSetDefault(pm.id)}
+                        >
+                          Hacer Predeterminada
+                        </Button>
+                      )}
+                      {pm.memberId !== memberId && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleAssignToMember(pm.id)}
+                        >
+                          Asignar a Miembro
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleSetDefault(pm.id)}
+                        onClick={() => handleDeletePaymentMethod(pm.id)}
+                        className="text-red-600 hover:text-red-700"
                       >
-                        Hacer Predeterminada
+                        <Icons.Trash className="h-4 w-4" />
                       </Button>
-                    )}
+                    </div>
                   </div>
                 ))}
               </div>

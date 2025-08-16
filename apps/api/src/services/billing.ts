@@ -39,6 +39,19 @@ export interface SetupIntentResponse {
   setupIntentId: string;
 }
 
+export interface CreateSubscriptionRequest {
+  companyId: string;
+  planId: string;
+  paymentMethodId?: string; // Optional: use saved payment method
+  memberId?: string;
+}
+
+export interface CreateSubscriptionResponse {
+  subscriptionId: string;
+  status: string;
+  clientSecret?: string; // For 3D Secure or other authentication
+}
+
 /**
  * Create a Stripe SetupIntent for saving payment methods
  */
@@ -98,6 +111,111 @@ export async function createStripeSetupIntent(request: SetupIntentRequest): Prom
   } catch (error) {
     console.error('Error creating Stripe SetupIntent:', error);
     throw new Error('Failed to create SetupIntent');
+  }
+}
+
+/**
+ * Create a subscription using a saved payment method
+ */
+export async function createStripeSubscription(request: CreateSubscriptionRequest): Promise<CreateSubscriptionResponse> {
+  if (!stripe) {
+    throw new Error('Stripe is not configured');
+  }
+
+  try {
+    // Get company and plan details
+    const [company, plan] = await Promise.all([
+      prisma.company.findUnique({ where: { id: request.companyId } }),
+      prisma.plan.findUnique({ where: { id: request.planId } }),
+    ]);
+
+    if (!company) {
+      throw new Error('Company not found');
+    }
+
+    if (!plan || !plan.stripePriceId) {
+      throw new Error('Plan not found or missing Stripe price configuration');
+    }
+
+    // Find or create Stripe customer
+    let customerId: string;
+    const existingCustomers = await stripe.customers.list({
+      email: company.billingEmail,
+      limit: 1,
+    });
+
+    if (existingCustomers.data.length > 0) {
+      customerId = existingCustomers.data[0].id;
+    } else {
+      const customer = await stripe.customers.create({
+        email: company.billingEmail,
+        name: company.name,
+        metadata: {
+          companyId: company.id,
+        },
+      });
+      customerId = customer.id;
+    }
+
+    // Create subscription
+    const subscriptionData: any = {
+      customer: customerId,
+      items: [{ price: plan.stripePriceId }],
+      metadata: {
+        companyId: company.id,
+        planId: plan.id,
+        memberId: request.memberId || '',
+      },
+      expand: ['latest_invoice.payment_intent'],
+    };
+
+    // If payment method is provided, use it
+    if (request.paymentMethodId) {
+      subscriptionData.default_payment_method = request.paymentMethodId;
+    }
+
+    const subscription = await stripe.subscriptions.create(subscriptionData);
+
+    // Save subscription to database
+    await prisma.subscription.create({
+      data: {
+        companyId: company.id,
+        planId: plan.id,
+        provider: 'stripe',
+        externalId: subscription.id,
+        status: subscription.status as any,
+        currentPeriodEnd: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
+        cancelAtPeriodEnd: (subscription as any).cancel_at_period_end || false,
+      },
+    });
+
+    // Update company plan
+    await prisma.company.update({
+      where: { id: company.id },
+      data: { planId: plan.id },
+    });
+
+    const response: CreateSubscriptionResponse = {
+      subscriptionId: subscription.id,
+      status: subscription.status,
+    };
+
+    // If payment requires authentication, include client secret
+    if (subscription.latest_invoice && typeof subscription.latest_invoice === 'object') {
+      const invoice = subscription.latest_invoice as any;
+      if (invoice.payment_intent && typeof invoice.payment_intent === 'object') {
+        const paymentIntent = invoice.payment_intent as any;
+        if (paymentIntent.client_secret) {
+          response.clientSecret = paymentIntent.client_secret;
+        }
+      }
+    }
+
+    console.log(`Created subscription ${subscription.id} for company ${company.id}`);
+    return response;
+  } catch (error) {
+    console.error('Error creating Stripe subscription:', error);
+    throw new Error('Failed to create subscription');
   }
 }
 
@@ -281,6 +399,9 @@ async function processStripeWebhookWithTransaction(tx: any, eventData: WebhookEv
       break;
     case 'customer.updated':
       await handleCustomerUpdatedWithTransaction(tx, data);
+      break;
+    case 'setup_intent.succeeded':
+      await handleSetupIntentSucceededWithTransaction(tx, data);
       break;
     case 'invoice.created':
     case 'invoice.updated':
@@ -870,6 +991,58 @@ async function handleInvoiceChangeWithTransaction(tx: any, invoice: any): Promis
   });
 
   console.log(`[WEBHOOK] Invoice ${invoiceId} updated for company ${company.id}`);
+}
+
+async function handleSetupIntentSucceededWithTransaction(tx: any, setupIntent: any): Promise<void> {
+  const { id: setupIntentId, payment_method: paymentMethodId, customer, metadata } = setupIntent;
+
+  console.log(`[WEBHOOK] Processing setup intent succeeded: ${setupIntentId}`);
+
+  if (!paymentMethodId) {
+    console.log(`[WEBHOOK] No payment method attached to setup intent ${setupIntentId}`);
+    return;
+  }
+
+  // Find the company by customer ID
+  const company = await findCompanyByStripeCustomer(customer);
+  if (!company) {
+    console.log(`[WEBHOOK] No company found for Stripe customer: ${customer}`);
+    return;
+  }
+
+  // Get payment method details from Stripe
+  if (!stripe) {
+    console.error('[WEBHOOK] Stripe not configured');
+    return;
+  }
+
+  try {
+    const paymentMethod = await stripe.paymentMethods.retrieve(paymentMethodId);
+    const { card, type } = paymentMethod;
+
+    // Save payment method to database
+    await tx.paymentMethod.upsert({
+      where: { stripePaymentMethodId: paymentMethodId },
+      update: {
+        type: type as any,
+        brand: card?.brand || null,
+        last4: card?.last4 || null,
+      },
+      create: {
+        companyId: company.id,
+        memberId: metadata?.memberId || null,
+        type: type as any,
+        brand: card?.brand || null,
+        last4: card?.last4 || null,
+        stripePaymentMethodId: paymentMethodId,
+        isDefault: false,
+      },
+    });
+
+    console.log(`[WEBHOOK] Payment method ${paymentMethodId} saved for company ${company.id} via SetupIntent`);
+  } catch (error) {
+    console.error(`[WEBHOOK] Error retrieving payment method ${paymentMethodId}:`, error);
+  }
 }
 
 /**
