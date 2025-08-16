@@ -40,11 +40,8 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        // Add console error detection
-        contextOptions: {
-          // Fail tests if console.error is called
-          recordVideo: process.env.CI ? 'retain-on-failure' : 'off',
-        }
+        // Add video recording for CI
+        video: process.env.CI ? 'retain-on-failure' : 'off',
       },
     },
 

@@ -158,7 +158,7 @@ export async function createStripeCheckoutSession(
 }
 
 /**
- * Apply entitlement after successful payment
+ * Apply entitlement after successful payment (legacy method - use applyEntitlementWithTransaction)
  */
 export async function applyEntitlement(eventData: WebhookEventData): Promise<void> {
   try {
@@ -202,7 +202,30 @@ export async function applyEntitlement(eventData: WebhookEventData): Promise<voi
 }
 
 /**
- * Process Stripe webhook events
+ * Apply entitlement with transaction support for better data consistency
+ */
+export async function applyEntitlementWithTransaction(
+  tx: any, // Prisma transaction client
+  eventData: WebhookEventData
+): Promise<void> {
+  try {
+    console.log(`[WEBHOOK] Processing ${eventData.provider} event: ${eventData.eventType} (${eventData.eventId})`);
+
+    if (eventData.provider === 'stripe') {
+      await processStripeWebhookWithTransaction(tx, eventData);
+    } else {
+      console.warn(`[WEBHOOK] Unsupported provider: ${eventData.provider}`);
+    }
+
+    console.log(`[WEBHOOK] Successfully processed event: ${eventData.eventId}`);
+  } catch (error) {
+    console.error(`[WEBHOOK] Error processing event ${eventData.eventId}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Process Stripe webhook events (legacy method)
  */
 async function processStripeWebhook(eventData: WebhookEventData): Promise<void> {
   const { eventType, data } = eventData;
@@ -231,6 +254,41 @@ async function processStripeWebhook(eventData: WebhookEventData): Promise<void> 
       break;
     default:
       console.log(`Unhandled event type: ${eventType}`);
+  }
+}
+
+/**
+ * Process Stripe webhook events with transaction support
+ */
+async function processStripeWebhookWithTransaction(tx: any, eventData: WebhookEventData): Promise<void> {
+  const { eventType, data } = eventData;
+
+  console.log(`[WEBHOOK] Processing Stripe event: ${eventType}`);
+
+  switch (eventType) {
+    case 'checkout.session.completed':
+      await handleCheckoutCompletedWithTransaction(tx, data);
+      break;
+    case 'customer.subscription.created':
+    case 'customer.subscription.updated':
+      await handleSubscriptionChangeWithTransaction(tx, data);
+      break;
+    case 'customer.subscription.deleted':
+      await handleSubscriptionCanceledWithTransaction(tx, data);
+      break;
+    case 'payment_method.attached':
+      await handlePaymentMethodAttachedWithTransaction(tx, data);
+      break;
+    case 'customer.updated':
+      await handleCustomerUpdatedWithTransaction(tx, data);
+      break;
+    case 'invoice.created':
+    case 'invoice.updated':
+    case 'invoice.paid':
+      await handleInvoiceChangeWithTransaction(tx, data);
+      break;
+    default:
+      console.log(`[WEBHOOK] Unhandled event type: ${eventType}`);
   }
 }
 
@@ -282,6 +340,58 @@ async function handleCheckoutCompleted(session: any): Promise<void> {
   });
 
   console.log(`Entitlement applied for company ${company.id}, plan ${planId}`);
+}
+
+/**
+ * Handle successful checkout completion with transaction
+ */
+async function handleCheckoutCompletedWithTransaction(tx: any, session: any): Promise<void> {
+  const { metadata, subscription: subscriptionId, customer } = session;
+  const { planId, companyId } = metadata;
+
+  console.log(`[WEBHOOK] Processing checkout completion for company ${companyId}, plan ${planId}`);
+
+  if (!planId) {
+    throw new Error('Missing planId in checkout session metadata');
+  }
+
+  // Get company
+  let company;
+  if (companyId) {
+    company = await tx.company.findUnique({ where: { id: companyId } });
+  }
+
+  if (!company) {
+    throw new Error(`Company not found for checkout session: ${companyId}`);
+  }
+
+  // Update company plan
+  await tx.company.update({
+    where: { id: company.id },
+    data: { planId },
+  });
+
+  // Create subscription record
+  await tx.subscription.upsert({
+    where: {
+      provider_externalId: {
+        provider: 'stripe',
+        externalId: subscriptionId,
+      },
+    },
+    update: {
+      status: 'active',
+    },
+    create: {
+      companyId: company.id,
+      planId,
+      provider: 'stripe',
+      externalId: subscriptionId,
+      status: 'active',
+    },
+  });
+
+  console.log(`[WEBHOOK] Checkout completed for company ${company.id}, plan ${planId}`);
 }
 
 /**
@@ -631,9 +741,141 @@ function mapStripeStatus(stripeStatus: string): any {
 }
 
 /**
+ * Transaction-based webhook handlers for better data consistency
+ */
+
+async function handleSubscriptionChangeWithTransaction(tx: any, subscription: any): Promise<void> {
+  const { id: subscriptionId, status, current_period_end, cancel_at_period_end } = subscription;
+
+  console.log(`[WEBHOOK] Updating subscription ${subscriptionId} status: ${status}`);
+
+  await tx.subscription.updateMany({
+    where: {
+      provider: 'stripe',
+      externalId: subscriptionId,
+    },
+    data: {
+      status: mapStripeStatus(status),
+      currentPeriodEnd: current_period_end ? new Date(current_period_end * 1000) : null,
+      cancelAtPeriodEnd: cancel_at_period_end || false,
+    },
+  });
+}
+
+async function handleSubscriptionCanceledWithTransaction(tx: any, subscription: any): Promise<void> {
+  const { id: subscriptionId } = subscription;
+
+  console.log(`[WEBHOOK] Canceling subscription ${subscriptionId}`);
+
+  await tx.subscription.updateMany({
+    where: {
+      provider: 'stripe',
+      externalId: subscriptionId,
+    },
+    data: {
+      status: 'canceled',
+      cancelAtPeriodEnd: true,
+    },
+  });
+}
+
+async function handlePaymentMethodAttachedWithTransaction(tx: any, paymentMethod: any): Promise<void> {
+  const { id: stripePaymentMethodId, customer, card, type } = paymentMethod;
+
+  console.log(`[WEBHOOK] Processing payment method attached: ${stripePaymentMethodId}`);
+
+  // Find the company by customer ID
+  const company = await findCompanyByStripeCustomer(customer);
+  if (!company) {
+    console.log(`[WEBHOOK] No company found for Stripe customer: ${customer}`);
+    return;
+  }
+
+  // Upsert payment method in database
+  await tx.paymentMethod.upsert({
+    where: { stripePaymentMethodId },
+    update: {
+      type: type as any,
+      brand: card?.brand || null,
+      last4: card?.last4 || null,
+    },
+    create: {
+      companyId: company.id,
+      memberId: null,
+      type: type as any,
+      brand: card?.brand || null,
+      last4: card?.last4 || null,
+      stripePaymentMethodId,
+      isDefault: false,
+    },
+  });
+
+  console.log(`[WEBHOOK] Payment method ${stripePaymentMethodId} saved for company ${company.id}`);
+}
+
+async function handleCustomerUpdatedWithTransaction(tx: any, customer: any): Promise<void> {
+  const { id: customerId, invoice_settings } = customer;
+
+  console.log(`[WEBHOOK] Processing customer update: ${customerId}`);
+
+  const company = await findCompanyByStripeCustomer(customerId);
+  if (!company) {
+    console.log(`[WEBHOOK] No company found for Stripe customer: ${customerId}`);
+    return;
+  }
+
+  // Update default payment method if specified
+  if (invoice_settings?.default_payment_method) {
+    await tx.paymentMethod.updateMany({
+      where: { companyId: company.id },
+      data: { isDefault: false },
+    });
+
+    await tx.paymentMethod.updateMany({
+      where: {
+        companyId: company.id,
+        stripePaymentMethodId: invoice_settings.default_payment_method,
+      },
+      data: { isDefault: true },
+    });
+  }
+}
+
+async function handleInvoiceChangeWithTransaction(tx: any, invoice: any): Promise<void> {
+  const { id: invoiceId, customer, status, amount_paid } = invoice;
+
+  console.log(`[WEBHOOK] Processing invoice change: ${invoiceId}, status: ${status}`);
+
+  const company = await findCompanyByStripeCustomer(customer);
+  if (!company) {
+    console.log(`[WEBHOOK] No company found for Stripe customer: ${customer}`);
+    return;
+  }
+
+  // Update or create invoice record
+  await tx.invoice.upsert({
+    where: { cfdiUuid: invoiceId },
+    update: {
+      status: mapStripeInvoiceStatus(status),
+      totalMxnCents: amount_paid || 0,
+      issuedAt: status === 'paid' ? new Date() : null,
+    },
+    create: {
+      companyId: company.id,
+      cfdiUuid: invoiceId,
+      status: mapStripeInvoiceStatus(status),
+      totalMxnCents: amount_paid || 0,
+      issuedAt: status === 'paid' ? new Date() : null,
+    },
+  });
+
+  console.log(`[WEBHOOK] Invoice ${invoiceId} updated for company ${company.id}`);
+}
+
+/**
  * Verify Stripe webhook signature
  */
-export function verifyStripeWebhook(payload: string, signature: string): any {
+export function verifyStripeWebhook(payload: Buffer | string, signature: string): any {
   if (!stripe) {
     throw new Error('Stripe not configured - missing STRIPE_SECRET_KEY');
   }
@@ -644,9 +886,11 @@ export function verifyStripeWebhook(payload: string, signature: string): any {
   }
 
   try {
-    return stripe.webhooks.constructEvent(payload, signature, webhookSecret);
+    // Stripe expects the raw body as received from the request
+    const rawPayload = Buffer.isBuffer(payload) ? payload : Buffer.from(payload, 'utf8');
+    return stripe.webhooks.constructEvent(rawPayload, signature, webhookSecret);
   } catch (error) {
-    console.error('Webhook signature verification failed:', error);
+    console.error('[WEBHOOK] Signature verification failed:', error);
     throw new Error('Invalid webhook signature');
   }
 }

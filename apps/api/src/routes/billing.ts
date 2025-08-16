@@ -10,6 +10,7 @@ import {
   setDefaultPaymentMethod,
   createStripePortalSession,
   applyEntitlement,
+  applyEntitlementWithTransaction,
   verifyStripeWebhook,
   CheckoutSessionRequest,
   SetupIntentRequest,
@@ -166,31 +167,86 @@ router.post('/stripe/portal', authRequired(['owner', 'manager']), tenantRequired
 // POST /v1/billing/webhook/stripe
 // Handle Stripe webhook events
 router.post('/webhook/stripe', express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
+  const startTime = Date.now();
+  let eventId = 'unknown';
+
   try {
     const signature = req.headers['stripe-signature'] as string;
-    
+
     if (!signature) {
+      console.warn('[WEBHOOK] Missing stripe-signature header');
       return res.status(400).json({ message: 'Missing stripe-signature header' });
     }
 
-    // Verify webhook signature
-    const event = verifyStripeWebhook(req.body.toString(), signature);
+    // Verify webhook signature with raw body (Buffer)
+    const rawBody = req.body as Buffer;
+    const event = verifyStripeWebhook(rawBody, signature);
+    eventId = event.id;
 
-    console.log(`Received Stripe webhook: ${event.type} (${event.id})`);
+    console.log(`[WEBHOOK] Received Stripe webhook: ${event.type} (${event.id})`);
 
-    // Process the webhook
-    await applyEntitlement({
-      provider: 'stripe',
-      eventId: event.id,
-      eventType: event.type,
-      data: event.data.object,
+    // Check for duplicate event first (before any processing)
+    const existingEvent = await prisma.webhookEvent.findUnique({
+      where: { eventId: event.id },
     });
 
-    res.json({ received: true });
+    if (existingEvent?.processed) {
+      console.log(`[WEBHOOK] Event ${event.id} already processed, returning success`);
+      return res.json({ received: true, duplicate: true });
+    }
+
+    // Process the webhook in a transaction for data consistency
+    await prisma.$transaction(async (tx) => {
+      // Create or update webhook event record (idempotency)
+      await tx.webhookEvent.upsert({
+        where: { eventId: event.id },
+        update: {
+          processed: false,
+          eventType: event.type,
+        },
+        create: {
+          provider: 'stripe',
+          eventId: event.id,
+          eventType: event.type,
+          processed: false,
+        },
+      });
+
+      // Process the webhook with transaction context
+      await applyEntitlementWithTransaction(tx, {
+        provider: 'stripe',
+        eventId: event.id,
+        eventType: event.type,
+        data: event.data.object,
+      });
+
+      // Mark event as processed
+      await tx.webhookEvent.update({
+        where: { eventId: event.id },
+        data: { processed: true },
+      });
+    });
+
+    const processingTime = Date.now() - startTime;
+    console.log(`[WEBHOOK] Successfully processed ${event.type} (${event.id}) in ${processingTime}ms`);
+
+    res.json({ received: true, eventId: event.id, processingTimeMs: processingTime });
   } catch (error) {
-    console.error('Stripe webhook error:', error);
+    const processingTime = Date.now() - startTime;
+    console.error(`[WEBHOOK] Error processing webhook ${eventId} after ${processingTime}ms:`, error);
+
+    // Return appropriate status codes
+    if (error instanceof Error) {
+      if (error.message.includes('Invalid webhook signature')) {
+        return res.status(401).json({ message: 'Invalid webhook signature' });
+      }
+      if (error.message.includes('Stripe not configured')) {
+        return res.status(500).json({ message: 'Webhook configuration error' });
+      }
+    }
+
     const message = error instanceof Error ? error.message : 'Webhook processing failed';
-    res.status(400).json({ message });
+    res.status(400).json({ message, eventId });
   }
 });
 
