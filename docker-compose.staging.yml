@@ -1,0 +1,211 @@
+version: '3.8'
+
+# =============================================================================
+# Docker Compose Configuration for Staging Environment
+# =============================================================================
+# This configuration sets up the complete staging environment with proper
+# networking, health checks, and production-like settings.
+
+services:
+  # =============================================================================
+  # API Service
+  # =============================================================================
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile.staging
+      args:
+        NODE_ENV: staging
+    container_name: vigor-api-staging
+    restart: unless-stopped
+    ports:
+      - "4001:4001"
+    environment:
+      - NODE_ENV=staging
+      - PORT=4001
+      - TRUST_PROXY=true
+      - LOG_LEVEL=info
+    env_file:
+      - .env.staging
+    volumes:
+      - ./logs:/app/logs
+    networks:
+      - vigor-staging
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - redis
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.api-staging.rule=Host(`api-staging.vigor-gym.com`)"
+      - "traefik.http.routers.api-staging.tls=true"
+      - "traefik.http.routers.api-staging.tls.certresolver=letsencrypt"
+      - "traefik.http.services.api-staging.loadbalancer.server.port=4001"
+
+  # =============================================================================
+  # Web Application Service
+  # =============================================================================
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile.staging
+      args:
+        NODE_ENV: staging
+        NEXT_PUBLIC_APP_URL: https://staging.vigor-gym.com
+        NEXT_PUBLIC_API_URL: https://api-staging.vigor-gym.com
+    container_name: vigor-web-staging
+    restart: unless-stopped
+    ports:
+      - "7777:7777"
+    environment:
+      - NODE_ENV=staging
+      - PORT=7777
+    env_file:
+      - .env.staging
+    networks:
+      - vigor-staging
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:7777/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - api
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web-staging.rule=Host(`staging.vigor-gym.com`)"
+      - "traefik.http.routers.web-staging.tls=true"
+      - "traefik.http.routers.web-staging.tls.certresolver=letsencrypt"
+      - "traefik.http.services.web-staging.loadbalancer.server.port=7777"
+
+  # =============================================================================
+  # Redis Cache Service
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: vigor-redis-staging
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-staging_redis_pass}
+    volumes:
+      - redis_data:/data
+    networks:
+      - vigor-staging
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # =============================================================================
+  # Reverse Proxy (Traefik)
+  # =============================================================================
+  traefik:
+    image: traefik:v3.0
+    container_name: vigor-traefik-staging
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"  # Traefik dashboard
+    command:
+      - --api.dashboard=true
+      - --api.insecure=true
+      - --providers.docker=true
+      - --providers.docker.exposedbydefault=false
+      - --entrypoints.web.address=:80
+      - --entrypoints.websecure.address=:443
+      - --certificatesresolvers.letsencrypt.acme.tlschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:-admin@vigor-gym.com}
+      - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
+      - --log.level=INFO
+      - --accesslog=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt_data:/letsencrypt
+    networks:
+      - vigor-staging
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik-staging.rule=Host(`traefik-staging.vigor-gym.com`)"
+      - "traefik.http.routers.traefik-staging.tls=true"
+      - "traefik.http.routers.traefik-staging.tls.certresolver=letsencrypt"
+
+  # =============================================================================
+  # Monitoring Services
+  # =============================================================================
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: vigor-prometheus-staging
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - vigor-staging
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus-staging.rule=Host(`prometheus-staging.vigor-gym.com`)"
+      - "traefik.http.routers.prometheus-staging.tls=true"
+      - "traefik.http.routers.prometheus-staging.tls.certresolver=letsencrypt"
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: vigor-grafana-staging
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-staging_grafana_pass}
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - vigor-staging
+    depends_on:
+      - prometheus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana-staging.rule=Host(`grafana-staging.vigor-gym.com`)"
+      - "traefik.http.routers.grafana-staging.tls=true"
+      - "traefik.http.routers.grafana-staging.tls.certresolver=letsencrypt"
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  vigor-staging:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  letsencrypt_data:
+    driver: local

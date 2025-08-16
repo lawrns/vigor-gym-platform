@@ -1,0 +1,99 @@
+# =============================================================================
+# Staging Dockerfile for Vigor Gym API
+# =============================================================================
+# Multi-stage build optimized for staging environment with proper security,
+# monitoring, and production-like configuration.
+
+# =============================================================================
+# Stage 1: Dependencies
+# =============================================================================
+FROM node:18-alpine AS deps
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache libc6-compat curl
+
+# Copy package files
+COPY package*.json ./
+COPY apps/api/package*.json ./apps/api/
+COPY packages/shared/package*.json ./packages/shared/
+
+# Install dependencies
+RUN npm ci --only=production --ignore-scripts
+
+# =============================================================================
+# Stage 2: Builder
+# =============================================================================
+FROM node:18-alpine AS builder
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache libc6-compat
+
+# Copy package files
+COPY package*.json ./
+COPY apps/api/package*.json ./apps/api/
+COPY packages/shared/package*.json ./packages/shared/
+
+# Install all dependencies (including dev)
+RUN npm ci --ignore-scripts
+
+# Copy source code
+COPY apps/api ./apps/api
+COPY packages/shared ./packages/shared
+COPY prisma ./prisma
+
+# Set build environment
+ARG NODE_ENV=staging
+ENV NODE_ENV=$NODE_ENV
+
+# Generate Prisma client
+WORKDIR /app/apps/api
+RUN npx prisma generate
+
+# Build the application
+RUN npm run build
+
+# =============================================================================
+# Stage 3: Runtime
+# =============================================================================
+FROM node:18-alpine AS runner
+WORKDIR /app
+
+# Install system dependencies
+RUN apk add --no-cache \
+    curl \
+    dumb-init \
+    && addgroup --system --gid 1001 nodejs \
+    && adduser --system --uid 1001 nextjs
+
+# Set environment
+ENV NODE_ENV=staging
+ENV PORT=4001
+
+# Copy built application
+COPY --from=builder --chown=nextjs:nodejs /app/apps/api/dist ./dist
+COPY --from=builder --chown=nextjs:nodejs /app/apps/api/package*.json ./
+COPY --from=deps --chown=nextjs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nextjs:nodejs /app/apps/api/node_modules ./apps/api/node_modules
+
+# Copy Prisma files
+COPY --from=builder --chown=nextjs:nodejs /app/apps/api/prisma ./prisma
+COPY --from=builder --chown=nextjs:nodejs /app/apps/api/src/generated ./src/generated
+
+# Create logs directory
+RUN mkdir -p /app/logs && chown nextjs:nodejs /app/logs
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:$PORT/health || exit 1
+
+# Switch to non-root user
+USER nextjs
+
+# Expose port
+EXPOSE $PORT
+
+# Start the application
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "dist/index.js"]
