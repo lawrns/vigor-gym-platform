@@ -1,0 +1,179 @@
+name: 🧪 E2E Tests (Staging)
+
+on:
+  workflow_dispatch:
+    inputs:
+      test_pattern:
+        description: 'Test pattern to run (e.g., auth, dashboard, billing)'
+        required: false
+        default: ''
+        type: string
+  push:
+    branches:
+      - feat/p0w3-golive-payments-depth
+  schedule:
+    # Run daily at 6 AM UTC
+    - cron: '0 6 * * *'
+
+env:
+  NODE_VERSION: '18.17.0'
+
+jobs:
+  e2e-staging:
+    name: 🧪 E2E Tests (Staging)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 9
+
+      - name: 📦 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: 📦 Install dependencies
+        run: pnpm i --frozen-lockfile
+
+      - name: 🔍 Type checking
+        run: pnpm -w typecheck
+
+      - name: 🎭 Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: 🧪 Run E2E tests (staging)
+        run: |
+          if [ -n "${{ github.event.inputs.test_pattern }}" ]; then
+            pnpm e2e:staging --grep "${{ github.event.inputs.test_pattern }}"
+          else
+            pnpm e2e:staging
+          fi
+        env:
+          PW_BASE_URL: ${{ secrets.PW_BASE_URL || 'https://staging.vigor-gym.com' }}
+          PW_API_URL: ${{ secrets.PW_API_URL || 'https://api-staging.vigor-gym.com' }}
+          E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL || 'admin@testgym.mx' }}
+          E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+          E2E_ENV: staging
+          TENANT_ID: ${{ secrets.TENANT_ID || '00000000-0000-0000-0000-000000000001' }}
+
+      - name: 📤 Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            e2e-report/
+            test-results/
+          retention-days: 7
+
+      - name: 📊 Upload test report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-report
+          path: e2e-report/
+          retention-days: 7
+
+      - name: 📈 Comment test results
+        uses: actions/github-script@v7
+        if: always() && github.event_name == 'pull_request'
+        with:
+          script: |
+            const fs = require('fs');
+            const path = 'e2e-report/results.json';
+            
+            if (fs.existsSync(path)) {
+              const results = JSON.parse(fs.readFileSync(path, 'utf8'));
+              const { stats } = results;
+              
+              const passed = stats.expected || 0;
+              const failed = stats.unexpected || 0;
+              const skipped = stats.skipped || 0;
+              const total = passed + failed + skipped;
+              
+              const status = failed > 0 ? '❌' : '✅';
+              const passRate = total > 0 ? ((passed / total) * 100).toFixed(1) : '0';
+              
+              const comment = `## ${status} E2E Test Results (Staging)
+              
+              📊 **Summary:**
+              - **Total Tests:** ${total}
+              - **Passed:** ${passed} ✅
+              - **Failed:** ${failed} ❌
+              - **Skipped:** ${skipped} ⏭️
+              - **Pass Rate:** ${passRate}%
+              
+              🎯 **Test Coverage:**
+              - AUTH-01: Login → redirect to dashboard with session chip
+              - DASH-01: Dashboard SSR KPIs render; filter bar drives query & trends
+              - BILL-01: Checkout via Stripe → webhook processes → subscription visible
+              - MEM-01: Members list loads with RBAC; edit member within tenant
+              - VIS-01: Visit check-in and double check-in prevention
+              - KPI-01: Guest KPI 401s are silent; login unlocks KPI data
+              
+              📈 **Performance Budgets:**
+              - API P95: < 500ms
+              - Dashboard LCP: < 2.5s
+              - Realtime Latency: < 200ms
+              
+              [View detailed report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})`;
+              
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: comment
+              });
+            }
+
+      - name: 📢 Slack notification
+        if: always() && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch')
+        uses: 8398a7/action-slack@v3
+        with:
+          status: ${{ job.status }}
+          channel: '#e2e-tests'
+          text: |
+            🧪 Staging E2E Tests ${{ job.status }}
+            
+            📋 Details:
+            • Trigger: ${{ github.event_name }}
+            • Branch: ${{ github.ref_name }}
+            • Commit: ${{ github.sha }}
+            • Actor: ${{ github.actor }}
+            
+            🔗 [View Results](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  # Health check job to validate staging environment
+  staging-health:
+    name: 🏥 Staging Health Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏥 Run staging health check
+        run: |
+          chmod +x scripts/staging-health-check.sh
+          ./scripts/staging-health-check.sh
+        env:
+          STAGING_WEB_URL: ${{ secrets.PW_BASE_URL || 'https://staging.vigor-gym.com' }}
+          STAGING_API_URL: ${{ secrets.PW_API_URL || 'https://api-staging.vigor-gym.com' }}
+          STAGING_TEST_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL || 'admin@testgym.mx' }}
+          STAGING_TEST_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
+
+      - name: 📤 Upload health report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: staging-health-report
+          path: staging-health-report.json
+          retention-days: 7

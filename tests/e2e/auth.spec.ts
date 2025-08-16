@@ -1,60 +1,131 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, selectors } from '../framework/fixtures';
+
+/**
+ * AUTH-01: Login → redirect to dashboard with session chip
+ * Tests the complete authentication flow with session persistence
+ */
 
 test.describe('Authentication Flow', () => {
-  test('login → dashboard access', async ({ page }) => {
-    // Navigate to login page
+  test('AUTH-01: Login → redirect to dashboard with session chip', async ({
+    page,
+    authSession,
+    orgContext,
+    performanceMonitor
+  }) => {
+    console.log('🔐 Testing authentication flow...');
+
+    // Track console errors
+    const consoleErrors: string[] = [];
+    page.on('console', msg => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+
+    // Step 1: Navigate to login page
     await page.goto('/login');
-
-    // Verify we're on the login page by checking for login heading
-    await expect(page.getByRole('heading', { name: /iniciar sesión/i })).toBeVisible();
-
-    // Fill in login credentials
-    await page.getByLabel(/email/i).fill('admin@testgym.mx');
-    await page.getByLabel(/contraseña|password/i).fill('TestPassword123!');
-
-    // Submit login form
-    await page.getByRole('button', { name: /iniciar sesión|login/i }).click();
-
-    // Wait for redirect to dashboard
-    await expect(page).toHaveURL(/dashboard/);
-
-    // Verify we can see dashboard content (simplified check)
-    await expect(page.getByRole('heading', { name: /dashboard/i })).toBeVisible();
-  });
-
-  test('invalid login shows error', async ({ page }) => {
-    await page.goto('/login');
-    
-    // Try invalid credentials
-    await page.getByLabel(/email/i).fill('wrong@example.com');
-    await page.getByLabel(/contraseña|password/i).fill('wrongpassword');
-    await page.getByRole('button', { name: /iniciar sesión|login/i }).click();
-    
-    // Should show error message
-    await expect(page.getByText(/invalid|inválido|error/i)).toBeVisible();
-    
-    // Should still be on login page
-    await expect(page).toHaveURL(/login/);
-  });
-
-  test('public routes accessible without auth', async ({ page }) => {
-    // Test homepage
-    await page.goto('/');
     await expect(page).toHaveTitle(/Vigor/);
-    
-    // Test plans page
-    await page.goto('/planes');
-    await expect(page.getByRole('heading', { name: /elige tu plan/i })).toBeVisible();
-    
-    // Should not redirect to login
-    await expect(page).not.toHaveURL(/login/);
+
+    // Step 2: Fill login form using data-testid selectors
+    await page.fill(selectors.loginEmail, process.env.E2E_ADMIN_EMAIL || 'admin@testgym.mx');
+    await page.fill(selectors.loginPassword, process.env.E2E_ADMIN_PASSWORD || 'TestPassword123!');
+
+    // Step 3: Submit login
+    const loginStartTime = Date.now();
+    await page.click(selectors.loginSubmit);
+
+    // Step 4: Verify redirect to dashboard
+    await expect(page).toHaveURL(/dashboard/, { timeout: 15000 });
+    const loginTime = Date.now() - loginStartTime;
+    console.log(`⏱️ Login time: ${loginTime}ms`);
+
+    // Step 5: Verify session chip is visible
+    await expect(page.locator(selectors.sessionChip)).toBeVisible();
+
+    // Verify session chip contains user email
+    const sessionChip = page.locator(selectors.sessionChip);
+    await expect(sessionChip).toContainText(process.env.E2E_ADMIN_EMAIL || 'admin@testgym.mx');
+
+    // Step 6: Verify authenticated API calls work
+    const authToken = await authSession.getAuthToken();
+    expect(authToken).toBeTruthy();
+
+    // Test /auth/me endpoint
+    const meResponse = await authSession.makeAuthenticatedRequest('/auth/me');
+    expect(meResponse.status()).toBe(200);
+
+    // Test /api/kpi/overview endpoint
+    const kpiResponse = await authSession.makeAuthenticatedRequest('/v1/kpi/overview');
+    expect(kpiResponse.status()).toBe(200);
+
+    // Step 7: Verify no console errors
+    expect(consoleErrors).toHaveLength(0);
+    console.log('✅ No console errors during authentication');
+
+    // Step 8: Verify session persistence across page reload
+    await page.reload();
+    await expect(page.locator(selectors.sessionChip)).toBeVisible();
+    console.log('✅ Session persists across page reload');
+
+    console.log('✅ AUTH-01: Authentication flow completed successfully');
   });
 
-  test('protected routes redirect to login', async ({ page }) => {
-    // Try to access dashboard without auth
-    await page.goto('/dashboard');
-    
-    // Should redirect to login
+  test('AUTH-02: Invalid credentials show error message', async ({ page }) => {
+    console.log('❌ Testing invalid credentials...');
+
+    await page.goto('/login');
+
+    // Try invalid credentials
+    await page.fill(selectors.loginEmail, 'invalid@example.com');
+    await page.fill(selectors.loginPassword, 'wrongpassword');
+    await page.click(selectors.loginSubmit);
+
+    // Should show error message
+    await expect(page.locator('text=Email o contraseña inválidos')).toBeVisible();
+
+    // Should stay on login page
     await expect(page).toHaveURL(/login/);
+
+    console.log('✅ AUTH-02: Invalid credentials handled correctly');
+  });
+
+  test('AUTH-03: Protected routes require authentication', async ({ page }) => {
+    console.log('🔒 Testing protected route access...');
+
+    const protectedRoutes = [
+      '/dashboard',
+      '/admin/members',
+      '/admin/observability',
+    ];
+
+    for (const route of protectedRoutes) {
+      await page.goto(route);
+
+      // Should redirect to login
+      await expect(page).toHaveURL(/login/);
+      console.log(`✅ ${route} properly protected`);
+    }
+
+    console.log('✅ AUTH-03: Protected routes require authentication');
+  });
+
+  test('AUTH-04: Logout clears session', async ({ page, authSession }) => {
+    console.log('🚪 Testing logout flow...');
+
+    // First login
+    await authSession.login();
+    await expect(page.locator(selectors.sessionChip)).toBeVisible();
+
+    // Logout
+    await authSession.logout();
+
+    // Verify redirect to login
+    await expect(page).toHaveURL(/login/);
+
+    // Verify session is cleared
+    const authToken = await authSession.getAuthToken();
+    expect(authToken).toBeFalsy();
+
+    console.log('✅ AUTH-04: Logout flow completed successfully');
   });
 });
