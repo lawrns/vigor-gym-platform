@@ -1,51 +1,37 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
-
-// Define route classifications explicitly
-const AUTH_ROUTES = ['/login', '/register'];
-const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/partner'];
-const PUBLIC_ROUTES = ['/', '/planes', '/checkout', '/checkout/success', '/demo', '/contacto'];
-
-function isAuthRoute(path: string): boolean {
-  return AUTH_ROUTES.includes(path);
-}
-
-function isProtected(path: string): boolean {
-  return PROTECTED_PREFIXES.some(prefix => path === prefix || path.startsWith(prefix + '/'));
-}
-
-function isPublic(path: string): boolean {
-  return PUBLIC_ROUTES.includes(path);
-}
+import { hasValidSession, getRedirectAction } from './lib/auth/edge-session';
 
 export function middleware(request: NextRequest) {
+  const startTime = Date.now();
   const { pathname } = request.nextUrl;
 
   // Get auth tokens from cookies
   const accessToken = request.cookies.get('accessToken')?.value;
   const refreshToken = request.cookies.get('refreshToken')?.value;
 
-  // Check if user is authenticated (has either token)
-  const hasSession = !!(accessToken || refreshToken);
+  // Check if user is authenticated using Edge-safe verification
+  const hasSession = hasValidSession(accessToken, refreshToken);
 
   // Debug logging (uncomment for debugging)
   // console.log('[MW]', pathname, {
   //   hasSession,
-  //   auth: isAuthRoute(pathname),
-  //   protected: isProtected(pathname),
-  //   public: isPublic(pathname)
+  //   hasAccessToken: !!accessToken,
+  //   hasRefreshToken: !!refreshToken
   // });
 
-  // If protected and no session → login
-  if (isProtected(pathname) && !hasSession) {
-    const loginUrl = new URL('/login', request.url);
-    loginUrl.searchParams.set('next', pathname);
-    return NextResponse.redirect(loginUrl);
+  // Determine if redirect is needed using Edge-safe logic
+  const redirectAction = getRedirectAction(pathname, hasSession);
+
+  const duration = Date.now() - startTime;
+
+  // Log performance metrics (in production, this would go to a monitoring service)
+  if (process.env.NODE_ENV === 'development' && duration > 50) {
+    console.warn(`[MW] Slow middleware: ${duration}ms for ${pathname}`);
   }
 
-  // If auth route and has session → dashboard
-  if (isAuthRoute(pathname) && hasSession) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+  if (redirectAction.shouldRedirect) {
+    return NextResponse.redirect(new URL(redirectAction.destination!, request.url));
   }
 
   // Public and everything else → pass through
@@ -59,10 +45,28 @@ export function middleware(request: NextRequest) {
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Org-Id');
   }
 
-  // Add security headers
+  // Add comprehensive security headers
   response.headers.set('X-Frame-Options', 'DENY');
   response.headers.set('X-Content-Type-Options', 'nosniff');
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  response.headers.set('X-XSS-Protection', '1; mode=block');
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+
+  // Content Security Policy (basic - should be customized for your needs)
+  if (process.env.NODE_ENV === 'production') {
+    response.headers.set('Content-Security-Policy',
+      "default-src 'self'; " +
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+      "style-src 'self' 'unsafe-inline'; " +
+      "img-src 'self' data: https:; " +
+      "font-src 'self' data:; " +
+      "connect-src 'self'; " +
+      "frame-ancestors 'none';"
+    );
+
+    // HSTS header for production
+    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
 
   return response;
 }

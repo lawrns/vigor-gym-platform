@@ -42,16 +42,7 @@ export interface Plan {
   } | null;
 }
 
-export interface Membership {
-  id: string;
-  memberId: string;
-  planId: string;
-  status: MembershipStatus;
-  startsAt: string;
-  endsAt: string | null;
-  member?: Member;
-  plan?: Plan;
-}
+
 
 export interface Gym {
   id: string;
@@ -143,6 +134,12 @@ export interface KPIOverview {
     from: string;
     to: string;
   };
+  changes?: {
+    activeMembers?: { delta: number; pct: number };
+    monthlyRevenue?: { delta: number; pct: number };
+    totalVisits?: { delta: number; pct: number };
+    avgActivationHours?: { delta: number; pct: number };
+  };
 }
 
 export interface PlansResponse {
@@ -230,12 +227,7 @@ export interface UpdateMemberRequest {
   status?: MemberStatus;
 }
 
-export interface CreateMembershipRequest {
-  memberId: string;
-  planId: string;
-  startsAt: string;
-  endsAt?: string;
-}
+
 
 // Auth Types
 export interface LoginRequest {

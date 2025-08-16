@@ -128,7 +128,7 @@ export function ImportCsvDialog({ onSuccess, onCancel }: ImportCsvDialogProps) {
     setStep('importing');
     
     try {
-      const response = await apiClient.post('/v1/members/import', {
+      const response = await apiClient.members.import({
         members: parsedMembers,
       });
       

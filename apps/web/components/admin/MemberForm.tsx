@@ -49,9 +49,9 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
       let response;
       
       if (isEditing) {
-        response = await apiClient.patch(`/v1/members/${member.id}`, formData);
+        response = await apiClient.members.update(member.id, formData);
       } else {
-        response = await apiClient.post('/v1/members', formData);
+        response = await apiClient.members.create(formData);
       }
 
       if (isAPIError(response)) {

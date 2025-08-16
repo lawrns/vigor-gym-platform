@@ -1,0 +1,203 @@
+# Artillery.js Load Testing Configuration for Auth Endpoints
+# Run with: npx artillery run auth-load-test.yml
+
+config:
+  target: 'http://localhost:7777'
+  phases:
+    # Warm-up phase
+    - duration: 30
+      arrivalRate: 5
+      name: "Warm-up"
+    
+    # Ramp-up phase
+    - duration: 60
+      arrivalRate: 10
+      rampTo: 50
+      name: "Ramp-up"
+    
+    # Sustained load phase
+    - duration: 120
+      arrivalRate: 50
+      name: "Sustained load"
+    
+    # Peak load phase
+    - duration: 60
+      arrivalRate: 100
+      name: "Peak load"
+    
+    # Cool-down phase
+    - duration: 30
+      arrivalRate: 10
+      name: "Cool-down"
+
+  # Performance thresholds
+  ensure:
+    # 95% of requests should complete within 2 seconds
+    p95: 2000
+    # 99% of requests should complete within 5 seconds
+    p99: 5000
+    # Maximum error rate of 1%
+    maxErrorRate: 1
+
+  # Load test configuration
+  http:
+    timeout: 10
+    pool: 50
+
+  # Variables for test data
+  variables:
+    testUsers:
+      - email: "loadtest1@testgym.mx"
+        password: "TestPassword123!"
+      - email: "loadtest2@testgym.mx"
+        password: "TestPassword123!"
+      - email: "loadtest3@testgym.mx"
+        password: "TestPassword123!"
+      - email: "loadtest4@testgym.mx"
+        password: "TestPassword123!"
+      - email: "loadtest5@testgym.mx"
+        password: "TestPassword123!"
+
+  # Plugins for enhanced reporting
+  plugins:
+    metrics-by-endpoint:
+      useOnlyRequestNames: true
+    
+scenarios:
+  # Scenario 1: Login flow
+  - name: "Login Flow"
+    weight: 40
+    flow:
+      - get:
+          url: "/login"
+          capture:
+            - header: "set-cookie"
+              as: "sessionCookie"
+      
+      - post:
+          url: "/auth/login"
+          headers:
+            Content-Type: "application/json"
+            Cookie: "{{ sessionCookie }}"
+          json:
+            email: "{{ $randomPick(testUsers).email }}"
+            password: "{{ $randomPick(testUsers).password }}"
+          capture:
+            - header: "set-cookie"
+              as: "authCookie"
+          expect:
+            - statusCode: 200
+
+  # Scenario 2: Dashboard access (authenticated)
+  - name: "Dashboard Access"
+    weight: 30
+    flow:
+      # First login
+      - post:
+          url: "/auth/login"
+          headers:
+            Content-Type: "application/json"
+          json:
+            email: "{{ $randomPick(testUsers).email }}"
+            password: "{{ $randomPick(testUsers).password }}"
+          capture:
+            - header: "set-cookie"
+              as: "authCookie"
+      
+      # Then access dashboard
+      - get:
+          url: "/dashboard"
+          headers:
+            Cookie: "{{ authCookie }}"
+          expect:
+            - statusCode: 200
+
+  # Scenario 3: Public page access
+  - name: "Public Pages"
+    weight: 20
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+      
+      - get:
+          url: "/planes"
+          expect:
+            - statusCode: 200
+      
+      - get:
+          url: "/demo"
+          expect:
+            - statusCode: 200
+
+  # Scenario 4: Failed login attempts
+  - name: "Failed Login Attempts"
+    weight: 10
+    flow:
+      - post:
+          url: "/auth/login"
+          headers:
+            Content-Type: "application/json"
+          json:
+            email: "invalid@example.com"
+            password: "wrongpassword"
+          expect:
+            - statusCode: 401
+
+  # Scenario 5: Session refresh
+  - name: "Session Refresh"
+    weight: 5
+    flow:
+      # Login first
+      - post:
+          url: "/auth/login"
+          headers:
+            Content-Type: "application/json"
+          json:
+            email: "{{ $randomPick(testUsers).email }}"
+            password: "{{ $randomPick(testUsers).password }}"
+          capture:
+            - header: "set-cookie"
+              as: "authCookie"
+      
+      # Wait a bit
+      - think: 2
+      
+      # Refresh session
+      - post:
+          url: "/auth/refresh"
+          headers:
+            Cookie: "{{ authCookie }}"
+          expect:
+            - statusCode: 200
+
+  # Scenario 6: Logout flow
+  - name: "Logout Flow"
+    weight: 5
+    flow:
+      # Login first
+      - post:
+          url: "/auth/login"
+          headers:
+            Content-Type: "application/json"
+          json:
+            email: "{{ $randomPick(testUsers).email }}"
+            password: "{{ $randomPick(testUsers).password }}"
+          capture:
+            - header: "set-cookie"
+              as: "authCookie"
+      
+      # Use the session briefly
+      - get:
+          url: "/dashboard"
+          headers:
+            Cookie: "{{ authCookie }}"
+      
+      # Then logout
+      - post:
+          url: "/auth/logout"
+          headers:
+            Cookie: "{{ authCookie }}"
+          expect:
+            - statusCode: 200

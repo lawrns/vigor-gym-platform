@@ -41,10 +41,7 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      const response = await apiClient.post<{ provider: string; url: string; sessionId: string }>(
-        '/v1/billing/checkout/session',
-        { planId }
-      );
+      const response = await apiClient.billing.createCheckoutSession(planId);
 
       if (isAPIError(response)) {
         throw new Error(response.message);

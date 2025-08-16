@@ -2,7 +2,7 @@ import './globals.css';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { defaultSEO } from './next-seo.config';
-import { AuthNavbar } from '../components/AuthNavbar';
+import { ServerNavbar } from '../components/ServerNavbar';
 import contentV2 from '../lib/content/home.v2.json';
 import { ThemeProvider } from 'next-themes';
 import { AnalyticsBinder } from '../components/AnalyticsBinder';
@@ -47,7 +47,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           <AuthProvider>
             <Spotlight />
-            <AuthNavbar
+            <ServerNavbar
               logo="Vigor"
               links={[
                 { href: '/dashboard', label: 'Dashboard', roles: ['owner', 'manager', 'staff'] },

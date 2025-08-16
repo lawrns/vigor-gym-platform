@@ -1,0 +1,60 @@
+{
+  "ci": {
+    "collect": {
+      "startServerCommand": "pnpm dev",
+      "startServerReadyPattern": "Ready in",
+      "startServerReadyTimeout": 30000,
+      "url": [
+        "http://localhost:7777/",
+        "http://localhost:7777/dashboard",
+        "http://localhost:7777/login"
+      ],
+      "numberOfRuns": 3,
+      "settings": {
+        "chromeFlags": "--no-sandbox --disable-dev-shm-usage",
+        "preset": "desktop",
+        "throttling": {
+          "rttMs": 40,
+          "throughputKbps": 10240,
+          "cpuSlowdownMultiplier": 1,
+          "requestLatencyMs": 0,
+          "downloadThroughputKbps": 0,
+          "uploadThroughputKbps": 0
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.9 }],
+        "categories:accessibility": ["warn", { "minScore": 0.95 }],
+        "categories:best-practices": ["warn", { "minScore": 0.9 }],
+        "categories:seo": ["warn", { "minScore": 0.9 }],
+        
+        "first-contentful-paint": ["warn", { "maxNumericValue": 1800 }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 2500 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+        "total-blocking-time": ["warn", { "maxNumericValue": 300 }],
+        "speed-index": ["warn", { "maxNumericValue": 3000 }],
+        
+        "server-response-time": ["error", { "maxNumericValue": 200 }],
+        "interactive": ["warn", { "maxNumericValue": 3500 }],
+        
+        "unused-javascript": ["warn", { "maxNumericValue": 100000 }],
+        "unused-css-rules": ["warn", { "maxNumericValue": 50000 }],
+        "render-blocking-resources": ["warn", { "maxNumericValue": 500 }],
+        
+        "uses-responsive-images": "off",
+        "uses-optimized-images": "warn",
+        "modern-image-formats": "warn",
+        
+        "errors-in-console": ["error", { "maxNumericValue": 0 }],
+        "no-unload-listeners": "error",
+        "no-document-write": "error"
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage",
+      "reportFilenamePattern": "lighthouse-%%PATHNAME%%-%%DATETIME%%.report.html"
+    }
+  }
+}

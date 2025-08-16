@@ -101,7 +101,7 @@ router.get('/', authRequired(['owner', 'manager']), tenantRequired(), async (req
     });
 
     // Transform the data for frontend consumption
-    const transformedPlans = plans.map(plan => ({
+    const transformedPlans = plans.map((plan: any) => ({
       id: plan.id,
       code: plan.code,
       name: plan.name,

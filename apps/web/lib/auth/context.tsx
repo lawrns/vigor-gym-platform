@@ -1,16 +1,27 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { apiClient, isAPIError, setAuthToken } from '../api/client';
+import { authMetrics, trackLoginStart, trackLoginSuccess, trackLoginFailure, trackRedirectStart, trackRedirectEnd } from '../monitoring/auth-metrics';
+import { isAPIClientError, isUnauthorizedError, isNetworkError } from '../http/errors';
+
+/* Deduped error logger */
+const __authLogOnce = new Set<string>();
+function logOnce(key: string, fn: () => void) {
+  if (__authLogOnce.has(key)) return;
+  __authLogOnce.add(key);
+  fn();
+}
 
 interface User {
   id: string;
   email: string;
-  firstName: string;
-  lastName: string;
-  role: 'owner' | 'manager' | 'staff' | 'member' | 'partner_admin';
-  company: {
+  fullName: string;
+  role: string;
+  firstName?: string;
+  lastName?: string;
+  company?: {
     id: string;
     name: string;
     rfc: string;
@@ -20,6 +31,7 @@ interface User {
 interface AuthContextType {
   user: User | null;
   loading: boolean;
+  status: 'loading' | 'authenticated' | 'guest' | 'error';
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
@@ -37,22 +49,7 @@ const roleHierarchy = {
   partner_admin: 2, // Same level as staff but different domain
 };
 
-// Define route classifications explicitly (matching middleware)
-const AUTH_ROUTES = ['/login', '/register'];
-const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/partner'];
-const PUBLIC_ROUTES = ['/', '/planes', '/checkout', '/checkout/success'];
-
-function isAuthRoute(path: string): boolean {
-  return AUTH_ROUTES.includes(path);
-}
-
-function isProtected(path: string): boolean {
-  return PROTECTED_PREFIXES.some(prefix => path === prefix || path.startsWith(prefix + '/'));
-}
-
-function isPublic(path: string): boolean {
-  return PUBLIC_ROUTES.includes(path);
-}
+import { AUTH_ROUTES, PROTECTED_PREFIXES, PUBLIC_ROUTES, isAuthRoute, isProtected, isPublic } from './types';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -61,11 +58,20 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState<'loading' | 'authenticated' | 'guest' | 'error'>('loading');
   const router = useRouter();
   const pathname = usePathname();
 
-  // Initialize auth state
+  // Prevent duplicate initialization in React StrictMode
+  const didInitializeRef = useRef(false);
+
+  // Initialize auth state (prevent duplicate calls in StrictMode)
   useEffect(() => {
+    if (didInitializeRef.current) {
+      console.debug('[AUTH] Skipping duplicate initialization (StrictMode)');
+      return;
+    }
+    didInitializeRef.current = true;
     console.debug('[AUTH] Initializing auth state...');
     initializeAuth();
   }, []);
@@ -101,82 +107,132 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (!isAPIError(response)) {
         setUser(response.user);
+        setStatus('authenticated');
         // Set token for API client if provided
         if (response.accessToken) {
           setAuthToken(response.accessToken);
         }
         console.debug('[AUTH] Authentication initialized successfully');
+      } else {
+        // API returned an error response
+        console.debug('[AUTH] Authentication failed:', response.message);
+        setUser(null);
+        setAuthToken(null);
+        setStatus('guest');
       }
     } catch (error) {
-      // This is expected when user is not logged in - don't spam console
-      console.debug('[AUTH] No valid authentication found (expected for anonymous users)');
+      // Handle 401 silently (expected for guests)
+      if (isUnauthorizedError(error)) {
+        console.debug('[AUTH] No valid authentication found (expected for anonymous users)');
+        setUser(null);
+        setAuthToken(null);
+        setStatus('guest');
+        return;
+      }
+
+      // Handle network errors with deduped logging
+      if (isNetworkError(error)) {
+        logOnce('initializeAuth-network', () => {
+          console.error('[AUTH] API server appears to be unreachable. Please check if the API server is running.');
+        });
+        setStatus('error');
+      } else {
+        // Log other errors once to avoid spam
+        logOnce('initializeAuth-non401', () => {
+          console.error('[AUTH] Authentication initialization failed:', error);
+        });
+        setStatus('error');
+      }
 
       // Clear any stale auth state
       setUser(null);
       setAuthToken(null);
-
-      // If it's a network error, it might be API server issues
-      if (error instanceof Error && error.message.includes('Network request failed')) {
-        console.error('[AUTH] API server appears to be unreachable. Please check if the API server is running.');
-      }
     } finally {
       setLoading(false);
     }
   };
 
   const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+    const startTime = trackLoginStart();
+
     try {
+      authMetrics.trackLoginAttempt(email, startTime);
       const response = await apiClient.auth.login({ email, password });
-      
+
       if (isAPIError(response)) {
+        trackLoginFailure(email, response.message, startTime);
         return { success: false, error: response.message };
       }
 
       setUser(response.user);
       setAuthToken(response.accessToken);
 
+      // Track successful login
+      trackLoginSuccess(email, response.user.id, startTime);
+
       // Handle redirect after login - only redirect if we're on a login/auth page
       const currentPath = window.location.pathname;
       const urlParams = new URLSearchParams(window.location.search);
       const nextUrl = urlParams.get('next');
 
+      // Track redirect performance
+      const redirectStart = trackRedirectStart();
+
       // Only redirect if we're currently on an auth route (login/register)
       if (isAuthRoute(currentPath)) {
-        if (nextUrl) {
-          router.push(decodeURIComponent(nextUrl));
-        } else {
-          router.push('/dashboard');
-        }
+        const destination = nextUrl ? decodeURIComponent(nextUrl) : '/dashboard';
+        router.push(destination);
+        trackRedirectEnd(currentPath, destination, redirectStart);
       }
       // If we're on a public route like /planes, stay there - don't redirect
 
       return { success: true };
     } catch (error) {
       console.error('Login error:', error);
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Login failed' 
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      trackLoginFailure(email, errorMessage, startTime);
+      return {
+        success: false,
+        error: errorMessage
       };
     }
   };
 
   const logout = async () => {
+    const sessionId = user?.id;
+
+    // Set loading state to prevent UI issues during logout
+    setLoading(true);
+
     try {
+      // Call logout API to clear server-side cookies
       await apiClient.auth.logout();
+      console.log('[AUTH] Logout API call successful');
     } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      // Clear local state regardless of API call success
-      setUser(null);
-      setAuthToken(null);
-      
-      // Clear any local storage
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('accessToken');
-      }
-      
-      router.push('/login');
+      console.error('[AUTH] Logout API error:', error);
+      // Continue with logout even if API call fails
     }
+
+    // Track session end
+    if (sessionId) {
+      authMetrics.trackSessionEnd(sessionId);
+    }
+
+    // Clear local state immediately
+    setUser(null);
+    setAuthToken(null);
+    setStatus('guest');
+
+    // Clear any local storage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+    }
+
+    // Force a hard reload to ensure server-side state is refreshed
+    // This ensures the ServerNavbar re-renders with the correct state
+    console.log('[AUTH] Forcing page reload to refresh server state');
+    window.location.href = '/';
   };
 
   const refreshAuth = async () => {
@@ -238,6 +294,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const value: AuthContextType = {
     user,
     loading,
+    status,
     login,
     logout,
     refreshAuth,

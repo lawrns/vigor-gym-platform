@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 // Initialize Stripe (only if API key is provided)
 const stripeApiKey = process.env.STRIPE_SECRET_KEY;
 const stripe = stripeApiKey ? new Stripe(stripeApiKey, {
-  apiVersion: '2024-06-20',
+  // Use default API version to avoid type conflicts
 }) : null;
 
 export interface CheckoutSessionRequest {

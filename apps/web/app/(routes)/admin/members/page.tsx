@@ -65,7 +65,7 @@ export default function MembersPage() {
         params.status = status;
       }
 
-      const response = await apiClient.get<MembersResponse>('/v1/members', params);
+      const response = await apiClient.members.list(params);
 
       if (isAPIError(response)) {
         throw new Error(response.message);
@@ -116,7 +116,7 @@ export default function MembersPage() {
     }
 
     try {
-      const response = await apiClient.delete(`/v1/members/${memberId}`);
+      const response = await apiClient.members.delete(memberId);
 
       if (isAPIError(response)) {
         throw new Error(response.message);

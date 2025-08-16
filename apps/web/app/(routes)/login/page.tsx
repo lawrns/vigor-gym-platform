@@ -101,7 +101,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <FormError message={error} />
+          <FormError message={error || undefined} />
 
           <div>
             <button

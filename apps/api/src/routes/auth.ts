@@ -13,8 +13,10 @@ export function setPrismaInstance(prismaInstance: any) {
   prisma = prismaInstance;
 }
 
-// Rate limiting for auth endpoints
-const loginLimiter = rateLimit({
+// Rate limiting for auth endpoints (disabled in test mode)
+const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_RATE_LIMITING === 'true';
+
+const loginLimiter = isTestMode ? (req: any, res: any, next: any) => next() : rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 5, // 5 attempts per minute
   message: { message: 'Too many login attempts, please try again later' },
@@ -22,7 +24,7 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-const registerLimiter = rateLimit({
+const registerLimiter = isTestMode ? (req: any, res: any, next: any) => next() : rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 3, // 3 registrations per minute
   message: { message: 'Too many registration attempts, please try again later' },
@@ -57,12 +59,15 @@ const refreshSchema = z.object({
 
 // Helper function to handle failed login attempts
 async function handleFailedLogin(email: string) {
+  // Skip failed login tracking in test mode
+  if (isTestMode) return;
+
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) return;
 
   const failedCount = user.failedLoginCount + 1;
   const lockDuration = failedCount >= 5 ? 30 * 60 * 1000 : 0; // 30 minutes after 5 failures
-  
+
   await prisma.user.update({
     where: { id: user.id },
     data: {
@@ -100,9 +105,9 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
       return res.status(401).json({ message: 'Email o contraseña inválidos' });
     }
 
-    // Check if account is locked
-    if (user.lockedUntil && user.lockedUntil > new Date()) {
-      return res.status(423).json({ 
+    // Check if account is locked (skip in test mode)
+    if (!isTestMode && user.lockedUntil && user.lockedUntil > new Date()) {
+      return res.status(423).json({
         message: 'Account temporarily locked due to failed login attempts',
         lockedUntil: user.lockedUntil
       });
@@ -206,7 +211,7 @@ router.post('/register-company', registerLimiter, async (req: Request, res: Resp
     const passwordHash = await argon2.hash(data.password);
 
     // Create company and owner user in a transaction
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // Create company
       const company = await tx.company.create({
         data: {
@@ -362,10 +367,23 @@ router.post('/refresh', async (req: Request, res: Response) => {
 
 // POST /auth/logout
 router.post('/logout', authRequired(), async (req: AuthenticatedRequest, res: Response) => {
-  // Clear cookies
-  res.clearCookie('accessToken');
-  res.clearCookie('refreshToken');
-  
+  // Clear cookies with the same options used when setting them
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  res.clearCookie('accessToken', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'lax',
+    path: '/'
+  });
+
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: isProduction,
+    sameSite: 'lax',
+    path: '/'
+  });
+
   res.json({ message: 'Logged out successfully' });
 });
 

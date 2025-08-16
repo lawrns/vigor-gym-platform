@@ -1,0 +1,258 @@
+{
+  "dashboard": {
+    "title": "Vigor Gym Platform - Performance & Observability",
+    "description": "Real-time monitoring of SLIs/SLOs for web app, API, and UltimateWidget",
+    "refresh_interval": "30s",
+    "time_range": "1h"
+  },
+  
+  "panels": [
+    {
+      "title": "API Performance",
+      "type": "timeseries",
+      "targets": [
+        {
+          "metric": "http_request_duration_p50",
+          "label": "API p50 Latency",
+          "threshold": 250
+        },
+        {
+          "metric": "http_request_duration_p95", 
+          "label": "API p95 Latency",
+          "threshold": 500
+        },
+        {
+          "metric": "http_request_duration_p99",
+          "label": "API p99 Latency", 
+          "threshold": 1000
+        }
+      ],
+      "unit": "ms",
+      "slo_line": 500
+    },
+    
+    {
+      "title": "Error Rates",
+      "type": "stat",
+      "targets": [
+        {
+          "metric": "http_requests_4xx_rate",
+          "label": "4xx Error Rate",
+          "threshold": 5.0
+        },
+        {
+          "metric": "http_requests_5xx_rate",
+          "label": "5xx Error Rate", 
+          "threshold": 0.5
+        },
+        {
+          "metric": "auth_failures_rate",
+          "label": "Auth Failure Rate",
+          "threshold": 1.0
+        }
+      ],
+      "unit": "%",
+      "slo_line": 0.5
+    },
+    
+    {
+      "title": "Web Vitals",
+      "type": "timeseries",
+      "targets": [
+        {
+          "metric": "web_vital_ttfb_p75",
+          "label": "TTFB p75",
+          "threshold": 200
+        },
+        {
+          "metric": "web_vital_lcp_p75",
+          "label": "LCP p75",
+          "threshold": 2300
+        },
+        {
+          "metric": "web_vital_inp_p75", 
+          "label": "INP p75",
+          "threshold": 150
+        },
+        {
+          "metric": "web_vital_cls_p75",
+          "label": "CLS p75",
+          "threshold": 0.1
+        }
+      ],
+      "unit": "ms",
+      "slo_lines": [200, 2300, 150]
+    },
+    
+    {
+      "title": "Database Performance",
+      "type": "timeseries",
+      "targets": [
+        {
+          "metric": "db_query_duration_p95_users",
+          "label": "Users Table p95",
+          "threshold": 100
+        },
+        {
+          "metric": "db_query_duration_p95_sessions",
+          "label": "Sessions Table p95", 
+          "threshold": 50
+        },
+        {
+          "metric": "db_query_duration_p95_companies",
+          "label": "Companies Table p95",
+          "threshold": 100
+        }
+      ],
+      "unit": "ms"
+    },
+    
+    {
+      "title": "Widget Performance",
+      "type": "timeseries", 
+      "targets": [
+        {
+          "metric": "widget_init_duration_p95",
+          "label": "Widget Init p95",
+          "threshold": 400
+        },
+        {
+          "metric": "widget_postmessage_latency_p95",
+          "label": "PostMessage p95",
+          "threshold": 200
+        },
+        {
+          "metric": "widget_mount_duration_p95",
+          "label": "Widget Mount p95",
+          "threshold": 300
+        }
+      ],
+      "unit": "ms",
+      "slo_line": 400
+    },
+    
+    {
+      "title": "Rate Limiting",
+      "type": "timeseries",
+      "targets": [
+        {
+          "metric": "rate_limit_hits_per_minute",
+          "label": "Rate Limit Hits",
+          "threshold": 100
+        },
+        {
+          "metric": "rate_limit_capacity_utilization",
+          "label": "Capacity Utilization",
+          "threshold": 80
+        }
+      ],
+      "unit": "count"
+    },
+    
+    {
+      "title": "API Routes Breakdown",
+      "type": "table",
+      "targets": [
+        {
+          "metric": "http_request_duration_by_route",
+          "columns": ["route", "method", "p50", "p95", "p99", "error_rate", "throughput"]
+        }
+      ]
+    },
+    
+    {
+      "title": "Trace Coverage",
+      "type": "stat",
+      "targets": [
+        {
+          "metric": "requests_with_trace_id_percentage",
+          "label": "Trace ID Coverage",
+          "threshold": 98.0
+        },
+        {
+          "metric": "spans_exported_per_minute",
+          "label": "Spans/min",
+          "threshold": 1000
+        }
+      ],
+      "unit": "%"
+    },
+    
+    {
+      "title": "Real-time Features",
+      "type": "timeseries",
+      "targets": [
+        {
+          "metric": "websocket_message_delivery_p95",
+          "label": "WS Message Delivery p95",
+          "threshold": 200
+        },
+        {
+          "metric": "websocket_reconnect_duration_p95", 
+          "label": "WS Reconnect p95",
+          "threshold": 3000
+        }
+      ],
+      "unit": "ms"
+    }
+  ],
+  
+  "alerts": [
+    {
+      "name": "API Latency SLO Violation",
+      "condition": "http_request_duration_p95 > 500",
+      "severity": "warning",
+      "duration": "5m"
+    },
+    {
+      "name": "Error Rate SLO Violation", 
+      "condition": "http_requests_5xx_rate > 0.5",
+      "severity": "critical",
+      "duration": "2m"
+    },
+    {
+      "name": "Web Vitals Degradation",
+      "condition": "web_vital_lcp_p75 > 2500",
+      "severity": "warning", 
+      "duration": "10m"
+    },
+    {
+      "name": "Widget Performance Degradation",
+      "condition": "widget_init_duration_p95 > 400",
+      "severity": "warning",
+      "duration": "5m"
+    },
+    {
+      "name": "Database Slow Queries",
+      "condition": "db_query_duration_p95 > 200",
+      "severity": "warning",
+      "duration": "5m"
+    },
+    {
+      "name": "Trace Coverage Drop",
+      "condition": "requests_with_trace_id_percentage < 95",
+      "severity": "warning",
+      "duration": "10m"
+    }
+  ],
+  
+  "slos": {
+    "api_availability": {
+      "target": 99.5,
+      "measurement_window": "30d",
+      "error_budget": 0.5
+    },
+    "api_latency": {
+      "target": "p95 < 500ms",
+      "measurement_window": "7d"
+    },
+    "web_performance": {
+      "target": "LCP p75 < 2300ms",
+      "measurement_window": "7d"
+    },
+    "widget_performance": {
+      "target": "init p95 < 400ms", 
+      "measurement_window": "7d"
+    }
+  }
+}

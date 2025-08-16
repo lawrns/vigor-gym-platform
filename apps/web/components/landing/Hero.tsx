@@ -1,6 +1,6 @@
 "use client";
 import { motion } from 'framer-motion';
-import { Button } from '../../components/ui/button';
+import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/badge';
 import { AppStores } from '../AppStores';
 import { useEffect } from 'react';

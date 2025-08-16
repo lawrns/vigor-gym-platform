@@ -79,10 +79,10 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
                 className="flex items-center space-x-2 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full px-3 py-2 transition-colors"
               >
                 <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                  {user.firstName[0]}{user.lastName[0]}
+                  {user.firstName?.[0] || user.fullName?.[0] || 'U'}{user.lastName?.[0] || user.fullName?.split(' ')[1]?.[0] || ''}
                 </div>
                 <span className="hidden sm:block text-gray-700 dark:text-gray-300">
-                  {user.firstName}
+                  {user.firstName || user.fullName?.split(' ')[0] || 'User'}
                 </span>
                 <Icons.Users className="w-4 h-4 text-gray-500" />
               </button>

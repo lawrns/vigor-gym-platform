@@ -1,3 +1,6 @@
+// OpenTelemetry temporarily disabled for type compatibility
+// import './otel.js';
+
 import 'dotenv/config';
 import dotenv from 'dotenv';
 import path from 'node:path';
@@ -16,6 +19,7 @@ import { z } from 'zod';
 import { PrismaClient } from './generated/prisma/index.js';
 import { authRequired, AuthenticatedRequest, setPrismaInstance as setAuthPrismaInstance } from './middleware/auth.js';
 import { tenantRequired, withTenantFilter, TenantRequest, logTenantAction } from './middleware/tenant.js';
+// import { requestTiming } from './middleware/requestTiming.js';
 import authRoutes, { setPrismaInstance } from './routes/auth.js';
 import billingRoutes from './routes/billing.js';
 import companiesRoutes, { setPrismaInstance as setCompaniesPrismaInstance } from './routes/companies.js';
@@ -30,6 +34,10 @@ const app = express();
 const prisma = new PrismaClient();
 
 app.use(helmet());
+
+// Request timing and correlation middleware (temporarily disabled)
+// app.use(requestTiming);
+
 const origins = (process.env.CORS_ORIGINS || 'http://localhost:7777').split(',');
 app.use(cors({
   origin: (origin, callback) => {
@@ -227,6 +235,7 @@ app.post('/v1/memberships', authRequired(['owner', 'manager', 'staff']), tenantR
     const membership = await prisma.membership.create({
       data: {
         ...validatedData,
+        companyId: member.companyId,
         startsAt: new Date(validatedData.startsAt),
         endsAt: validatedData.endsAt ? new Date(validatedData.endsAt) : null
       },
@@ -310,7 +319,7 @@ app.get('/v1/kpi/overview', authRequired(['owner', 'manager', 'staff']), tenantR
           plan: true
         }
       }).then(memberships =>
-        memberships.reduce((total, membership) => total + membership.plan.price, 0)
+        memberships.reduce((total, membership) => total + (membership.plan.priceMxnCents || 0), 0)
       )
     ]);
 

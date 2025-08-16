@@ -17,8 +17,10 @@ import type {
   APIResponse
 } from './types';
 
-// Configuration
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4002';
+// Configuration - Use same-origin proxy in browser, direct API in server
+const API_BASE_URL = typeof window !== 'undefined'
+  ? '' // Use same-origin proxy for browser requests
+  : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001'; // Direct API for server requests
 
 // Error classes
 export class APIClientError extends Error {
@@ -57,9 +59,9 @@ async function apiRequest<T>(
 ): Promise<T> {
   const url = `${API_BASE_URL}${endpoint}`;
   
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     'Content-Type': 'application/json',
-    ...options.headers,
+    ...(options.headers as Record<string, string> || {}),
   };
 
   // Add auth token if available
@@ -90,7 +92,14 @@ async function apiRequest<T>(
         // Clear token and emit global auth error
         setAuthToken(null);
         if (typeof window !== 'undefined') {
-          console.warn(`Authentication failed for ${endpoint}:`, errorData.message);
+          // Don't log 401 for /auth/me or KPI endpoints as it's expected for guests
+          const isGuestAuthCheck = (endpoint.endsWith('/auth/me') || endpoint.includes('/kpi/overview')) && response.status === 401;
+          if (!isGuestAuthCheck) {
+            console.warn(`Authentication failed for ${endpoint}:`, errorData.message);
+          } else {
+            console.debug(`[AUTH] Guest auth check (expected 401):`, endpoint);
+          }
+
           // Emit custom event for auth context to handle
           window.dispatchEvent(new CustomEvent('auth-error', {
             detail: { status: response.status, endpoint, message: errorData.message }
@@ -142,7 +151,8 @@ async function apiRequest<T>(
   }
 }
 
-// HTTP method helpers
+// HTTP method helpers - Use these for one-off requests
+// For standard endpoints, prefer the typed apiClient methods instead
 export const api = {
   get: <T>(endpoint: string, params?: Record<string, string>): Promise<T> => {
     const url = params 
@@ -177,19 +187,92 @@ export const api = {
   },
 };
 
+// TypeScript guardrail: Define strict types to prevent generic HTTP method usage
+type MembersAPI = {
+  list: (params?: { search?: string; page?: string; pageSize?: string; status?: string }) => Promise<{ members: any[]; pagination: any }>;
+  get: (id: string) => Promise<{ member: any }>;
+  create: (data: { email: string; firstName: string; lastName: string; status?: string }) => Promise<{ member: any }>;
+  update: (id: string, data: Partial<{ email: string; firstName: string; lastName: string; status: string }>) => Promise<{ member: any }>;
+  delete: (id: string) => Promise<{ message: string }>;
+  import: (data: { members: any[] }) => Promise<{ message: string; members: any[]; count: number }>;
+};
+
+type AuthAPI = {
+  login: (data: LoginRequest) => Promise<AuthResponse>;
+  logout: () => Promise<{ message: string }>;
+  refresh: (data: { refreshToken?: string }) => Promise<AuthResponse>;
+  me: () => Promise<{ user: AuthResponse['user']; accessToken?: string }>;
+};
+
+type KPIAPI = {
+  overview: (opts?: { orgId?: string }) => Promise<KPIOverview>;
+};
+
+type CompaniesAPI = {
+  create: (data: CreateCompanyRequest) => Promise<{ company: Company }>;
+  get: (id: string) => Promise<{ company: Company }>;
+  update: (id: string, data: UpdateCompanyRequest) => Promise<{ company: Company }>;
+  me: () => Promise<{ company: Company }>;
+};
+
+type PlansAPI = {
+  list: () => Promise<PlansResponse>;
+  listPublic: () => Promise<PlansResponse>;
+};
+
+type BillingAPI = {
+  createCheckoutSession: (planId: string) => Promise<{ provider: string; url: string; sessionId: string }>;
+  getSubscription: () => Promise<{ subscription: any }>;
+  cancelSubscription: () => Promise<{ message: string }>;
+  getInvoices: (params?: { limit?: number; offset?: number }) => Promise<{ invoices: any[]; total: number; limit: number; offset: number }>;
+};
+
+// Strict API client type - intentionally excludes generic HTTP methods
+type ApiClient = {
+  health: () => Promise<{ status: string }>;
+  kpi: KPIAPI;
+  billing: BillingAPI;
+  members: MembersAPI;
+  companies: CompaniesAPI;
+  plans: PlansAPI;
+  memberships: {
+    create: (data: CreateMembershipRequest) => Promise<{ membership: Membership }>;
+    list: (params?: { status?: string; limit?: number; offset?: number }) => Promise<PaginatedResponse<Membership>>;
+    get: (id: string) => Promise<{ membership: Membership }>;
+  };
+  auth: AuthAPI;
+  // NOTE: Intentionally NO get/post/patch/delete methods here to prevent misuse
+};
+
 // Typed API endpoints
-export const apiClient = {
+export const apiClient: ApiClient = {
   // Health check
   health: () => api.get<{ status: string }>('/health'),
 
   // KPI
   kpi: {
-    overview: (opts?: { orgId?: string }) => {
+    overview: (opts?: {
+      orgId?: string;
+      from?: string;
+      to?: string;
+      compareFrom?: string;
+      compareTo?: string;
+    }) => {
       const headers: Record<string, string> = {};
       if (opts?.orgId) {
         headers['X-Org-Id'] = opts.orgId;
       }
-      return apiRequest<KPIOverview>('/v1/kpi/overview', {
+
+      // Build query parameters
+      const params = new URLSearchParams();
+      if (opts?.from) params.set('from', opts.from);
+      if (opts?.to) params.set('to', opts.to);
+      if (opts?.compareFrom) params.set('compareFrom', opts.compareFrom);
+      if (opts?.compareTo) params.set('compareTo', opts.compareTo);
+      const queryString = params.toString();
+
+      // Use proxy route to ensure cookies and tenant context are forwarded
+      return apiRequest<KPIOverview>(`/api/kpi/overview${queryString ? `?${queryString}` : ''}`, {
         method: 'GET',
         headers,
       });
@@ -204,8 +287,13 @@ export const apiClient = {
       api.get<{ subscription: any }>('/v1/billing/subscription'),
     cancelSubscription: () =>
       api.post<{ message: string }>('/v1/billing/subscription/cancel', {}),
-    getInvoices: (params?: { limit?: number; offset?: number }) =>
-      api.get<{ invoices: any[]; total: number; limit: number; offset: number }>('/v1/billing/invoices', params),
+    getInvoices: (params?: { limit?: number; offset?: number }) => {
+      const stringParams = params ? {
+        ...(params.limit !== undefined && { limit: params.limit.toString() }),
+        ...(params.offset !== undefined && { offset: params.offset.toString() })
+      } : undefined;
+      return api.get<{ invoices: any[]; total: number; limit: number; offset: number }>('/v1/billing/invoices', stringParams);
+    },
   },
 
   // Members
@@ -252,17 +340,17 @@ export const apiClient = {
     create: (data: CreateMembershipRequest) =>
       api.post<{ membership: Membership }>('/v1/memberships', data),
 
-    list: (params?: { status?: string; limit?: number; offset?: number }) =>
-      api.get<PaginatedResponse<Membership>>('/v1/memberships', params),
+    list: (params?: { status?: string; limit?: number; offset?: number }) => {
+      const stringParams = params ? {
+        ...(params.status && { status: params.status }),
+        ...(params.limit !== undefined && { limit: params.limit.toString() }),
+        ...(params.offset !== undefined && { offset: params.offset.toString() })
+      } : undefined;
+      return api.get<PaginatedResponse<Membership>>('/v1/memberships', stringParams);
+    },
 
     get: (id: string) =>
       api.get<{ membership: Membership }>(`/v1/memberships/${id}`),
-  },
-
-  // Memberships
-  memberships: {
-    create: (data: CreateMembershipRequest) =>
-      api.post<Membership>('/v1/memberships', data),
   },
 
   // Auth endpoints
@@ -271,7 +359,7 @@ export const apiClient = {
       api.post<AuthResponse>('/auth/login', data),
 
     logout: () =>
-      api.post<{ message: string }>('/auth/logout'),
+      api.post<{ message: string }>('/api/auth/logout'),
 
     refresh: (data: { refreshToken?: string }) =>
       api.post<AuthResponse>('/auth/refresh', data),

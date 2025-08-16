@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { apiClient, isAPIError } from '../../lib/api/client';
 import type { KPIOverview } from '../../lib/api/types';
 import { Icons } from '../../lib/icons/registry';
+import { useAuth } from '../../lib/auth/context';
 
 interface KpiCardProps {
   title: string;
@@ -96,53 +98,82 @@ function ErrorState({ onRetry, error }: { onRetry: () => void; error: string }) 
 }
 
 export function KpiCards() {
-  const [kpiData, setKpiData] = useState<KPIOverview | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user, status } = useAuth();
+  const searchParams = useSearchParams();
+  const [state, setState] = useState<{
+    status: 'loading' | 'guest' | 'ready' | 'error';
+    data?: KPIOverview;
+    error?: string;
+  }>({ status: 'loading' });
 
   const fetchKpiData = async () => {
     try {
-      setLoading(true);
-      setError(null);
-      
-      const response = await apiClient.kpi.overview();
-      
+      setState({ status: 'loading' });
+
+      // Get date range and comparison parameters from URL
+      const from = searchParams.get('from') ?? undefined;
+      const to = searchParams.get('to') ?? undefined;
+      const compareFrom = searchParams.get('compareFrom') ?? undefined;
+      const compareTo = searchParams.get('compareTo') ?? undefined;
+
+      const kpiParams: any = {};
+      if (from) kpiParams.from = from;
+      if (to) kpiParams.to = to;
+      if (compareFrom) kpiParams.compareFrom = compareFrom;
+      if (compareTo) kpiParams.compareTo = compareTo;
+
+      const response = await apiClient.kpi.overview(kpiParams);
+
       if (isAPIError(response)) {
+        // Handle guest 401s silently
+        if ('status' in response && response.status === 401) {
+          setState({ status: 'guest' });
+          return;
+        }
         throw new Error(response.message);
       }
-      
-      setKpiData(response);
-      
+
+      setState({ status: 'ready', data: response });
+
       // Track dashboard view
       if (typeof window !== 'undefined') {
         import('posthog-js').then(({ default: posthog }) => {
           posthog.capture('dashboard.view', {
             activeMembers: response.activeMembers,
             gyms: response.gyms,
-            wellnessProviders: response.wellnessProviders
+            wellnessProviders: response.wellnessProviders,
+            dateRange: { from, to },
+            hasComparison: !!(compareFrom && compareTo)
           });
         });
       }
     } catch (err) {
-      console.error('Failed to fetch KPI data:', err);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
 
       // Check if it's an authentication error
       if (errorMessage.includes('Authentication required') || errorMessage.includes('401')) {
-        setError('auth_required');
+        setState({ status: 'guest' });
+        // Don't log auth errors for guests - they're expected
+        console.debug('[KPI] Guest auth check (expected 401)');
       } else {
-        setError(errorMessage);
+        console.error('Failed to fetch KPI data:', err);
+        setState({ status: 'error', error: errorMessage });
       }
-    } finally {
-      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchKpiData();
-  }, []);
+    // Only fetch KPI data when user is authenticated
+    if (status === 'authenticated' && user) {
+      fetchKpiData();
+    } else if (status === 'guest') {
+      // Set guest state immediately for guests
+      setState({ status: 'guest' });
+    }
+  }, [status, user, searchParams]);
 
-  if (loading) {
+  // Show loading state
+  if (state.status === 'loading') {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {Array.from({ length: 4 }).map((_, i) => (
@@ -152,36 +183,50 @@ export function KpiCards() {
     );
   }
 
-  if (error || !kpiData) {
-    // Show login CTA for authentication errors
-    if (error === 'auth_required') {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="col-span-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center">
-            <div className="text-blue-600 dark:text-blue-400 mb-2">
-              <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-blue-900 dark:text-blue-100 mb-2">
-              Inicia sesión para ver las métricas
-            </h3>
-            <p className="text-blue-700 dark:text-blue-300 mb-4">
-              Necesitas estar autenticado para acceder a los datos del dashboard.
-            </p>
-            <a
-              href="/login"
-              className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Iniciar Sesión
-            </a>
+  // Show login CTA for guest users
+  if (state.status === 'guest') {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="col-span-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center">
+          <div className="text-blue-600 dark:text-blue-400 mb-2">
+            <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
           </div>
+          <h3 className="text-lg font-medium text-blue-900 dark:text-blue-100 mb-2">
+            Inicia sesión para ver las métricas
+          </h3>
+          <p className="text-blue-700 dark:text-blue-300 mb-4">
+            Necesitas estar autenticado para acceder a los datos del dashboard.
+          </p>
+          <a
+            href="/login"
+            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Iniciar Sesión
+          </a>
         </div>
-      );
-    }
-
-    return <ErrorState onRetry={fetchKpiData} error={error || 'Unknown error'} />;
+      </div>
+    );
   }
+
+  // Show error state
+  if (state.status === 'error') {
+    return <ErrorState onRetry={fetchKpiData} error={state.error || 'Unknown error'} />;
+  }
+
+  // Show data
+  const kpiData = state.data;
+  if (!kpiData) return null;
+
+  // Helper function to calculate trend from changes
+  const getTrend = (delta?: { delta: number; pct: number }) => {
+    if (!delta) return undefined;
+    return {
+      value: Number(delta.pct.toFixed(1)),
+      isPositive: delta.delta >= 0
+    };
+  };
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -190,24 +235,28 @@ export function KpiCards() {
         value={(kpiData.activeMembers || 0).toLocaleString()}
         icon="Users"
         description="Usuarios con membresías activas"
+        trend={getTrend(kpiData.changes?.activeMembers)}
       />
       <KpiCard
         title="Ingresos Mensuales"
         value={`$${(kpiData.monthlyRevenue || 0).toLocaleString()}`}
         icon="Wallet"
         description="Ingresos de membresías activas"
+        trend={getTrend(kpiData.changes?.monthlyRevenue)}
       />
       <KpiCard
         title="Visitas Totales"
         value={(kpiData.totalVisits || 0).toLocaleString()}
         icon="Activity"
         description="Total de visitas registradas"
+        trend={getTrend(kpiData.changes?.totalVisits)}
       />
       <KpiCard
         title="Tiempo Promedio"
         value={`${(kpiData.avgActivationHours || 0).toFixed(1)}h`}
         icon="Clock3"
         description="Duración promedio de visitas"
+        trend={getTrend(kpiData.changes?.avgActivationHours)}
       />
     </div>
   );
