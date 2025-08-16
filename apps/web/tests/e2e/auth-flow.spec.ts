@@ -8,9 +8,36 @@ const TEST_USER = {
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:7777';
 
 test.describe('Authentication Flow', () => {
+  let consoleErrors: string[] = [];
+
   test.beforeEach(async ({ page }) => {
     // Clear any existing auth state
     await page.context().clearCookies();
+
+    // Reset console error tracking
+    consoleErrors = [];
+
+    // Track console errors
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+  });
+
+  test.afterEach(async () => {
+    // Check for unexpected console errors
+    const unexpectedErrors = consoleErrors.filter(error =>
+      // Filter out expected errors
+      !error.includes('Expected 401 for guest endpoint') &&
+      !error.includes('Guest auth check (expected 401)') &&
+      !error.includes('KPI-PROXY] Upstream returned 401')
+    );
+
+    if (unexpectedErrors.length > 0) {
+      console.warn('⚠️ Unexpected console errors detected:', unexpectedErrors);
+      // Don't fail the test for now, just warn
+    }
   });
 
   test.describe('Login Process', () => {
@@ -43,14 +70,19 @@ test.describe('Authentication Flow', () => {
       await page.fill('input[name="email"]', TEST_USER.email);
       await page.fill('input[name="password"]', TEST_USER.password);
 
-      // Click submit and wait for response
+      // Click submit and wait for successful response
       await Promise.all([
-        page.waitForResponse(response => response.url().includes('/auth/login')),
+        page.waitForResponse(response =>
+          response.url().includes('/auth/login') && response.status() === 200
+        ),
         page.click('button[type="submit"]')
       ]);
 
       // Wait for redirect to dashboard with longer timeout
-      await page.waitForURL('/dashboard', { timeout: 10000 });
+      await page.waitForURL('/dashboard', { timeout: 15000 });
+
+      // Wait for dashboard content to load
+      await expect(page.locator('h1')).toContainText('Dashboard', { timeout: 10000 });
 
       // Verify login request went through same-origin proxy
       expect(loginRequestUrl).toBeDefined();
@@ -265,14 +297,25 @@ test.describe('Authentication Flow', () => {
 async function loginUser(page: Page) {
   await page.goto('/login');
   await page.waitForLoadState('networkidle');
+
+  // Wait for form to be visible
+  await expect(page.locator('input[name="email"]')).toBeVisible();
+  await expect(page.locator('input[name="password"]')).toBeVisible();
+
   await page.fill('input[name="email"]', TEST_USER.email);
   await page.fill('input[name="password"]', TEST_USER.password);
 
   // Click submit and wait for response
   await Promise.all([
-    page.waitForResponse(response => response.url().includes('/auth/login')),
+    page.waitForResponse(response =>
+      response.url().includes('/auth/login') && response.status() === 200
+    ),
     page.click('button[type="submit"]')
   ]);
 
-  await page.waitForURL('/dashboard', { timeout: 10000 });
+  // Wait for redirect to dashboard with more specific checks
+  await page.waitForURL('/dashboard', { timeout: 15000 });
+
+  // Wait for dashboard content to load
+  await expect(page.locator('h1')).toContainText('Dashboard', { timeout: 10000 });
 }

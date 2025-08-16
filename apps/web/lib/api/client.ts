@@ -93,12 +93,17 @@ async function apiRequest<T>(
         // Clear token and emit global auth error
         setAuthToken(null);
         if (typeof window !== 'undefined') {
-          // Don't log 401 for /auth/me or KPI endpoints as it's expected for guests
-          const isGuestAuthCheck = (endpoint.endsWith('/auth/me') || endpoint.includes('/kpi/overview')) && response.status === 401;
-          if (!isGuestAuthCheck) {
-            console.warn(`Authentication failed for ${endpoint}:`, errorData.message);
+          // Don't log 401 for expected guest endpoints
+          const isExpectedGuestEndpoint = (
+            endpoint.endsWith('/auth/me') ||
+            endpoint.includes('/kpi/overview') ||
+            endpoint.includes('/api/kpi/overview')
+          ) && response.status === 401;
+
+          if (!isExpectedGuestEndpoint) {
+            console.warn(`[API] Authentication failed for ${endpoint}:`, errorData.message);
           } else {
-            console.debug(`[AUTH] Guest auth check (expected 401):`, endpoint);
+            console.debug(`[API] Expected 401 for guest endpoint:`, endpoint);
           }
 
           // Emit custom event for auth context to handle

@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
     console.debug('[KPI-PROXY] Forwarding request to:', upstreamUrl);
     console.debug('[KPI-PROXY] Headers:', {
       hasCookies: !!cookieHeader,
+      cookieLength: cookieHeader?.length || 0,
       tenantId: tenantId || 'none',
       requestId: requestId || 'none',
     });
@@ -62,10 +63,10 @@ export async function GET(request: NextRequest) {
 
     // Get response body
     const responseBody = await upstreamResponse.text();
-    
+
     // Prepare response headers
     const responseHeaders = new Headers();
-    
+
     // Forward content type
     const contentType = upstreamResponse.headers.get('content-type');
     if (contentType) {
@@ -73,19 +74,25 @@ export async function GET(request: NextRequest) {
     } else {
       responseHeaders.set('Content-Type', 'application/json');
     }
-    
+
     // Add CORS headers if needed
     responseHeaders.set('Access-Control-Allow-Origin', '*');
     responseHeaders.set('Access-Control-Allow-Methods', 'GET, OPTIONS');
     responseHeaders.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    
+
     // Forward request ID for tracing
     if (requestId) {
       responseHeaders.set('x-request-id', requestId);
     }
 
     console.debug('[KPI-PROXY] Response status:', upstreamResponse.status);
-    
+
+    // Log 401 responses for debugging (but don't treat as error)
+    if (upstreamResponse.status === 401) {
+      console.debug('[KPI-PROXY] Upstream returned 401 - auth issue or guest user');
+      console.debug('[KPI-PROXY] Response body:', responseBody.substring(0, 200));
+    }
+
     // Return response with same status and headers
     return new NextResponse(responseBody, {
       status: upstreamResponse.status,

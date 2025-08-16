@@ -31,12 +31,53 @@ const tests = [
       const result = await runCommand('curl', ['-s', '-w', '%{http_code}', `${WEB_ORIGIN}/api/kpi/overview`]);
       const statusCode = result.stdout.slice(-3);
       const responseBody = result.stdout.slice(0, -3);
-      
+
       return {
         success: statusCode === '401',
-        details: `Status: ${statusCode}, Response: ${responseBody.substring(0, 50)}...`,
-        expected: '401 status code',
+        details: `Status: ${statusCode}, Response: ${responseBody.substring(0, 100)}...`,
+        expected: '401 status code for guest user',
         actual: `${statusCode} status code`,
+      };
+    }
+  },
+  {
+    name: 'Dashboard SSR with cookies',
+    description: 'Dashboard should handle SSR KPI fetch with proper cookie forwarding',
+    test: async () => {
+      // First login to get cookies
+      const loginResult = await runCommand('curl', [
+        '-s', '-c', '/tmp/test-cookies.txt', '-w', '%{http_code}',
+        '-X', 'POST',
+        '-H', 'Content-Type: application/json',
+        '-d', '{"email":"admin@testgym.mx","password":"TestPassword123!"}',
+        `${WEB_ORIGIN}/api/auth/login`
+      ]);
+
+      const loginStatus = loginResult.stdout.slice(-3);
+
+      if (loginStatus !== '200') {
+        return {
+          success: false,
+          details: `Login failed with status ${loginStatus}`,
+          expected: '200 login status',
+          actual: `${loginStatus} login status`,
+        };
+      }
+
+      // Now test dashboard access with cookies
+      const dashboardResult = await runCommand('curl', [
+        '-s', '-b', '/tmp/test-cookies.txt', '-w', '%{http_code}',
+        `${WEB_ORIGIN}/dashboard`
+      ]);
+
+      const dashboardStatus = dashboardResult.stdout.slice(-3);
+      const dashboardBody = dashboardResult.stdout.slice(0, -3);
+
+      return {
+        success: dashboardStatus === '200',
+        details: `Dashboard status: ${dashboardStatus}, Contains KPI data: ${dashboardBody.includes('Miembros Activos')}`,
+        expected: '200 status with dashboard content',
+        actual: `${dashboardStatus} status`,
       };
     }
   },

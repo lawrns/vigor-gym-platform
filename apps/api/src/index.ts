@@ -20,6 +20,20 @@ import { PrismaClient } from './generated/prisma/index.js';
 import { authRequired, AuthenticatedRequest, setPrismaInstance as setAuthPrismaInstance } from './middleware/auth.js';
 import { tenantRequired, withTenantFilter, TenantRequest, logTenantAction } from './middleware/tenant.js';
 import { requestTiming } from './middleware/requestTiming.js';
+
+/**
+ * Get the real client IP address, respecting trust proxy settings
+ */
+export function getClientIp(req: Request): string {
+  // If trust proxy is enabled, use X-Forwarded-For
+  if (req.app.get('trust proxy')) {
+    // Express automatically parses X-Forwarded-For when trust proxy is enabled
+    return req.ip || req.connection.remoteAddress || 'unknown';
+  }
+
+  // If trust proxy is disabled, use direct connection IP
+  return req.connection.remoteAddress || req.socket.remoteAddress || 'unknown';
+}
 import authRoutes, { setPrismaInstance } from './routes/auth.js';
 import billingRoutes from './routes/billing.js';
 import companiesRoutes, { setPrismaInstance as setCompaniesPrismaInstance } from './routes/companies.js';
@@ -33,6 +47,15 @@ import aiRoutes from './routes/ai.js';
 
 const app = express();
 const prisma = new PrismaClient();
+
+// Trust proxy configuration for rate limiting and real client IP detection
+// Enable when behind a reverse proxy (load balancer, CDN, etc.)
+if (process.env.TRUST_PROXY === 'true') {
+  app.set('trust proxy', 1);
+  console.log('[PROXY] Trust proxy enabled - will use X-Forwarded-For headers');
+} else {
+  console.log('[PROXY] Trust proxy disabled - using direct connection IP');
+}
 
 app.use(helmet());
 

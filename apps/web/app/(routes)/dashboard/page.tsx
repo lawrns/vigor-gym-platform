@@ -3,6 +3,7 @@ import { DashboardFilterBar } from '../../../components/dashboard/DashboardFilte
 import { VisitsByDay } from '../../../components/dashboard/VisitsByDay';
 import { requireSession } from '../../../lib/auth/session';
 import { KPIOverview } from '../../../lib/api/types';
+import { cookies } from 'next/headers';
 
 async function fetchInitialKPIs(searchParams: URLSearchParams): Promise<KPIOverview | null> {
   try {
@@ -10,21 +11,39 @@ async function fetchInitialKPIs(searchParams: URLSearchParams): Promise<KPIOverv
     const queryString = searchParams.toString();
     const url = `${baseUrl}/api/kpi/overview${queryString ? `?${queryString}` : ''}`;
 
+    // Get cookies from the request to forward authentication
+    const cookieStore = cookies();
+    const cookieHeader = cookieStore.toString();
+
+    console.debug('[DASHBOARD-SSR] Fetching initial KPIs:', url);
+    console.debug('[DASHBOARD-SSR] Has cookies:', !!cookieHeader);
+
     const response = await fetch(url, {
       cache: 'no-store',
       headers: {
         'Content-Type': 'application/json',
+        // Forward cookies for authentication
+        ...(cookieHeader && { 'Cookie': cookieHeader }),
       },
     });
 
+    console.debug('[DASHBOARD-SSR] KPI response status:', response.status);
+
     if (!response.ok) {
-      console.error('Failed to fetch initial KPIs:', response.status, response.statusText);
+      // Don't log 401 as error - it's expected for guests or expired sessions
+      if (response.status === 401) {
+        console.debug('[DASHBOARD-SSR] KPI fetch returned 401 (expected for auth issues)');
+        return null;
+      }
+      console.error('[DASHBOARD-SSR] Failed to fetch initial KPIs:', response.status, response.statusText);
       return null;
     }
 
-    return await response.json();
+    const data = await response.json();
+    console.debug('[DASHBOARD-SSR] Successfully fetched initial KPIs');
+    return data;
   } catch (error) {
-    console.error('Error fetching initial KPIs:', error);
+    console.error('[DASHBOARD-SSR] Error fetching initial KPIs:', error);
     return null;
   }
 }

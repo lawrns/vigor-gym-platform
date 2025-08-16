@@ -158,12 +158,14 @@ export function KpiCards({ initialData }: KpiCardsProps) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
 
       // Check if it's an authentication error
-      if (errorMessage.includes('Authentication required') || errorMessage.includes('401')) {
+      if (errorMessage.includes('Authentication required') ||
+          errorMessage.includes('401') ||
+          (isAPIError(err) && 'status' in err && err.status === 401)) {
         setState({ status: 'guest' });
         // Don't log auth errors for guests - they're expected
-        console.debug('[KPI] Guest auth check (expected 401)');
+        console.debug('[KPI] Expected 401 for guest or expired session');
       } else {
-        console.error('Failed to fetch KPI data:', err);
+        console.error('[KPI] Failed to fetch KPI data:', err);
         setState({ status: 'error', error: errorMessage });
       }
     }

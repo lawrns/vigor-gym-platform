@@ -1,4 +1,4 @@
-import { Router, Response } from 'express';
+import { Router, Response, Request } from 'express';
 import { z } from 'zod';
 import { authRequired } from '../middleware/auth.js';
 import { tenantRequired, TenantRequest } from '../middleware/tenant.js';
@@ -7,10 +7,24 @@ import { rateLimit } from 'express-rate-limit';
 
 const router = Router();
 
+/**
+ * Get the real client IP address for rate limiting
+ */
+function getClientIp(req: Request): string {
+  // If trust proxy is enabled, use X-Forwarded-For
+  if (req.app.get('trust proxy')) {
+    return req.ip || req.connection.remoteAddress || 'unknown';
+  }
+
+  // If trust proxy is disabled, use direct connection IP
+  return req.connection.remoteAddress || req.socket.remoteAddress || 'unknown';
+}
+
 // Rate limiting for AI endpoints (more restrictive due to computational cost)
 const aiRateLimit = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 5, // 5 requests per minute
+  keyGenerator: (req: Request) => `ai:${getClientIp(req)}`,
   message: { message: 'Too many AI requests, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,

@@ -6,6 +6,19 @@ import { generateTokens, verifyToken, authRequired, AuthenticatedRequest } from 
 
 const router = Router();
 
+/**
+ * Get the real client IP address for rate limiting
+ */
+function getClientIp(req: Request): string {
+  // If trust proxy is enabled, use X-Forwarded-For
+  if (req.app.get('trust proxy')) {
+    return req.ip || req.connection.remoteAddress || 'unknown';
+  }
+
+  // If trust proxy is disabled, use direct connection IP
+  return req.connection.remoteAddress || req.socket.remoteAddress || 'unknown';
+}
+
 // We'll inject the prisma instance from the main app
 let prisma: any;
 
@@ -19,6 +32,7 @@ const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_RATE_L
 const loginLimiter = isTestMode ? (req: any, res: any, next: any) => next() : rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 5, // 5 attempts per minute
+  keyGenerator: (req: Request) => `login:${getClientIp(req)}`,
   message: { message: 'Too many login attempts, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
@@ -27,6 +41,7 @@ const loginLimiter = isTestMode ? (req: any, res: any, next: any) => next() : ra
 const registerLimiter = isTestMode ? (req: any, res: any, next: any) => next() : rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 3, // 3 registrations per minute
+  keyGenerator: (req: Request) => `register:${getClientIp(req)}`,
   message: { message: 'Too many registration attempts, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
