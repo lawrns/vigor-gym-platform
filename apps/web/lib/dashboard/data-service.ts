@@ -17,6 +17,8 @@ export interface DashboardMetrics {
     yesterday: number;
     trend: string;
     percentage: number;
+    sparklineData: number[];
+    weekTotal: number;
   };
   memberships: {
     total: number;
@@ -100,20 +102,36 @@ class DashboardDataService {
 
   async getRevenue(): Promise<DashboardMetrics['revenue']> {
     return this.fetchWithCache('revenue', async () => {
-      // Simulate revenue calculation
+      // Generate 7 days of revenue data for sparkline
+      const sparklineData: number[] = [];
       const baseRevenue = 2000;
-      const variance = Math.random() * 1000;
-      const today = Math.floor(baseRevenue + variance);
-      const yesterday = Math.floor(baseRevenue + (Math.random() * 800));
-      
+
+      for (let i = 6; i >= 0; i--) {
+        const dayOfWeek = (new Date().getDay() - i + 7) % 7;
+        const weekendMultiplier = (dayOfWeek === 0 || dayOfWeek === 6) ? 1.3 : 1.0;
+        const randomVariance = 0.8 + (Math.random() * 0.4);
+        const trendFactor = 1 + ((6 - i) * 0.02);
+
+        const revenue = Math.floor(
+          baseRevenue * weekendMultiplier * randomVariance * trendFactor
+        );
+        sparklineData.push(revenue);
+      }
+
+      const today = sparklineData[sparklineData.length - 1];
+      const yesterday = sparklineData[sparklineData.length - 2];
+      const weekTotal = sparklineData.reduce((sum, val) => sum + val, 0);
+
       const percentage = Math.round(((today - yesterday) / yesterday) * 100);
       const trend = percentage > 0 ? `+${percentage}%` : `${percentage}%`;
-      
+
       return {
         today,
         yesterday,
         trend,
-        percentage
+        percentage,
+        sparklineData,
+        weekTotal
       };
     });
   }

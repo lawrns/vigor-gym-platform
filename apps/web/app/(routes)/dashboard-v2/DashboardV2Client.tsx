@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { dashboardDataService, type DashboardMetrics } from '../../../lib/dashboard/data-service';
+import { RevenueSparkline } from '../../../components/charts/RevenueSparkline';
 
 // Simple inline SVG icons to avoid import complexity
 const Icons = {
@@ -35,7 +36,14 @@ const Icons = {
 // Fallback data for when data service is unavailable
 const fallbackData: DashboardMetrics = {
   activeVisits: { current: 23, capacity: 50, percentage: 46, trend: '+8%' },
-  revenue: { today: 2450, yesterday: 2200, trend: '+12%', percentage: 12 },
+  revenue: {
+    today: 2450,
+    yesterday: 2200,
+    trend: '+12%',
+    percentage: 12,
+    sparklineData: [2100, 2200, 2150, 2300, 2250, 2200, 2450],
+    weekTotal: 15650
+  },
   memberships: {
     total: 150,
     active: 142,
@@ -123,18 +131,31 @@ export function DashboardV2Client() {
 
         {/* Revenue Widget */}
         <div className="lg:col-span-4 bg-white dark:bg-gray-800 rounded-lg p-6 shadow">
-          <div className="flex items-center gap-2 mb-4">
-            <div className="text-green-600">
-              <Icons.DollarSign />
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="text-green-600">
+                <Icons.DollarSign />
+              </div>
+              <h3 className="text-lg font-semibold">Ingresos Hoy</h3>
             </div>
-            <h3 className="text-lg font-semibold">Ingresos Hoy</h3>
+            <RevenueSparkline
+              data={dashboardData.revenue.sparklineData}
+              width={80}
+              height={30}
+              className="opacity-75"
+            />
           </div>
           <div className="text-3xl font-bold text-green-600">
             ${dashboardData.revenue.today.toLocaleString()}
           </div>
-          <div className="flex items-center gap-1 text-sm text-green-500 mt-1">
-            <Icons.TrendingUp />
-            {dashboardData.revenue.trend} vs ayer
+          <div className="flex items-center justify-between mt-2">
+            <div className="flex items-center gap-1 text-sm text-green-500">
+              <Icons.TrendingUp />
+              {dashboardData.revenue.trend} vs ayer
+            </div>
+            <div className="text-xs text-gray-500">
+              Semana: ${dashboardData.revenue.weekTotal.toLocaleString()}
+            </div>
           </div>
         </div>
 
