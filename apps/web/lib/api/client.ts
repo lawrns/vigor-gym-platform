@@ -15,9 +15,7 @@ import type {
   AuthResponse,
   LoginRequest,
   APIError,
-  APIResponse,
-  DashboardSummary,
-  RevenueAnalytics,
+  APIResponse
 } from './types';
 
 // Configuration - Use same-origin proxy in browser, direct API in server
@@ -95,12 +93,11 @@ async function apiRequest<T>(
         // Clear token and emit global auth error
         setAuthToken(null);
         if (typeof window !== 'undefined') {
-          // Don't log 401 for expected guest endpoints or auth refresh failures
+          // Don't log 401 for expected guest endpoints
           const isExpectedGuestEndpoint = (
             endpoint.endsWith('/auth/me') ||
             endpoint.includes('/kpi/overview') ||
-            endpoint.includes('/api/kpi/overview') ||
-            endpoint.includes('/auth/refresh')
+            endpoint.includes('/api/kpi/overview')
           ) && response.status === 401;
 
           if (!isExpectedGuestEndpoint) {
@@ -243,16 +240,6 @@ type BillingAPI = {
   getInvoices: (params?: { limit?: number; offset?: number }) => Promise<{ invoices: any[]; total: number; limit: number; offset: number }>;
 };
 
-type DashboardAPI = {
-  summary: (opts?: {
-    locationId?: string;
-    range?: '7d' | '14d' | '30d';
-  }) => Promise<DashboardSummary>;
-  revenueAnalytics: (opts?: {
-    range?: '7d' | '30d' | '90d';
-  }) => Promise<RevenueAnalytics>;
-};
-
 // Strict API client type - intentionally excludes generic HTTP methods
 type ApiClient = {
   health: () => Promise<{ status: string }>;
@@ -266,7 +253,6 @@ type ApiClient = {
     list: (params?: { status?: string; limit?: number; offset?: number }) => Promise<PaginatedResponse<Membership>>;
     get: (id: string) => Promise<{ membership: Membership }>;
   };
-  dashboard: DashboardAPI;
   auth: AuthAPI;
   // NOTE: Intentionally NO get/post/patch/delete methods here to prevent misuse
 };
@@ -394,43 +380,10 @@ export const apiClient: ApiClient = {
       api.get<{ membership: Membership }>(`/v1/memberships/${id}`),
   },
 
-  // Dashboard endpoints
-  dashboard: {
-    summary: (opts?: {
-      locationId?: string;
-      range?: '7d' | '14d' | '30d';
-    }) => {
-      // Build query parameters
-      const params = new URLSearchParams();
-      if (opts?.locationId) params.set('locationId', opts.locationId);
-      if (opts?.range) params.set('range', opts.range);
-      const queryString = params.toString();
-
-      // Use proxy route to ensure cookies and tenant context are forwarded
-      return apiRequest<DashboardSummary>(`/api/dashboard/summary${queryString ? `?${queryString}` : ''}`, {
-        method: 'GET',
-      });
-    },
-
-    revenueAnalytics: (opts?: {
-      range?: '7d' | '30d' | '90d';
-    }) => {
-      // Build query parameters
-      const params = new URLSearchParams();
-      if (opts?.range) params.set('range', opts.range);
-      const queryString = params.toString();
-
-      // Use proxy route to ensure cookies and tenant context are forwarded
-      return apiRequest<RevenueAnalytics>(`/api/dashboard/revenue${queryString ? `?${queryString}` : ''}`, {
-        method: 'GET',
-      });
-    },
-  },
-
   // Auth endpoints
   auth: {
     login: (data: LoginRequest) =>
-      api.post<AuthResponse>('/api/auth/login', data),
+      api.post<AuthResponse>('/auth/login', data),
 
     logout: () =>
       api.post<{ message: string }>('/api/auth/logout'),
@@ -439,7 +392,7 @@ export const apiClient: ApiClient = {
       api.post<AuthResponse>('/auth/refresh', data),
 
     me: () =>
-      api.get<{ user: AuthResponse['user']; accessToken?: string }>('/api/auth/me'),
+      api.get<{ user: AuthResponse['user']; accessToken?: string }>('/auth/me'),
   },
 };
 

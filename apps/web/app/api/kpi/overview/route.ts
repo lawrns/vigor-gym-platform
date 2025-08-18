@@ -7,88 +7,23 @@
 
 import { cookies, headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from '../../../../lib/auth/session';
-import { MAX_DAYS } from '../../../../lib/constants/kpi';
 
 const API_ORIGIN = process.env.API_ORIGIN || 'http://localhost:4001';
 
 export async function GET(request: NextRequest) {
   try {
-    // Check authentication server-side
-    const session = await getServerSession();
-
-    if (!session) {
-      console.debug('[KPI-PROXY] No session found - returning 401');
-      return NextResponse.json(
-        { message: 'Authentication required' },
-        { status: 401 }
-      );
-    }
-
     // Build upstream URL with query parameters
     const url = new URL(request.url);
-
-    // Validate date parameters
-    const searchParams = url.searchParams;
-    const from = searchParams.get('from');
-    const to = searchParams.get('to');
-    const compareFrom = searchParams.get('compareFrom');
-    const compareTo = searchParams.get('compareTo');
-
-    // Validate date format and range
-    if (from || to) {
-      try {
-        const fromDate = from ? new Date(from) : null;
-        const toDate = to ? new Date(to) : null;
-
-        // Check for invalid dates
-        if ((fromDate && isNaN(fromDate.getTime())) || (toDate && isNaN(toDate.getTime()))) {
-          return NextResponse.json(
-            { error: 'Invalid date format', code: 'INVALID_DATE_FORMAT' },
-            { status: 422 }
-          );
-        }
-
-        // Check if from > to
-        if (fromDate && toDate && fromDate > toDate) {
-          return NextResponse.json(
-            { error: 'From date cannot be after to date', code: 'INVALID_RANGE' },
-            { status: 422 }
-          );
-        }
-
-        // Check if date range exceeds maximum allowed days
-        if (fromDate && toDate) {
-          const rangeDays = Math.ceil((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
-          if (rangeDays > MAX_DAYS) {
-            return NextResponse.json(
-              {
-                error: `Date range cannot exceed ${MAX_DAYS} days`,
-                code: 'INVALID_RANGE',
-                maxDays: MAX_DAYS
-              },
-              { status: 422 }
-            );
-          }
-        }
-      } catch (error) {
-        return NextResponse.json(
-          { error: 'Invalid date parameters', code: 'INVALID_DATE_FORMAT' },
-          { status: 422 }
-        );
-      }
-    }
-
     const upstreamUrl = `${API_ORIGIN}/v1/kpi/overview${url.search}`;
-
+    
     // Get cookies from the request
     const cookieHeader = cookies().toString();
-
+    
     // Prepare headers for upstream request
     const upstreamHeaders = new Headers();
     upstreamHeaders.set('Content-Type', 'application/json');
-
-    // Forward cookies for authentication (only when authenticated)
+    
+    // Forward cookies for authentication
     if (cookieHeader) {
       upstreamHeaders.set('Cookie', cookieHeader);
     }

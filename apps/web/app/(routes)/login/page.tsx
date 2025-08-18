@@ -32,10 +32,7 @@ export default function LoginPage() {
         setError(result.error || 'Invalid email or password');
       } else {
         // Redirect to next URL or dashboard on success
-        const targetUrl = nextUrl ? decodeURIComponent(nextUrl) : '/dashboard';
-        router.push(targetUrl);
-        // Force a page refresh to ensure server components see the new session
-        window.location.href = targetUrl;
+        router.push(nextUrl ? decodeURIComponent(nextUrl) : '/dashboard');
       }
     } catch (err) {
       console.error('Login error:', err);

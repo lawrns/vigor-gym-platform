@@ -18,29 +18,6 @@ const sans = Inter({ subsets: ['latin'], weight: ['400','500','600','700'], vari
 export const metadata: Metadata = {
   title: defaultSEO.title,
   description: defaultSEO.description,
-  manifest: '/manifest.json',
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'Vigor Kiosk',
-  },
-  other: {
-    'mobile-web-app-capable': 'yes',
-    'apple-mobile-web-app-capable': 'yes',
-    'apple-mobile-web-app-status-bar-style': 'default',
-    'apple-mobile-web-app-title': 'Vigor Kiosk',
-    'application-name': 'Vigor Kiosk',
-    'msapplication-TileColor': '#1f2937',
-    'msapplication-config': '/browserconfig.xml',
-  },
-};
-
-export const viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 5,
-  userScalable: true,
-  themeColor: '#1f2937',
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -71,11 +48,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <AuthProvider>
             <Spotlight />
             <ServerNavbar
-              logo="/images/gogym.png"
+              logo="Vigor"
               links={[
                 { href: '/dashboard', label: 'Dashboard', roles: ['owner', 'manager', 'staff'] },
                 { href: '/admin/members', label: 'Miembros', roles: ['owner', 'manager', 'staff'] },
-                { href: '/staff', label: 'Personal', roles: ['owner', 'manager'] },
                 { href: '/partner', label: 'Portal Gimnasio', roles: ['partner_admin'] },
               ]}
               cta={{ label: 'Iniciar Sesión', href: '/login' }}
@@ -83,7 +59,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <AnalyticsBinder />
             <div className="fixed bottom-4 right-4"><ThemeToggle /></div>
             {children}
-            <Footer columns={(contentV2 as any)?.FooterMega?.columns || []} bottom={(contentV2 as any)?.FooterMega?.bottom || '© GoGym — Plataforma de gestión de gimnasios para México'} />
+            <Footer columns={(contentV2 as any)?.FooterMega?.columns || []} bottom={(contentV2 as any)?.FooterMega?.bottom || '© Vigor — Plataforma de gestión de gimnasios para México'} />
           </AuthProvider>
         </ThemeProvider>
       </body>

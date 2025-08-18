@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import Image from 'next/image';
 import { getServerSession } from '../lib/auth/session';
 import { UserMenu } from './UserMenu';
 
@@ -11,25 +10,17 @@ interface ServerNavbarProps {
   cta?: { label: string; href: string };
 }
 
-export async function ServerNavbar({ logo = '/images/gogym.png', links = [], cta }: ServerNavbarProps) {
+export async function ServerNavbar({ logo = 'Vigor', links = [], cta }: ServerNavbarProps) {
   const session = await getServerSession();
 
-  // Define marketing links for anonymous users
-  const marketingLinks: NavLink[] = [
-    { href: '/beneficios', label: 'Beneficios' },
-    { href: '/demo', label: 'Demo' },
-  ];
-
   // Filter links based on user role
-  const visibleLinks = session
-    ? links.filter((l) => !l.roles || l.roles.includes(session.role))
-    : marketingLinks;
+  const visibleLinks = links.filter((l) => !l.roles || (session && l.roles.includes(session.role)));
 
   return (
     <nav className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-gray-900/70 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
       <div className="max-w-7xl mx-auto h-16 flex items-center justify-between px-4">
-        <Link href="/" className="flex items-center">
-          <Image src={logo} alt="GoGym" width={120} height={40} className="h-8 w-auto" />
+        <Link href="/" className="font-display text-xl font-bold text-gray-900 dark:text-white">
+          {logo}
         </Link>
         
         <div className="flex items-center gap-6">
@@ -75,7 +66,7 @@ export async function ServerNavbar({ logo = '/images/gogym.png', links = [], cta
           {session && (
             <div
               data-testid="session-chip"
-              className="flex items-center px-2 py-1 bg-blue-50 dark:bg-blue-900/20 rounded text-xs text-blue-700 dark:text-blue-300"
+              className="hidden lg:flex items-center px-2 py-1 bg-blue-50 dark:bg-blue-900/20 rounded text-xs text-blue-700 dark:text-blue-300"
             >
               {session.email} • {session.role}
             </div>

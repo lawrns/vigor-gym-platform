@@ -81,7 +81,7 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
           <div className="relative h-[340px] md:h-[440px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
             <Image
               src={config.image?.src || '/images/hero-dashboard.png'}
-              alt={config.image?.alt || 'Vista del dashboard de GoGym'}
+              alt={config.image?.alt || 'Vista del dashboard de Vigor'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
@@ -93,7 +93,7 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
           <div className="hidden md:block relative h-[180px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
             <Image
               src={'/images/hero-app.png'}
-              alt={'App móvil de GoGym'}
+              alt={'App móvil de Vigor'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"

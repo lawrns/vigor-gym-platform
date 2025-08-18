@@ -1,7 +1,6 @@
 "use client";
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { useAuth } from '../lib/auth/context';
 import { Icons } from '../lib/icons/registry';
 import { useState } from 'react';
@@ -14,7 +13,7 @@ interface AuthNavbarProps {
   cta?: { label: string; href: string };
 }
 
-export function AuthNavbar({ logo = '/images/gogym.png', links = [], cta }: AuthNavbarProps) {
+export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps) {
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -29,8 +28,8 @@ export function AuthNavbar({ logo = '/images/gogym.png', links = [], cta }: Auth
   return (
     <nav className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-gray-900/70 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
       <div className="max-w-7xl mx-auto h-16 flex items-center justify-between px-4">
-        <Link href="/" className="flex items-center">
-          <Image src={logo} alt="GoGym" width={120} height={40} className="h-8 w-auto" />
+        <Link href="/" className="font-display text-xl font-bold text-gray-900 dark:text-white">
+          {logo}
         </Link>
         
         <div className="flex items-center gap-6">
@@ -125,19 +124,6 @@ export function AuthNavbar({ logo = '/images/gogym.png', links = [], cta }: Auth
                         <div className="flex items-center">
                           <Icons.Users className="w-4 h-4 mr-2" />
                           Gestión de Miembros
-                        </div>
-                      </Link>
-                    )}
-
-                    {(user.role === 'owner' || user.role === 'manager') && (
-                      <Link
-                        href="/staff"
-                        className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
-                        onClick={() => setShowUserMenu(false)}
-                      >
-                        <div className="flex items-center">
-                          <Icons.UserCheck className="w-4 h-4 mr-2" />
-                          Gestión de Personal
                         </div>
                       </Link>
                     )}

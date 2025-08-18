@@ -6,7 +6,6 @@ import { apiClient, isAPIError } from '../../lib/api/client';
 import type { KPIOverview } from '../../lib/api/types';
 import { Icons } from '../../lib/icons/registry';
 import { useAuth } from '../../lib/auth/context';
-import { ErrorBanner } from '../ui/ErrorBanner';
 
 interface KpiCardProps {
   title: string;
@@ -23,10 +22,7 @@ function KpiCard({ title, value, icon, description, trend }: KpiCardProps) {
   const IconComponent = Icons[icon];
   
   return (
-    <div
-      data-testid={`kpi-card-${title.toLowerCase().replace(/\s+/g, '-')}`}
-      className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm"
-    >
+    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
           <div className="p-2 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
@@ -109,7 +105,7 @@ export function KpiCards({ initialData }: KpiCardsProps) {
   const { user, status } = useAuth();
   const searchParams = useSearchParams();
   const [state, setState] = useState<{
-    status: 'loading' | 'guest' | 'ready' | 'error' | 'client-error';
+    status: 'loading' | 'guest' | 'ready' | 'error';
     data?: KPIOverview;
     error?: string;
     isSSR?: boolean; // Track if we're using SSR data
@@ -145,13 +141,6 @@ export function KpiCards({ initialData }: KpiCardsProps) {
           setState({ status: 'guest', isSSR: false });
           return;
         }
-
-        // Handle 4xx errors with ErrorBanner
-        if ('status' in response && typeof response.status === 'number' && response.status >= 400 && response.status < 500) {
-          setState({ status: 'client-error', error: response.message, isSSR: false });
-          return;
-        }
-
         throw new Error(response.message);
       }
 
@@ -250,27 +239,6 @@ export function KpiCards({ initialData }: KpiCardsProps) {
           >
             Iniciar Sesión
           </a>
-        </div>
-      </div>
-    );
-  }
-
-  // Show client error state (4xx) with ErrorBanner
-  if (state.status === 'client-error') {
-    return (
-      <div className="space-y-4">
-        <ErrorBanner message={state.error || 'Error loading KPI data'} />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {/* Keep skeleton tiles for visual consistency */}
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <div className="animate-pulse">
-                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-3/4 mb-2"></div>
-                <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mb-2"></div>
-                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     );

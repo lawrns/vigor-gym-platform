@@ -200,45 +200,6 @@ export interface KPIOverview {
   };
 }
 
-export interface DashboardSummary {
-  activeVisits: number;
-  capacityLimit: number;
-  utilizationPercent: number;
-  expiringCounts: {
-    '7d': number;
-    '14d': number;
-    '30d': number;
-  };
-  revenue: {
-    total: number;
-    mrr: number;
-    failedPayments: number;
-    transactionCount: number;
-  };
-  classesToday: number;
-  staffGaps: number;
-  dateRange: {
-    from: string;
-    to: string;
-    days: number;
-  };
-  locationId: string | null;
-}
-
-export interface RevenueAnalytics {
-  range: string;
-  data: Array<{
-    date: string;
-    revenue: number;
-    transactions: number;
-  }>;
-  summary: {
-    totalRevenue: number;
-    totalTransactions: number;
-    avgDailyRevenue: number;
-  };
-}
-
 export interface PlansResponse {
   data: Plan[];
 }

@@ -232,9 +232,6 @@ importers:
         specifier: ^4.2.4
         version: 4.2.4
     devDependencies:
-      '@axe-core/playwright':
-        specifier: ^4.10.2
-        version: 4.10.2(playwright-core@1.54.2)
       '@testing-library/jest-dom':
         specifier: ^6.4.8
         version: 6.7.0

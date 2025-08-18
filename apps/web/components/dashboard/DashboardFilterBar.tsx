@@ -1,9 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState, useEffect } from "react";
-import { Icons } from '../../lib/icons/registry';
-import { MAX_DAYS } from '../../lib/constants/kpi';
+import { useState } from "react";
 
 export function DashboardFilterBar() {
   const router = useRouter();
@@ -11,50 +9,14 @@ export function DashboardFilterBar() {
   const [compareEnabled, setCompareEnabled] = useState(
     searchParams.has('compareFrom') && searchParams.has('compareTo')
   );
-  const [rangeError, setRangeError] = useState<string | null>(null);
 
   const currentRange = getCurrentRange(searchParams);
 
-  // Validate current date range from URL params
-  const validateCurrentRange = () => {
-    const from = searchParams.get('from');
-    const to = searchParams.get('to');
-
-    if (from && to) {
-      const fromDate = new Date(from);
-      const toDate = new Date(to);
-
-      if (!isNaN(fromDate.getTime()) && !isNaN(toDate.getTime())) {
-        const rangeDays = Math.ceil((toDate.getTime() - fromDate.getTime()) / (1000 * 60 * 60 * 24));
-        if (rangeDays > MAX_DAYS) {
-          setRangeError(`Current date range (${rangeDays} days) exceeds maximum of ${MAX_DAYS} days`);
-          return;
-        }
-      }
-    }
-
-    setRangeError(null);
-  };
-
-  // Check range validation when search params change
-  useEffect(() => {
-    validateCurrentRange();
-  }, [searchParams]);
-
   const setRange = (days: number) => {
-    // Validate range doesn't exceed MAX_DAYS
-    if (days > MAX_DAYS) {
-      setRangeError(`Date range cannot exceed ${MAX_DAYS} days`);
-      return;
-    }
-
-    // Clear any previous error
-    setRangeError(null);
-
     const to = new Date();
     const from = new Date();
     from.setDate(to.getDate() - days + 1);
-
+    
     // Set to end of day for 'to' and start of day for 'from'
     to.setHours(23, 59, 59, 999);
     from.setHours(0, 0, 0, 0);
@@ -136,43 +98,31 @@ export function DashboardFilterBar() {
   };
 
   return (
-    <div
-      data-testid="dashboard-filter-bar"
-      className="mb-6 flex flex-wrap items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700"
-    >
+    <div className="mb-6 flex flex-wrap items-center gap-4 p-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
       <div className="flex items-center gap-2">
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Período:</span>
         <div className="flex gap-1">
-          <FilterButton
-            active={currentRange === '7d'}
+          <FilterButton 
+            active={currentRange === '7d'} 
             onClick={() => setRange(7)}
-            testId="range-7d"
           >
             7d
           </FilterButton>
-          <FilterButton
-            active={currentRange === '30d'}
+          <FilterButton 
+            active={currentRange === '30d'} 
             onClick={() => setRange(30)}
-            testId="range-30d"
           >
             30d
           </FilterButton>
-          <FilterButton
-            active={currentRange === '90d'}
+          <FilterButton 
+            active={currentRange === '90d'} 
             onClick={() => setRange(90)}
-            testId="range-90d"
           >
             90d
           </FilterButton>
         </div>
-        {rangeError && (
-          <div className="flex items-center gap-2 text-sm text-red-600 dark:text-red-400">
-            <Icons.AlertCircle className="h-4 w-4" />
-            <span>{rangeError}</span>
-          </div>
-        )}
       </div>
-
+      
       <div className="flex items-center gap-2">
         <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
           <input
@@ -199,21 +149,18 @@ export function DashboardFilterBar() {
   );
 }
 
-function FilterButton({
-  active,
-  onClick,
-  children,
-  testId
-}: {
-  active: boolean;
-  onClick: () => void;
-  children: React.ReactNode;
-  testId?: string;
+function FilterButton({ 
+  active, 
+  onClick, 
+  children 
+}: { 
+  active: boolean; 
+  onClick: () => void; 
+  children: React.ReactNode; 
 }) {
   return (
     <button
       onClick={onClick}
-      data-testid={testId}
       className={`px-3 py-1 text-sm rounded-md transition-colors ${
         active
           ? 'bg-blue-600 text-white'

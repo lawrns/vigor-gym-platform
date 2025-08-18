@@ -20,7 +20,7 @@
   ],
   "NavbarLight": {
     "links": [
-      { "label": "Beneficios", "href": "/beneficios" },
+      { "label": "Beneficios", "href": "#beneficios" },
       { "label": "Planes", "href": "#planes" },
       { "label": "Integraciones", "href": "#integraciones" },
       { "label": "Contacto", "href": "/contacto" }
@@ -29,7 +29,7 @@
   },
   "HeroCinematic": {
     "bg": "@gradient.hero",
-    "image": { "src": "/images/hero-dashboard.png", "alt": "Vista del dashboard de GoGym" },
+    "image": { "src": "/images/hero-dashboard.png", "alt": "Vista del dashboard de Vigor" },
     "left": {
       "eyebrow": "Plataforma corporativa de fitness y bienestar",
       "title": "La forma más fácil de ofrecer gimnasios y salud mental a tu equipo",
@@ -78,8 +78,8 @@
   "PlansV2": {
     "title": "Planes para colaboradores",
     "tiers": [
-      { "name": "TP ON", "price": "$", "features": ["Activación simple", "Cobertura nacional", "Soporte por chat"], "cta": { "label": "Comenzar", "href": "/register", "data-cta": "plan" } },
-      { "name": "TP PRO (Recomendado)", "badge": "Recomendado", "price": "$$$", "features": ["Beneficios ampliados", "Control por colaborador", "Reportes básicos"], "highlight": true, "cta": { "label": "Elegir PRO", "href": "/register", "data-cta": "plan" } },
+      { "name": "TP ON", "price": "$", "features": ["Activación simple", "Cobertura nacional", "Soporte por chat"], "cta": { "label": "Comenzar", "href": "/registro", "data-cta": "plan" } },
+      { "name": "TP PRO (Recomendado)", "badge": "Recomendado", "price": "$$$", "features": ["Beneficios ampliados", "Control por colaborador", "Reportes básicos"], "highlight": true, "cta": { "label": "Elegir PRO", "href": "/registro", "data-cta": "plan" } },
       { "name": "TP+", "price": "$$$$", "features": ["Integraciones", "Analítica avanzada", "Cuenta ejecutiva dedicada"], "cta": { "label": "Hablar con ventas", "href": "/contacto", "data-cta": "plan" } }
     ]
   },
@@ -127,37 +127,6 @@
       { "icon": "TimerReset", "label": "−6 h/semana en tareas" }
     ],
     "footnote": "Resultados reales; pueden variar según el caso."
-  },
-  "FooterMega": {
-    "columns": [
-      {
-        "title": "Producto",
-        "links": [
-          ["Beneficios", "/beneficios"],
-          ["Dashboard", "/dashboard"],
-          ["Demo Interactivo", "/beneficios/demo"],
-          ["Solicitar Demo", "/demo"]
-        ]
-      },
-      {
-        "title": "Empresa",
-        "links": [
-          ["Nosotros", "/about"],
-          ["Contacto", "/contacto"],
-          ["Términos", "/terminos"],
-          ["Privacidad", "/privacidad"]
-        ]
-      },
-      {
-        "title": "Recursos",
-        "links": [
-          ["Blog", "/blog"],
-          ["Ayuda", "/help"],
-          ["Estado", "/status"]
-        ]
-      }
-    ],
-    "bottom": "© GoGym — Plataforma de gestión de gimnasios para México"
   }
 }
 
