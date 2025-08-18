@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { apiClient } from '../../../lib/api/client';
 
 // Simple inline SVG icons to avoid import complexity
 const Icons = {
@@ -31,8 +32,8 @@ const Icons = {
   )
 };
 
-// Mock data for dashboard widgets
-const mockData = {
+// Fallback data for when API is loading or unavailable
+const fallbackData = {
   activeVisits: { current: 23, capacity: 50, percentage: 46 },
   expiringMemberships: [
     { name: "Ana García", expires: "2024-08-25", plan: "Premium" },
@@ -47,12 +48,43 @@ const mockData = {
 };
 
 /**
- * Dashboard 2.0 Client Component - Simplified with Mocked Data
+ * Dashboard 2.0 Client Component - With API Integration
  *
- * This version uses static mock data to establish the layout and routing
- * without complex dependencies. Real data integration comes in later steps.
+ * Fetches real data from API endpoints with fallback to mock data.
+ * Gracefully handles loading states and API errors.
  */
 export function DashboardV2Client() {
+  const [dashboardData, setDashboardData] = useState(fallbackData);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function fetchDashboardData() {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        const response = await apiClient.getDashboardSummary('7d');
+
+        if (response.ok && response.data) {
+          setDashboardData(response.data);
+        } else {
+          console.warn('Dashboard API failed, using fallback data:', response.error);
+          setError(response.error?.message || 'Failed to load dashboard data');
+          // Keep fallback data
+        }
+      } catch (err) {
+        console.error('Dashboard fetch error:', err);
+        setError('Network error loading dashboard');
+        // Keep fallback data
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchDashboardData();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="border-b border-gray-200 dark:border-gray-700 pb-4">
@@ -61,6 +93,8 @@ export function DashboardV2Client() {
         </h1>
         <p className="text-gray-600 dark:text-gray-400 mt-1">
           Gym operations cockpit with real-time insights
+          {isLoading && <span className="ml-2 text-blue-500">⟳ Loading...</span>}
+          {error && <span className="ml-2 text-orange-500">⚠ Using cached data</span>}
         </p>
       </div>
 
@@ -74,10 +108,10 @@ export function DashboardV2Client() {
             <h3 className="text-lg font-semibold">Visitas Activas</h3>
           </div>
           <div className="text-3xl font-bold text-blue-600">
-            {mockData.activeVisits.current}/{mockData.activeVisits.capacity}
+            {dashboardData.activeVisits.current}/{dashboardData.activeVisits.capacity}
           </div>
           <div className="text-sm text-gray-500 mt-1">
-            {mockData.activeVisits.percentage}% de capacidad
+            {dashboardData.activeVisits.percentage}% de capacidad
           </div>
         </div>
 
@@ -90,11 +124,11 @@ export function DashboardV2Client() {
             <h3 className="text-lg font-semibold">Ingresos Hoy</h3>
           </div>
           <div className="text-3xl font-bold text-green-600">
-            ${mockData.revenue.today.toLocaleString()}
+            ${dashboardData.revenue.today.toLocaleString()}
           </div>
           <div className="flex items-center gap-1 text-sm text-green-500 mt-1">
             <Icons.TrendingUp />
-            {mockData.revenue.trend} vs ayer
+            {dashboardData.revenue.trend} vs ayer
           </div>
         </div>
 
@@ -107,7 +141,7 @@ export function DashboardV2Client() {
             <h3 className="text-lg font-semibold">Membresías por Vencer</h3>
           </div>
           <div className="space-y-2">
-            {mockData.expiringMemberships.map((member, i) => (
+            {dashboardData.expiringMemberships.map((member, i) => (
               <div key={i} className="text-sm">
                 <div className="font-medium">{member.name}</div>
                 <div className="text-gray-500">{member.expires} - {member.plan}</div>
@@ -125,7 +159,7 @@ export function DashboardV2Client() {
             <h3 className="text-lg font-semibold">Clases de Hoy</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {mockData.classes.map((cls, i) => (
+            {dashboardData.classes.map((cls, i) => (
               <div key={i} className="border rounded p-4">
                 <div className="font-medium">{cls.time} - {cls.name}</div>
                 <div className="text-sm text-gray-500">
