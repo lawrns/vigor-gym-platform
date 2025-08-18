@@ -9,9 +9,13 @@ export type IconName =
   | 'Moon'
   | 'MapPin'
   | 'Users'
+  | 'User'
   | 'Clock3'
   | 'Activity'
   | 'TrendingUp'
+  | 'TrendingDown'
+  | 'DollarSign'
+  | 'Minus'
   | 'TimerReset'
   | 'Wallet'
   | 'FileDigit'
@@ -21,10 +25,13 @@ export type IconName =
   | 'GraduationCap'
   | 'Building2'
   | 'Check'
+  | 'CheckSquare'
+  | 'Play'
   | 'Edit'
   | 'Trash'
   | 'ChevronLeft'
   | 'ChevronRight'
+  | 'ChevronDown'
   | 'Plus'
   | 'Search'
   | 'Upload'
@@ -35,8 +42,30 @@ export type IconName =
   | 'ExternalLink'
   | 'Shield'
   | 'Loader2'
+  | 'RefreshCw'
+  | 'Calendar'
+  | 'Award'
   | 'CameraIcon'
-  | 'Upload';
+  | 'Camera'
+  | 'Upload'
+  | 'Sparkles'
+  | 'QrCode'
+  | 'Keyboard'
+  | 'LogIn'
+  | 'LogOut'
+  | 'UserCheck'
+  | 'UserPlus'
+  | 'Mail'
+  | 'CreditCard'
+  | 'HelpCircle'
+  | 'Bell'
+  | 'XCircle'
+  | 'RotateCcw'
+  | 'ArrowRight'
+  | 'Scan'
+  | 'AlertTriangle'
+  | 'Zap'
+  | 'Headphones';
 
 type SvgProps = React.SVGProps<SVGSVGElement> & { title?: string };
 
@@ -80,6 +109,17 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <path d="M20 6 9 17l-5-5" />
     </Svg>
   ),
+  CheckSquare: (props) => (
+    <Svg {...props}>
+      <polyline points="9,11 12,14 22,4" />
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+    </Svg>
+  ),
+  Play: (props) => (
+    <Svg {...props}>
+      <polygon points="5,3 19,12 5,21" />
+    </Svg>
+  ),
   Brain: (props) => (
     <Svg {...props}>
       <path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z" />
@@ -119,6 +159,12 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <path d="M16 3.13a4 4 0 0 1 0 7.75" />
     </Svg>
   ),
+  User: (props) => (
+    <Svg {...props}>
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+    </Svg>
+  ),
   Clock3: (props) => (
     <Svg {...props}>
       <circle cx="12" cy="12" r="10" />
@@ -134,6 +180,23 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
     <Svg {...props}>
       <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
       <polyline points="16 7 22 7 22 13" />
+    </Svg>
+  ),
+  TrendingDown: (props) => (
+    <Svg {...props}>
+      <polyline points="22 17 13.5 8.5 8.5 13.5 2 7" />
+      <polyline points="16 17 22 17 22 11" />
+    </Svg>
+  ),
+  DollarSign: (props) => (
+    <Svg {...props}>
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </Svg>
+  ),
+  Minus: (props) => (
+    <Svg {...props}>
+      <path d="M5 12h14" />
     </Svg>
   ),
   TimerReset: (props) => (
@@ -231,6 +294,11 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <path d="m9 18 6-6-6-6" />
     </Svg>
   ),
+  ChevronDown: (props) => (
+    <Svg {...props}>
+      <path d="m6 9 6 6 6-6" />
+    </Svg>
+  ),
   Plus: (props) => (
     <Svg {...props}>
       <path d="M5 12h14" />
@@ -248,6 +316,15 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <polyline points="7,10 12,5 17,10" />
       <line x1="12" x2="12" y1="5" y2="15" />
+    </Svg>
+  ),
+  Sparkles: (props) => (
+    <Svg {...props}>
+      <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z" />
+      <path d="M5 3v4" />
+      <path d="M19 17v4" />
+      <path d="M3 5h4" />
+      <path d="M17 19h4" />
     </Svg>
   ),
   X: (props) => (
@@ -292,12 +369,168 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <path d="M21 12a9 9 0 1 1-6.219-8.56" />
     </Svg>
   ),
+  RefreshCw: (props) => (
+    <Svg {...props}>
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M8 16H3v5" />
+    </Svg>
+  ),
+  Calendar: (props) => (
+    <Svg {...props}>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4" />
+      <path d="M8 2v4" />
+      <path d="M3 10h18" />
+    </Svg>
+  ),
+  Award: (props) => (
+    <Svg {...props}>
+      <circle cx="12" cy="8" r="6" />
+      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+    </Svg>
+  ),
   CameraIcon: (props) => (
     <Svg {...props}>
       <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
       <circle cx="12" cy="13" r="3" />
     </Svg>
-  )
+  ),
+  QrCode: (props) => (
+    <Svg {...props}>
+      <rect x="3" y="3" width="5" height="5" rx="1" />
+      <rect x="16" y="3" width="5" height="5" rx="1" />
+      <rect x="3" y="16" width="5" height="5" rx="1" />
+      <path d="M21 16h-3a2 2 0 0 0-2 2v3" />
+      <path d="M21 21v.01" />
+      <path d="M12 7v3a2 2 0 0 1-2 2H7" />
+      <path d="M3 12h.01" />
+      <path d="M12 3h.01" />
+      <path d="M12 16v.01" />
+      <path d="M16 12h1" />
+      <path d="M21 12v.01" />
+      <path d="M12 21v-1" />
+    </Svg>
+  ),
+  Camera: (props) => (
+    <Svg {...props}>
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z" />
+      <circle cx="12" cy="13" r="3" />
+    </Svg>
+  ),
+  Keyboard: (props) => (
+    <Svg {...props}>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="M6 8h.01" />
+      <path d="M10 8h.01" />
+      <path d="M14 8h.01" />
+      <path d="M18 8h.01" />
+      <path d="M8 12h.01" />
+      <path d="M12 12h.01" />
+      <path d="M16 12h.01" />
+      <path d="M7 16h10" />
+    </Svg>
+  ),
+  LogIn: (props) => (
+    <Svg {...props}>
+      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+      <polyline points="10,17 15,12 10,7" />
+      <line x1="15" y1="12" x2="3" y2="12" />
+    </Svg>
+  ),
+  LogOut: (props) => (
+    <Svg {...props}>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <polyline points="16,17 21,12 16,7" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+    </Svg>
+  ),
+  UserCheck: (props) => (
+    <Svg {...props}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <polyline points="16,11 18,13 22,9" />
+    </Svg>
+  ),
+  UserPlus: (props) => (
+    <Svg {...props}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="19" y1="8" x2="19" y2="14" />
+      <line x1="22" y1="11" x2="16" y2="11" />
+    </Svg>
+  ),
+  Mail: (props) => (
+    <Svg {...props}>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="M22 6l-10 7L2 6" />
+    </Svg>
+  ),
+  CreditCard: (props) => (
+    <Svg {...props}>
+      <rect x="1" y="4" width="22" height="16" rx="2" ry="2" />
+      <line x1="1" y1="10" x2="23" y2="10" />
+    </Svg>
+  ),
+  HelpCircle: (props) => (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+      <point cx="12" cy="17" />
+    </Svg>
+  ),
+  Bell: (props) => (
+    <Svg {...props}>
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+    </Svg>
+  ),
+  XCircle: (props) => (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M15 9l-6 6" />
+      <path d="M9 9l6 6" />
+    </Svg>
+  ),
+  RotateCcw: (props) => (
+    <Svg {...props}>
+      <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+      <path d="M3 3v5h5" />
+    </Svg>
+  ),
+  ArrowRight: (props) => (
+    <Svg {...props}>
+      <path d="M5 12h14" />
+      <path d="M12 5l7 7-7 7" />
+    </Svg>
+  ),
+  Scan: (props) => (
+    <Svg {...props}>
+      <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+      <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+      <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+      <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+      <path d="M7 12h10" />
+    </Svg>
+  ),
+  AlertTriangle: (props) => (
+    <Svg {...props}>
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </Svg>
+  ),
+  Zap: (props) => (
+    <Svg {...props}>
+      <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2" />
+    </Svg>
+  ),
+  Headphones: (props) => (
+    <Svg {...props}>
+      <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" />
+    </Svg>
+  ),
 };
 
 export function getIcon(name: IconName) {

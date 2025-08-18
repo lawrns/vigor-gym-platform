@@ -89,11 +89,11 @@ body { background: var(--bg); color: var(--text); }
     background: var(--primary-emph);
   }
   [data-cta][data-variant="secondary"] {
-    background: #E0E7FF;
-    color: var(--primary);
+    background: #C7D2FE;
+    color: #1e40af;
   }
   [data-cta][data-variant="secondary"]:hover {
-    background: #C7D2FE;
+    background: #A5B4FC;
   }
   [data-cta][data-variant="ghost"] {
     border: 1px solid var(--outline);

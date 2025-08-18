@@ -216,11 +216,11 @@ docker-compose -f docker-compose.staging.yml logs api | jq '.'
 ### Security Headers
 ```bash
 # Check security headers
-curl -I https://staging.vigor-gym.com
+curl -I https://staging.gogym.mx
 
 # Validate CSP
 curl -H "Content-Security-Policy-Report-Only: default-src 'self'" \
-  https://staging.vigor-gym.com
+  https://staging.gogym.mx
 ```
 
 ### SSL/TLS Validation

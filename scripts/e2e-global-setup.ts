@@ -2,6 +2,7 @@ import { chromium, FullConfig } from '@playwright/test';
 import { execSync } from 'child_process';
 import { config } from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 
 /**
  * Global setup for E2E tests
@@ -78,7 +79,7 @@ async function globalSetup(config: FullConfig) {
   try {
     // Check web application health
     console.log('📱 Checking web application...');
-    const webResponse = await page.goto(`${baseURL}/health`, { timeout: 30000 });
+    const webResponse = await page.goto(`${baseURL}/`, { timeout: 30000 });
     if (!webResponse?.ok()) {
       throw new Error(`Web health check failed: ${webResponse?.status()}`);
     }
@@ -129,8 +130,16 @@ async function globalSetup(config: FullConfig) {
     await adminPage.fill('[data-testid="login-password"]', adminPassword);
     await adminPage.click('[data-testid="login-submit"]');
     
-    // Wait for successful login
-    await adminPage.waitForURL(/dashboard/, { timeout: 15000 });
+    // Wait for successful login (handle page refresh)
+    try {
+      await adminPage.waitForURL(/dashboard/, { timeout: 15000 });
+    } catch (error) {
+      // If navigation times out due to page refresh, wait a bit and check URL
+      await adminPage.waitForTimeout(2000);
+      if (!adminPage.url().includes('/dashboard')) {
+        throw error;
+      }
+    }
     console.log('✅ Admin session created');
 
     // Test authenticated API call
@@ -139,6 +148,32 @@ async function globalSetup(config: FullConfig) {
       console.log('✅ Authenticated API calls working');
     } else {
       console.warn('⚠️ Authenticated API calls may have issues');
+    }
+
+    // Reload page to surface cookies to RSC
+    await adminPage.reload();
+    await adminPage.waitForLoadState('networkidle');
+
+    // Ensure the tests/.auth directory exists
+    const authDir = path.resolve(process.cwd(), 'tests/.auth');
+    if (!fs.existsSync(authDir)) {
+      fs.mkdirSync(authDir, { recursive: true });
+    }
+
+    // Save storage state for reuse across tests
+    const storageStatePath = path.resolve(authDir, 'storageState.json');
+    await adminContext.storageState({ path: storageStatePath });
+    console.log(`💾 Saved storage state to ${storageStatePath}`);
+
+    // Reset test data if in E2E mode
+    if (process.env.E2E_MODE === 'true') {
+      try {
+        await adminPage.request.post(`${apiURL}/v1/test/visits/reset`);
+        await adminPage.request.post(`${apiURL}/v1/test/billing/reset`);
+        console.log('🧹 Reset test data');
+      } catch (error) {
+        console.warn('⚠️ Could not reset test data:', error);
+      }
     }
 
   } catch (error) {

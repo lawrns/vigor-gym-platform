@@ -3,6 +3,7 @@ import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import { authRequired } from '../middleware/auth.js';
 import { tenantRequired, withTenantFilter, TenantRequest, logTenantAction } from '../middleware/tenant.js';
+import expiringRoutes from './memberships/expiring.js';
 
 const router = Router();
 
@@ -270,5 +271,8 @@ router.get('/:id',
     }
   }
 );
+
+// Mount expiring memberships routes
+router.use('/expiring', expiringRoutes);
 
 export default router;

@@ -1,14 +1,14 @@
-# Vigor - Brand Identity Guide
+# GoGym - Brand Identity Guide
 ## Mexican AI-Powered Gym Management Platform
 
 ---
 
 ## Brand Overview
 
-**Brand Name:** Vigor  
-**Pronunciation:** vi-GOR (Spanish/English)  
-**Market:** Mexico (Primary), Latin America (Secondary)  
-**Category:** AI-Powered Gym Management Software  
+**Brand Name:** GoGym
+**Pronunciation:** go-GYM (Spanish/English)
+**Market:** Mexico (Primary), Latin America (Secondary)
+**Category:** AI-Powered Gym Management Software
 **Positioning:** The most powerful and intuitive gym management platform designed specifically for the Mexican market
 
 ---
@@ -16,10 +16,10 @@
 ## Brand Essence
 
 ### Core Promise
-Vigor transforms gym operations through intelligent automation, Mexican regulatory compliance, and data-driven insights that help gym owners build stronger, more profitable businesses.
+GoGym transforms gym operations through intelligent automation, Mexican regulatory compliance, and data-driven insights that help gym owners build stronger, more profitable businesses.
 
 ### Brand Personality
-- **Powerful** - Like the name suggests, Vigor represents strength and capability
+- **Powerful** - Like the name suggests, GoGym represents strength and capability
 - **Intelligent** - AI-driven insights and smart automation
 - **Reliable** - Consistent performance and Mexican compliance expertise
 - **Approachable** - User-friendly interface designed for real gym owners
@@ -39,7 +39,7 @@ Vigor transforms gym operations through intelligent automation, Mexican regulato
 ### Spanish Voice Characteristics
 **Profesional pero Accesible** (Professional yet Approachable)
 
-- **Confident without being arrogant** - "Vigor te da el control total de tu gimnasio"
+- **Confident without being arrogant** - "GoGym te da el control total de tu gimnasio"
 - **Knowledgeable without being condescending** - "Sabemos que manejar un gimnasio es complejo"
 - **Supportive and encouraging** - "Estamos aquí para hacer crecer tu negocio"
 - **Clear and direct** - Avoid unnecessary jargon, speak plainly
@@ -48,14 +48,14 @@ Vigor transforms gym operations through intelligent automation, Mexican regulato
 ### Voice Examples in Spanish
 
 **Empowering:**
-- "Con Vigor, tu gimnasio funciona como nunca antes"
+- "Con GoGym, tu gimnasio funciona como nunca antes"
 - "Toma decisiones inteligentes con datos reales"
 - "Tu éxito es nuestro compromiso"
 
 **Supportive:**
 - "Entendemos los desafíos únicos de los gimnasios mexicanos"
 - "Nuestro equipo está disponible cuando nos necesites"
-- "Cada gimnasio es diferente, Vigor se adapta a ti"
+- "Cada gimnasio es diferente, GoGym se adapta a ti"
 
 **Knowledgeable:**
 - "Cumplimiento automático con CFDI 4.0"
@@ -67,10 +67,10 @@ Vigor transforms gym operations through intelligent automation, Mexican regulato
 ## Taglines and Messaging
 
 ### Primary Tagline (Spanish)
-**"El Poder de Gestionar Mejor"**  
-*(The Power to Manage Better)*
+**"¡Vamos al Gym!"**
+*(Let's Go to the Gym!)*
 
-**Rationale:** Connects directly to the "Vigor" name (power/strength) while promising improved management capabilities. Simple, memorable, and actionable.
+**Rationale:** Connects directly to the "GoGym" name while capturing the energy and motivation of fitness. Simple, memorable, and actionable.
 
 ### Secondary Taglines
 
@@ -120,7 +120,7 @@ Vigor transforms gym operations through intelligent automation, Mexican regulato
 - Inability to scale operations
 - Competition from modern gym chains
 
-### Level 2: Gains (What Vigor delivers)
+### Level 2: Gains (What GoGym delivers)
 **Operational Excellence**
 - Automated member management and scheduling
 - Digital payment processing with Mexican methods
@@ -142,7 +142,7 @@ Vigor transforms gym operations through intelligent automation, Mexican regulato
 - Scalable multi-location management
 - Competitive advantage through technology
 
-### Level 3: Proof Points (Why Vigor works)
+### Level 3: Proof Points (Why GoGym works)
 **Technology Leadership**
 - Advanced AI body scanning and analysis
 - Machine learning for member behavior prediction
@@ -168,20 +168,20 @@ Vigor transforms gym operations through intelligent automation, Mexican regulato
 
 ## Brand Architecture
 
-### Master Brand: Vigor
+### Master Brand: GoGym
 **Positioning:** The intelligent gym management platform for Mexico
 
 ### Product Lines:
-1. **Vigor Básico** - Essential gym management for independent gyms
-2. **Vigor Pro** - Advanced features for growing gym businesses  
-3. **Vigor Enterprise** - Full-scale solution for gym chains and franchises
-4. **Vigor Analytics** - AI-powered insights and body composition analysis
-5. **Vigor Compliance** - Mexican regulatory and payment compliance tools
+1. **GoGym Básico** - Essential gym management for independent gyms
+2. **GoGym Pro** - Advanced features for growing gym businesses
+3. **GoGym Enterprise** - Full-scale solution for gym chains and franchises
+4. **GoGym Analytics** - AI-powered insights and body composition analysis
+5. **GoGym Compliance** - Mexican regulatory and payment compliance tools
 
 ### Service Extensions:
-- **Vigor Academy** - Training and certification programs
-- **Vigor Connect** - Integration marketplace and API platform
-- **Vigor Support** - Customer success and technical support
+- **GoGym Academy** - Training and certification programs
+- **GoGym Connect** - Integration marketplace and API platform
+- **GoGym Support** - Customer success and technical support
 
 ---
 
@@ -210,7 +210,7 @@ Vigor transforms gym operations through intelligent automation, Mexican regulato
 ## Visual Identity Guidelines
 
 ### Logo Concept
-**Primary Mark:** Bold, modern wordmark "VIGOR" with distinctive "V" that suggests upward movement and strength. The "V" could incorporate a subtle fitness/growth element.
+**Primary Mark:** Bold, modern wordmark "GOGYM" with distinctive "GO" that suggests movement and action. The "GO" could incorporate a subtle fitness/growth element.
 
 **Color Palette:**
 - **Primary Blue:** #1E40AF (Professional, trustworthy, tech-forward)
@@ -236,10 +236,10 @@ Vigor transforms gym operations through intelligent automation, Mexican regulato
 ## Brand Applications
 
 ### Digital Presence
-- **Website:** vigor.mx (primary), vigor.com (international)
-- **Social Media:** @VigorMX (consistent across platforms)
-- **Email:** hola@vigor.mx, soporte@vigor.mx
-- **App Store:** "Vigor - Gestión de Gimnasios"
+- **Website:** gogym.mx (primary), gogym.com (international)
+- **Social Media:** @GoGymMX (consistent across platforms)
+- **Email:** hola@gogym.mx, soporte@gogym.mx
+- **App Store:** "GoGym - Gestión de Gimnasios"
 
 ### Marketing Materials
 - **Business Cards:** Bilingual (Spanish primary, English secondary)
@@ -258,20 +258,20 @@ Vigor transforms gym operations through intelligent automation, Mexican regulato
 ## Brand Guidelines Summary
 
 ### Do's
-✅ Use "Vigor" consistently across all touchpoints  
-✅ Emphasize Mexican market expertise and compliance  
-✅ Speak confidently about AI and technology capabilities  
-✅ Show respect for traditional gym business values  
-✅ Use Mexican Spanish with appropriate formality levels  
-✅ Highlight tangible business results and ROI  
+✅ Use "GoGym" consistently across all touchpoints
+✅ Emphasize Mexican market expertise and compliance
+✅ Speak confidently about AI and technology capabilities
+✅ Show respect for traditional gym business values
+✅ Use Mexican Spanish with appropriate formality levels
+✅ Highlight tangible business results and ROI
 
 ### Don'ts
-❌ Never compromise on the "Vigor" spelling or pronunciation  
-❌ Don't oversell technology at expense of business benefits  
-❌ Avoid generic fitness clichés or overused motivational language  
-❌ Don't ignore Mexican cultural and business norms  
-❌ Never promise compliance without proper legal backing  
-❌ Don't compete solely on price - emphasize value  
+❌ Never compromise on the "GoGym" spelling or pronunciation
+❌ Don't oversell technology at expense of business benefits
+❌ Avoid generic fitness clichés or overused motivational language
+❌ Don't ignore Mexican cultural and business norms
+❌ Never promise compliance without proper legal backing
+❌ Don't compete solely on price - emphasize value
 
 ---
 
@@ -297,5 +297,5 @@ Vigor transforms gym operations through intelligent automation, Mexican regulato
 
 ---
 
-*This brand identity guide serves as the foundation for all Vigor communications and should be referenced for consistency across all touchpoints and markets.*
+*This brand identity guide serves as the foundation for all GoGym communications and should be referenced for consistency across all touchpoints and markets.*
 

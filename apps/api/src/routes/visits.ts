@@ -20,8 +20,10 @@ function getClientIp(req: Request): string {
   return req.connection.remoteAddress || req.socket.remoteAddress || 'unknown';
 }
 
-// Rate limiting for check-ins (10 per minute per IP)
-const checkInRateLimit = rateLimit({
+// Rate limiting for check-ins (disabled in test mode)
+const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_RATE_LIMITING === 'true';
+
+const checkInRateLimit = isTestMode ? (req: any, res: any, next: any) => next() : rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 10,
   keyGenerator: (req: Request) => `checkin:${getClientIp(req)}`,
@@ -123,19 +125,21 @@ router.post('/',
       });
 
       res.status(201).json({
-        id: visit.id,
-        membershipId: visit.membershipId,
-        gymId: visit.gymId,
-        checkIn: visit.checkIn,
-        status: 'in_progress',
-        member: visit.membership.member ? {
-          id: visit.membership.member.id,
-          firstName: visit.membership.member.firstName,
-          lastName: visit.membership.member.lastName
-        } : null,
-        gym: {
-          id: visit.gym.id,
-          name: visit.gym.name
+        visit: {
+          id: visit.id,
+          membershipId: visit.membershipId,
+          gymId: visit.gymId,
+          checkIn: visit.checkIn,
+          status: 'in_progress',
+          member: visit.membership.member ? {
+            id: visit.membership.member.id,
+            firstName: visit.membership.member.firstName,
+            lastName: visit.membership.member.lastName
+          } : null,
+          gym: {
+            id: visit.gym.id,
+            name: visit.gym.name
+          }
         }
       });
 
@@ -199,26 +203,28 @@ router.patch('/:id/checkout',
         }
       });
 
-      // Calculate duration in minutes
+      // Calculate duration in minutes (minimum 1 minute)
       const durationMs = checkOutTime.getTime() - visit.checkIn.getTime();
-      const durationMinutes = Math.round(durationMs / (1000 * 60));
+      const durationMinutes = Math.max(1, Math.round(durationMs / (1000 * 60)));
 
       res.json({
-        id: updatedVisit.id,
-        membershipId: updatedVisit.membershipId,
-        gymId: updatedVisit.gymId,
-        checkIn: updatedVisit.checkIn,
-        checkOut: updatedVisit.checkOut,
-        durationMinutes: durationMinutes,
-        status: 'completed',
-        member: updatedVisit.membership.member ? {
-          id: updatedVisit.membership.member.id,
-          firstName: updatedVisit.membership.member.firstName,
-          lastName: updatedVisit.membership.member.lastName
-        } : null,
-        gym: {
-          id: updatedVisit.gym.id,
-          name: updatedVisit.gym.name
+        visit: {
+          id: updatedVisit.id,
+          membershipId: updatedVisit.membershipId,
+          gymId: updatedVisit.gymId,
+          checkIn: updatedVisit.checkIn,
+          checkOut: updatedVisit.checkOut,
+          durationMinutes: durationMinutes,
+          status: 'completed',
+          member: updatedVisit.membership.member ? {
+            id: updatedVisit.membership.member.id,
+            firstName: updatedVisit.membership.member.firstName,
+            lastName: updatedVisit.membership.member.lastName
+          } : null,
+          gym: {
+            id: updatedVisit.gym.id,
+            name: updatedVisit.gym.name
+          }
         }
       });
 

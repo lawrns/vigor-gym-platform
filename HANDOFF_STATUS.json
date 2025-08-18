@@ -1,0 +1,205 @@
+{
+  "handoff": {
+    "timestamp": "2025-08-17T19:45:00Z",
+    "from_agent": "Dashboard Development Agent",
+    "to_agent": "Frontend Integration Agent",
+    "status": "CRITICAL_FRONTEND_ISSUES_IDENTIFIED"
+  },
+
+  "current_state": {
+    "backend_api": {
+      "status": "FULLY_FUNCTIONAL",
+      "port": 4003,
+      "health": "✅ ALL ENDPOINTS WORKING",
+      "data_seeded": true,
+      "authentication": "✅ Working (admin@testgym.mx / TestPassword123!)",
+      "endpoints_verified": [
+        "GET /v1/dashboard/summary?range=7d → 200 with real data",
+        "GET /v1/revenue/trends?period=14d → 200 with sparkline data",
+        "GET /v1/classes/today → 200 with 10 classes",
+        "GET /v1/staff-coverage/coverage → 200 with gaps"
+      ]
+    },
+    
+    "frontend_web": {
+      "status": "❌ BROKEN - AUTHENTICATION & API CLIENT ISSUES",
+      "port": 3005,
+      "url": "http://localhost:3005/dashboard-v2",
+      "critical_issues": [
+        "All widgets showing 'Authentication required' errors",
+        "API client errors: '_lib_api_client__WEBPACK_IMPORTED_MODULE_4__.apiClient.get is not a function'",
+        "Dashboard widgets not loading data despite backend working",
+        "Frontend-backend authentication bridge broken"
+      ]
+    },
+
+    "database": {
+      "status": "✅ FULLY POPULATED",
+      "demo_data": {
+        "members": 85,
+        "staff": 7,
+        "gyms": 2,
+        "plans": 3,
+        "memberships": "~63 active",
+        "classes": "10 today, weekly schedule",
+        "revenue_history": "60 days with realistic patterns",
+        "expiring_memberships": "6 in 7d, 10 in 14d, 26 in 30d"
+      }
+    }
+  },
+
+  "completed_work": {
+    "p1_api_stability": {
+      "status": "✅ COMPLETE",
+      "achievements": [
+        "Fixed 'days is not defined' error in dashboard summary",
+        "Implemented comprehensive error handling with AppError class",
+        "Added standardized error responses {error:{code,message,details}}",
+        "All API endpoints returning 200s with proper data"
+      ]
+    },
+    
+    "p2_seed_demo_data": {
+      "status": "✅ COMPLETE", 
+      "achievements": [
+        "Created comprehensive seed script with 85 members",
+        "Realistic status distribution (74% active, 8% paused, 12% cancelled)",
+        "Staff shifts with intentional coverage gaps for demo story",
+        "60 days of payment history with 82% success rate",
+        "Revenue patterns showing weekend seasonality",
+        "All data tenant-scoped to Vigor Demo Co"
+      ]
+    },
+
+    "dashboard_widgets_backend": {
+      "status": "✅ COMPLETE",
+      "widgets_implemented": [
+        "RevenueSparkline - SVG sparkline with MRR, growth indicators",
+        "ExpiringMembershipsWidget - 7/14/30 day counts",
+        "ActiveVisitsWidget - Real-time occupancy tracking", 
+        "ClassRosterToday - Today's class schedule",
+        "StaffCoverageTimeline - Shift coverage with gaps",
+        "LiveActivityFeed - SSE-powered activity stream"
+      ]
+    }
+  },
+
+  "critical_issues_to_fix": {
+    "priority": "P0 - BLOCKING",
+    "frontend_authentication": {
+      "issue": "Dashboard widgets cannot authenticate with backend API",
+      "symptoms": [
+        "All widgets show 'Authentication required' errors",
+        "Frontend session not being passed to API calls",
+        "Proxy routes may not be forwarding cookies correctly"
+      ],
+      "likely_causes": [
+        "API client configuration issues in frontend",
+        "Session/cookie handling broken between Next.js and Express API",
+        "CORS or authentication middleware misconfiguration"
+      ]
+    },
+
+    "api_client_errors": {
+      "issue": "Frontend API client module not working",
+      "error": "_lib_api_client__WEBPACK_IMPORTED_MODULE_4__.apiClient.get is not a function",
+      "symptoms": [
+        "Webpack import errors for apiClient",
+        "API client methods not available in widgets",
+        "Frontend build/import configuration issues"
+      ]
+    }
+  },
+
+  "immediate_next_steps": {
+    "step_1": {
+      "task": "Fix Frontend API Client",
+      "description": "Investigate and fix the apiClient import/export issues",
+      "files_to_check": [
+        "apps/web/lib/api/client.ts",
+        "apps/web/components/dashboard/*.tsx (widget imports)",
+        "apps/web/next.config.js (webpack configuration)"
+      ]
+    },
+
+    "step_2": {
+      "task": "Fix Authentication Flow", 
+      "description": "Ensure frontend sessions are properly passed to backend API",
+      "files_to_check": [
+        "apps/web/lib/auth/session.ts",
+        "apps/web/app/api/*/route.ts (proxy routes)",
+        "apps/web/middleware.ts",
+        "Cookie forwarding in proxy routes"
+      ]
+    },
+
+    "step_3": {
+      "task": "Verify Widget Data Loading",
+      "description": "Once auth is fixed, verify all widgets load real data",
+      "expected_results": [
+        "ExpiringMemberships shows 6/10/26 counts",
+        "RevenueSparkline shows revenue trends with growth",
+        "ClassRosterToday shows 10 classes",
+        "StaffCoverage shows gaps",
+        "ActiveVisits shows current occupancy"
+      ]
+    }
+  },
+
+  "testing_checklist": {
+    "backend_verification": [
+      "✅ curl -X POST http://localhost:4003/auth/login → 200 with token",
+      "✅ curl /v1/dashboard/summary → 200 with data",
+      "✅ curl /v1/revenue/trends → 200 with sparkline",
+      "✅ All endpoints working with authentication"
+    ],
+    
+    "frontend_verification": [
+      "❌ Login at http://localhost:3005/login → should redirect to dashboard",
+      "❌ Dashboard widgets should load without errors",
+      "❌ Real data should appear in all widgets",
+      "❌ No 'Authentication required' errors"
+    ]
+  },
+
+  "environment_setup": {
+    "required_processes": [
+      "API Server: cd apps/api && npm run dev (port 4003)",
+      "Web Server: cd apps/web && npm run dev (port 3005)"
+    ],
+    "test_credentials": {
+      "email": "admin@testgym.mx",
+      "password": "TestPassword123!"
+    },
+    "database": "Already seeded with comprehensive demo data"
+  },
+
+  "success_criteria": {
+    "when_complete": [
+      "Dashboard 2.0 loads without errors at http://localhost:3005/dashboard-v2",
+      "All 6 widgets display real data from seeded database",
+      "No authentication errors in browser console",
+      "Revenue sparkline shows actual trends",
+      "Expiring memberships shows 6/10/26 counts",
+      "Class roster shows 10 classes today",
+      "Staff coverage shows intentional gaps"
+    ]
+  },
+
+  "technical_context": {
+    "architecture": "Next.js frontend + Express API backend",
+    "authentication": "JWT tokens with cookie-based sessions",
+    "api_communication": "Proxy routes in Next.js forwarding to Express API",
+    "real_time": "Server-Sent Events (SSE) for live updates",
+    "database": "PostgreSQL with Prisma ORM, fully seeded"
+  },
+
+  "files_modified_recently": [
+    "apps/api/src/routes/dashboard.ts - Fixed 'days is not defined'",
+    "apps/api/src/lib/errors.ts - New error handling",
+    "apps/api/src/middleware/errorHandler.ts - Standard error responses", 
+    "apps/api/src/seed.ts - Comprehensive demo data generation",
+    "apps/web/components/dashboard/RevenueSparkline.tsx - New widget",
+    "apps/web/lib/icons/registry.tsx - Added missing icons"
+  ]
+}

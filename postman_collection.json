@@ -1,0 +1,543 @@
+{
+  "info": {
+    "name": "Vigor Device Check-in API",
+    "description": "Production API for gym device registration, authentication, and member check-in operations.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{deviceToken}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4002/v1",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "deviceToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "deviceId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "deviceSecret",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "visitId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "memberId",
+      "value": "123e4567-e89b-12d3-a456-426614174000",
+      "type": "string"
+    },
+    {
+      "key": "gymId",
+      "value": "456e7890-f12b-34c5-d678-901234567890",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Device Management",
+      "item": [
+        {
+          "name": "Register Device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Kiosk Entrada Principal\",\n  \"locationId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["devices", "register"]
+            },
+            "description": "Register a new kiosk device for a gym location. Requires admin authentication."
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Kiosk Entrada Principal\",\n  \"locationId\": \"123e4567-e89b-12d3-a456-426614174000\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/devices/register",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["devices", "register"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"device\": {\n    \"id\": \"987fcdeb-51a2-43d1-9f4e-123456789abc\",\n    \"name\": \"Kiosk Entrada Principal\",\n    \"locationId\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"createdAt\": \"2025-01-16T20:30:00Z\"\n  },\n  \"deviceSecret\": \"a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('deviceId', response.device.id);",
+                  "    pm.collectionVariables.set('deviceSecret', response.deviceSecret);",
+                  "    pm.test('Device registered successfully', function () {",
+                  "        pm.expect(response.device.id).to.be.a('string');",
+                  "        pm.expect(response.deviceSecret).to.be.a('string');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Authenticate Device",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"deviceId\": \"{{deviceId}}\",\n  \"deviceSecret\": \"{{deviceSecret}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/devices/auth",
+              "host": ["{{baseUrl}}"],
+              "path": ["devices", "auth"]
+            },
+            "description": "Exchange device credentials for JWT token"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"deviceId\": \"987fcdeb-51a2-43d1-9f4e-123456789abc\",\n  \"deviceSecret\": \"a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/devices/auth",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["devices", "auth"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"deviceToken\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"device\": {\n    \"id\": \"987fcdeb-51a2-43d1-9f4e-123456789abc\",\n    \"name\": \"Kiosk Entrada Principal\",\n    \"companyId\": \"456e7890-f12b-34c5-d678-901234567890\"\n  },\n  \"expiresIn\": 86400\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('deviceToken', response.deviceToken);",
+                  "    pm.test('Device authenticated successfully', function () {",
+                  "        pm.expect(response.deviceToken).to.be.a('string');",
+                  "        pm.expect(response.expiresIn).to.be.a('number');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Check-ins",
+      "item": [
+        {
+          "name": "Scan Member (QR Code)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deviceToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"qrCode\": \"{\\\"type\\\":\\\"member\\\",\\\"id\\\":\\\"{{memberId}}\\\"}\",\n  \"gymId\": \"{{gymId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkins/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["checkins", "scan"]
+            },
+            "description": "Scan member QR code for check-in"
+          },
+          "response": [
+            {
+              "name": "Active Member Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"qrCode\": \"{\\\"type\\\":\\\"member\\\",\\\"id\\\":\\\"123e4567-e89b-12d3-a456-426614174000\\\"}\",\n  \"gymId\": \"456e7890-f12b-34c5-d678-901234567890\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/checkins/scan",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["checkins", "scan"]
+                }
+              },
+              "status": "Created",
+              "code": 201,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"visit\": {\n    \"id\": \"789abcde-f012-3456-7890-123456789abc\",\n    \"checkIn\": \"2025-01-16T20:30:00Z\",\n    \"member\": {\n      \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"firstName\": \"Juan\",\n      \"lastName\": \"Pérez\",\n      \"email\": \"juan.perez@example.com\"\n    },\n    \"gym\": {\n      \"id\": \"456e7890-f12b-34c5-d678-901234567890\",\n      \"name\": \"Vigor Gym Centro\"\n    }\n  },\n  \"state\": \"OK\",\n  \"message\": \"Check-in successful\"\n}"
+            }
+          ],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    const response = pm.response.json();",
+                  "    pm.collectionVariables.set('visitId', response.visit.id);",
+                  "    pm.test('Check-in successful', function () {",
+                  "        pm.expect(response.visit.id).to.be.a('string');",
+                  "        pm.expect(response.state).to.equal('OK');",
+                  "    });",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Scan Member (Manual ID)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deviceToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"{{memberId}}\",\n  \"gymId\": \"{{gymId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkins/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["checkins", "scan"]
+            },
+            "description": "Manual member ID entry for check-in"
+          }
+        },
+        {
+          "name": "Checkout Member",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deviceToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"visitId\": \"{{visitId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkins/checkout",
+              "host": ["{{baseUrl}}"],
+              "path": ["checkins", "checkout"]
+            },
+            "description": "Check out member and calculate duration"
+          },
+          "response": [
+            {
+              "name": "Success",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"visitId\": \"789abcde-f012-3456-7890-123456789abc\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/checkins/checkout",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["checkins", "checkout"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"visit\": {\n    \"id\": \"789abcde-f012-3456-7890-123456789abc\",\n    \"checkIn\": \"2025-01-16T20:30:00Z\",\n    \"checkOut\": \"2025-01-16T22:15:00Z\",\n    \"durationMinutes\": 105,\n    \"member\": {\n      \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"firstName\": \"Juan\",\n      \"lastName\": \"Pérez\"\n    }\n  },\n  \"message\": \"Check-out successful\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Visit Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deviceToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/checkins/{{visitId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["checkins", "{{visitId}}"]
+            },
+            "description": "Retrieve detailed information about a specific visit"
+          },
+          "response": [
+            {
+              "name": "Active Visit",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/checkins/789abcde-f012-3456-7890-123456789abc",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["checkins", "789abcde-f012-3456-7890-123456789abc"]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"visit\": {\n    \"id\": \"789abcde-f012-3456-7890-123456789abc\",\n    \"checkIn\": \"2025-01-16T20:30:00Z\",\n    \"checkOut\": null,\n    \"durationMinutes\": null,\n    \"member\": {\n      \"id\": \"123e4567-e89b-12d3-a456-426614174000\",\n      \"firstName\": \"Juan\",\n      \"lastName\": \"Pérez\",\n      \"email\": \"juan.perez@example.com\"\n    },\n    \"gym\": {\n      \"id\": \"456e7890-f12b-34c5-d678-901234567890\",\n      \"name\": \"Vigor Gym Centro\"\n    },\n    \"device\": {\n      \"id\": \"987fcdeb-51a2-43d1-9f4e-123456789abc\",\n      \"name\": \"Kiosk Entrada Principal\"\n    }\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Error Scenarios",
+      "item": [
+        {
+          "name": "Duplicate Check-in",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deviceToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"{{memberId}}\",\n  \"gymId\": \"{{gymId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkins/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["checkins", "scan"]
+            },
+            "description": "Attempt to check-in member who is already checked in"
+          },
+          "response": [
+            {
+              "name": "Duplicate Check-in Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"memberId\": \"123e4567-e89b-12d3-a456-426614174000\",\n  \"gymId\": \"456e7890-f12b-34c5-d678-901234567890\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/checkins/scan",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["checkins", "scan"]
+                }
+              },
+              "status": "Conflict",
+              "code": 409,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"Member is already checked in\",\n  \"code\": \"DUPLICATE_CHECKIN\",\n  \"existingVisit\": {\n    \"id\": \"789abcde-f012-3456-7890-123456789abc\",\n    \"checkIn\": \"2025-01-16T20:25:00Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Expired Membership",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{deviceToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"memberId\": \"expired-member-id\",\n  \"gymId\": \"{{gymId}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/checkins/scan",
+              "host": ["{{baseUrl}}"],
+              "path": ["checkins", "scan"]
+            },
+            "description": "Attempt to check-in member with expired membership"
+          },
+          "response": [
+            {
+              "name": "Expired Membership Error",
+              "originalRequest": {
+                "method": "POST",
+                "header": [
+                  {
+                    "key": "Content-Type",
+                    "value": "application/json"
+                  }
+                ],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"memberId\": \"expired-member-id\",\n  \"gymId\": \"456e7890-f12b-34c5-d678-901234567890\"\n}"
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/checkins/scan",
+                  "host": ["{{baseUrl}}"],
+                  "path": ["checkins", "scan"]
+                }
+              },
+              "status": "Forbidden",
+              "code": 403,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"message\": \"No active membership found\",\n  \"code\": \"NO_ACTIVE_MEMBERSHIP\",\n  \"state\": \"DENIED\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

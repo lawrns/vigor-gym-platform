@@ -183,6 +183,7 @@ export default function PlanesPage() {
             {staticPlans.map((plan) => (
               <div
                 key={plan.id}
+                data-testid="plan-card"
                 className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 transition-all duration-200 ${
                   plan.popular
                     ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800'
@@ -284,9 +285,10 @@ export default function PlanesPage() {
           {plans.map((plan, index) => (
             <div
               key={plan.id}
+              data-testid="plan-card"
               className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 transition-all duration-200 ${
-                plan.code === 'TP_PRO' 
-                  ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800' 
+                plan.code === 'TP_PRO'
+                  ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800'
                   : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
               }`}
             >

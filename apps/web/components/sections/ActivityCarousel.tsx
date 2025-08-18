@@ -20,7 +20,25 @@ export function ActivityCarousel({ title, items }: { title: string; items: Item[
           <button aria-label="Siguiente" onClick={() => scrollBy(1)} className="rounded-md border border-[var(--outline)] px-3 py-1.5 text-sm hover:bg-[var(--surface-alt)]">Next</button>
         </div>
       </div>
-      <div ref={scrollerRef} className="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none]" style={{ WebkitOverflowScrolling: 'touch' }} aria-labelledby="activities-heading" aria-live="polite">
+      <div
+        ref={scrollerRef}
+        className="mt-4 flex gap-4 overflow-x-auto snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none]"
+        style={{ WebkitOverflowScrolling: 'touch' }}
+        aria-labelledby="activities-heading"
+        aria-live="polite"
+        tabIndex={0}
+        role="region"
+        aria-label="Activities carousel - use arrow keys to scroll"
+        onKeyDown={(e) => {
+          if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            scrollBy(-1);
+          } else if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            scrollBy(1);
+          }
+        }}
+      >
         {items.map((it, i) => (
           <div key={it.label} className="min-w-[75%] md:min-w-[32%] snap-start rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
             <div className="relative aspect-[4/3]">

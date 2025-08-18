@@ -1,0 +1,1697 @@
+{
+  "config": {
+    "configFile": "/Users/lukatenbosch/Downloads/GYM/playwright.config.ts",
+    "rootDir": "/Users/lukatenbosch/Downloads/GYM/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": "/Users/lukatenbosch/Downloads/GYM/scripts/e2e-global-setup.ts",
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 5,
+    "metadata": {
+      "actualWorkers": 3
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "e2e-report",
+          "open": "never"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "e2e-report/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/lukatenbosch/Downloads/GYM/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/lukatenbosch/Downloads/GYM/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/lukatenbosch/Downloads/GYM/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 3
+        },
+        "id": "firefox",
+        "name": "firefox",
+        "testDir": "/Users/lukatenbosch/Downloads/GYM/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.54.2",
+    "workers": 3,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "billing.spec.ts",
+      "file": "billing.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Billing Integration (BILL-01)",
+          "file": "billing.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "BILL-01.1: Stripe checkout session creation",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4533,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "💳 Testing Stripe checkout session creation...\n"
+                        },
+                        {
+                          "text": "✅ Checkout session API called\n"
+                        },
+                        {
+                          "text": "📊 Captured 8 Stripe-related requests\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:02.564Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4578388efe8f23c8f70-e302059fa1e42ce22fc9",
+              "file": "billing.spec.ts",
+              "line": 13,
+              "column": 7
+            },
+            {
+              "title": "BILL-01.2: Mock webhook processing (CI mode)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/billing.spec.ts",
+                        "line": 86,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 1524,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "🔗 Testing webhook processing...\n"
+                        },
+                        {
+                          "text": "ℹ️ Skipping mock webhook test in local development\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:07.222Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/billing.spec.ts",
+                            "line": 86,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d4578388efe8f23c8f70-0bf330c38fae210975b6",
+              "file": "billing.spec.ts",
+              "line": 78,
+              "column": 7
+            },
+            {
+              "title": "BILL-01.3: Subscription visibility after payment",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2700,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "👁️ Testing subscription visibility...\n"
+                        },
+                        {
+                          "text": "ℹ️ No subscription found (expected in test environment)\n"
+                        },
+                        {
+                          "text": "✅ Billing infrastructure is functional\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:08.749Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4578388efe8f23c8f70-980c75b47319e920c6b2",
+              "file": "billing.spec.ts",
+              "line": 134,
+              "column": 7
+            },
+            {
+              "title": "BILL-01.4: Payment method management",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1379,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "💳 Testing payment method management...\n"
+                        },
+                        {
+                          "text": "✅ Payment methods API accessible\n"
+                        },
+                        {
+                          "text": "📋 Found 0 payment methods\n"
+                        },
+                        {
+                          "text": "ℹ️ Portal creation returned 404 (expected without active subscription)\n"
+                        },
+                        {
+                          "text": "✅ Payment management infrastructure is functional\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:11.452Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4578388efe8f23c8f70-fc64814f9b3d87c65c6d",
+              "file": "billing.spec.ts",
+              "line": 197,
+              "column": 7
+            },
+            {
+              "title": "BILL-01.5: Webhook idempotency",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [
+                    {
+                      "type": "skip",
+                      "location": {
+                        "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/billing.spec.ts",
+                        "line": 246,
+                        "column": 12
+                      }
+                    }
+                  ],
+                  "expectedStatus": "skipped",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "skipped",
+                      "duration": 1096,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "🔄 Testing webhook idempotency...\n"
+                        },
+                        {
+                          "text": "ℹ️ Skipping idempotency test in local development\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:12.834Z",
+                      "annotations": [
+                        {
+                          "type": "skip",
+                          "location": {
+                            "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/billing.spec.ts",
+                            "line": 246,
+                            "column": 12
+                          }
+                        }
+                      ],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "skipped"
+                }
+              ],
+              "id": "d4578388efe8f23c8f70-5c0125de8995c7214d1e",
+              "file": "billing.spec.ts",
+              "line": 239,
+              "column": 7
+            },
+            {
+              "title": "BILL-01.6: Billing error handling",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1848,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "⚠️ Testing billing error handling...\n"
+                        },
+                        {
+                          "text": "✅ Invalid plan ID handled gracefully\n"
+                        },
+                        {
+                          "text": "✅ Malformed webhook rejected with 400\n"
+                        },
+                        {
+                          "text": "✅ Unauthenticated billing access properly rejected with 404\n"
+                        },
+                        {
+                          "text": "✅ Billing error handling is robust\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:13.932Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "d4578388efe8f23c8f70-ea0d289a68d664d15b0e",
+              "file": "billing.spec.ts",
+              "line": 303,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "dashboard.spec.ts",
+      "file": "dashboard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Dashboard SSR & Performance",
+          "file": "dashboard.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "DASH-01: Dashboard SSR KPIs render; filter bar drives query & trends",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 6356,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "📊 Testing dashboard SSR and performance...\n"
+                        },
+                        {
+                          "text": "✅ Filter bar visible\n"
+                        },
+                        {
+                          "text": "⏱️ Dashboard load time: 662ms\n"
+                        },
+                        {
+                          "text": "✅ All KPI cards rendered\n"
+                        },
+                        {
+                          "text": "🔄 Clicked 30d filter\n"
+                        },
+                        {
+                          "text": "✅ URL updated with filter parameters\n"
+                        },
+                        {
+                          "text": "ℹ️ No API call triggered (using SSR data)\n"
+                        },
+                        {
+                          "text": "✅ Filter button shows active state\n"
+                        },
+                        {
+                          "text": "✅ LCP: 0.66s (budget: 2.5s)\n"
+                        },
+                        {
+                          "text": "✅ DASH-01: Dashboard SSR and performance test completed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:02.562Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "90cda532ab82d274b30b-4b7fbe177c4ee2f0c001",
+              "file": "dashboard.spec.ts",
+              "line": 14,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "kpi.spec.ts",
+      "file": "kpi.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "KPI Access Control (KPI-01)",
+          "file": "kpi.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "KPI-01.1: Guest gets 401 silently (no console errors)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 307,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔒 Testing guest KPI access...\n"
+                        },
+                        {
+                          "text": "✅ Guest KPI request returns 401 as expected\n"
+                        },
+                        {
+                          "text": "✅ No unexpected console errors from 401 response\n"
+                        },
+                        {
+                          "text": "✅ Web proxy KPI request returns 401 as expected\n"
+                        },
+                        {
+                          "text": "✅ Guest KPI access handled silently\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:02.564Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "895d4391612928dae998-b701a172b408e948a74d",
+              "file": "kpi.spec.ts",
+              "line": 9,
+              "column": 7
+            },
+            {
+              "title": "KPI-01.2: Authenticated users get full KPI data",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 2723,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔓 Testing authenticated KPI access...\n"
+                        },
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "✅ Authenticated API KPI access successful\n"
+                        },
+                        {
+                          "text": "📊 KPI Data: 2 active members, $299800 revenue\n"
+                        },
+                        {
+                          "text": "✅ KPI cards rendered on dashboard\n"
+                        },
+                        {
+                          "text": "✅ All KPI cards contain real data\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:03.003Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "895d4391612928dae998-0e9b42ac25190f80442a",
+              "file": "kpi.spec.ts",
+              "line": 48,
+              "column": 7
+            },
+            {
+              "title": "KPI-01.3: KPI filters trigger data updates",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 3864,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📊 Testing KPI filter functionality...\n"
+                        },
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "📊 Initial active members: 2\n"
+                        },
+                        {
+                          "text": "🔄 Clicked 30d filter\n"
+                        },
+                        {
+                          "text": "✅ URL updated with filter parameters\n"
+                        },
+                        {
+                          "text": "🔄 Clicked 90d filter\n"
+                        },
+                        {
+                          "text": "✅ Filter changes update URL parameters\n"
+                        },
+                        {
+                          "text": "✅ KPI cards remain functional after filtering\n"
+                        },
+                        {
+                          "text": "📡 1 KPI API requests triggered by filters\n"
+                        },
+                        {
+                          "text": "✅ Filter parameters propagated to API requests\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:05.732Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "895d4391612928dae998-cdb3372f44207f9f0dcf",
+              "file": "kpi.spec.ts",
+              "line": 88,
+              "column": 7
+            },
+            {
+              "title": "KPI-01.4: KPI proxy forwards cookies and tenant headers",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "passed",
+                      "duration": 2814,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔗 Testing KPI proxy header forwarding...\n"
+                        },
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "✅ KPI proxy request successful with authentication\n"
+                        },
+                        {
+                          "text": "✅ KPI proxy handled unauthenticated request: 200\n"
+                        },
+                        {
+                          "text": "✅ Tenant isolation test completed - response structure valid\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:09.598Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "895d4391612928dae998-e7556d5624f42cf53e7c",
+              "file": "kpi.spec.ts",
+              "line": 151,
+              "column": 7
+            },
+            {
+              "title": "KPI-01.5: KPI error handling is graceful",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 2,
+                      "status": "timedOut",
+                      "duration": 60002,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/kpi.spec.ts",
+                            "column": 51,
+                            "line": 249
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nLocator: locator('[data-testid^=\\'kpi-card-\\']')\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 8000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid^=\\'kpi-card-\\']')\u001b[22m\n\n\n\u001b[0m \u001b[90m 247 |\u001b[39m\n \u001b[90m 248 |\u001b[39m     \u001b[90m// Should still work\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 249 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(selectors\u001b[33m.\u001b[39mkpiCard))\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m4\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 250 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Extreme date ranges handled gracefully'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 251 |\u001b[39m\n \u001b[90m 252 |\u001b[39m     \u001b[90m// Verify no critical console errors\u001b[39m\u001b[0m\n\u001b[2m    at /Users/lukatenbosch/Downloads/GYM/tests/e2e/kpi.spec.ts:249:51\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "⚠️ Testing KPI error handling...\n"
+                        },
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "✅ Invalid date parameters handled gracefully - page loads without crashing\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:12.415Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/lukatenbosch/Downloads/GYM/test-results/kpi-KPI-Access-Control-KPI-83d5c--error-handling-is-graceful-chromium/trace.zip"
+                        }
+                      ]
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "timedOut",
+                      "duration": 60003,
+                      "error": {
+                        "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                        "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                      },
+                      "errors": [
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/kpi.spec.ts",
+                            "column": 51,
+                            "line": 249
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m\n\nLocator: locator('[data-testid^=\\'kpi-card-\\']')\nExpected: \u001b[32m4\u001b[39m\nReceived: \u001b[31mundefined\u001b[39m\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 8000ms\u001b[22m\n\u001b[2m  - waiting for locator('[data-testid^=\\'kpi-card-\\']')\u001b[22m\n\n\n\u001b[0m \u001b[90m 247 |\u001b[39m\n \u001b[90m 248 |\u001b[39m     \u001b[90m// Should still work\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 249 |\u001b[39m     \u001b[36mawait\u001b[39m expect(page\u001b[33m.\u001b[39mlocator(selectors\u001b[33m.\u001b[39mkpiCard))\u001b[33m.\u001b[39mtoHaveCount(\u001b[35m4\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                   \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 250 |\u001b[39m     console\u001b[33m.\u001b[39mlog(\u001b[32m'✅ Extreme date ranges handled gracefully'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 251 |\u001b[39m\n \u001b[90m 252 |\u001b[39m     \u001b[90m// Verify no critical console errors\u001b[39m\u001b[0m\n\u001b[2m    at /Users/lukatenbosch/Downloads/GYM/tests/e2e/kpi.spec.ts:249:51\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "⚠️ Testing KPI error handling...\n"
+                        },
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "✅ Invalid date parameters handled gracefully - page loads without crashing\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-08-16T17:15:18.435Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/lukatenbosch/Downloads/GYM/test-results/kpi-KPI-Access-Control-KPI-83d5c--error-handling-is-graceful-chromium-retry1/trace.zip"
+                        }
+                      ]
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "895d4391612928dae998-b671ccdfe8f5a50f93fa",
+              "file": "kpi.spec.ts",
+              "line": 211,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "members.spec.ts",
+      "file": "members.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Members Management (MEM-01)",
+          "file": "members.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "MEM-01.1: Members list loads with RBAC enforced",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3859,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "👥 Testing members list loading and RBAC...\n"
+                        },
+                        {
+                          "text": "✅ Navigated to members page\n"
+                        },
+                        {
+                          "text": "✅ Members page header visible\n"
+                        },
+                        {
+                          "text": "✅ Members table rendered\n"
+                        },
+                        {
+                          "text": "✅ Table headers correct\n"
+                        },
+                        {
+                          "text": "✅ Found 2 members in table\n"
+                        },
+                        {
+                          "text": "✅ RBAC: Edit/delete buttons visible for authorized user\n"
+                        },
+                        {
+                          "text": "✅ Search functionality available\n"
+                        },
+                        {
+                          "text": "✅ Status filter available\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:09.047Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "01480a904f937bb0a1f8-7f90cedf97c2e80b57be",
+              "file": "members.spec.ts",
+              "line": 14,
+              "column": 7
+            },
+            {
+              "title": "MEM-01.2: Member edit/update within tenant",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4311,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "✏️ Testing member edit/update functionality...\n"
+                        },
+                        {
+                          "text": "📝 Original member name: Jane Doe\n"
+                        },
+                        {
+                          "text": "🔄 Clicked edit button\n"
+                        },
+                        {
+                          "text": "✅ Edit form opened\n"
+                        },
+                        {
+                          "text": "✅ Form fields visible and populated\n"
+                        },
+                        {
+                          "text": "📝 Updated first name to: UpdatedName\n"
+                        },
+                        {
+                          "text": "💾 Submitted form\n"
+                        },
+                        {
+                          "text": "✅ Edit form closed\n"
+                        },
+                        {
+                          "text": "✅ Member updated successfully: UpdatedName Doe\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:12.910Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "01480a904f937bb0a1f8-8e04e300af8212718e56",
+              "file": "members.spec.ts",
+              "line": 60,
+              "column": 7
+            },
+            {
+              "title": "MEM-01.3: Member search and filtering works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5921,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "🔍 Testing member search and filtering...\n"
+                        },
+                        {
+                          "text": "📊 Initial member count: 2\n"
+                        },
+                        {
+                          "text": "🔍 Performed search for \"Test\"\n"
+                        },
+                        {
+                          "text": "📊 Search result count: 2\n"
+                        },
+                        {
+                          "text": "✅ Search cleared successfully\n"
+                        },
+                        {
+                          "text": "🔄 Applied active status filter\n"
+                        },
+                        {
+                          "text": "📊 Filtered count: 2\n"
+                        },
+                        {
+                          "text": "✅ Status filter working correctly\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:17.223Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "01480a904f937bb0a1f8-569cc4e3c5dcb2ee3789",
+              "file": "members.spec.ts",
+              "line": 117,
+              "column": 7
+            },
+            {
+              "title": "MEM-01.4: Member creation works correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1225,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "➕ Testing member creation...\n"
+                        },
+                        {
+                          "text": "ℹ️ Add member button not found - skipping creation test\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:23.146Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "01480a904f937bb0a1f8-6b2f1bf64c060220189b",
+              "file": "members.spec.ts",
+              "line": 168,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "staging-saved-cards.spec.ts",
+      "file": "staging-saved-cards.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Saved Cards (SetupIntent) - Staging",
+          "file": "staging-saved-cards.spec.ts",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should handle member assignment to payment methods",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1257,
+                      "error": {
+                        "message": "TypeError: page.click(...).first is not a function",
+                        "stack": "TypeError: page.click(...).first is not a function\n    at /Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts:161:52",
+                        "location": {
+                          "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts",
+                          "column": 52,
+                          "line": 161
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 159 |\u001b[39m     \u001b[90m// Navigate to member billing page\u001b[39m\n \u001b[90m 160 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/admin/members'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 161 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'[data-testid=\"member-row\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 162 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'text=Facturación'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 163 |\u001b[39m     \n \u001b[90m 164 |\u001b[39m     \u001b[90m// Look for assign to member button\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts",
+                            "column": 52,
+                            "line": 161
+                          },
+                          "message": "TypeError: page.click(...).first is not a function\n\n\u001b[0m \u001b[90m 159 |\u001b[39m     \u001b[90m// Navigate to member billing page\u001b[39m\n \u001b[90m 160 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/admin/members'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 161 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'[data-testid=\"member-row\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 162 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'text=Facturación'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 163 |\u001b[39m     \n \u001b[90m 164 |\u001b[39m     \u001b[90m// Look for assign to member button\u001b[39m\u001b[0m\n\u001b[2m    at /Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts:161:52\u001b[22m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts",
+                            "column": 16,
+                            "line": 161
+                          },
+                          "message": "Error: page.click: Test ended.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"member-row\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 159 |\u001b[39m     \u001b[90m// Navigate to member billing page\u001b[39m\n \u001b[90m 160 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/admin/members'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 161 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'[data-testid=\"member-row\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 162 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'text=Facturación'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 163 |\u001b[39m     \n \u001b[90m 164 |\u001b[39m     \u001b[90m// Look for assign to member button\u001b[39m\u001b[0m\n\u001b[2m    at /Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts:161:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "👤 Testing member assignment to payment methods...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:15.790Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/lukatenbosch/Downloads/GYM/test-results/staging-saved-cards-Saved--fb561-signment-to-payment-methods-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/lukatenbosch/Downloads/GYM/test-results/staging-saved-cards-Saved--fb561-signment-to-payment-methods-chromium/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/lukatenbosch/Downloads/GYM/test-results/staging-saved-cards-Saved--fb561-signment-to-payment-methods-chromium/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts",
+                        "column": 52,
+                        "line": 161
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 1508,
+                      "error": {
+                        "message": "TypeError: page.click(...).first is not a function",
+                        "stack": "TypeError: page.click(...).first is not a function\n    at /Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts:161:52",
+                        "location": {
+                          "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts",
+                          "column": 52,
+                          "line": 161
+                        },
+                        "snippet": "\u001b[0m \u001b[90m 159 |\u001b[39m     \u001b[90m// Navigate to member billing page\u001b[39m\n \u001b[90m 160 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/admin/members'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 161 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'[data-testid=\"member-row\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 162 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'text=Facturación'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 163 |\u001b[39m     \n \u001b[90m 164 |\u001b[39m     \u001b[90m// Look for assign to member button\u001b[39m\u001b[0m"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts",
+                            "column": 52,
+                            "line": 161
+                          },
+                          "message": "TypeError: page.click(...).first is not a function\n\n\u001b[0m \u001b[90m 159 |\u001b[39m     \u001b[90m// Navigate to member billing page\u001b[39m\n \u001b[90m 160 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/admin/members'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 161 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'[data-testid=\"member-row\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                                                    \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 162 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'text=Facturación'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 163 |\u001b[39m     \n \u001b[90m 164 |\u001b[39m     \u001b[90m// Look for assign to member button\u001b[39m\u001b[0m\n\u001b[2m    at /Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts:161:52\u001b[22m"
+                        },
+                        {
+                          "location": {
+                            "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts",
+                            "column": 16,
+                            "line": 161
+                          },
+                          "message": "Error: page.click: Test ended.\nCall log:\n\u001b[2m  - waiting for locator('[data-testid=\"member-row\"]')\u001b[22m\n\n\n\u001b[0m \u001b[90m 159 |\u001b[39m     \u001b[90m// Navigate to member billing page\u001b[39m\n \u001b[90m 160 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mgoto(\u001b[32m'/admin/members'\u001b[39m)\u001b[33m;\u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 161 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'[data-testid=\"member-row\"]'\u001b[39m)\u001b[33m.\u001b[39mfirst()\u001b[33m;\u001b[39m\n \u001b[90m     |\u001b[39m                \u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 162 |\u001b[39m     \u001b[36mawait\u001b[39m page\u001b[33m.\u001b[39mclick(\u001b[32m'text=Facturación'\u001b[39m)\u001b[33m;\u001b[39m\n \u001b[90m 163 |\u001b[39m     \n \u001b[90m 164 |\u001b[39m     \u001b[90m// Look for assign to member button\u001b[39m\u001b[0m\n\u001b[2m    at /Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts:161:16\u001b[22m"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "👤 Testing member assignment to payment methods...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2025-08-16T17:14:17.497Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/lukatenbosch/Downloads/GYM/test-results/staging-saved-cards-Saved--fb561-signment-to-payment-methods-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/lukatenbosch/Downloads/GYM/test-results/staging-saved-cards-Saved--fb561-signment-to-payment-methods-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/lukatenbosch/Downloads/GYM/test-results/staging-saved-cards-Saved--fb561-signment-to-payment-methods-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/lukatenbosch/Downloads/GYM/test-results/staging-saved-cards-Saved--fb561-signment-to-payment-methods-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/lukatenbosch/Downloads/GYM/tests/e2e/staging-saved-cards.spec.ts",
+                        "column": 52,
+                        "line": 161
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "dbdd5192976daccebc82-27d73e65fc5afd503512",
+              "file": "staging-saved-cards.spec.ts",
+              "line": 156,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "staging-ssr-dashboard.spec.ts",
+      "file": "staging-ssr-dashboard.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "SSR Dashboard - Staging",
+          "file": "staging-ssr-dashboard.spec.ts",
+          "line": 9,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should render KPIs server-side without loading flash",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1752,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚡ Testing SSR KPI rendering...\n"
+                        },
+                        {
+                          "text": "📈 Initial KPI render time: 753ms\n"
+                        },
+                        {
+                          "text": "✅ SSR KPI rendering validated\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:19.401Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "eaf4aeae6ba6c9e67d49-556c27180261839e581e",
+              "file": "staging-ssr-dashboard.spec.ts",
+              "line": 22,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "visits.spec.ts",
+      "file": "visits.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Visits Management (VIS-01)",
+          "file": "visits.spec.ts",
+          "line": 8,
+          "column": 6,
+          "specs": [
+            {
+              "title": "VIS-01.1: Visit check-in flow works correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3158,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "🏃‍♂️ Testing visit check-in flow...\n"
+                        },
+                        {
+                          "text": "📋 Using test membership: 9f0f9769-0a1c-412b-a373-5c8948a34c0e\n"
+                        },
+                        {
+                          "text": "✅ Check-in successful: Visit ID 902cecc6-b6ce-4cfe-9fa5-d48bb231832d\n"
+                        },
+                        {
+                          "text": "👤 Member: UpdatedName Doe\n"
+                        },
+                        {
+                          "text": "🏢 Gym: Test Gym Location\n"
+                        },
+                        {
+                          "text": "✅ Visit appears in visits list\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:21.243Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2d4e657dba403356b104-ab46ecbc86dc7962fe55",
+              "file": "visits.spec.ts",
+              "line": 22,
+              "column": 7
+            },
+            {
+              "title": "VIS-01.2: Double check-in is prevented",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2609,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "🚫 Testing double check-in prevention...\n"
+                        },
+                        {
+                          "text": "✅ First check-in successful: cef50141-2dd0-4306-911a-0d1fd1570fb9\n"
+                        },
+                        {
+                          "text": "✅ Double check-in prevented with 409 Conflict\n"
+                        },
+                        {
+                          "text": "📋 Error message: Member is already checked in\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:24.403Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2d4e657dba403356b104-21627f2d3b76c5b57645",
+              "file": "visits.spec.ts",
+              "line": 86,
+              "column": 7
+            },
+            {
+              "title": "VIS-01.3: Visit check-out works correctly",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4507,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "🚪 Testing visit check-out...\n"
+                        },
+                        {
+                          "text": "📝 Created visit for check-out test: f40bd32a-26e9-4bec-94e3-f457ab7324c6\n"
+                        },
+                        {
+                          "text": "✅ Check-out successful\n"
+                        },
+                        {
+                          "text": "⏱️ Visit duration: 1 minutes\n"
+                        },
+                        {
+                          "text": "✅ Double check-out prevented\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:27.014Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2d4e657dba403356b104-711f06a8c3e30aa6285d",
+              "file": "visits.spec.ts",
+              "line": 139,
+              "column": 7
+            },
+            {
+              "title": "VIS-01.4: Visit filtering and pagination works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1908,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "📊 Testing visit filtering and pagination...\n"
+                        },
+                        {
+                          "text": "📊 Found 1 visits\n"
+                        },
+                        {
+                          "text": "📄 Pagination: Page 1 of 1\n"
+                        },
+                        {
+                          "text": "📅 Today's visits: 1\n"
+                        },
+                        {
+                          "text": "✅ Date filtering works correctly\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:31.523Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2d4e657dba403356b104-b527937adca53fca9497",
+              "file": "visits.spec.ts",
+              "line": 205,
+              "column": 7
+            },
+            {
+              "title": "VIS-01.5: Invalid membership check-in is rejected",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1765,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔐 Logging in as admin@testgym.mx...\n"
+                        },
+                        {
+                          "text": "✅ Login successful\n"
+                        },
+                        {
+                          "text": "❌ Testing invalid membership check-in rejection...\n"
+                        },
+                        {
+                          "text": "✅ Invalid membership rejected with 404\n"
+                        },
+                        {
+                          "text": "✅ Missing membership ID rejected with 400\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2025-08-16T17:14:33.433Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2d4e657dba403356b104-f756394e37552d65007f",
+              "file": "visits.spec.ts",
+              "line": 242,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2025-08-16T17:13:54.742Z",
+    "duration": 149757.253,
+    "expected": 19,
+    "skipped": 2,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

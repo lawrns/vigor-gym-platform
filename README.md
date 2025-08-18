@@ -25,8 +25,8 @@
 
 ```bash
 # Clone the repository
-git clone https://github.com/lawrns/vigor-gym-platform.git
-cd vigor-gym-platform
+git clone https://github.com/lawrns/gogym-platform.git
+cd gogym-platform
 
 # Install dependencies
 npm install
@@ -76,7 +76,7 @@ npm run e2e
 ## 📁 **Project Structure**
 
 ```
-vigor-gym-platform/
+gogym-platform/
 ├── apps/
 │   ├── api/                 # Express.js API server
 │   │   ├── src/routes/      # API endpoints

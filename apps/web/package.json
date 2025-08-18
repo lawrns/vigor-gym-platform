@@ -1,10 +1,10 @@
 {
-  "name": "@vigor/web",
+  "name": "@gogym/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
     "build": "next build",
-    "dev": "next dev -p 7777",
+    "dev": "next dev -p 3005",
     "start": "next start -p 3000",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "jest",
@@ -39,7 +39,6 @@
     "@stripe/react-stripe-js": "^3.9.0",
     "@stripe/stripe-js": "^7.8.0",
     "@types/jsonwebtoken": "^9.0.10",
-    "@vigor/shared": "*",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "framer-motion": "^11.0.0",
@@ -53,6 +52,7 @@
     "web-vitals": "^4.2.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@testing-library/jest-dom": "^6.4.8",
     "@testing-library/react": "^16.0.0",
     "@types/jest": "^30.0.0",

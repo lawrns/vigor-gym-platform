@@ -1,0 +1,105 @@
+{
+  "hero": {
+    "headline_es": "Entra, entrena, listo.",
+    "sub_es": "QR rápido, reservas claras y progreso visible.",
+    "primary_cta": {
+      "label_es": "Probar demo",
+      "href": "/beneficios/demo"
+    },
+    "secondary_cta": {
+      "label_es": "Ver planes",
+      "href": "/planes"
+    },
+    "visual": {
+      "type": "deviceStack",
+      "assets": [
+        "/images/hero-app.png",
+        "/images/hero-dashboard.png",
+        "/images/activity-a.png"
+      ]
+    }
+  },
+  "benefits": {
+    "items_es": [
+      {
+        "icon": "Calendar",
+        "title": "Reservas al instante",
+        "desc": "Agenda y cambia sin complicarte."
+      },
+      {
+        "icon": "Shield",
+        "title": "Acceso seguro",
+        "desc": "QR o biométricos con tu sesión."
+      },
+      {
+        "icon": "Activity",
+        "title": "Tu progreso",
+        "desc": "Asistencias, streaks y hábitos."
+      },
+      {
+        "icon": "Sparkles",
+        "title": "IA que ayuda",
+        "desc": "Recomendaciones según tu rutina."
+      }
+    ]
+  },
+  "how_it_works": {
+    "steps_es": [
+      {
+        "step": "1",
+        "title": "Entra",
+        "desc": "Escanea tu QR o biometría al llegar."
+      },
+      {
+        "step": "2",
+        "title": "Entrena",
+        "desc": "Clases y equipos con tu reserva."
+      },
+      {
+        "step": "3",
+        "title": "Mejora",
+        "desc": "Métricas y tips personalizados."
+      }
+    ]
+  },
+  "ai_banner": {
+    "badge": "IA de Vigor",
+    "title_es": "Consejos útiles, en el momento justo",
+    "bullets_es": [
+      "Recordatorios si baja tu asistencia",
+      "Recomendaciones de clases según hábitos",
+      "Alertas de vencimiento de membresía"
+    ],
+    "cta": {
+      "label_es": "Ver cómo funciona",
+      "href": "#faq"
+    }
+  },
+  "faq": {
+    "items_es": [
+      {
+        "q": "¿Necesito app?",
+        "a": "Puedes usar web o app. QR disponible en ambos."
+      },
+      {
+        "q": "¿Cómo funcionan los pagos?",
+        "a": "Pagos SPEI/OXXO/tarjeta según tu gimnasio."
+      },
+      {
+        "q": "¿La IA guarda mis datos?",
+        "a": "Privacidad primero. Tú decides qué compartir."
+      }
+    ]
+  },
+  "cta": {
+    "title_es": "¿Listo para entrenar mejor?",
+    "primary_cta": {
+      "label_es": "Probar demo",
+      "href": "/beneficios/demo"
+    },
+    "secondary_cta": {
+      "label_es": "Ver gimnasios",
+      "href": "/gimnasios"
+    }
+  }
+}

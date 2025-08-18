@@ -1,5 +1,5 @@
 {
-  "name": "vigor-monorepo",
+  "name": "gogym-monorepo",
   "private": true,
   "version": "0.1.0",
   "workspaces": [
@@ -10,14 +10,15 @@
     "node": ">=18.17.0"
   },
   "scripts": {
-    "build": "npm run build -w @vigor/api && npm run build -w @vigor/web && npm run build -w @vigor/mobile",
-    "dev": "PORT=4001 npm run dev -w @vigor/api & npm run dev -w @vigor/web",
+    "build": "npm run build -w @gogym/api && npm run build -w @gogym/web && npm run build -w @gogym/mobile",
+    "dev": "PORT=4001 npm run dev -w @gogym/api & npm run dev -w @gogym/web",
     "typecheck": "npm -ws run typecheck",
     "lint": "echo 'No lint configured'",
     "lint:unsplash": "grep -R --line-number --color=never 'images.unsplash.com' apps || true",
     "smoke": "bash ./.scripts/smoke.sh"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.10.2",
     "@playwright/test": "^1.54.2"
   }
 }

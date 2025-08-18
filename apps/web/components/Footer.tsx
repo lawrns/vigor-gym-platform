@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 type Column = { title: string; links: [string, string][] };
 
 export function Footer({ columns, bottom }: { columns?: Column[]; bottom?: string }) {
@@ -5,7 +7,9 @@ export function Footer({ columns, bottom }: { columns?: Column[]; bottom?: strin
     <footer className="border-t border-[var(--outline)] mt-16">
       <div className="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-4 gap-8 text-sm">
         <div>
-          <div className="font-display text-lg">Vigor</div>
+          <div className="mb-3">
+            <Image src="/images/gogym.png" alt="GoGym" width={120} height={40} className="h-8 w-auto" />
+          </div>
           <div className="text-text/80">Plataforma de gestión de gimnasios para México</div>
         </div>
         {columns?.map((col) => (
@@ -20,7 +24,7 @@ export function Footer({ columns, bottom }: { columns?: Column[]; bottom?: strin
         ))}
       </div>
       <div className="border-t border-[var(--outline)]">
-        <div className="max-w-6xl mx-auto px-4 py-6 text-xs text-text/70">{bottom ?? '© Vigor'}</div>
+        <div className="max-w-6xl mx-auto px-4 py-6 text-xs text-text/70">{bottom ?? '© GoGym'}</div>
       </div>
     </footer>
   );

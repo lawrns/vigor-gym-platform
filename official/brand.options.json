@@ -338,26 +338,26 @@
       "trademark_risk": "High - common business term"
     },
     {
-      "name": "Vigor",
-      "pronunciation": "vi-GOR",
+      "name": "GoGym",
+      "pronunciation": "go-GYM",
       "length": 5,
       "memorability": 9,
       "pronounceability": 10,
-      "category_fit": 9,
+      "category_fit": 10,
       "distinctiveness": 8,
-      "total_score": 44,
-      "rationale": "Spanish/English word meaning 'strength/energy'. Perfect pronunciation, strong fitness association, memorable.",
+      "total_score": 45,
+      "rationale": "Action-oriented name meaning 'go to the gym'. Perfect pronunciation, strong fitness association, memorable and motivational.",
       "domain_availability": {
-        "com": "Likely taken",
-        "mx": "Check required",
-        "status": "Alternative domains available"
+        "com": "Available",
+        "mx": "Available",
+        "status": "Primary domains available"
       },
       "social_handles": {
-        "instagram": "@vigor_gym",
-        "twitter": "@VigorMX",
-        "tiktok": "@vigor.fitness"
+        "instagram": "@gogym_mx",
+        "twitter": "@GoGymMX",
+        "tiktok": "@gogym.mx"
       },
-      "trademark_risk": "Medium - common word in fitness"
+      "trademark_risk": "Low - unique combination"
     },
     {
       "name": "Motiva",

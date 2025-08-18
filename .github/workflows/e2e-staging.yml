@@ -23,6 +23,9 @@ jobs:
     name: 🧪 E2E Tests (Staging)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    strategy:
+      matrix:
+        browser: [chromium]
     
     steps:
       - name: 📥 Checkout code
@@ -48,6 +51,22 @@ jobs:
       - name: 🎭 Install Playwright browsers
         run: pnpm exec playwright install --with-deps chromium
 
+      - name: 💳 Install Stripe CLI
+        run: |
+          curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | sudo tee /usr/share/keyrings/stripe.gpg
+          echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee -a /etc/apt/sources.list.d/stripe.list
+          sudo apt update
+          sudo apt install stripe
+
+      - name: 🔗 Start Stripe webhook forwarding
+        run: |
+          # Start Stripe CLI in background to forward webhooks
+          stripe listen --forward-to ${{ secrets.PW_API_URL || 'https://api-staging.vigor-gym.com' }}/v1/billing/webhook/stripe &
+          echo "Stripe CLI started for webhook forwarding"
+          sleep 5  # Give it time to start
+        env:
+          STRIPE_API_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+
       - name: 🧪 Run E2E tests (staging)
         run: |
           if [ -n "${{ github.event.inputs.test_pattern }}" ]; then
@@ -56,12 +75,20 @@ jobs:
             pnpm e2e:staging
           fi
         env:
+          PLAYWRIGHT_JSON_OUTPUT: true
+          STAGING_BASE_URL: ${{ secrets.PW_BASE_URL || 'https://staging.vigor-gym.com' }}
           PW_BASE_URL: ${{ secrets.PW_BASE_URL || 'https://staging.vigor-gym.com' }}
           PW_API_URL: ${{ secrets.PW_API_URL || 'https://api-staging.vigor-gym.com' }}
           E2E_ADMIN_EMAIL: ${{ secrets.E2E_ADMIN_EMAIL || 'admin@testgym.mx' }}
           E2E_ADMIN_PASSWORD: ${{ secrets.E2E_ADMIN_PASSWORD }}
           E2E_ENV: staging
           TENANT_ID: ${{ secrets.TENANT_ID || '00000000-0000-0000-0000-000000000001' }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          ENABLE_TEST_ROUTES: true
+          DISABLE_RATE_LIMITING: true
+          STRIPE_TEST_BYPASS: true
+          DISABLE_REFRESH_IN_TEST: true
 
       - name: 📤 Upload test results
         uses: actions/upload-artifact@v4
@@ -69,16 +96,17 @@ jobs:
         with:
           name: e2e-test-results
           path: |
-            e2e-report/
+            playwright-report/
             test-results/
+            tests/.auth/
           retention-days: 7
 
       - name: 📊 Upload test report
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: e2e-report
-          path: e2e-report/
+          name: playwright-report
+          path: playwright-report/
           retention-days: 7
 
       - name: 📈 Comment test results

@@ -119,6 +119,7 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
             <input
               type="text"
               id="firstName"
+              data-testid="member-form-firstName"
               value={formData.firstName}
               onChange={(e) => handleChange('firstName', e.target.value)}
               required
@@ -135,6 +136,7 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
             <input
               type="text"
               id="lastName"
+              data-testid="member-form-lastName"
               value={formData.lastName}
               onChange={(e) => handleChange('lastName', e.target.value)}
               required
@@ -151,6 +153,7 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
             <input
               type="email"
               id="email"
+              data-testid="member-form-email"
               value={formData.email}
               onChange={(e) => handleChange('email', e.target.value)}
               required
@@ -188,6 +191,7 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
             </button>
             <button
               type="submit"
+              data-testid="member-form-submit"
               disabled={loading}
               className="px-4 py-2 border border-transparent rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >

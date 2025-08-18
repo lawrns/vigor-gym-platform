@@ -39,12 +39,26 @@ import billingRoutes from './routes/billing.js';
 import companiesRoutes, { setPrismaInstance as setCompaniesPrismaInstance } from './routes/companies.js';
 import plansRoutes, { setPrismaInstance as setPlansPrismaInstance } from './routes/plans.js';
 import membersRoutes from './routes/members.js';
+import staffRoutes from './routes/staff.js';
+import staffCoverageRoutes from './routes/staff-coverage.js';
+import revenueAnalyticsRoutes from './routes/revenue-analytics.js';
 import membershipsRoutes, { setPrismaInstance as setMembershipsPrismaInstance } from './routes/memberships.js';
 import visitsRoutes from './routes/visits.js';
+import devicesRoutes from './routes/devices.js';
+import checkinsRoutes from './routes/checkins.js';
+import eventsRoutes from './routes/events.js';
 import classesRoutes from './routes/classes.js';
 import bookingsRoutes from './routes/bookings.js';
 import aiRoutes from './routes/ai.js';
 import metricsRoutes from './routes/metrics.js';
+import securityMetricsRoutes from './routes/security-metrics.js';
+import testResetRoutes from './routes/test-reset.js';
+import dashboardRoutes from './routes/dashboard.js';
+import onboardingRoutes from './routes/onboarding.js';
+import adminRoutes from './routes/admin.js';
+import openApiRoutes from './middleware/openapi.js';
+import { initializeScheduler } from './jobs/scheduler.js';
+import { errorHandler, notFoundHandler } from './middleware/errorHandler.js';
 
 const app = express();
 const prisma = new PrismaClient();
@@ -123,11 +137,29 @@ app.use('/v1/plans', plansRoutes);
 // Members routes
 app.use('/v1/members', membersRoutes);
 
+// Staff routes
+app.use('/v1/staff', staffRoutes);
+
+// Staff coverage routes (separate path to avoid conflicts)
+app.use('/v1/staff-coverage', staffCoverageRoutes);
+
+// Revenue analytics routes
+app.use('/v1/revenue', revenueAnalyticsRoutes);
+
 // Memberships routes
 app.use('/v1/memberships', membershipsRoutes);
 
 // Visits routes
 app.use('/v1/visits', visitsRoutes);
+
+// Devices routes
+app.use('/v1/devices', devicesRoutes);
+
+// Check-ins routes
+app.use('/v1/checkins', checkinsRoutes);
+
+// Events routes (SSE)
+app.use('/v1/events', eventsRoutes);
 
 // Classes routes
 app.use('/v1/classes', classesRoutes);
@@ -140,6 +172,26 @@ app.use('/v1/ai', aiRoutes);
 
 // Metrics routes
 app.use('/v1/metrics', metricsRoutes);
+
+// Security metrics routes
+app.use('/v1/security', securityMetricsRoutes);
+
+// Dashboard routes
+app.use('/v1/dashboard', dashboardRoutes);
+
+// Onboarding routes
+app.use('/v1/onboarding', onboardingRoutes);
+
+// Admin routes
+app.use('/v1/admin', adminRoutes);
+
+// OpenAPI documentation routes
+app.use('/', openApiRoutes);
+
+// Test-only routes (only in test environment or when explicitly enabled)
+if (process.env.NODE_ENV === 'test' || process.env.ENABLE_TEST_ROUTES === 'true') {
+  app.use('/v1/test', testResetRoutes);
+}
 
 // Healthcheck
 app.get('/health', (_req: Request, res: Response) => {
@@ -388,12 +440,11 @@ app.get('/v1/kpi/overview', authRequired(['owner', 'manager', 'staff']), tenantR
 
 
 
-// Error handler
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-  const status = err?.status || 500;
-  res.status(status).json({ message: err?.message || 'Internal Server Error' });
-});
+// 404 handler for unmatched routes
+app.use(notFoundHandler);
+
+// Global error handler (must be last)
+app.use(errorHandler);
 
 const initialPort = process.env.PORT ? Number(process.env.PORT) : 4001;
 
@@ -431,11 +482,16 @@ process.on('SIGTERM', async () => {
   process.exit(0);
 });
 
+// Initialize job scheduler
+initializeScheduler();
+
 // In development, fail fast if port is busy to avoid drift
 if (process.env.NODE_ENV === 'development') {
   const server = app.listen(initialPort, () => {
     console.log(`🚀 API listening on http://localhost:${initialPort}`);
     console.log(`📊 Health check: http://localhost:${initialPort}/health`);
+    console.log(`📚 API Documentation: http://localhost:${initialPort}/docs`);
+    console.log(`⏰ Job Scheduler: ${process.env.JOBS_ENABLED !== 'false' ? 'Enabled' : 'Disabled'}`);
   });
   server.on('error', (err: any) => {
     if (err?.code === 'EADDRINUSE') {

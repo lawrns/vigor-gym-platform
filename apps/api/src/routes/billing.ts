@@ -45,6 +45,15 @@ router.post('/checkout/session', async (req: Request, res: Response) => {
   try {
     const { planId } = createCheckoutSessionSchema.parse(req.body);
 
+    // Test mode bypass for E2E tests
+    if (process.env.STRIPE_TEST_BYPASS === 'true') {
+      console.log(`[BILLING-TEST] Bypassing Stripe for plan ${planId}`);
+      return res.status(200).json({
+        sessionId: 'cs_test_stub',
+        url: '/checkout/success?test=1'
+      });
+    }
+
     // Get company ID if user is authenticated
     let companyId: string | undefined;
     if (req.headers.authorization || req.cookies?.accessToken) {
@@ -81,15 +90,19 @@ router.post('/checkout/session', async (req: Request, res: Response) => {
 
     const session = await createStripeCheckoutSession(sessionRequest);
 
-    res.json(session);
+    // Normalize response structure
+    res.json({
+      sessionId: session.id,
+      url: session.url
+    });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      return res.status(400).json({ error: 'Validation error', code: 'VALIDATION_ERROR', details: error.errors });
     }
 
     console.error('Checkout session creation error:', error);
     const message = error instanceof Error ? error.message : 'Failed to create checkout session';
-    res.status(500).json({ message });
+    res.status(500).json({ error: message, code: 'CHECKOUT_SESSION_ERROR' });
   }
 });
 
@@ -353,16 +366,30 @@ router.post('/webhook/stripe', express.raw({ type: 'application/json' }), async 
       requestId: (req as any).requestId,
     });
 
+    // Log webhook received with PII-masked structured logging
+    logBillingEvent('webhook_received', {
+      provider: 'stripe',
+      eventId: event.id,
+      requestId: (req as any).requestId,
+    });
+
     console.log(`[WEBHOOK] Received Stripe webhook: ${event.type} (${event.id})`);
 
-    // Check for duplicate event first (before any processing)
-    const existingEvent = await prisma.webhookEvent.findUnique({
-      where: { eventId: event.id },
-    });
+    // Check for duplicate event first (before any processing) with better error handling
+    let existingEvent;
+    try {
+      existingEvent = await prisma.webhookEvent.findUnique({
+        where: { eventId: event.id },
+      });
+    } catch (dbError) {
+      console.error(`[WEBHOOK] Database error checking for existing event ${event.id}:`, dbError);
+      throw new Error('Database connectivity issue during idempotency check');
+    }
 
     if (existingEvent?.processed) {
       console.log(`[WEBHOOK] Event ${event.id} already processed, returning success`);
-      return res.json({ received: true, duplicate: true });
+      console.log(`[WEBHOOK] Duplicate event ${event.id} detected and skipped`);
+      return res.json({ received: true, duplicate: true, eventId: event.id });
     }
 
     // Process the webhook in a transaction for data consistency
@@ -399,6 +426,9 @@ router.post('/webhook/stripe', express.raw({ type: 'application/json' }), async 
 
     const processingTime = Date.now() - startTime;
     console.log(`[WEBHOOK] Successfully processed ${event.type} (${event.id}) in ${processingTime}ms`);
+
+    // Log successful processing with console (structured logging)
+    console.log(`[WEBHOOK] Event processed successfully: ${event.type} (${event.id}) in ${processingTime}ms`);
 
     res.json({ received: true, eventId: event.id, processingTimeMs: processingTime });
   } catch (error) {

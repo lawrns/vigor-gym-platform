@@ -1,0 +1,80 @@
+{
+  "name": "Vigor Kiosk",
+  "short_name": "VigorKiosk",
+  "description": "Vigor Gym Member Check-in Kiosk",
+  "start_url": "/kiosk",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#1f2937",
+  "background_color": "#ffffff",
+  "scope": "/kiosk",
+  "categories": ["business", "productivity"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/icons/icon-64x64.png",
+      "sizes": "64x64",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-144x144.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick Check-in",
+      "short_name": "Check-in",
+      "description": "Quick member check-in",
+      "url": "/kiosk?mode=scan",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.png",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/kiosk-login.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Kiosk Login Screen"
+    },
+    {
+      "src": "/screenshots/kiosk-scan.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Member Scan Screen"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "edge_side_panel": {
+    "preferred_width": 400
+  }
+}

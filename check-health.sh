@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Health Check Script for Vigor Development Environment
+# Health Check Script for GoGym Development Environment
 
 # Colors for output
 RED='\033[0;31m'
@@ -9,7 +9,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo -e "${BLUE}🔍 Vigor Health Check${NC}"
+echo -e "${BLUE}🔍 GoGym Health Check${NC}"
 echo "=========================="
 
 # Extract API port from config

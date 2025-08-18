@@ -8,7 +8,7 @@ const apiURL = process.env.PW_API_URL || (isStaging ? 'https://api-staging.vigor
 // Test credentials
 const adminEmail = process.env.E2E_ADMIN_EMAIL || 'admin@testgym.mx';
 const adminPassword = process.env.E2E_ADMIN_PASSWORD || 'TestPassword123!';
-const tenantId = process.env.TENANT_ID || '00000000-0000-0000-0000-000000000001';
+const defaultTenantId = process.env.TENANT_ID || '00000000-0000-0000-0000-000000000001';
 
 // Test selectors
 export const selectors = {
@@ -62,14 +62,41 @@ export class AuthSessionFixture {
 
   async logout() {
     console.log('🚪 Logging out...');
-    
-    // Click user menu and logout
-    await this.page.click('[data-testid="user-menu"]');
-    await this.page.click('text=Cerrar Sesión');
-    
-    // Should redirect to login
-    await expect(this.page).toHaveURL(/login/);
-    
+
+    // Click user menu to open dropdown
+    await this.page.click('[data-testid="user-menu-button"]');
+
+    // Wait for the logout button to become visible (with retries for flaky behavior)
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    while (attempts < maxAttempts) {
+      try {
+        await this.page.waitForSelector('[data-testid="logout-button"]', {
+          state: 'visible',
+          timeout: 3000
+        });
+        break; // Success, exit the loop
+      } catch (error) {
+        attempts++;
+        console.log(`⚠️ Attempt ${attempts}/${maxAttempts}: Logout button not visible, retrying...`);
+
+        if (attempts < maxAttempts) {
+          // Click the user menu button again to ensure it's open
+          await this.page.click('[data-testid="user-menu-button"]');
+          await this.page.waitForTimeout(500);
+        } else {
+          throw error; // Re-throw the error if all attempts failed
+        }
+      }
+    }
+
+    // Click logout button
+    await this.page.click('[data-testid="logout-button"]');
+
+    // Should redirect to home page (as per UserMenu implementation)
+    await expect(this.page).toHaveURL(/^http:\/\/localhost:7777\/?$/);
+
     console.log('✅ Logout successful');
   }
 
@@ -77,7 +104,7 @@ export class AuthSessionFixture {
     // Get auth token from cookies or localStorage
     const cookies = await this.page.context().cookies();
     const authCookie = cookies.find(c => c.name === 'auth-token' || c.name === 'accessToken');
-    
+
     if (authCookie) {
       return authCookie.value;
     }
@@ -88,6 +115,25 @@ export class AuthSessionFixture {
     });
 
     return token;
+  }
+
+  async saveStorageState(path: string = '.e2e/storageState.json') {
+    // Save current browser state for reuse across tests
+    await this.page.context().storageState({ path });
+    console.log(`💾 Saved storage state to ${path}`);
+  }
+
+  async getAuthHeaders(): Promise<Record<string, string>> {
+    const token = await this.getAuthToken();
+    if (!token) {
+      throw new Error('No auth token found - user may not be logged in');
+    }
+
+    return {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'X-Tenant-ID': defaultTenantId
+    };
   }
 
   async makeAuthenticatedRequest(endpoint: string, options: any = {}) {
@@ -108,7 +154,7 @@ export class AuthSessionFixture {
 export class OrgContextFixture {
   constructor(private page: Page) {}
 
-  async setTenantContext(tenantId: string = tenantId) {
+  async setTenantContext(tenantId: string = defaultTenantId) {
     // Set tenant context in headers or localStorage
     await this.page.addInitScript((id) => {
       window.localStorage.setItem('tenantId', id);
@@ -234,8 +280,71 @@ export class PerformanceMonitorFixture {
   }
 }
 
+// Console error filtering fixture
+class ConsoleFilterFixture {
+  private page: Page;
+  private consoleErrors: string[] = [];
+  private consoleWarnings: string[] = [];
+
+  constructor(page: Page) {
+    this.page = page;
+    this.setupConsoleFiltering();
+  }
+
+  private setupConsoleFiltering() {
+    this.page.on('console', (msg) => {
+      const text = msg.text();
+      const type = msg.type();
+
+      // Filter out expected 401s from auth endpoints
+      if (type === 'error' || type === 'warn') {
+        const isExpected401 =
+          text.includes('401') && (
+            text.includes('/auth/me') ||
+            text.includes('/api/kpi/overview') ||
+            text.includes('Authentication required') ||
+            text.includes('Unauthorized')
+          );
+
+        if (!isExpected401) {
+          if (type === 'error') {
+            this.consoleErrors.push(text);
+          } else {
+            this.consoleWarnings.push(text);
+          }
+        }
+      }
+    });
+  }
+
+  getUnexpectedErrors(): string[] {
+    return this.consoleErrors;
+  }
+
+  getUnexpectedWarnings(): string[] {
+    return this.consoleWarnings;
+  }
+
+  expectNoUnexpectedErrors() {
+    if (this.consoleErrors.length > 0) {
+      throw new Error(`Unexpected console errors: ${this.consoleErrors.join(', ')}`);
+    }
+  }
+
+  expectNoUnexpectedWarnings() {
+    if (this.consoleWarnings.length > 0) {
+      throw new Error(`Unexpected console warnings: ${this.consoleWarnings.join(', ')}`);
+    }
+  }
+}
+
 // Extend base test with fixtures
-export const test = base.extend<TestFixtures>({
+export const test = base.extend<TestFixtures & { consoleFilter: ConsoleFilterFixture }>({
+  consoleFilter: async ({ page }, use) => {
+    const consoleFilter = new ConsoleFilterFixture(page);
+    await use(consoleFilter);
+  },
+
   authSession: async ({ page, request }, use) => {
     const authSession = new AuthSessionFixture(page, request);
     await use(authSession);

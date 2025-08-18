@@ -143,6 +143,29 @@ async function seedTestData() {
 
   console.log('✅ Created test gym:', testGym.name);
 
+  // Create test memberships (link members to plans)
+  const createdMembers = await prisma.member.findMany({
+    where: { companyId: testCompany.id }
+  });
+  const createdPlans = await prisma.plan.findMany();
+
+  for (let i = 0; i < createdMembers.length; i++) {
+    const member = createdMembers[i];
+    const plan = createdPlans[i % createdPlans.length]; // Cycle through plans
+
+    const membership = await prisma.membership.create({
+      data: {
+        memberId: member.id,
+        companyId: testCompany.id,
+        planId: plan.id,
+        status: 'active',
+        startsAt: new Date(),
+        endsAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
+      },
+    });
+    console.log('✅ Created test membership:', member.firstName, member.lastName, '→', plan.name);
+  }
+
   console.log('🎉 Test data seeding completed!');
 }
 

@@ -15,6 +15,7 @@ CREATE TYPE "public"."UserRole" AS ENUM ('owner', 'manager', 'staff', 'member', 
 
 -- AlterEnum
 ALTER TYPE "public"."MembershipStatus" ADD VALUE 'draft';
+COMMIT;
 
 -- DropForeignKey
 ALTER TABLE "public"."memberships" DROP CONSTRAINT "memberships_member_id_fkey";

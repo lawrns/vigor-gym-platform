@@ -1,4 +1,4 @@
-// Vigor Gym Management Platform - Database Schema
+// GoGym Management Platform - Database Schema
 // Generated for Supabase PostgreSQL database
 
 generator client {
@@ -90,6 +90,14 @@ enum UserRole {
   partner_admin
 }
 
+enum StaffRole {
+  ADMIN
+  TRAINER
+  RECEPTIONIST
+  MANAGER
+  MAINTENANCE
+}
+
 model User {
   id                String    @id @default(uuid()) @db.Uuid
   email             String    @unique
@@ -128,10 +136,12 @@ model Company {
   // Relations
   users          User[]
   members        Member[]
+  staff          Staff[]
   memberships    Membership[]
   invoices       Invoice[]
   subscriptions  Subscription[]
   paymentMethods PaymentMethod[]
+  devices        Device[]
   currentPlan    Plan?    @relation(fields: [planId], references: [id])
 
   @@map("companies")
@@ -153,6 +163,66 @@ model Member {
 
   @@map("members")
   @@index([email])
+}
+
+model Staff {
+  id           String               @id @default(uuid()) @db.Uuid
+  companyId    String               @map("company_id") @db.Uuid
+  email        String               @unique
+  firstName    String               @map("first_name")
+  lastName     String               @map("last_name")
+  role         StaffRole
+  phone        String?
+  active       Boolean              @default(true)
+  hireDate     DateTime?            @map("hire_date") @db.Timestamptz
+  createdAt    DateTime             @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime             @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  company        Company            @relation(fields: [companyId], references: [id])
+  shifts         StaffShift[]
+  certifications StaffCertification[]
+
+  @@map("staff")
+  @@index([companyId])
+  @@index([email])
+  @@index([role])
+}
+
+model StaffShift {
+  id        String    @id @default(uuid()) @db.Uuid
+  staffId   String    @map("staff_id") @db.Uuid
+  gymId     String?   @map("gym_id") @db.Uuid
+  startTime DateTime  @map("start_time") @db.Timestamptz
+  endTime   DateTime  @map("end_time") @db.Timestamptz
+  notes     String?
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  gym   Gym?  @relation(fields: [gymId], references: [id])
+
+  @@map("staff_shifts")
+  @@index([staffId])
+  @@index([gymId])
+  @@index([startTime])
+}
+
+model StaffCertification {
+  id          String    @id @default(uuid()) @db.Uuid
+  staffId     String    @map("staff_id") @db.Uuid
+  name        String
+  issuer      String?
+  obtainedAt  DateTime? @map("obtained_at") @db.Timestamptz
+  expiresAt   DateTime? @map("expires_at") @db.Timestamptz
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
+
+  @@map("staff_certifications")
+  @@index([staffId])
+  @@index([expiresAt])
 }
 
 model Plan {
@@ -204,8 +274,9 @@ model Gym {
   lng  Decimal @db.Decimal(9, 6)
 
   // Relations
-  visits  Visit[]
-  classes Class[]
+  visits     Visit[]
+  classes    Class[]
+  staffShifts StaffShift[]
 
   @@map("gyms")
 }
@@ -214,15 +285,53 @@ model Visit {
   id           String    @id @default(uuid()) @db.Uuid
   membershipId String    @map("membership_id") @db.Uuid
   gymId        String    @map("gym_id") @db.Uuid
+  deviceId     String?   @map("device_id") @db.Uuid
   checkIn      DateTime  @map("check_in") @db.Timestamptz
   checkOut     DateTime? @map("check_out") @db.Timestamptz
 
   // Relations
   membership Membership @relation(fields: [membershipId], references: [id])
   gym        Gym        @relation(fields: [gymId], references: [id])
+  device     Device?    @relation(fields: [deviceId], references: [id])
 
   @@map("visits")
   @@index([membershipId, checkIn])
+  @@index([deviceId])
+}
+
+model Device {
+  id               String    @id @default(uuid()) @db.Uuid
+  companyId        String    @map("company_id") @db.Uuid
+  name             String
+  deviceSecretHash String    @map("device_secret_hash")
+  lastSeenAt       DateTime? @map("last_seen_at") @db.Timestamptz
+  locationId       String?   @map("location_id") @db.Uuid
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt        DateTime? @updatedAt @map("updated_at") @db.Timestamptz
+
+  // Relations
+  company  Company         @relation(fields: [companyId], references: [id])
+  sessions DeviceSession[]
+  visits   Visit[]
+
+  @@map("devices")
+  @@index([companyId])
+  @@index([lastSeenAt])
+}
+
+model DeviceSession {
+  id        String   @id @default(uuid()) @db.Uuid
+  deviceId  String   @map("device_id") @db.Uuid
+  jwtId     String   @unique @map("jwt_id")
+  expiresAt DateTime @map("expires_at") @db.Timestamptz
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  // Relations
+  device Device @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+
+  @@map("device_sessions")
+  @@index([deviceId])
+  @@index([expiresAt])
 }
 
 model Class {

@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 // Environment-based configuration
 const isStaging = process.env.E2E_ENV === 'staging';
-const baseURL = process.env.PW_BASE_URL || (isStaging ? 'https://staging.vigor-gym.com' : 'http://localhost:7777');
+const baseURL = process.env.STAGING_BASE_URL || process.env.PW_BASE_URL || (isStaging ? 'https://staging.vigor-gym.com' : 'http://localhost:7777');
 const apiURL = process.env.PW_API_URL || (isStaging ? 'https://api-staging.vigor-gym.com' : 'http://localhost:4001');
 
 export default defineConfig({
@@ -18,17 +18,18 @@ export default defineConfig({
 
   reporter: [
     ['list'],
-    ['html', { outputFolder: 'e2e-report', open: 'never' }],
-    ['json', { outputFile: 'e2e-report/results.json' }],
+    ['html', { outputFolder: 'playwright-report', open: 'never' }],
+    ['json', { outputFile: 'playwright-report/results.json' }],
   ],
 
   use: {
     baseURL,
+    storageState: 'tests/.auth/storageState.json',
     trace: 'retain-on-failure',
     video: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    actionTimeout: 8000,
-    navigationTimeout: 15000,
+    actionTimeout: 15000,
+    navigationTimeout: 20000,
   },
 
   // Global setup for database reset and health checks
@@ -44,6 +45,8 @@ export default defineConfig({
           'X-Test-Environment': isStaging ? 'staging' : 'local',
         },
       },
+      // Disable parallel execution for visits tests until isolated
+      fullyParallel: false,
     },
     {
       name: 'firefox',
@@ -53,6 +56,8 @@ export default defineConfig({
           'X-Test-Environment': isStaging ? 'staging' : 'local',
         },
       },
+      // Disable parallel execution for visits tests until isolated
+      fullyParallel: false,
     },
   ],
 

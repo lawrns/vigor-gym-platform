@@ -57,21 +57,21 @@ export default defineConfig({
     // },
   ],
 
-  /* Run your local dev server before starting the tests */
-  webServer: [
-    {
-      command: 'npm run dev',
-      url: 'http://localhost:7777',
-      reuseExistingServer: !process.env.CI,
-      timeout: 120 * 1000,
-    },
-    {
-      command: 'cd ../api && npm run dev',
-      url: 'http://localhost:4001/health',
-      reuseExistingServer: !process.env.CI,
-      timeout: 120 * 1000,
-    }
-  ],
+  /* Disable webServer for manual testing - servers already running */
+  // webServer: [
+  //   {
+  //     command: 'npm run dev',
+  //     url: 'http://localhost:7777',
+  //     reuseExistingServer: !process.env.CI,
+  //     timeout: 120 * 1000,
+  //   },
+  //   {
+  //     command: 'cd ../api && npm run dev',
+  //     url: 'http://localhost:4001/health',
+  //     reuseExistingServer: !process.env.CI,
+  //     timeout: 120 * 1000,
+  //   }
+  // ],
 
   /* Global setup and teardown */
   globalSetup: require.resolve('./tests/global-setup.ts'),

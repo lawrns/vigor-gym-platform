@@ -1,13 +1,13 @@
 {
   "openapi": "3.1.0",
   "info": {
-    "title": "Vigor - Gym Management API",
+    "title": "GoGym - Gym Management API",
     "version": "1.0.0",
     "description": "AI-powered gym management platform for Mexico"
   },
   "servers": [
-    {"url": "https://api.vigor.mx/v1", "description": "Production"},
-    {"url": "https://staging-api.vigor.mx/v1", "description": "Staging"}
+    {"url": "https://api.gogym.mx/v1", "description": "Production"},
+    {"url": "https://staging-api.gogym.mx/v1", "description": "Staging"}
   ],
   "security": [{"bearerAuth": []}],
   "paths": {
