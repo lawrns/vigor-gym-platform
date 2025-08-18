@@ -1,11 +1,19 @@
 {
   "name": "@vigor/shared",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "main": "dist/index.js",
+  "module": "dist/index.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": ["dist"],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "rm -rf dist && pnpm exec tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {

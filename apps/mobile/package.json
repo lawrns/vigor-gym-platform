@@ -7,7 +7,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
-    "@gogym/shared": "*"
+    "@vigor/shared": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.14.9",

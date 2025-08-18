@@ -1,11 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  transpilePackages: ['@vigor/shared'],
   experimental: {
+    externalDir: true,
     esmExternals: true,
   },
   images: {
     remotePatterns: [],
+  },
+  webpack: (cfg) => {
+    // Safety: avoid custom runtime tweaks; keep Next defaults
+    delete cfg.externals?.webpack;  // guard against stray externals overrides
+    return cfg;
   },
   async rewrites() {
     return [
