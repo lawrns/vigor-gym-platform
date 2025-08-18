@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { apiClient } from '../../../lib/api/client';
+import { dashboardDataService, type DashboardMetrics } from '../../../lib/dashboard/data-service';
 
 // Simple inline SVG icons to avoid import complexity
 const Icons = {
@@ -32,19 +32,26 @@ const Icons = {
   )
 };
 
-// Fallback data for when API is loading or unavailable
-const fallbackData = {
-  activeVisits: { current: 23, capacity: 50, percentage: 46 },
-  expiringMemberships: [
-    { name: "Ana García", expires: "2024-08-25", plan: "Premium" },
-    { name: "Carlos López", expires: "2024-08-26", plan: "Basic" },
-    { name: "María Rodríguez", expires: "2024-08-27", plan: "Premium" }
-  ],
-  revenue: { today: 2450, trend: "+12%" },
-  classes: [
-    { time: "09:00", name: "Yoga Matutino", instructor: "Laura", spots: "8/12" },
-    { time: "18:00", name: "CrossFit", instructor: "Miguel", spots: "15/15" }
-  ]
+// Fallback data for when data service is unavailable
+const fallbackData: DashboardMetrics = {
+  activeVisits: { current: 23, capacity: 50, percentage: 46, trend: '+8%' },
+  revenue: { today: 2450, yesterday: 2200, trend: '+12%', percentage: 12 },
+  memberships: {
+    total: 150,
+    active: 142,
+    expiring: [
+      { id: '1', memberName: "Ana García", expiresAt: "2024-08-25", planName: "Premium", daysLeft: 3 },
+      { id: '2', memberName: "Carlos López", expiresAt: "2024-08-26", planName: "Basic", daysLeft: 4 },
+      { id: '3', memberName: "María Rodríguez", expiresAt: "2024-08-27", planName: "Premium", daysLeft: 5 }
+    ]
+  },
+  classes: {
+    today: [
+      { id: '1', time: "09:00", name: "Yoga Matutino", instructor: "Laura", capacity: 12, booked: 8, spotsLeft: 4 },
+      { id: '2', time: "18:00", name: "CrossFit", instructor: "Miguel", capacity: 15, booked: 15, spotsLeft: 0 }
+    ],
+    upcoming: 3
+  }
 };
 
 /**
@@ -54,7 +61,7 @@ const fallbackData = {
  * Gracefully handles loading states and API errors.
  */
 export function DashboardV2Client() {
-  const [dashboardData, setDashboardData] = useState(fallbackData);
+  const [dashboardData, setDashboardData] = useState<DashboardMetrics>(fallbackData);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -64,18 +71,12 @@ export function DashboardV2Client() {
         setIsLoading(true);
         setError(null);
 
-        const response = await apiClient.getDashboardSummary('7d');
+        const metrics = await dashboardDataService.getAllMetrics();
+        setDashboardData(metrics);
 
-        if (response.ok && response.data) {
-          setDashboardData(response.data);
-        } else {
-          console.warn('Dashboard API failed, using fallback data:', response.error);
-          setError(response.error?.message || 'Failed to load dashboard data');
-          // Keep fallback data
-        }
       } catch (err) {
         console.error('Dashboard fetch error:', err);
-        setError('Network error loading dashboard');
+        setError('Failed to load live data');
         // Keep fallback data
       } finally {
         setIsLoading(false);
@@ -83,6 +84,10 @@ export function DashboardV2Client() {
     }
 
     fetchDashboardData();
+
+    // Refresh data every 30 seconds
+    const interval = setInterval(fetchDashboardData, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -110,8 +115,9 @@ export function DashboardV2Client() {
           <div className="text-3xl font-bold text-blue-600">
             {dashboardData.activeVisits.current}/{dashboardData.activeVisits.capacity}
           </div>
-          <div className="text-sm text-gray-500 mt-1">
-            {dashboardData.activeVisits.percentage}% de capacidad
+          <div className="flex items-center gap-2 text-sm mt-1">
+            <span className="text-gray-500">{dashboardData.activeVisits.percentage}% de capacidad</span>
+            <span className="text-green-500 text-xs">{dashboardData.activeVisits.trend}</span>
           </div>
         </div>
 
@@ -141,10 +147,13 @@ export function DashboardV2Client() {
             <h3 className="text-lg font-semibold">Membresías por Vencer</h3>
           </div>
           <div className="space-y-2">
-            {dashboardData.expiringMemberships.map((member, i) => (
-              <div key={i} className="text-sm">
-                <div className="font-medium">{member.name}</div>
-                <div className="text-gray-500">{member.expires} - {member.plan}</div>
+            {dashboardData.memberships.expiring.map((member) => (
+              <div key={member.id} className="text-sm">
+                <div className="font-medium">{member.memberName}</div>
+                <div className="text-gray-500">
+                  {member.expiresAt} - {member.planName}
+                  <span className="ml-2 text-orange-500">({member.daysLeft} días)</span>
+                </div>
               </div>
             ))}
           </div>
@@ -159,11 +168,19 @@ export function DashboardV2Client() {
             <h3 className="text-lg font-semibold">Clases de Hoy</h3>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {dashboardData.classes.map((cls, i) => (
-              <div key={i} className="border rounded p-4">
+            {dashboardData.classes.today.map((cls) => (
+              <div key={cls.id} className="border rounded p-4">
                 <div className="font-medium">{cls.time} - {cls.name}</div>
                 <div className="text-sm text-gray-500">
-                  Instructor: {cls.instructor} | Cupos: {cls.spots}
+                  Instructor: {cls.instructor}
+                </div>
+                <div className="text-sm mt-1">
+                  <span className="text-blue-600">{cls.booked}/{cls.capacity} reservados</span>
+                  {cls.spotsLeft > 0 ? (
+                    <span className="ml-2 text-green-600">({cls.spotsLeft} disponibles)</span>
+                  ) : (
+                    <span className="ml-2 text-red-600">(Lleno)</span>
+                  )}
                 </div>
               </div>
             ))}
