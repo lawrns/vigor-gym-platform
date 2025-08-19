@@ -60,28 +60,28 @@ export class BodyScanService {
     try {
       // For MVP, we'll use rule-based calculations with some AI-like features
       // In production, this would integrate with TensorFlow.js or cloud AI services
-      
+
       const { height, weight, age, gender, imageData, memberId } = request;
-      
+
       // Basic BMI calculation
       const heightInMeters = height / 100;
       const bmi = weight / (heightInMeters * heightInMeters);
-      
+
       // Estimate body fat percentage using Deurenberg formula
       const bodyFatPercentage = this.estimateBodyFat(bmi, age, gender);
-      
+
       // Estimate muscle mass
       const muscleMass = this.estimateMuscleMass(weight, bodyFatPercentage);
-      
+
       // Analyze pose quality (mock implementation)
       const poseQuality = this.analyzePoseQuality(imageData);
-      
+
       // Generate recommendations
       const recommendations = this.generateRecommendations(bmi, bodyFatPercentage, age, gender);
-      
+
       // Mock measurements (in production, these would come from computer vision)
       const measurements = this.estimateMeasurements(height, weight, gender);
-      
+
       const scanResult: BodyScanResult = {
         scanId: `scan_${Date.now()}_${memberId}`,
         bodyFatPercentage: Math.round(bodyFatPercentage * 10) / 10,
@@ -92,10 +92,10 @@ export class BodyScanService {
         confidence: this.calculateConfidence(poseQuality),
         measurements,
       };
-      
+
       // Store scan result in database
       await this.storeScanResult(memberId, scanResult);
-      
+
       return scanResult;
     } catch (error) {
       console.error('Error processing body scan:', error);
@@ -106,13 +106,13 @@ export class BodyScanService {
   private estimateBodyFat(bmi: number, age: number, gender: string): number {
     // Deurenberg formula for body fat estimation
     let bodyFat: number;
-    
+
     if (gender === 'male') {
-      bodyFat = (1.20 * bmi) + (0.23 * age) - 16.2;
+      bodyFat = 1.2 * bmi + 0.23 * age - 16.2;
     } else {
-      bodyFat = (1.20 * bmi) + (0.23 * age) - 5.4;
+      bodyFat = 1.2 * bmi + 0.23 * age - 5.4;
     }
-    
+
     // Ensure reasonable bounds
     return Math.max(5, Math.min(50, bodyFat));
   }
@@ -128,16 +128,21 @@ export class BodyScanService {
     // Mock pose analysis - in production, this would use computer vision
     // For now, randomly assign quality based on image data length (proxy for quality)
     const dataLength = imageData.length;
-    
+
     if (dataLength > 100000) return 'excellent';
     if (dataLength > 75000) return 'good';
     if (dataLength > 50000) return 'fair';
     return 'poor';
   }
 
-  private generateRecommendations(bmi: number, bodyFat: number, age: number, gender: string): string[] {
+  private generateRecommendations(
+    bmi: number,
+    bodyFat: number,
+    age: number,
+    gender: string
+  ): string[] {
     const recommendations: string[] = [];
-    
+
     // BMI-based recommendations
     if (bmi < 18.5) {
       recommendations.push('Considera aumentar tu ingesta calórica con alimentos nutritivos');
@@ -146,20 +151,22 @@ export class BodyScanService {
       recommendations.push('Incorpora más ejercicio cardiovascular a tu rutina');
       recommendations.push('Considera reducir la ingesta calórica de manera saludable');
     }
-    
+
     // Body fat recommendations
     const idealBodyFat = gender === 'male' ? 15 : 25;
     if (bodyFat > idealBodyFat + 5) {
-      recommendations.push('Combina entrenamiento de fuerza con cardio para reducir grasa corporal');
+      recommendations.push(
+        'Combina entrenamiento de fuerza con cardio para reducir grasa corporal'
+      );
       recommendations.push('Consulta con un nutriólogo para optimizar tu alimentación');
     }
-    
+
     // Age-specific recommendations
     if (age > 40) {
       recommendations.push('Incluye ejercicios de flexibilidad y movilidad en tu rutina');
       recommendations.push('Considera suplementos de calcio y vitamina D');
     }
-    
+
     return recommendations;
   }
 
@@ -168,7 +175,7 @@ export class BodyScanService {
     // In production, these would come from computer vision analysis
     const heightFactor = height / 170; // Normalize to average height
     const weightFactor = weight / 70; // Normalize to average weight
-    
+
     if (gender === 'male') {
       return {
         chest: Math.round(95 * heightFactor * Math.sqrt(weightFactor)),
@@ -190,11 +197,16 @@ export class BodyScanService {
 
   private calculateConfidence(poseQuality: string): number {
     switch (poseQuality) {
-      case 'excellent': return 0.95;
-      case 'good': return 0.85;
-      case 'fair': return 0.70;
-      case 'poor': return 0.50;
-      default: return 0.50;
+      case 'excellent':
+        return 0.95;
+      case 'good':
+        return 0.85;
+      case 'fair':
+        return 0.7;
+      case 'poor':
+        return 0.5;
+      default:
+        return 0.5;
     }
   }
 
@@ -202,7 +214,7 @@ export class BodyScanService {
     // Store in database for historical tracking
     // This would be implemented with a proper BodyScan model in Prisma
     console.log(`Storing scan result for member ${memberId}:`, result.scanId);
-    
+
     // For now, we'll just log it. In production, this would save to database:
     // await prisma.bodyScan.create({
     //   data: {
@@ -231,26 +243,26 @@ export class ChurnPredictionService {
   async predictChurnRisk(request: ChurnPredictionRequest): Promise<ChurnPredictionResult> {
     try {
       const { memberId } = request;
-      
+
       // Get member data and calculate features
-      const features = request.features || await this.extractFeatures(memberId);
-      
+      const features = request.features || (await this.extractFeatures(memberId));
+
       // Calculate churn probability using rule-based model
       // In production, this would use a trained ML model
       const churnProbability = this.calculateChurnProbability(features);
-      
+
       // Determine risk level
       const churnRisk = this.categorizeRisk(churnProbability);
-      
+
       // Identify risk factors
       const riskFactors = this.identifyRiskFactors(features);
-      
+
       // Generate recommendations
       const recommendations = this.generateChurnRecommendations(churnRisk, riskFactors);
-      
+
       // Predict next action
       const nextPredictedAction = this.predictNextAction(features, churnRisk);
-      
+
       return {
         memberId,
         churnRisk,
@@ -297,7 +309,9 @@ export class ChurnPredictionService {
     // Calculate temporal features
     const now = new Date();
     const membershipStart = membership.createdAt;
-    const membershipDuration = Math.floor((now.getTime() - membershipStart.getTime()) / (1000 * 60 * 60 * 24));
+    const membershipDuration = Math.floor(
+      (now.getTime() - membershipStart.getTime()) / (1000 * 60 * 60 * 24)
+    );
 
     const lastVisit = visits[0]?.checkIn;
     const lastVisitDays = lastVisit
@@ -305,7 +319,7 @@ export class ChurnPredictionService {
       : 999;
 
     // Visit frequency analysis
-    const visitFrequency = visits.length / Math.max(membershipDuration, 1) * 7; // visits per week
+    const visitFrequency = (visits.length / Math.max(membershipDuration, 1)) * 7; // visits per week
 
     // Visit pattern analysis (last 30 days vs previous 30 days)
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -320,7 +334,8 @@ export class ChurnPredictionService {
     const visitTrend = previousVisits > 0 ? (recentVisits - previousVisits) / previousVisits : 0;
 
     // Class attendance analysis
-    const classAttendance = bookings.filter(b => b.status === 'checked_in').length / Math.max(bookings.length, 1);
+    const classAttendance =
+      bookings.filter(b => b.status === 'checked_in').length / Math.max(bookings.length, 1);
 
     // Engagement patterns
     const weekendVisits = visits.filter(v => {
@@ -362,12 +377,12 @@ export class ChurnPredictionService {
     // In production, this would use a trained ML model (Random Forest, XGBoost, etc.)
 
     let score = 0;
-    let weights = {
+    const weights = {
       visitFrequency: 0.25,
       recency: 0.25,
-      trend: 0.20,
+      trend: 0.2,
       engagement: 0.15,
-      tenure: 0.10,
+      tenure: 0.1,
       consistency: 0.05,
     };
 
@@ -393,9 +408,12 @@ export class ChurnPredictionService {
 
     // Visit trend factor (declining engagement)
     let trendScore = 0;
-    if (features.visitTrend < -0.5) trendScore = 1.0; // Significant decline
-    else if (features.visitTrend < -0.2) trendScore = 0.7; // Moderate decline
-    else if (features.visitTrend < 0) trendScore = 0.4; // Slight decline
+    if (features.visitTrend < -0.5)
+      trendScore = 1.0; // Significant decline
+    else if (features.visitTrend < -0.2)
+      trendScore = 0.7; // Moderate decline
+    else if (features.visitTrend < 0)
+      trendScore = 0.4; // Slight decline
     else trendScore = 0.0; // Stable or improving
 
     score += trendScore * weights.trend;
@@ -412,9 +430,12 @@ export class ChurnPredictionService {
 
     // Tenure factor (new members are higher risk)
     let tenureScore = 0;
-    if (features.membershipDuration < 14) tenureScore = 0.8; // Very new
-    else if (features.membershipDuration < 30) tenureScore = 0.6; // New
-    else if (features.membershipDuration < 90) tenureScore = 0.3; // Settling in
+    if (features.membershipDuration < 14)
+      tenureScore = 0.8; // Very new
+    else if (features.membershipDuration < 30)
+      tenureScore = 0.6; // New
+    else if (features.membershipDuration < 90)
+      tenureScore = 0.3; // Settling in
     else if (features.membershipDuration > 365) tenureScore = -0.2; // Loyal (reduces risk)
 
     score += tenureScore * weights.tenure;
@@ -426,7 +447,8 @@ export class ChurnPredictionService {
     const expectedVisits = avgVisitsPerWeek * totalWeeks;
     const actualVisits = features.totalVisits;
 
-    if (actualVisits < expectedVisits * 0.5) consistencyScore = 0.8; // Very inconsistent
+    if (actualVisits < expectedVisits * 0.5)
+      consistencyScore = 0.8; // Very inconsistent
     else if (actualVisits < expectedVisits * 0.7) consistencyScore = 0.4; // Somewhat inconsistent
 
     score += consistencyScore * weights.consistency;
@@ -508,7 +530,7 @@ export class ChurnPredictionService {
 
   private generateChurnRecommendations(risk: string, factors: string[]): string[] {
     const recommendations: string[] = [];
-    
+
     if (risk === 'high') {
       recommendations.push('Contactar inmediatamente para ofrecer sesión personalizada');
       recommendations.push('Ofrecer descuento o promoción especial');
@@ -521,13 +543,15 @@ export class ChurnPredictionService {
       recommendations.push('Mantener engagement con contenido motivacional');
       recommendations.push('Invitar a referir amigos con incentivo');
     }
-    
+
     return recommendations;
   }
 
   private predictNextAction(features: any, risk: string): string {
     if (risk === 'high') {
-      return features.lastVisitDays > 14 ? 'Probable cancelación en 7 días' : 'Visita irregular esperada';
+      return features.lastVisitDays > 14
+        ? 'Probable cancelación en 7 días'
+        : 'Visita irregular esperada';
     } else if (risk === 'medium') {
       return 'Monitorear patrones de visita';
     } else {

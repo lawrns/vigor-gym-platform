@@ -7,25 +7,32 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=18.17.0"
+    "node": ">=20.0.0"
   },
+  "packageManager": "npm@10.0.0",
   "scripts": {
     "build": "npm run build -w @gogym/api && npm run build -w @gogym/web && npm run build -w @gogym/mobile",
     "dev": "PORT=4001 npm run dev -w @gogym/api & npm run dev -w @gogym/web",
     "typecheck": "npm -ws run typecheck",
-    "lint": "echo 'No lint configured'",
+    "lint": "eslint . --max-warnings=0",
+    "lint:fix": "eslint . --fix",
+    "fmt": "prettier . --write",
+    "fmt:check": "prettier . --check",
     "lint:unsplash": "grep -R --line-number --color=never 'images.unsplash.com' apps || true",
     "smoke": "bash ./.scripts/smoke.sh"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
-    "@playwright/test": "^1.54.2"
+    "@playwright/test": "^1.54.2",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.5",
+    "eslint-plugin-jest": "^27.9.0",
+    "eslint-plugin-vitest-globals": "^1.5.0",
+    "prettier": "^3.3.3"
   },
-  "pnpm": {
-    "overrides": {
-      "react": "18.3.1",
-      "react-dom": "18.3.1",
-      "next": "14.2.5"
-    }
+  "dependencies": {
+    "next-auth": "^4.24.11"
   }
 }

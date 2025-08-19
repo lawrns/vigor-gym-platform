@@ -13,9 +13,9 @@ test.describe('Visits Management (VIS-01)', () => {
     const token = await authSession.getAuthToken();
     await page.request.post('http://localhost:4001/v1/test/visits/reset', {
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Tenant-ID': '00000000-0000-0000-0000-000000000001'
-      }
+        Authorization: `Bearer ${token}`,
+        'X-Tenant-ID': '00000000-0000-0000-0000-000000000001',
+      },
     });
   });
 
@@ -41,13 +41,13 @@ test.describe('Visits Management (VIS-01)', () => {
     // Perform check-in via API
     const checkInResponse = await page.request.post('http://localhost:4001/v1/visits', {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'X-Tenant-ID': '00000000-0000-0000-0000-000000000001',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       data: {
-        membershipId: testMembership.id
-      }
+        membershipId: testMembership.id,
+      },
     });
 
     expect(checkInResponse.ok()).toBeTruthy();
@@ -73,7 +73,7 @@ test.describe('Visits Management (VIS-01)', () => {
 
     expect(visitsListResponse.ok()).toBeTruthy();
     const visitsListData = await visitsListResponse.json();
-    
+
     const createdVisit = visitsListData.visits.find((v: any) => v.id === visitData.id);
     expect(createdVisit).toBeDefined();
     expect(createdVisit.checkOut).toBeNull(); // Should still be checked in
@@ -97,13 +97,13 @@ test.describe('Visits Management (VIS-01)', () => {
     // First check-in (should succeed)
     const firstCheckIn = await page.request.post('http://localhost:4001/v1/visits', {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'X-Tenant-ID': '00000000-0000-0000-0000-000000000001',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       data: {
-        membershipId: testMembership.id
-      }
+        membershipId: testMembership.id,
+      },
     });
 
     expect(firstCheckIn.ok()).toBeTruthy();
@@ -114,13 +114,13 @@ test.describe('Visits Management (VIS-01)', () => {
     // Attempt second check-in (should fail with 409 Conflict)
     const secondCheckIn = await page.request.post('http://localhost:4001/v1/visits', {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'X-Tenant-ID': '00000000-0000-0000-0000-000000000001',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       data: {
-        membershipId: testMembership.id
-      }
+        membershipId: testMembership.id,
+      },
     });
 
     expect(secondCheckIn.status()).toBe(409); // Conflict
@@ -128,7 +128,7 @@ test.describe('Visits Management (VIS-01)', () => {
     expect(errorData.message).toContain('already checked in');
     expect(errorData.existingVisit).toBeDefined();
     expect(errorData.existingVisit.id).toBe(firstVisitData.id);
-    
+
     console.log('✅ Double check-in prevented with 409 Conflict');
     console.log(`📋 Error message: ${errorData.message}`);
 
@@ -150,13 +150,13 @@ test.describe('Visits Management (VIS-01)', () => {
     // Create a visit
     const checkInResponse = await page.request.post('http://localhost:4001/v1/visits', {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'X-Tenant-ID': '00000000-0000-0000-0000-000000000001',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       data: {
-        membershipId: testMembership.id
-      }
+        membershipId: testMembership.id,
+      },
     });
 
     const visitResponse = await checkInResponse.json();
@@ -167,12 +167,15 @@ test.describe('Visits Management (VIS-01)', () => {
     await page.waitForTimeout(1000);
 
     // Check out
-    const checkOutResponse = await page.request.patch(`http://localhost:4001/v1/visits/${visitData.id}/checkout`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Tenant-ID': '00000000-0000-0000-0000-000000000001'
+    const checkOutResponse = await page.request.patch(
+      `http://localhost:4001/v1/visits/${visitData.id}/checkout`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-Tenant-ID': '00000000-0000-0000-0000-000000000001',
+        },
       }
-    });
+    );
 
     expect(checkOutResponse.ok()).toBeTruthy();
     const checkOutResponse_data = await checkOutResponse.json();
@@ -189,12 +192,15 @@ test.describe('Visits Management (VIS-01)', () => {
     console.log(`⏱️ Visit duration: ${checkOutData.durationMinutes} minutes`);
 
     // Verify double check-out is prevented
-    const doubleCheckOut = await page.request.patch(`http://localhost:4001/v1/visits/${visitData.id}/checkout`, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'X-Tenant-ID': '00000000-0000-0000-0000-000000000001'
+    const doubleCheckOut = await page.request.patch(
+      `http://localhost:4001/v1/visits/${visitData.id}/checkout`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'X-Tenant-ID': '00000000-0000-0000-0000-000000000001',
+        },
       }
-    });
+    );
 
     expect(doubleCheckOut.status()).toBe(400); // Bad Request
     const doubleCheckOutError = await doubleCheckOut.json();
@@ -219,17 +225,21 @@ test.describe('Visits Management (VIS-01)', () => {
     expect(visitsData.pagination.total).toBeGreaterThanOrEqual(0);
 
     console.log(`📊 Found ${visitsData.visits.length} visits`);
-    console.log(`📄 Pagination: Page ${visitsData.pagination.page} of ${Math.ceil(visitsData.pagination.total / visitsData.pagination.limit)}`);
+    console.log(
+      `📄 Pagination: Page ${visitsData.pagination.page} of ${Math.ceil(visitsData.pagination.total / visitsData.pagination.limit)}`
+    );
 
     // Test date filtering
     const today = new Date().toISOString().split('T')[0];
-    const filteredResponse = await authSession.makeAuthenticatedRequest(`/v1/visits?from=${today}T00:00:00.000Z&to=${today}T23:59:59.999Z`);
+    const filteredResponse = await authSession.makeAuthenticatedRequest(
+      `/v1/visits?from=${today}T00:00:00.000Z&to=${today}T23:59:59.999Z`
+    );
 
     expect(filteredResponse.ok()).toBeTruthy();
     const filteredData = await filteredResponse.json();
-    
+
     console.log(`📅 Today's visits: ${filteredData.visits.length}`);
-    
+
     // Verify all returned visits are from today
     filteredData.visits.forEach((visit: any) => {
       const visitDate = new Date(visit.checkIn).toISOString().split('T')[0];
@@ -247,13 +257,13 @@ test.describe('Visits Management (VIS-01)', () => {
     // Try to check in with invalid membership ID
     const invalidCheckIn = await page.request.post('http://localhost:4001/v1/visits', {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'X-Tenant-ID': '00000000-0000-0000-0000-000000000001',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
       data: {
-        membershipId: '00000000-0000-0000-0000-000000000999' // Invalid ID
-      }
+        membershipId: '00000000-0000-0000-0000-000000000999', // Invalid ID
+      },
     });
 
     expect(invalidCheckIn.status()).toBe(404); // Not Found
@@ -264,11 +274,11 @@ test.describe('Visits Management (VIS-01)', () => {
     // Try to check in without membership ID
     const missingMembershipCheckIn = await page.request.post('http://localhost:4001/v1/visits', {
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'X-Tenant-ID': '00000000-0000-0000-0000-000000000001',
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
       },
-      data: {}
+      data: {},
     });
 
     expect(missingMembershipCheckIn.status()).toBe(400); // Bad Request

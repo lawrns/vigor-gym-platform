@@ -1,20 +1,20 @@
 /**
  * Standard Error Handling for Vigor API
- * 
+ *
  * Provides consistent error types and formatting across all endpoints
  */
 
 export class AppError extends Error {
   public readonly code: string;
   public readonly statusCode: number;
-  public readonly details?: any;
+  public readonly details?: Record<string, unknown>;
   public readonly isOperational: boolean;
 
   constructor(
     code: string,
     message: string,
     statusCode: number = 500,
-    details?: any,
+    details?: Record<string, unknown>,
     isOperational: boolean = true
   ) {
     super(message);
@@ -33,11 +33,14 @@ export class AppError extends Error {
  * Common error factory functions
  */
 
-export function badRequest(message: string, code: string = 'BAD_REQUEST', details?: any): AppError {
+export function badRequest(message: string, code: string = 'BAD_REQUEST', details?: Record<string, unknown>): AppError {
   return new AppError(code, message, 400, details);
 }
 
-export function unauthorized(message: string = 'Authentication required', code: string = 'UNAUTHORIZED'): AppError {
+export function unauthorized(
+  message: string = 'Authentication required',
+  code: string = 'UNAUTHORIZED'
+): AppError {
   return new AppError(code, message, 401);
 }
 
@@ -45,19 +48,26 @@ export function forbidden(message: string = 'Access denied', code: string = 'FOR
   return new AppError(code, message, 403);
 }
 
-export function notFound(message: string = 'Resource not found', code: string = 'NOT_FOUND'): AppError {
+export function notFound(
+  message: string = 'Resource not found',
+  code: string = 'NOT_FOUND'
+): AppError {
   return new AppError(code, message, 404);
 }
 
-export function conflict(message: string, code: string = 'CONFLICT', details?: any): AppError {
+export function conflict(message: string, code: string = 'CONFLICT', details?: Record<string, unknown>): AppError {
   return new AppError(code, message, 409, details);
 }
 
-export function unprocessableEntity(message: string, code: string = 'VALIDATION_ERROR', details?: any): AppError {
+export function unprocessableEntity(
+  message: string,
+  code: string = 'VALIDATION_ERROR',
+  details?: Record<string, unknown>
+): AppError {
   return new AppError(code, message, 422, details);
 }
 
-export function invalidRange(message: string = 'Invalid date range', details?: any): AppError {
+export function invalidRange(message: string = 'Invalid date range', details?: Record<string, unknown>): AppError {
   return new AppError('INVALID_RANGE', message, 422, details);
 }
 
@@ -69,11 +79,18 @@ export function invalidLocationId(message: string = 'Invalid location ID'): AppE
   return new AppError('INVALID_LOCATION_ID', message, 422);
 }
 
-export function serverError(message: string = 'Internal server error', code: string = 'INTERNAL_ERROR', details?: any): AppError {
+export function serverError(
+  message: string = 'Internal server error',
+  code: string = 'INTERNAL_ERROR',
+  details?: Record<string, unknown>
+): AppError {
   return new AppError(code, message, 500, details, false);
 }
 
-export function databaseError(message: string = 'Database operation failed', details?: any): AppError {
+export function databaseError(
+  message: string = 'Database operation failed',
+  details?: Record<string, unknown>
+): AppError {
   return new AppError('DATABASE_ERROR', message, 500, details, false);
 }
 
@@ -93,7 +110,7 @@ export interface ErrorResponse {
   error: {
     code: string;
     message: string;
-    details?: any;
+    details?: Record<string, unknown>;
   };
   timestamp?: string;
   path?: string;
@@ -147,27 +164,33 @@ export function isOperationalError(error: Error): boolean {
  * Common validation error patterns
  */
 export const ValidationErrors = {
-  REQUIRED_FIELD: (field: string) => badRequest(`${field} is required`, 'REQUIRED_FIELD', { field }),
-  INVALID_FORMAT: (field: string, format: string) => badRequest(`${field} must be a valid ${format}`, 'INVALID_FORMAT', { field, format }),
-  OUT_OF_RANGE: (field: string, min?: number, max?: number) => badRequest(
-    `${field} is out of range${min !== undefined ? ` (min: ${min})` : ''}${max !== undefined ? ` (max: ${max})` : ''}`,
-    'OUT_OF_RANGE',
-    { field, min, max }
-  ),
-  INVALID_ENUM: (field: string, allowedValues: string[]) => badRequest(
-    `${field} must be one of: ${allowedValues.join(', ')}`,
-    'INVALID_ENUM',
-    { field, allowedValues }
-  ),
+  REQUIRED_FIELD: (field: string) =>
+    badRequest(`${field} is required`, 'REQUIRED_FIELD', { field }),
+  INVALID_FORMAT: (field: string, format: string) =>
+    badRequest(`${field} must be a valid ${format}`, 'INVALID_FORMAT', { field, format }),
+  OUT_OF_RANGE: (field: string, min?: number, max?: number) =>
+    badRequest(
+      `${field} is out of range${min !== undefined ? ` (min: ${min})` : ''}${max !== undefined ? ` (max: ${max})` : ''}`,
+      'OUT_OF_RANGE',
+      { field, min, max }
+    ),
+  INVALID_ENUM: (field: string, allowedValues: string[]) =>
+    badRequest(`${field} must be one of: ${allowedValues.join(', ')}`, 'INVALID_ENUM', {
+      field,
+      allowedValues,
+    }),
 } as const;
 
 /**
  * Database error patterns
  */
 export const DatabaseErrors = {
-  UNIQUE_CONSTRAINT: (field: string) => conflict(`${field} already exists`, 'DUPLICATE_ENTRY', { field }),
-  FOREIGN_KEY_CONSTRAINT: (field: string) => badRequest(`Referenced ${field} does not exist`, 'INVALID_REFERENCE', { field }),
-  NOT_NULL_CONSTRAINT: (field: string) => badRequest(`${field} cannot be null`, 'REQUIRED_FIELD', { field }),
+  UNIQUE_CONSTRAINT: (field: string) =>
+    conflict(`${field} already exists`, 'DUPLICATE_ENTRY', { field }),
+  FOREIGN_KEY_CONSTRAINT: (field: string) =>
+    badRequest(`Referenced ${field} does not exist`, 'INVALID_REFERENCE', { field }),
+  NOT_NULL_CONSTRAINT: (field: string) =>
+    badRequest(`${field} cannot be null`, 'REQUIRED_FIELD', { field }),
 } as const;
 
 /**
@@ -176,10 +199,11 @@ export const DatabaseErrors = {
 export const AuthErrors = {
   INVALID_TOKEN: () => unauthorized('Invalid or expired token', 'INVALID_TOKEN'),
   MISSING_TOKEN: () => unauthorized('Authentication token required', 'MISSING_TOKEN'),
-  INSUFFICIENT_PERMISSIONS: (required: string[]) => forbidden(
-    `Insufficient permissions. Required: ${required.join(', ')}`,
-    'INSUFFICIENT_PERMISSIONS',
-    { required }
-  ),
+  INSUFFICIENT_PERMISSIONS: (required: string[]) =>
+    forbidden(
+      `Insufficient permissions. Required: ${required.join(', ')}`,
+      'INSUFFICIENT_PERMISSIONS',
+      { required }
+    ),
   TENANT_MISMATCH: () => forbidden('Access denied for this organization', 'TENANT_MISMATCH'),
 } as const;

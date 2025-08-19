@@ -1,6 +1,7 @@
-"use client";
+'use client';
 
-import { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import { Icons } from '../../lib/icons/registry';
 // Simple inline components to avoid import issues
 const Button = ({ children, className = '', ...props }: any) => (
   <button
@@ -37,13 +38,13 @@ interface ScanPanelProps {
 
 type ScanMode = 'qr' | 'manual';
 
-export function ScanPanel({ 
-  session, 
-  config, 
-  isProcessing, 
-  onScanStart, 
-  onScanSuccess, 
-  onScanError 
+export function ScanPanel({
+  session,
+  config,
+  isProcessing,
+  onScanStart,
+  onScanSuccess,
+  onScanError,
 }: ScanPanelProps) {
   const [scanMode, setScanMode] = useState<ScanMode>('qr');
   const [manualInput, setManualInput] = useState('');
@@ -58,7 +59,7 @@ export function ScanPanel({
   const startCamera = useCallback(async () => {
     try {
       setCameraError(null);
-      
+
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
           width: { ideal: 1280 },
@@ -132,7 +133,7 @@ export function ScanPanel({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.deviceToken}`,
+            Authorization: `Bearer ${session.deviceToken}`,
           },
           body: JSON.stringify({
             [scanMode === 'qr' ? 'qrCode' : 'memberId']: memberIdentifier.trim(),
@@ -168,7 +169,7 @@ export function ScanPanel({
   // Simulate QR code scan (for demo purposes)
   const handleSimulateQRScan = () => {
     // In a real implementation, this would use a QR code library
-    const mockQRCode = "123e4567-e89b-12d3-a456-426614174000"; // Mock member ID
+    const mockQRCode = '123e4567-e89b-12d3-a456-426614174000'; // Mock member ID
     handleScan(mockQRCode);
   };
 
@@ -181,15 +182,17 @@ export function ScanPanel({
     <div className="max-w-lg mx-auto">
       {/* Offline Banner */}
       {isOffline && (
-        <div className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg" role="alert">
+        <div
+          className="mb-4 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+          role="alert"
+        >
           <div className="flex items-center">
             <Icons.AlertTriangle className="h-5 w-5 text-red-400 mr-3" />
             <div>
-              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
-                Device Offline
-              </h3>
+              <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Device Offline</h3>
               <p className="text-sm text-red-700 dark:text-red-300 mt-1">
-                Check your internet connection. Check-ins will be unavailable until connection is restored.
+                Check your internet connection. Check-ins will be unavailable until connection is
+                restored.
               </p>
             </div>
           </div>
@@ -198,7 +201,10 @@ export function ScanPanel({
 
       {/* Retry Banner */}
       {retryCount > 0 && (
-        <div className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg" role="alert">
+        <div
+          className="mb-4 p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg"
+          role="alert"
+        >
           <div className="flex items-center">
             <Icons.Loader2 className="h-5 w-5 text-yellow-400 mr-3 animate-spin" />
             <div>
@@ -212,12 +218,8 @@ export function ScanPanel({
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6">
         <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Member Check-in
-          </h2>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">
-            Scan QR code or enter member ID
-          </p>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Member Check-in</h2>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">Scan QR code or enter member ID</p>
         </div>
 
         {/* Scan Mode Toggle */}
@@ -258,11 +260,7 @@ export function ScanPanel({
                 <div className="w-48 h-48 mx-auto bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-center mb-4">
                   <Icons.QrCode className="h-16 w-16 text-gray-400" />
                 </div>
-                <Button
-                  onClick={startCamera}
-                  disabled={isProcessing}
-                  className="w-full"
-                >
+                <Button onClick={startCamera} disabled={isProcessing} className="w-full">
                   <Icons.Camera className="h-4 w-4 mr-2" />
                   Start Camera
                 </Button>
@@ -287,11 +285,7 @@ export function ScanPanel({
                   </div>
                 </div>
                 <div className="flex space-x-3">
-                  <Button
-                    onClick={handleSimulateQRScan}
-                    disabled={isProcessing}
-                    className="flex-1"
-                  >
+                  <Button onClick={handleSimulateQRScan} disabled={isProcessing} className="flex-1">
                     {isProcessing ? (
                       <>
                         <Icons.Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -304,11 +298,7 @@ export function ScanPanel({
                       </>
                     )}
                   </Button>
-                  <Button
-                    onClick={stopCamera}
-                    variant="outline"
-                    disabled={isProcessing}
-                  >
+                  <Button onClick={stopCamera} variant="outline" disabled={isProcessing}>
                     <Icons.X className="h-4 w-4" />
                   </Button>
                 </div>
@@ -320,9 +310,7 @@ export function ScanPanel({
                 <div className="flex">
                   <Icons.AlertTriangle className="h-5 w-5 text-yellow-400" />
                   <div className="ml-3">
-                    <p className="text-sm text-yellow-800 dark:text-yellow-200">
-                      {cameraError}
-                    </p>
+                    <p className="text-sm text-yellow-800 dark:text-yellow-200">{cameraError}</p>
                   </div>
                 </div>
               </div>
@@ -334,7 +322,10 @@ export function ScanPanel({
         {scanMode === 'manual' && (
           <form onSubmit={handleManualSubmit} className="space-y-4">
             <div>
-              <label htmlFor="memberId" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="memberId"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Member ID
               </label>
               <input
@@ -342,7 +333,7 @@ export function ScanPanel({
                 id="memberId"
                 data-testid="member-id-input"
                 value={manualInput}
-                onChange={(e) => setManualInput(e.target.value)}
+                onChange={e => setManualInput(e.target.value)}
                 placeholder="Enter member ID"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white"
                 required

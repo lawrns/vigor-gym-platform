@@ -5,7 +5,7 @@ PORT=${PORT:-7777}
 echo "🔥 Starting web smoke test on port $PORT..."
 
 # start web
-pnpm --filter @vigor/web dev >/tmp/web.log 2>&1 &
+npm run dev -w @vigor/web >/tmp/web.log 2>&1 &
 PID=$!
 
 # wait for server to start

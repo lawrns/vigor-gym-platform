@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Icons } from '../../lib/icons/registry';
 
@@ -31,12 +31,12 @@ interface MembersTableProps {
   onDelete: (memberId: string) => void;
 }
 
-function MemberRow({ 
-  member, 
-  onEdit, 
-  onDelete 
-}: { 
-  member: Member; 
+function MemberRow({
+  member,
+  onEdit,
+  onDelete,
+}: {
+  member: Member;
   onEdit: (member: Member) => void;
   onDelete: (memberId: string) => void;
 }) {
@@ -69,23 +69,20 @@ function MemberRow({
           {member.firstName} {member.lastName}
         </div>
       </td>
-      <td className="py-3 px-4 text-gray-500 dark:text-gray-400">
-        {member.email}
-      </td>
+      <td className="py-3 px-4 text-gray-500 dark:text-gray-400">{member.email}</td>
       <td className="py-3 px-4">
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[member.status]}`}>
+        <span
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[member.status]}`}
+        >
           {statusLabels[member.status]}
         </span>
       </td>
       <td className="py-3 px-4 text-gray-500 dark:text-gray-400">
-        {member._count.memberships > 0 
+        {member._count.memberships > 0
           ? `${member._count.memberships} membresía${member._count.memberships > 1 ? 's' : ''}`
-          : 'Sin membresías'
-        }
+          : 'Sin membresías'}
       </td>
-      <td className="py-3 px-4 text-gray-500 dark:text-gray-400">
-        {formatDate(member.createdAt)}
-      </td>
+      <td className="py-3 px-4 text-gray-500 dark:text-gray-400">{formatDate(member.createdAt)}</td>
       <td className="py-3 px-4">
         <div className="flex items-center space-x-2">
           <button
@@ -135,14 +132,14 @@ function TableSkeleton() {
   );
 }
 
-export function MembersTable({ 
-  members, 
-  pagination, 
-  loading, 
-  error, 
-  onPageChange, 
-  onEdit, 
-  onDelete 
+export function MembersTable({
+  members,
+  pagination,
+  loading,
+  error,
+  onPageChange,
+  onEdit,
+  onDelete,
 }: MembersTableProps) {
   if (error) {
     return (
@@ -200,13 +197,8 @@ export function MembersTable({
                 </td>
               </tr>
             ) : (
-              members.map((member) => (
-                <MemberRow
-                  key={member.id}
-                  member={member}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                />
+              members.map(member => (
+                <MemberRow key={member.id} member={member} onEdit={onEdit} onDelete={onDelete} />
               ))
             )}
           </tbody>

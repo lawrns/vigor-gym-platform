@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { BrandStep } from './steps/BrandStep';
 import { LocationsStep } from './steps/LocationsStep';
 import { PlansStep } from './steps/PlansStep';
@@ -64,7 +64,7 @@ export function OnboardingWizard({
   const canNavigateToStep = (stepId: string): boolean => {
     const stepIndex = steps.findIndex(step => step.id === stepId);
     const currentIndex = steps.findIndex(step => step.id === currentStep);
-    
+
     // Can navigate to current step or previous steps
     return stepIndex <= currentIndex;
   };
@@ -131,13 +131,14 @@ export function OnboardingWizard({
                 aria-label={`${step.title}: ${isCompleted ? 'completed' : isActive ? 'current step' : 'not started'}`}
                 className={`
                   flex items-center space-x-2 py-2 px-1 border-b-2 font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2
-                  ${isActive
-                    ? 'border-blue-500 text-blue-600 dark:text-blue-400'
-                    : isCompleted
-                    ? 'border-green-500 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300'
-                    : canNavigate
-                    ? 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
-                    : 'border-transparent text-gray-300 dark:text-gray-600 cursor-not-allowed'
+                  ${
+                    isActive
+                      ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+                      : isCompleted
+                        ? 'border-green-500 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300'
+                        : canNavigate
+                          ? 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300'
+                          : 'border-transparent text-gray-300 dark:text-gray-600 cursor-not-allowed'
                   }
                 `}
               >
@@ -145,7 +146,11 @@ export function OnboardingWizard({
                 <span>{step.title}</span>
                 {isCompleted && (
                   <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 )}
               </button>
@@ -164,20 +169,18 @@ export function OnboardingWizard({
         {/* Step Header */}
         <div className="mb-6">
           <div className="flex items-center space-x-3 mb-2">
-            <span className="text-2xl" aria-hidden="true">{currentStepInfo?.icon}</span>
+            <span className="text-2xl" aria-hidden="true">
+              {currentStepInfo?.icon}
+            </span>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
               {currentStepInfo?.title}
             </h2>
           </div>
-          <p className="text-gray-600 dark:text-gray-400">
-            {currentStepInfo?.description}
-          </p>
+          <p className="text-gray-600 dark:text-gray-400">{currentStepInfo?.description}</p>
         </div>
 
         {/* Step Form */}
-        <div className="max-w-2xl">
-          {renderStepContent()}
-        </div>
+        <div className="max-w-2xl">{renderStepContent()}</div>
       </div>
 
       {/* Step Indicator */}
@@ -186,9 +189,7 @@ export function OnboardingWizard({
           <span>
             Paso {currentStepIndex + 1} de {steps.length}
           </span>
-          <span>
-            {Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado
-          </span>
+          <span>{Math.round(((currentStepIndex + 1) / steps.length) * 100)}% completado</span>
         </div>
         <div className="mt-2 w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2">
           <div

@@ -10,17 +10,28 @@ export default function StaticPage() {
         <h1>Static Test Page</h1>
         <p>This is a completely static page without any dynamic imports.</p>
         <p>If this loads without errors, the basic Next.js setup is working.</p>
-        
+
         <h2>API Status</h2>
-        <p>API Health: <a href="http://localhost:4003/health" target="_blank">http://localhost:4003/health</a></p>
-        
+        <p>
+          API Health:{' '}
+          <a href="http://localhost:4001/health" target="_blank">
+            http://localhost:4001/health
+          </a>
+        </p>
+
         <h2>Test Links</h2>
         <ul>
-          <li><a href="/static">Static Page (current)</a></li>
-          <li><a href="/minimal">Minimal Page</a></li>
-          <li><a href="/">Home Page</a></li>
+          <li>
+            <a href="/static">Static Page (current)</a>
+          </li>
+          <li>
+            <a href="/minimal">Minimal Page</a>
+          </li>
+          <li>
+            <a href="/">Home Page</a>
+          </li>
         </ul>
-        
+
         <h2>Database Status</h2>
         <p>✅ Minimal seed completed with:</p>
         <ul>

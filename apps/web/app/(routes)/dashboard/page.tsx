@@ -52,7 +52,7 @@ async function fetchInitialKPIs(searchParams: URLSearchParams): Promise<KPIOverv
       headers: {
         'Content-Type': 'application/json',
         // Forward cookies for authentication
-        ...(cookieHeader && { 'Cookie': cookieHeader }),
+        ...(cookieHeader && { Cookie: cookieHeader }),
       },
     });
 
@@ -64,7 +64,11 @@ async function fetchInitialKPIs(searchParams: URLSearchParams): Promise<KPIOverv
         console.debug('[DASHBOARD-SSR] KPI fetch returned 401 (expected for auth issues)');
         return null;
       }
-      console.error('[DASHBOARD-SSR] Failed to fetch initial KPIs:', response.status, response.statusText);
+      console.error(
+        '[DASHBOARD-SSR] Failed to fetch initial KPIs:',
+        response.status,
+        response.statusText
+      );
       return null;
     }
 
@@ -100,9 +104,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   return (
     <main className="max-w-7xl mx-auto py-8 px-4">
       <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white">
-          Dashboard
-        </h1>
+        <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white">Dashboard</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">
           Bienvenido, {session.email}. Aquí tienes un resumen de tu plataforma.
         </p>
@@ -127,9 +129,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
 
         {/* Charts Section */}
         <section>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Actividad
-          </h2>
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Actividad</h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <VisitsByDay />
 
@@ -138,9 +138,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
                 Próximo Gráfico
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Más visualizaciones próximamente.
-              </p>
+              <p className="text-gray-600 dark:text-gray-400">Más visualizaciones próximamente.</p>
             </div>
           </div>
         </section>
@@ -148,7 +146,3 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     </main>
   );
 }
-
-
-
-

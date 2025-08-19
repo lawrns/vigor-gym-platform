@@ -1,6 +1,6 @@
 /**
  * HTTP Error Classes and Type Guards
- * 
+ *
  * Provides resilient error handling across different runtime contexts.
  * Uses structural typing to avoid instanceof pitfalls across bundles.
  */
@@ -21,17 +21,17 @@ export class APIClientError extends Error {
 
 /**
  * Resilient type guard for API client errors
- * 
+ *
  * Uses structural typing instead of instanceof to avoid issues with:
  * - Multiple class identities across bundles
  * - Tree-shaking complications
  * - Edge/Node runtime differences
  */
 export function isAPIClientError(e: unknown): e is APIClientError {
-  const x = e as any;
+  const x = e as Record<string, unknown>;
   return !!(
-    x && 
-    typeof x === 'object' && 
+    x &&
+    typeof x === 'object' &&
     (x.name === 'APIClientError' || typeof x.status === 'number')
   );
 }
@@ -48,9 +48,11 @@ export function isUnauthorizedError(e: unknown): boolean {
  */
 export function isNetworkError(e: unknown): boolean {
   if (e instanceof Error) {
-    return e.message.includes('Network request failed') ||
-           e.message.includes('fetch') ||
-           e.message.includes('ECONNREFUSED');
+    return (
+      e.message.includes('Network request failed') ||
+      e.message.includes('fetch') ||
+      e.message.includes('ECONNREFUSED')
+    );
   }
   return false;
 }

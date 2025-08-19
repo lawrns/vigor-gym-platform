@@ -1,6 +1,6 @@
 /**
  * Security Configuration Checker
- * 
+ *
  * Validates security configurations at startup and provides warnings
  */
 
@@ -28,21 +28,21 @@ export function validateSecurityConfig(): SecurityValidationResult {
     isValid: true,
     warnings: [],
     errors: [],
-    recommendations: []
+    recommendations: [],
   };
 
   // Validate JWT Secret
   validateJWTSecret(config, result);
-  
+
   // Validate Environment Configuration
   validateEnvironment(config, result);
-  
+
   // Validate CORS Configuration
   validateCORS(config, result);
-  
+
   // Validate Rate Limiting
   validateRateLimiting(config, result);
-  
+
   // Validate HTTPS Configuration
   validateHTTPS(config, result);
 
@@ -58,7 +58,7 @@ function getSecurityConfig(): SecurityConfig {
     nodeEnv: process.env.NODE_ENV || 'development',
     corsOrigin: process.env.CORS_ORIGIN || process.env.CORS_ORIGINS || '',
     rateLimitingEnabled: process.env.DISABLE_RATE_LIMITING !== 'true',
-    httpsEnabled: process.env.HTTPS_ENABLED === 'true' || process.env.NODE_ENV === 'production'
+    httpsEnabled: process.env.HTTPS_ENABLED === 'true' || process.env.NODE_ENV === 'production',
   };
 }
 
@@ -70,21 +70,14 @@ function validateJWTSecret(config: SecurityConfig, result: SecurityValidationRes
   }
 
   if (config.jwtSecret.length < 32) {
-    result.warnings.push(`JWT secret is too short (${config.jwtSecret.length} characters, recommended: 32+)`);
+    result.warnings.push(
+      `JWT secret is too short (${config.jwtSecret.length} characters, recommended: 32+)`
+    );
     result.recommendations.push('Use a longer JWT secret for better security');
   }
 
   // Check for common weak patterns
-  const weakPatterns = [
-    'secret',
-    'password',
-    'dev',
-    'test',
-    'default',
-    '123',
-    'abc',
-    'change-me'
-  ];
+  const weakPatterns = ['secret', 'password', 'dev', 'test', 'default', '123', 'abc', 'change-me'];
 
   const lowerSecret = config.jwtSecret.toLowerCase();
   const foundWeakPatterns = weakPatterns.filter(pattern => lowerSecret.includes(pattern));
@@ -109,24 +102,18 @@ function validateJWTSecret(config: SecurityConfig, result: SecurityValidationRes
 function validateEnvironment(config: SecurityConfig, result: SecurityValidationResult) {
   if (config.nodeEnv === 'production') {
     // Check for development variables that shouldn't be in production
-    const devVars = [
-      'DEBUG',
-      'DISABLE_RATE_LIMITING',
-      'SKIP_AUTH',
-      'MOCK_AUTH'
-    ];
+    const devVars = ['DEBUG', 'DISABLE_RATE_LIMITING', 'SKIP_AUTH', 'MOCK_AUTH'];
 
     const foundDevVars = devVars.filter(varName => process.env[varName]);
     if (foundDevVars.length > 0) {
       result.warnings.push(`Development variables found in production: ${foundDevVars.join(', ')}`);
-      result.recommendations.push('Remove development-specific environment variables in production');
+      result.recommendations.push(
+        'Remove development-specific environment variables in production'
+      );
     }
 
     // Check for required production variables
-    const requiredProdVars = [
-      'JWT_SECRET',
-      'DATABASE_URL'
-    ];
+    const requiredProdVars = ['JWT_SECRET', 'DATABASE_URL'];
 
     const missingProdVars = requiredProdVars.filter(varName => !process.env[varName]);
     if (missingProdVars.length > 0) {
@@ -215,7 +202,7 @@ export function generateSecurityReport(): string {
   const config = getSecurityConfig();
 
   let report = '# Security Configuration Report\n\n';
-  
+
   report += `**Environment:** ${config.nodeEnv}\n`;
   report += `**Validation Status:** ${result.isValid ? '✅ Valid' : '❌ Invalid'}\n\n`;
 

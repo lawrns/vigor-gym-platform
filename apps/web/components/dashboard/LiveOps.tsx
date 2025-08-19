@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Icons } from '../../lib/icons/registry';
 
 interface ActiveVisit {
@@ -30,7 +30,7 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-  
+
   const eventSourceRef = useRef<EventSource | null>(null);
   const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -55,11 +55,11 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
   const loadInitialData = async () => {
     try {
       setError(null);
-      
+
       // Load active visits count and recent check-ins
       const [visitsResponse, todayResponse] = await Promise.all([
         fetch('/api/proxy/visits/active'),
-        fetch('/api/proxy/visits/today')
+        fetch('/api/proxy/visits/today'),
       ]);
 
       if (visitsResponse.ok) {
@@ -87,7 +87,7 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
       eventSource.onopen = () => {
         setIsConnected(true);
         setError(null);
-        
+
         // Clear polling fallback if SSE is working
         if (pollIntervalRef.current) {
           clearInterval(pollIntervalRef.current);
@@ -95,7 +95,7 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
         }
       };
 
-      eventSource.onmessage = (event) => {
+      eventSource.onmessage = event => {
         try {
           const data = JSON.parse(event.data);
           handleRealtimeEvent(data);
@@ -104,7 +104,7 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
         }
       };
 
-      eventSource.onerror = (error) => {
+      eventSource.onerror = error => {
         console.error('EventSource error:', error);
         setIsConnected(false);
         setError('Connection lost');
@@ -195,7 +195,7 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
-    
+
     if (hours > 0) {
       return `${hours}h ${mins}m`;
     }
@@ -205,9 +205,7 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 ${className}`}>
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Live Operations
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Live Operations</h3>
         <div className="flex items-center space-x-3">
           <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
           <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -232,10 +230,11 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
         <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">
-                Active Visits
-              </p>
-              <p className="text-3xl font-bold text-blue-900 dark:text-blue-100" data-testid="today-checkins-count">
+              <p className="text-sm text-blue-600 dark:text-blue-400 font-medium">Active Visits</p>
+              <p
+                className="text-3xl font-bold text-blue-900 dark:text-blue-100"
+                data-testid="today-checkins-count"
+              >
                 {activeVisitsCount}
               </p>
             </div>
@@ -249,7 +248,7 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
         <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
           Recent Activity
         </h4>
-        
+
         {recentCheckins.length === 0 ? (
           <p className="text-sm text-gray-500 dark:text-gray-400 text-center py-4">
             No recent activity
@@ -262,18 +261,19 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
                 className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
               >
                 <div className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.type === 'checkin' ? 'bg-green-500' : 'bg-blue-500'
-                  }`} />
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      activity.type === 'checkin' ? 'bg-green-500' : 'bg-blue-500'
+                    }`}
+                  />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {activity.memberName}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {activity.type === 'checkin' 
+                      {activity.type === 'checkin'
                         ? `Checked in at ${activity.gymName}`
-                        : `Checked out (${formatDuration(activity.durationMinutes || 0)})`
-                      }
+                        : `Checked out (${formatDuration(activity.durationMinutes || 0)})`}
                     </p>
                   </div>
                 </div>
@@ -290,14 +290,18 @@ export function LiveOps({ className = '' }: LiveOpsProps) {
       <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={() => {/* TODO: Implement manual checkout */}}
+            onClick={() => {
+              /* TODO: Implement manual checkout */
+            }}
             className="flex items-center justify-center py-2 px-3 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
             <Icons.LogOut className="h-4 w-4 mr-2" />
             Manual Checkout
           </button>
           <button
-            onClick={() => {/* TODO: Implement member search */}}
+            onClick={() => {
+              /* TODO: Implement member search */
+            }}
             className="flex items-center justify-center py-2 px-3 text-sm text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
             <Icons.Search className="h-4 w-4 mr-2" />

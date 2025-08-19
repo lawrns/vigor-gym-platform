@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAuth } from '../../lib/auth/context';
 import { apiClient, isAPIError } from '../../lib/api/client';
 import { Icons } from '../../lib/icons/registry';
@@ -34,23 +34,28 @@ export function ImportCsvDialog({ onSuccess, onCancel }: ImportCsvDialogProps) {
 
   const parseCSV = (file: File) => {
     const reader = new FileReader();
-    reader.onload = (e) => {
+    reader.onload = e => {
       try {
         const text = e.target?.result as string;
         const lines = text.split('\n').filter(line => line.trim());
-        
+
         if (lines.length < 2) {
-          throw new Error('El archivo debe contener al menos una fila de encabezados y una fila de datos');
+          throw new Error(
+            'El archivo debe contener al menos una fila de encabezados y una fila de datos'
+          );
         }
 
         const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-        
+
         // Validate required headers
         const requiredHeaders = ['email', 'firstname', 'lastname'];
-        const missingHeaders = requiredHeaders.filter(h => 
-          !headers.some(header => header.includes(h.replace('firstname', 'first').replace('lastname', 'last')))
+        const missingHeaders = requiredHeaders.filter(
+          h =>
+            !headers.some(header =>
+              header.includes(h.replace('firstname', 'first').replace('lastname', 'last'))
+            )
         );
-        
+
         if (missingHeaders.length > 0) {
           throw new Error(`Faltan columnas requeridas: ${missingHeaders.join(', ')}`);
         }
@@ -62,36 +67,42 @@ export function ImportCsvDialog({ onSuccess, onCancel }: ImportCsvDialogProps) {
         const statusIndex = headers.findIndex(h => h.includes('status') || h.includes('estado'));
 
         const members: ParsedMember[] = [];
-        
+
         for (let i = 1; i < lines.length; i++) {
           const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
-          
+
           if (values.length < 3) continue; // Skip incomplete rows
-          
+
           const email = values[emailIndex]?.toLowerCase();
           const firstName = values[firstNameIndex];
           const lastName = values[lastNameIndex];
           const status = values[statusIndex]?.toLowerCase() || 'active';
-          
+
           if (!email || !firstName || !lastName) continue;
-          
+
           // Validate email format
           const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           if (!emailRegex.test(email)) {
             throw new Error(`Email inválido en fila ${i + 1}: ${email}`);
           }
-          
+
           // Validate status
           const validStatuses = ['active', 'invited', 'paused', 'cancelled'];
-          const normalizedStatus = status === 'activo' ? 'active' : 
-                                 status === 'invitado' ? 'invited' :
-                                 status === 'pausado' ? 'paused' :
-                                 status === 'cancelado' ? 'cancelled' : status;
-          
+          const normalizedStatus =
+            status === 'activo'
+              ? 'active'
+              : status === 'invitado'
+                ? 'invited'
+                : status === 'pausado'
+                  ? 'paused'
+                  : status === 'cancelado'
+                    ? 'cancelled'
+                    : status;
+
           if (!validStatuses.includes(normalizedStatus)) {
             throw new Error(`Estado inválido en fila ${i + 1}: ${status}`);
           }
-          
+
           members.push({
             email,
             firstName,
@@ -99,43 +110,44 @@ export function ImportCsvDialog({ onSuccess, onCancel }: ImportCsvDialogProps) {
             status: normalizedStatus as ParsedMember['status'],
           });
         }
-        
+
         if (members.length === 0) {
           throw new Error('No se encontraron miembros válidos en el archivo');
         }
-        
+
         if (members.length > 1000) {
           throw new Error('El archivo contiene demasiados miembros. Máximo permitido: 1000');
         }
-        
+
         setParsedMembers(members);
         setStep('preview');
       } catch (err) {
         console.error('Error parsing CSV:', err);
-        const errorMessage = err instanceof Error ? err.message : 'Error al procesar el archivo CSV';
+        const errorMessage =
+          err instanceof Error ? err.message : 'Error al procesar el archivo CSV';
         setError(errorMessage);
       }
     };
-    
+
     reader.readAsText(file);
   };
 
   const handleImport = async () => {
     if (parsedMembers.length === 0) return;
-    
+
     setLoading(true);
     setError(null);
     setStep('importing');
-    
+
     try {
       const response = await apiClient.members.import({
         members: parsedMembers,
       });
-      
+
       if (isAPIError(response)) {
         throw new Error(response.message);
       }
-      
+
       // Track analytics
       if (typeof window !== 'undefined') {
         import('posthog-js').then(({ default: posthog }) => {
@@ -145,7 +157,7 @@ export function ImportCsvDialog({ onSuccess, onCancel }: ImportCsvDialogProps) {
           });
         });
       }
-      
+
       onSuccess();
     } catch (err) {
       console.error('Error importing members:', err);
@@ -229,7 +241,7 @@ export function ImportCsvDialog({ onSuccess, onCancel }: ImportCsvDialogProps) {
                   ref={fileInputRef}
                   type="file"
                   accept=".csv"
-                  onChange={(e) => {
+                  onChange={e => {
                     const selectedFile = e.target.files?.[0];
                     if (selectedFile) handleFileSelect(selectedFile);
                   }}
@@ -325,9 +337,7 @@ export function ImportCsvDialog({ onSuccess, onCancel }: ImportCsvDialogProps) {
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
                 Importando miembros...
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Esto puede tomar unos momentos
-              </p>
+              <p className="text-gray-600 dark:text-gray-400">Esto puede tomar unos momentos</p>
             </div>
           )}
         </div>

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Icons } from '../../lib/icons/registry';
 
@@ -22,7 +22,7 @@ export function ExpiringMemberships({ className = '' }: ExpiringMembershipsProps
 
   useEffect(() => {
     loadExpirationSummary();
-    
+
     // Refresh every 5 minutes
     const interval = setInterval(loadExpirationSummary, 5 * 60 * 1000);
     return () => clearInterval(interval);
@@ -32,7 +32,7 @@ export function ExpiringMemberships({ className = '' }: ExpiringMembershipsProps
     try {
       setError(null);
       const response = await fetch('/api/proxy/memberships/expiring/summary');
-      
+
       if (!response.ok) {
         throw new Error('Failed to load expiration summary');
       }
@@ -85,9 +85,7 @@ export function ExpiringMemberships({ className = '' }: ExpiringMembershipsProps
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 ${className}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Membership Status
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Membership Status</h3>
         {hasIssues && (
           <div className="flex items-center text-red-600 dark:text-red-400">
             <Icons.AlertTriangle className="h-4 w-4 mr-1" />
@@ -120,7 +118,7 @@ export function ExpiringMemberships({ className = '' }: ExpiringMembershipsProps
                   </span>
                 </Link>
               )}
-              
+
               {summary!.expiring7Days > 0 && (
                 <Link
                   href="/admin/members?filter=expiring_7_days"

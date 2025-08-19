@@ -16,18 +16,16 @@ export function createVisitFactory() {
     create(date: Date, membershipId: string, gymId: string): VisitData {
       // Generate realistic check-in times based on day patterns
       const checkInTime = this.generateCheckInTime(date);
-      
+
       // Generate session duration (30-120 minutes, weighted toward 60-90)
       const duration = this.generateSessionDuration();
-      
+
       const checkIn = new Date(date);
       checkIn.setHours(checkInTime.hours, checkInTime.minutes, 0, 0);
-      
+
       // 85% of visits have check-out (some people forget to check out)
       const hasCheckOut = Math.random() < 0.85;
-      const checkOut = hasCheckOut 
-        ? new Date(checkIn.getTime() + duration * 60 * 1000)
-        : null;
+      const checkOut = hasCheckOut ? new Date(checkIn.getTime() + duration * 60 * 1000) : null;
 
       return {
         membershipId,
@@ -46,7 +44,7 @@ export function createVisitFactory() {
       const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
 
       // Peak hours: 6-9 AM, 6-9 PM on weekdays; 9 AM-2 PM, 5-8 PM on weekends
-      const peakHours = isWeekend 
+      const peakHours = isWeekend
         ? [9, 10, 11, 12, 13, 14, 17, 18, 19, 20] // Weekend peaks
         : [6, 7, 8, 18, 19, 20, 21]; // Weekday peaks
 
@@ -57,7 +55,7 @@ export function createVisitFactory() {
       // 70% chance of peak hours, 30% off-peak
       const usePeakHours = Math.random() < 0.7;
       const availableHours = usePeakHours ? peakHours : offPeakHours;
-      
+
       const hours = availableHours[Math.floor(Math.random() * availableHours.length)];
       const minutes = Math.floor(Math.random() * 60); // Random minutes
 
@@ -70,7 +68,7 @@ export function createVisitFactory() {
     generateSessionDuration(): number {
       // Weighted distribution: most sessions are 60-90 minutes
       const rand = Math.random();
-      
+
       if (rand < 0.1) {
         // 10% short sessions (30-45 minutes)
         return 30 + Math.floor(Math.random() * 16);
@@ -90,13 +88,13 @@ export function createVisitFactory() {
      * Create visits for a specific day with realistic patterns
      */
     createDayVisits(
-      date: Date, 
+      date: Date,
       memberships: Array<{ id: string; memberId: string }>,
       gyms: Array<{ id: string; capacity: number }>,
       targetCount?: number
     ): VisitData[] {
       const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-      
+
       // Calculate target visits if not provided
       if (!targetCount) {
         const baseVisits = isWeekend ? 25 : 19; // Weekend uplift
@@ -167,9 +165,9 @@ export function createVisitFactory() {
     getVisitStats(visits: VisitData[]) {
       const totalVisits = visits.length;
       const withCheckOut = visits.filter(v => v.checkOut !== null).length;
-      const avgDuration = visits
-        .filter(v => v.duration)
-        .reduce((sum, v) => sum + (v.duration || 0), 0) / visits.filter(v => v.duration).length;
+      const avgDuration =
+        visits.filter(v => v.duration).reduce((sum, v) => sum + (v.duration || 0), 0) /
+        visits.filter(v => v.duration).length;
 
       return {
         totalVisits,

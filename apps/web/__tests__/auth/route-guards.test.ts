@@ -1,11 +1,11 @@
 import { describe, it, expect } from '@jest/globals';
-import { 
-  AUTH_ROUTES, 
-  PROTECTED_PREFIXES, 
-  PUBLIC_ROUTES, 
-  isAuthRoute, 
-  isProtected, 
-  isPublic 
+import {
+  AUTH_ROUTES,
+  PROTECTED_PREFIXES,
+  PUBLIC_ROUTES,
+  isAuthRoute,
+  isProtected,
+  isPublic,
 } from '../../lib/auth/types';
 import { hasValidSession, getRedirectAction } from '../../lib/auth/edge-session';
 
@@ -34,9 +34,9 @@ describe('Route Classification', () => {
         '/admin',
         '/admin/users',
         '/partner',
-        '/partner/dashboard'
+        '/partner/dashboard',
       ];
-      
+
       protectedRoutes.forEach(route => {
         expect(isProtected(route)).toBe(true);
       });
@@ -85,10 +85,10 @@ describe('JWT Token Validation', () => {
         userId: 'test-user',
         email: 'test@example.com',
         role: 'owner',
-        exp: Math.floor(Date.now() / 1000) - 3600 // 1 hour ago
+        exp: Math.floor(Date.now() / 1000) - 3600, // 1 hour ago
       };
       const expiredToken = `header.${btoa(JSON.stringify(expiredPayload))}.signature`;
-      
+
       expect(hasValidSession(expiredToken)).toBe(false);
     });
 
@@ -98,10 +98,10 @@ describe('JWT Token Validation', () => {
         userId: 'test-user',
         email: 'test@example.com',
         role: 'owner',
-        exp: Math.floor(Date.now() / 1000) + 3600 // 1 hour from now
+        exp: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
       };
       const validToken = `header.${btoa(JSON.stringify(validPayload))}.signature`;
-      
+
       expect(hasValidSession(validToken)).toBe(true);
     });
 
@@ -110,11 +110,11 @@ describe('JWT Token Validation', () => {
         userId: 'test-user',
         email: 'test@example.com',
         role: 'owner',
-        exp: Math.floor(Date.now() / 1000) + 3600
+        exp: Math.floor(Date.now() / 1000) + 3600,
       };
       const validAccessToken = `header.${btoa(JSON.stringify(validPayload))}.signature`;
       const validRefreshToken = `header.${btoa(JSON.stringify(validPayload))}.signature`;
-      
+
       expect(hasValidSession(validAccessToken, validRefreshToken)).toBe(true);
       expect(hasValidSession(undefined, validRefreshToken)).toBe(true);
     });
@@ -125,7 +125,7 @@ describe('Middleware Redirect Logic', () => {
   describe('getRedirectAction', () => {
     it('should redirect unauthenticated users from protected routes to login', () => {
       const protectedPaths = ['/dashboard', '/dashboard/kpi', '/admin', '/partner'];
-      
+
       protectedPaths.forEach(path => {
         const result = getRedirectAction(path, false);
         expect(result.shouldRedirect).toBe(true);
@@ -152,7 +152,7 @@ describe('Middleware Redirect Logic', () => {
 
     it('should not redirect authenticated users from protected routes', () => {
       const protectedPaths = ['/dashboard', '/dashboard/kpi', '/admin', '/partner'];
-      
+
       protectedPaths.forEach(path => {
         const result = getRedirectAction(path, true);
         expect(result.shouldRedirect).toBe(false);
@@ -172,16 +172,24 @@ describe('Route Constants Completeness', () => {
   it('should have no overlapping routes between categories', () => {
     const allRoutes = [...AUTH_ROUTES, ...PUBLIC_ROUTES];
     const uniqueRoutes = new Set(allRoutes);
-    
+
     expect(allRoutes.length).toBe(uniqueRoutes.size);
   });
 
   it('should cover all expected application routes', () => {
     const expectedRoutes = [
-      '/', '/login', '/register', '/dashboard', '/demo', '/contacto', 
-      '/planes', '/checkout', '/checkout/success', '/no-acceso'
+      '/',
+      '/login',
+      '/register',
+      '/dashboard',
+      '/demo',
+      '/contacto',
+      '/planes',
+      '/checkout',
+      '/checkout/success',
+      '/no-acceso',
     ];
-    
+
     expectedRoutes.forEach(route => {
       const isClassified = isAuthRoute(route) || isProtected(route) || isPublic(route);
       expect(isClassified).toBe(true);
@@ -192,7 +200,7 @@ describe('Route Constants Completeness', () => {
     PROTECTED_PREFIXES.forEach(prefix => {
       // Test exact match
       expect(isProtected(prefix)).toBe(true);
-      
+
       // Test sub-routes
       expect(isProtected(`${prefix}/sub-route`)).toBe(true);
       expect(isProtected(`${prefix}/sub/nested/route`)).toBe(true);

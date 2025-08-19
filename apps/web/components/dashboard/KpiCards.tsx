@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { apiClient, isAPIError } from '../../lib/api/client';
 import type { KPIOverview } from '../../lib/api/types';
@@ -20,7 +20,7 @@ interface KpiCardProps {
 
 function KpiCard({ title, value, icon, description, trend }: KpiCardProps) {
   const IconComponent = Icons[icon];
-  
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6 shadow-sm">
       <div className="flex items-center justify-between">
@@ -34,9 +34,11 @@ function KpiCard({ title, value, icon, description, trend }: KpiCardProps) {
           </div>
         </div>
         {trend && (
-          <div className={`flex items-center space-x-1 text-sm ${
-            trend.isPositive ? 'text-green-600' : 'text-red-600'
-          }`}>
+          <div
+            className={`flex items-center space-x-1 text-sm ${
+              trend.isPositive ? 'text-green-600' : 'text-red-600'
+            }`}
+          >
             <Icons.TrendingUp className={`h-4 w-4 ${trend.isPositive ? '' : 'rotate-180'}`} />
             <span>{Math.abs(trend.value)}%</span>
           </div>
@@ -81,9 +83,8 @@ function ErrorState({ onRetry, error }: { onRetry: () => void; error: string }) 
             {isNetworkError
               ? 'No se puede conectar con el servidor. Verifica que el API esté ejecutándose.'
               : isAuthError
-              ? 'Sesión expirada. Por favor, inicia sesión nuevamente.'
-              : 'No se pudieron cargar los datos del dashboard. Verifica tu conexión.'
-            }
+                ? 'Sesión expirada. Por favor, inicia sesión nuevamente.'
+                : 'No se pudieron cargar los datos del dashboard. Verifica tu conexión.'}
           </p>
           <button
             onClick={onRetry}
@@ -112,7 +113,7 @@ export function KpiCards({ initialData }: KpiCardsProps) {
   }>({
     status: initialData ? 'ready' : 'loading',
     data: initialData || undefined,
-    isSSR: !!initialData
+    isSSR: !!initialData,
   });
 
   const fetchKpiData = async () => {
@@ -155,7 +156,7 @@ export function KpiCards({ initialData }: KpiCardsProps) {
             wellnessProviders: response.wellnessProviders,
             dateRange: { from, to },
             hasComparison: !!(compareFrom && compareTo),
-            dataSource: 'client-side'
+            dataSource: 'client-side',
           });
         });
       }
@@ -163,9 +164,11 @@ export function KpiCards({ initialData }: KpiCardsProps) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
 
       // Check if it's an authentication error
-      if (errorMessage.includes('Authentication required') ||
-          errorMessage.includes('401') ||
-          (isAPIError(err) && 'status' in err && err.status === 401)) {
+      if (
+        errorMessage.includes('Authentication required') ||
+        errorMessage.includes('401') ||
+        (isAPIError(err) && 'status' in err && err.status === 401)
+      ) {
         setState({ status: 'guest', isSSR: false });
         // Don't log auth errors for guests - they're expected
         console.debug('[KPI] Expected 401 for guest or expired session');
@@ -224,7 +227,12 @@ export function KpiCards({ initialData }: KpiCardsProps) {
         <div className="col-span-full bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6 text-center">
           <div className="text-blue-600 dark:text-blue-400 mb-2">
             <svg className="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+              />
             </svg>
           </div>
           <h3 className="text-lg font-medium text-blue-900 dark:text-blue-100 mb-2">
@@ -258,7 +266,7 @@ export function KpiCards({ initialData }: KpiCardsProps) {
     if (!delta) return undefined;
     return {
       value: Number(delta.pct.toFixed(1)),
-      isPositive: delta.delta >= 0
+      isPositive: delta.delta >= 0,
     };
   };
 

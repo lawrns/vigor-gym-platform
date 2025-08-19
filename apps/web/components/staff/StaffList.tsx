@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Icons } from '../../lib/icons/registry';
 import { Button } from '../ui/Button';
@@ -125,9 +125,7 @@ export function StaffList({
           <div className="w-16 h-16 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
             <Icons.Users className="h-8 w-8 text-gray-400" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            No Staff Found
-          </h3>
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No Staff Found</h3>
           <p className="text-gray-600 dark:text-gray-400">
             No staff members match your current filters.
           </p>
@@ -176,7 +174,7 @@ export function StaffList({
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-            {staff.map((staffMember) => (
+            {staff.map(staffMember => (
               <tr key={staffMember.id} className="hover:bg-gray-50 dark:hover:bg-gray-700">
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="flex items-center">
@@ -194,7 +192,9 @@ export function StaffList({
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(staffMember.role)}`}>
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getRoleColor(staffMember.role)}`}
+                  >
                     {formatRole(staffMember.role)}
                   </span>
                 </td>
@@ -214,20 +214,18 @@ export function StaffList({
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                    staffMember.active
-                      ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                      : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-                  }`}>
+                  <span
+                    className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      staffMember.active
+                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
+                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                    }`}
+                  >
                     {staffMember.active ? 'Active' : 'Inactive'}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <Button
-                    onClick={() => onEdit(staffMember)}
-                    variant="outline"
-                    size="sm"
-                  >
+                  <Button onClick={() => onEdit(staffMember)} variant="outline" size="sm">
                     <Icons.Edit className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
@@ -243,7 +241,7 @@ export function StaffList({
         <div className="px-6 py-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
             <div className="text-sm text-gray-700 dark:text-gray-300">
-              Showing {((pagination.page - 1) * pagination.pageSize) + 1} to{' '}
+              Showing {(pagination.page - 1) * pagination.pageSize + 1} to{' '}
               {Math.min(pagination.page * pagination.pageSize, pagination.total)} of{' '}
               {pagination.total} results
             </div>

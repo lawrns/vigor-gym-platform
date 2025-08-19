@@ -17,13 +17,13 @@ export interface ClassData {
 
 export function createClassFactory() {
   const classDescriptions = {
-    'Yoga': 'Relaja tu mente y fortalece tu cuerpo con posturas tradicionales de yoga.',
-    'Spinning': 'Entrenamiento cardiovascular intenso en bicicleta estática con música motivadora.',
-    'CrossFit': 'Entrenamiento funcional de alta intensidad que combina fuerza y cardio.',
-    'Pilates': 'Fortalece tu core y mejora tu flexibilidad con ejercicios controlados.',
-    'Zumba': 'Baila y quema calorías con ritmos latinos en una clase llena de energía.',
-    'Boxing': 'Aprende técnicas de boxeo mientras mejoras tu condición física.',
-    'Aqua': 'Ejercicios de bajo impacto en el agua, ideal para todas las edades.',
+    Yoga: 'Relaja tu mente y fortalece tu cuerpo con posturas tradicionales de yoga.',
+    Spinning: 'Entrenamiento cardiovascular intenso en bicicleta estática con música motivadora.',
+    CrossFit: 'Entrenamiento funcional de alta intensidad que combina fuerza y cardio.',
+    Pilates: 'Fortalece tu core y mejora tu flexibilidad con ejercicios controlados.',
+    Zumba: 'Baila y quema calorías con ritmos latinos en una clase llena de energía.',
+    Boxing: 'Aprende técnicas de boxeo mientras mejoras tu condición física.',
+    Aqua: 'Ejercicios de bajo impacto en el agua, ideal para todas las edades.',
   };
 
   const timeSlots = [
@@ -35,13 +35,13 @@ export function createClassFactory() {
   ];
 
   const capacities = {
-    'Yoga': 20,
-    'Spinning': 25,
-    'CrossFit': 15,
-    'Pilates': 18,
-    'Zumba': 30,
-    'Boxing': 12,
-    'Aqua': 22,
+    Yoga: 20,
+    Spinning: 25,
+    CrossFit: 15,
+    Pilates: 18,
+    Zumba: 30,
+    Boxing: 12,
+    Aqua: 22,
   };
 
   return {
@@ -54,7 +54,9 @@ export function createClassFactory() {
     ): ClassData {
       const timeSlot = timeSlots[timeSlotIndex % timeSlots.length];
       const capacity = capacities[classType as keyof typeof capacities] || 20;
-      const description = classDescriptions[classType as keyof typeof classDescriptions] || 'Clase de entrenamiento grupal.';
+      const description =
+        classDescriptions[classType as keyof typeof classDescriptions] ||
+        'Clase de entrenamiento grupal.';
 
       // Calculate next occurrence of this day of week
       const now = new Date();
@@ -143,7 +145,9 @@ export function createClassFactory() {
         const timeSlot = todayTimeSlots[i];
 
         const capacity = capacities[classType as keyof typeof capacities] || 20;
-        const description = classDescriptions[classType as keyof typeof classDescriptions] || 'Clase de entrenamiento grupal.';
+        const description =
+          classDescriptions[classType as keyof typeof classDescriptions] ||
+          'Clase de entrenamiento grupal.';
 
         // Set start time for today
         const [startHour, startMinute] = timeSlot.start.split(':').map(Number);
@@ -175,16 +179,30 @@ export function createClassFactory() {
      * Get class distribution statistics
      */
     getClassStats(classes: ClassData[]) {
-      const byType = classes.reduce((acc, cls) => {
-        acc[cls.name] = (acc[cls.name] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const byType = classes.reduce(
+        (acc, cls) => {
+          acc[cls.name] = (acc[cls.name] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
 
-      const byDay = classes.reduce((acc, cls) => {
-        const day = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][cls.dayOfWeek];
-        acc[day] = (acc[day] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const byDay = classes.reduce(
+        (acc, cls) => {
+          const day = [
+            'Sunday',
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+          ][cls.dayOfWeek];
+          acc[day] = (acc[day] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
 
       const totalCapacity = classes.reduce((sum, cls) => sum + cls.capacity, 0);
       const avgCapacity = totalCapacity / classes.length;
@@ -202,12 +220,15 @@ export function createClassFactory() {
      * Get popular class times
      */
     getPopularTimes(classes: ClassData[]) {
-      const timeSlots = classes.reduce((acc, cls) => {
-        const hour = cls.startTime.getHours();
-        const timeSlot = `${hour.toString().padStart(2, '0')}:00`;
-        acc[timeSlot] = (acc[timeSlot] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>);
+      const timeSlots = classes.reduce(
+        (acc, cls) => {
+          const hour = cls.startTime.getHours();
+          const timeSlot = `${hour.toString().padStart(2, '0')}:00`;
+          acc[timeSlot] = (acc[timeSlot] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      );
 
       return Object.entries(timeSlots)
         .sort(([, a], [, b]) => b - a)
@@ -241,18 +262,18 @@ export function getRecommendedClassType(dayOfWeek: number, hour: number): string
   if (hour >= 6 && hour < 9) {
     return Math.random() < 0.6 ? 'Yoga' : 'Pilates';
   }
-  
+
   // Mid-morning (9-12 PM): Aqua, Yoga
   if (hour >= 9 && hour < 12) {
     return Math.random() < 0.5 ? 'Aqua' : 'Yoga';
   }
-  
+
   // Evening (6-9 PM): High energy classes
   if (hour >= 18 && hour < 21) {
     const energyClasses = ['Spinning', 'CrossFit', 'Zumba', 'Boxing'];
     return energyClasses[Math.floor(Math.random() * energyClasses.length)];
   }
-  
+
   // Default: balanced selection
   const allClasses = ['Yoga', 'Spinning', 'CrossFit', 'Pilates', 'Zumba', 'Boxing', 'Aqua'];
   return allClasses[Math.floor(Math.random() * allClasses.length)];

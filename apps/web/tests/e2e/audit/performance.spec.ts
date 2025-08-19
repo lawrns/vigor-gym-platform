@@ -12,89 +12,98 @@ test.describe('Performance Audit', () => {
 
   test('Dashboard 2.0 - Performance budgets', async ({ page }) => {
     const startTime = Date.now();
-    
+
     await page.goto('/dashboard-v2');
     await page.waitForLoadState('networkidle');
-    
+
     const loadTime = Date.now() - startTime;
-    
+
     // Performance budget: Page should load within 2.5 seconds
     expect(loadTime).toBeLessThan(2500);
-    
+
     // Check for performance metrics
     const performanceMetrics = await page.evaluate(() => {
-      const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
+      const navigation = performance.getEntriesByType(
+        'navigation'
+      )[0] as PerformanceNavigationTiming;
       return {
-        domContentLoaded: navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
+        domContentLoaded:
+          navigation.domContentLoadedEventEnd - navigation.domContentLoadedEventStart,
         loadComplete: navigation.loadEventEnd - navigation.loadEventStart,
         firstPaint: performance.getEntriesByName('first-paint')[0]?.startTime || 0,
-        firstContentfulPaint: performance.getEntriesByName('first-contentful-paint')[0]?.startTime || 0
+        firstContentfulPaint:
+          performance.getEntriesByName('first-contentful-paint')[0]?.startTime || 0,
       };
     });
 
     // Performance budgets
     expect(performanceMetrics.domContentLoaded).toBeLessThan(1000); // 1s for DOM ready
     expect(performanceMetrics.firstContentfulPaint).toBeLessThan(1500); // 1.5s for FCP
-    
+
     console.log('Performance metrics:', performanceMetrics);
   });
 
   test('Widget mount times - Individual performance', async ({ page }) => {
     await page.goto('/dashboard-v2');
-    
+
     // Test individual widget load times
     const widgets = [
       '[data-testid="active-visits-widget"]',
       '[data-testid="expiring-memberships-widget"]',
       '[data-testid="revenue-sparkline"]',
-      '[data-testid="live-activity-feed"]'
+      '[data-testid="live-activity-feed"]',
     ];
 
     for (const widgetSelector of widgets) {
       const startTime = Date.now();
-      
+
       await page.waitForSelector(widgetSelector, { timeout: 5000 });
-      
+
       const mountTime = Date.now() - startTime;
-      
+
       // Widget should mount within 400ms
       expect(mountTime).toBeLessThan(400);
-      
+
       console.log(`${widgetSelector} mount time: ${mountTime}ms`);
     }
   });
 
   test('SSE connection performance', async ({ page }) => {
     await page.goto('/dashboard-v2');
-    
+
     // Monitor SSE connection establishment
     const sseStartTime = Date.now();
-    
+
     // Wait for SSE connection to be established
-    await page.waitForFunction(() => {
-      return window.performance.getEntriesByType('resource').some(entry => 
-        entry.name.includes('/v1/events')
-      );
-    }, { timeout: 5000 });
-    
+    await page.waitForFunction(
+      () => {
+        return window.performance
+          .getEntriesByType('resource')
+          .some(entry => entry.name.includes('/v1/events'));
+      },
+      { timeout: 5000 }
+    );
+
     const sseConnectionTime = Date.now() - sseStartTime;
-    
+
     // SSE should connect within 3 seconds
     expect(sseConnectionTime).toBeLessThan(3000);
-    
+
     console.log(`SSE connection time: ${sseConnectionTime}ms`);
   });
 
   test('Memory usage - No significant leaks', async ({ page }) => {
     await page.goto('/dashboard-v2');
     await page.waitForLoadState('networkidle');
-    
+
     // Get initial memory usage
     const initialMemory = await page.evaluate(() => {
-      return (performance as any).memory ? {
-        usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
-        totalJSHeapSize: (performance as any).memory.totalJSHeapSize
-      } : null;
+      return (performance as any).memory
+        ? {
+            usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
+            totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
+          }
+        : null;
     });
 
     if (initialMemory) {
@@ -108,7 +117,7 @@ test.describe('Performance Audit', () => {
       const finalMemory = await page.evaluate(() => {
         return {
           usedJSHeapSize: (performance as any).memory.usedJSHeapSize,
-          totalJSHeapSize: (performance as any).memory.totalJSHeapSize
+          totalJSHeapSize: (performance as any).memory.totalJSHeapSize,
         };
       });
 
@@ -122,13 +131,13 @@ test.describe('Performance Audit', () => {
 
   test('Network efficiency - Resource optimization', async ({ page }) => {
     const responses: any[] = [];
-    
+
     page.on('response', response => {
       responses.push({
         url: response.url(),
         status: response.status(),
         size: response.headers()['content-length'] || 0,
-        type: response.headers()['content-type'] || ''
+        type: response.headers()['content-type'] || '',
       });
     });
 
@@ -146,7 +155,9 @@ test.describe('Performance Audit', () => {
     expect(cssRequests.length).toBeLessThan(10); // Max 10 CSS files
     expect(apiRequests.every(r => r.status < 400)).toBeTruthy(); // All API calls successful
 
-    console.log(`Network summary: ${jsRequests.length} JS, ${cssRequests.length} CSS, ${imageRequests.length} images, ${apiRequests.length} API calls`);
+    console.log(
+      `Network summary: ${jsRequests.length} JS, ${cssRequests.length} CSS, ${imageRequests.length} images, ${apiRequests.length} API calls`
+    );
   });
 
   test('Real-time updates performance', async ({ page }) => {
@@ -155,17 +166,20 @@ test.describe('Performance Audit', () => {
 
     // Monitor for real-time updates
     const updateStartTime = Date.now();
-    
+
     // Wait for at least one SSE event
-    await page.waitForFunction(() => {
-      return window.localStorage.getItem('last-sse-event') !== null;
-    }, { timeout: 10000 });
+    await page.waitForFunction(
+      () => {
+        return window.localStorage.getItem('last-sse-event') !== null;
+      },
+      { timeout: 10000 }
+    );
 
     const updateTime = Date.now() - updateStartTime;
-    
+
     // Real-time updates should arrive within 5 seconds
     expect(updateTime).toBeLessThan(5000);
-    
+
     console.log(`Real-time update received in: ${updateTime}ms`);
   });
 });

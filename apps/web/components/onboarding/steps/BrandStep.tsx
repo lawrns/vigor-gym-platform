@@ -1,14 +1,21 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 
 const brandSchema = z.object({
-  gymName: z.string().min(1, 'El nombre del gimnasio es requerido').max(100, 'Máximo 100 caracteres'),
+  gymName: z
+    .string()
+    .min(1, 'El nombre del gimnasio es requerido')
+    .max(100, 'Máximo 100 caracteres'),
   logoUrl: z.string().url('URL inválida').optional().or(z.literal('')),
-  primaryColor: z.string().regex(/^#[0-9A-F]{6}$/i, 'Color inválido (formato: #RRGGBB)').optional().or(z.literal('')),
+  primaryColor: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i, 'Color inválido (formato: #RRGGBB)')
+    .optional()
+    .or(z.literal('')),
 });
 
 type BrandFormData = z.infer<typeof brandSchema>;
@@ -66,7 +73,10 @@ export function BrandStep({ initialData, onSubmit, isSubmitting }: BrandStepProp
     <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
       {/* Gym Name */}
       <div>
-        <label htmlFor="gymName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label
+          htmlFor="gymName"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           Nombre del Gimnasio *
         </label>
         <input
@@ -87,7 +97,10 @@ export function BrandStep({ initialData, onSubmit, isSubmitting }: BrandStepProp
 
       {/* Logo URL */}
       <div>
-        <label htmlFor="logoUrl" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label
+          htmlFor="logoUrl"
+          className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+        >
           URL del Logo (opcional)
         </label>
         <input
@@ -114,19 +127,20 @@ export function BrandStep({ initialData, onSubmit, isSubmitting }: BrandStepProp
         <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Color Principal (opcional)
         </label>
-        
+
         {/* Color Presets */}
         <div className="grid grid-cols-3 gap-3 mb-4">
-          {colorPresets.map((preset) => (
+          {colorPresets.map(preset => (
             <button
               key={preset.value}
               type="button"
               onClick={() => handleColorSelect(preset.value)}
               className={`
                 flex items-center space-x-2 p-2 rounded-lg border transition-all
-                ${selectedColor === preset.value
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+                ${
+                  selectedColor === preset.value
+                    ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                    : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
                 }
               `}
             >
@@ -145,7 +159,7 @@ export function BrandStep({ initialData, onSubmit, isSubmitting }: BrandStepProp
             {...register('primaryColor')}
             type="color"
             className="w-12 h-10 border border-gray-300 dark:border-gray-600 rounded cursor-pointer"
-            onChange={(e) => handleColorSelect(e.target.value)}
+            onChange={e => handleColorSelect(e.target.value)}
           />
           <input
             {...register('primaryColor')}
@@ -159,7 +173,9 @@ export function BrandStep({ initialData, onSubmit, isSubmitting }: BrandStepProp
           />
         </div>
         {errors.primaryColor && (
-          <p className="mt-1 text-sm text-red-600 dark:text-red-400">{errors.primaryColor.message}</p>
+          <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+            {errors.primaryColor.message}
+          </p>
         )}
       </div>
 
@@ -177,9 +193,7 @@ export function BrandStep({ initialData, onSubmit, isSubmitting }: BrandStepProp
             <div className="font-semibold text-gray-900 dark:text-white">
               {watch('gymName') || 'Nombre del Gimnasio'}
             </div>
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Sistema de Gestión
-            </div>
+            <div className="text-sm text-gray-500 dark:text-gray-400">Sistema de Gestión</div>
           </div>
         </div>
       </div>
@@ -191,9 +205,10 @@ export function BrandStep({ initialData, onSubmit, isSubmitting }: BrandStepProp
           disabled={!isValid || isSubmitting}
           className={`
             px-6 py-2 rounded-lg font-medium transition-all
-            ${isValid && !isSubmitting
-              ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
-              : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+            ${
+              isValid && !isSubmitting
+                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
             }
           `}
         >

@@ -1,13 +1,13 @@
 /**
  * Live Activity Feed Widget
- * 
- * Shows real-time events with virtualized list, aria-live announcements, 
+ *
+ * Shows real-time events with virtualized list, aria-live announcements,
  * and fallback to polling when SSE is unavailable
  */
 
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSSE, SSEEvent } from '../../lib/hooks/useSSE';
 import { useAuth } from '../../lib/auth/context';
 import { Icons } from '../../lib/icons/registry';
@@ -31,10 +31,10 @@ interface LiveActivityFeedProps {
   className?: string;
 }
 
-export function LiveActivityFeed({ 
-  locationId, 
-  maxEvents = 25, 
-  className = '' 
+export function LiveActivityFeed({
+  locationId,
+  maxEvents = 25,
+  className = '',
 }: LiveActivityFeedProps) {
   const { user } = useAuth();
   const [events, setEvents] = useState<ActivityEvent[]>([]);
@@ -106,29 +106,32 @@ export function LiveActivityFeed({
   }, []);
 
   // Handle new SSE events
-  const handleSSEEvent = useCallback((sseEvent: SSEEvent) => {
-    const activityEvent = convertSSEEvent(sseEvent);
-    
-    setEvents(prev => {
-      const newEvents = [activityEvent, ...prev].slice(0, maxEvents);
-      
-      // Announce new event to screen readers
-      if (announcementRef.current) {
-        announcementRef.current.textContent = `New activity: ${activityEvent.title} - ${activityEvent.description}`;
-      }
-      
-      return newEvents;
-    });
-  }, [convertSSEEvent, maxEvents]);
+  const handleSSEEvent = useCallback(
+    (sseEvent: SSEEvent) => {
+      const activityEvent = convertSSEEvent(sseEvent);
+
+      setEvents(prev => {
+        const newEvents = [activityEvent, ...prev].slice(0, maxEvents);
+
+        // Announce new event to screen readers
+        if (announcementRef.current) {
+          announcementRef.current.textContent = `New activity: ${activityEvent.title} - ${activityEvent.description}`;
+        }
+
+        return newEvents;
+      });
+    },
+    [convertSSEEvent, maxEvents]
+  );
 
   // SSE connection
   const sseState = useSSE({
     orgId: user?.company?.id || '',
     locationId,
     onEvent: handleSSEEvent,
-    onConnectionChange: (status) => {
+    onConnectionChange: status => {
       console.log('[LiveActivityFeed] SSE status:', status);
-      
+
       // Start polling if SSE fails
       if (status === 'error' || status === 'disconnected') {
         setIsPolling(true);
@@ -152,11 +155,11 @@ export function LiveActivityFeed({
         orgId: user.company.id,
         limit: maxEvents.toString(),
       });
-      
+
       if (locationId) {
         params.set('locationId', locationId);
       }
-      
+
       if (lastPolledAt) {
         params.set('since', lastPolledAt);
       }
@@ -167,8 +170,8 @@ export function LiveActivityFeed({
       if (newEvents.length > 0) {
         setEvents(prev => {
           const combined = [...newEvents, ...prev];
-          const unique = combined.filter((event, index, arr) =>
-            arr.findIndex(e => e.id === event.id) === index
+          const unique = combined.filter(
+            (event, index, arr) => arr.findIndex(e => e.id === event.id) === index
           );
           return unique.slice(0, maxEvents);
         });
@@ -182,7 +185,7 @@ export function LiveActivityFeed({
 
   const startPolling = useCallback(() => {
     if (pollingIntervalRef.current) return;
-    
+
     console.log('[LiveActivityFeed] Starting polling fallback');
     pollingIntervalRef.current = setInterval(fetchRecentActivity, 5000); // Poll every 5 seconds
     fetchRecentActivity(); // Initial fetch
@@ -209,7 +212,7 @@ export function LiveActivityFeed({
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
     const diffMins = Math.floor(diffMs / 60000);
-    
+
     if (diffMins < 1) return 'Just now';
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffMins < 1440) return `${Math.floor(diffMins / 60)}h ago`;
@@ -226,7 +229,7 @@ export function LiveActivityFeed({
         </div>
       );
     }
-    
+
     if (isPolling) {
       return (
         <div className="flex items-center text-yellow-600 dark:text-yellow-400">
@@ -235,7 +238,7 @@ export function LiveActivityFeed({
         </div>
       );
     }
-    
+
     return (
       <div className="flex items-center text-red-600 dark:text-red-400">
         <div className="w-2 h-2 bg-red-500 rounded-full mr-2"></div>
@@ -245,7 +248,9 @@ export function LiveActivityFeed({
   };
 
   return (
-    <div className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 ${className}`}>
+    <div
+      className={`bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 ${className}`}
+    >
       {/* Header */}
       <div className="p-4 border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between">
@@ -277,21 +282,32 @@ export function LiveActivityFeed({
           </div>
         ) : (
           <div className="divide-y divide-gray-200 dark:divide-gray-700">
-            {events.map((event) => {
+            {events.map(event => {
               const IconComponent = Icons[event.icon];
               return (
-                <div key={event.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                <div
+                  key={event.id}
+                  className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                >
                   <div className="flex items-start space-x-3">
-                    <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
-                      event.severity === 'error' ? 'bg-red-100 dark:bg-red-900' :
-                      event.severity === 'warning' ? 'bg-yellow-100 dark:bg-yellow-900' :
-                      'bg-blue-100 dark:bg-blue-900'
-                    }`}>
-                      <IconComponent className={`w-4 h-4 ${
-                        event.severity === 'error' ? 'text-red-600 dark:text-red-400' :
-                        event.severity === 'warning' ? 'text-yellow-600 dark:text-yellow-400' :
-                        'text-blue-600 dark:text-blue-400'
-                      }`} />
+                    <div
+                      className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                        event.severity === 'error'
+                          ? 'bg-red-100 dark:bg-red-900'
+                          : event.severity === 'warning'
+                            ? 'bg-yellow-100 dark:bg-yellow-900'
+                            : 'bg-blue-100 dark:bg-blue-900'
+                      }`}
+                    >
+                      <IconComponent
+                        className={`w-4 h-4 ${
+                          event.severity === 'error'
+                            ? 'text-red-600 dark:text-red-400'
+                            : event.severity === 'warning'
+                              ? 'text-yellow-600 dark:text-yellow-400'
+                              : 'text-blue-600 dark:text-blue-400'
+                        }`}
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
@@ -315,12 +331,7 @@ export function LiveActivityFeed({
       </div>
 
       {/* Screen reader announcements */}
-      <div
-        ref={announcementRef}
-        className="sr-only"
-        aria-live="polite"
-        aria-atomic="true"
-      />
+      <div ref={announcementRef} className="sr-only" aria-live="polite" aria-atomic="true" />
     </div>
   );
 }

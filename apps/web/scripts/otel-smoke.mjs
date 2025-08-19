@@ -2,7 +2,7 @@
 
 /**
  * OpenTelemetry Smoke Test
- * 
+ *
  * Validates that OTEL instrumentation is working correctly:
  * - Traces are being generated
  * - Correlation IDs are present
@@ -91,7 +91,6 @@ async function runTest() {
       console.log('❌ Application not responding - possible instrumentation issue');
       results.noInstrumentationErrors = false;
     }
-
   } catch (error) {
     console.error('💥 Test execution failed:', error.message);
     results.noInstrumentationErrors = false;
@@ -130,7 +129,7 @@ if (!globalThis.fetch) {
 }
 
 // Run the test
-runTest().catch((error) => {
+runTest().catch(error => {
   console.error('\n💥 OTEL smoke test failed:', error.message);
   process.exit(1);
 });

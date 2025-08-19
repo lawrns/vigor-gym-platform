@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Icons } from '../../lib/icons/registry';
 import { motionPresets } from '../../lib/motion/presets';
@@ -17,10 +17,7 @@ interface DemoClassPickerProps {
   testId?: string;
 }
 
-export function DemoClassPicker({
-  classes,
-  testId = 'demo-classes'
-}: DemoClassPickerProps) {
+export function DemoClassPicker({ classes, testId = 'demo-classes' }: DemoClassPickerProps) {
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [bookedClass, setBookedClass] = useState<string | null>(null);
   const [isBooking, setIsBooking] = useState(false);
@@ -32,19 +29,19 @@ export function DemoClassPicker({
 
   const handleBookClass = async () => {
     if (!selectedClass) return;
-    
+
     setIsBooking(true);
-    
+
     // Simulate booking process
     await new Promise(resolve => setTimeout(resolve, 1500));
-    
+
     const selectedClassData = classes.find(c => c.id === selectedClass);
     setBookedClass(selectedClass);
     setIsBooking(false);
-    
-    trackEvent('demo_class_booked', { 
+
+    trackEvent('demo_class_booked', {
       classId: selectedClass,
-      className: selectedClassData?.name 
+      className: selectedClassData?.name,
     });
   };
 
@@ -67,7 +64,7 @@ export function DemoClassPicker({
   };
 
   return (
-    <section 
+    <section
       data-testid={testId}
       className="bg-white rounded-2xl border border-outline p-8 shadow-sm"
     >
@@ -75,20 +72,14 @@ export function DemoClassPicker({
         <h2 className="font-display text-2xl font-semibold text-heading mb-2">
           2. Reserva tu clase
         </h2>
-        <p className="text-text/80">
-          Elige una clase disponible para hoy
-        </p>
+        <p className="text-text/80">Elige una clase disponible para hoy</p>
       </div>
 
       <div className="max-w-md mx-auto">
         <AnimatePresence mode="wait">
           {!bookedClass ? (
-            <motion.div
-              key="class-list"
-              {...motionPresets['enter.fadeUp']}
-              className="space-y-4"
-            >
-              {classes.map((classOption) => (
+            <motion.div key="class-list" {...motionPresets['enter.fadeUp']} className="space-y-4">
+              {classes.map(classOption => (
                 <motion.button
                   key={classOption.id}
                   onClick={() => handleClassSelect(classOption.id)}
@@ -107,15 +98,11 @@ export function DemoClassPicker({
                         <Icons.Activity className="h-5 w-5 text-primary" />
                       </div>
                       <div>
-                        <div className="font-medium text-heading">
-                          {classOption.name}
-                        </div>
-                        <div className="text-sm text-text/80">
-                          18:00 - 19:00
-                        </div>
+                        <div className="font-medium text-heading">{classOption.name}</div>
+                        <div className="text-sm text-text/80">18:00 - 19:00</div>
                       </div>
                     </div>
-                    
+
                     <div className="text-right">
                       <div className={`text-sm font-medium ${getSpotColor(classOption.spots)}`}>
                         {getSpotText(classOption.spots)}
@@ -174,18 +161,16 @@ export function DemoClassPicker({
               >
                 <Icons.CalendarCheck2 className="h-10 w-10 text-green-600" />
               </motion.div>
-              
+
               <div>
-                <h3 className="font-semibold text-heading text-lg mb-2">
-                  ¡Clase reservada!
-                </h3>
+                <h3 className="font-semibold text-heading text-lg mb-2">¡Clase reservada!</h3>
                 <p className="text-text/80 mb-2">
                   {classes.find(c => c.id === bookedClass)?.name} - 18:00
                 </p>
                 <p className="text-sm text-text/60 mb-6">
                   Te enviaremos un recordatorio 30 minutos antes
                 </p>
-                
+
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <button
                     onClick={resetDemo}

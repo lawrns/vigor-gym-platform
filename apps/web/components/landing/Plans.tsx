@@ -32,13 +32,13 @@ export function Plans() {
       <div className="max-w-6xl mx-auto px-4 py-12">
         <h2 className="font-display text-2xl">Planes para colaboradores</h2>
         <div className="mt-6 grid md:grid-cols-3 gap-4">
-          {plans.map((p) => (
+          {plans.map(p => (
             <div key={p.name} className="rounded-xl border border-neutral-200 bg-white p-5">
               {p.badge && <div className="text-xs text-brand-700">{p.badge}</div>}
               <div className="mt-1 font-medium text-lg">{p.name}</div>
               <div className="text-neutral-500 text-sm">{p.price}</div>
               <ul className="mt-3 space-y-2 text-sm text-neutral-700">
-                {p.features.map((f) => (
+                {p.features.map(f => (
                   <li key={f} className="flex items-center gap-2">
                     <Icons.Check className="h-4 w-4 text-primary" /> {f}
                   </li>
@@ -51,5 +51,3 @@ export function Plans() {
     </section>
   );
 }
-
-

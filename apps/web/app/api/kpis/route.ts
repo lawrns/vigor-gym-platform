@@ -6,10 +6,6 @@ export async function GET() {
     mrrMXN: 250000,
     churn30dPct: 2.1,
     attendancePerMember: 2.7,
-    scanCompletionPct: 63
+    scanCompletionPct: 63,
   });
 }
-
-
-
-

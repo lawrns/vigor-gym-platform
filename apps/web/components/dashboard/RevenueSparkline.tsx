@@ -1,12 +1,12 @@
 /**
  * Revenue Sparkline Widget
- * 
+ *
  * Displays revenue trends with sparkline visualization, MRR, and key financial metrics
  */
 
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Icons } from '../../lib/icons/registry';
 import { Widget, WidgetEmpty } from './DashboardShell';
 import { api } from '../../lib/api/client';
@@ -18,26 +18,8 @@ interface DailyRevenue {
   failedCount: number;
 }
 
-interface RevenueSummary {
-  totalRevenue: number;
-  averageDaily: number;
-  mrr: number;
-  failedPayments: number;
-  refunds: number;
-  growthPercent: number;
-  successRate: number;
-}
-
-interface RevenueAnalytics {
-  dailyRevenue: DailyRevenue[];
-  summary: RevenueSummary;
-  sparklineData: number[];
-  period: string;
-  dateRange: {
-    from: string;
-    to: string;
-  };
-}
+// Import the RevenueAnalytics interface from the data service
+import type { RevenueAnalytics } from '../../lib/dashboard/supabase-data-service';
 
 interface RevenueSparklineProps {
   locationId?: string | null;
@@ -124,7 +106,7 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
             <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-32 mb-2"></div>
             <div className="h-16 bg-gray-200 dark:bg-gray-700 rounded mb-4"></div>
             <div className="grid grid-cols-3 gap-4">
-              {[1, 2, 3].map((i) => (
+              {[1, 2, 3].map(i => (
                 <div key={i} className="h-12 bg-gray-200 dark:bg-gray-700 rounded"></div>
               ))}
             </div>
@@ -158,7 +140,8 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
     );
   }
 
-  const GrowthIcon = getGrowthIcon(data.summary.growthPercent);
+  const growthPercent = data.growth?.percentage || 0;
+  const GrowthIcon = getGrowthIcon(growthPercent);
 
   return (
     <Widget
@@ -166,15 +149,15 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
       icon={Icons.DollarSign}
       className={className}
       action={{
-        label: "Ver Detalles",
-        href: "/billing/analytics",
+        label: 'Ver Detalles',
+        href: '/billing/analytics',
       }}
     >
       <div className="space-y-4">
         {/* Period Selector */}
         <div className="flex items-center justify-between">
           <div className="flex space-x-1 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-            {(['7d', '14d', '30d'] as const).map((period) => (
+            {(['7d', '14d', '30d'] as const).map(period => (
               <button
                 key={period}
                 onClick={() => setSelectedPeriod(period)}
@@ -193,25 +176,25 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
         {/* Main Revenue Display */}
         <div className="text-center">
           <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {formatCurrency(data.summary.totalRevenue)}
+            {formatCurrency(data.totalRevenue)}
           </div>
           <div className="flex items-center justify-center space-x-2 text-sm">
             <span className="text-gray-500 dark:text-gray-400">
               Ingresos totales ({selectedPeriod})
             </span>
-            <div className={`flex items-center space-x-1 ${getGrowthColor(data.summary.growthPercent)}`}>
+            <div
+              className={`flex items-center space-x-1 ${getGrowthColor(growthPercent)}`}
+            >
               <GrowthIcon className="w-3 h-3" />
-              <span className="font-medium">
-                {Math.abs(data.summary.growthPercent)}%
-              </span>
+              <span className="font-medium">{Math.abs(growthPercent)}%</span>
             </div>
           </div>
         </div>
 
         {/* Sparkline Chart */}
         <div className="h-16 w-full">
-          <Sparkline 
-            data={data.sparklineData} 
+          <Sparkline
+            data={data.dataPoints.map(point => point.revenue)}
             className="w-full h-full"
             color="rgb(59, 130, 246)" // blue-500
           />
@@ -221,53 +204,30 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
         <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900 dark:text-white">
-              {formatLargeNumber(data.summary.mrr)}
+              {formatLargeNumber(data.totalRevenue * 12)} {/* Estimate MRR */}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              MRR
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">MRR Est.</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900 dark:text-white">
-              {formatLargeNumber(data.summary.averageDaily)}
+              {formatLargeNumber(data.dataPoints.length > 0 ? data.totalRevenue / data.dataPoints.length : 0)}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Promedio diario
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Promedio diario</div>
           </div>
           <div className="text-center">
-            <div className="text-lg font-semibold text-green-600 dark:text-green-400">
-              {data.summary.successRate}%
+            <div className="text-lg font-semibold text-gray-900 dark:text-white">
+              {data.dataPoints.reduce((sum, point) => sum + point.transactions, 0)}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Éxito pagos
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Transacciones</div>
           </div>
         </div>
 
-        {/* Additional Metrics */}
-        {(data.summary.failedPayments > 0 || data.summary.refunds > 0) && (
-          <div className="grid grid-cols-2 gap-4 pt-2">
-            {data.summary.failedPayments > 0 && (
-              <div className="text-center">
-                <div className="text-sm font-medium text-red-600 dark:text-red-400">
-                  {data.summary.failedPayments}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Pagos fallidos
-                </div>
-              </div>
-            )}
-            {data.summary.refunds > 0 && (
-              <div className="text-center">
-                <div className="text-sm font-medium text-orange-600 dark:text-orange-400">
-                  {formatLargeNumber(data.summary.refunds)}
-                </div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">
-                  Reembolsos
-                </div>
-              </div>
-            )}
+        {/* Growth Trend */}
+        {data.growth && (
+          <div className="text-center pt-2">
+            <div className="text-sm text-gray-500 dark:text-gray-400">
+              Tendencia: <span className="font-medium capitalize">{data.growth.trend}</span>
+            </div>
           </div>
         )}
       </div>
@@ -286,9 +246,11 @@ interface SparklineProps {
 
 function Sparkline({ data, className = '', color = 'rgb(59, 130, 246)' }: SparklineProps) {
   if (!data || data.length === 0) {
-    return <div className={`${className} flex items-center justify-center text-gray-400`}>
-      <span className="text-xs">Sin datos</span>
-    </div>;
+    return (
+      <div className={`${className} flex items-center justify-center text-gray-400`}>
+        <span className="text-xs">Sin datos</span>
+      </div>
+    );
   }
 
   const width = 200;
@@ -323,13 +285,13 @@ function Sparkline({ data, className = '', color = 'rgb(59, 130, 246)' }: Sparkl
             <stop offset="100%" stopColor={color} stopOpacity="0.05" />
           </linearGradient>
         </defs>
-        
+
         {/* Fill area */}
         <path
           d={`${pathData} L ${width - padding},${height - padding} L ${padding},${height - padding} Z`}
           fill="url(#sparklineGradient)"
         />
-        
+
         {/* Line */}
         <path
           d={pathData}

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { apiClient, isAPIError } from '../../lib/api/client';
 import { Icons } from '../../lib/icons/registry';
@@ -52,7 +52,7 @@ export function VisitsByDay() {
   const generateMockVisitsData = (from?: string | null, to?: string | null): VisitData[] => {
     const endDate = to ? new Date(to) : new Date();
     const startDate = from ? new Date(from) : new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-    
+
     const data: VisitData[] = [];
     const currentDate = new Date(startDate);
 
@@ -85,9 +85,7 @@ export function VisitsByDay() {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Visitas por Día
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Visitas por Día</h3>
           <Icons.Activity className="h-5 w-5 text-gray-400 animate-pulse" />
         </div>
         <div className="flex items-center justify-center h-48">
@@ -104,9 +102,7 @@ export function VisitsByDay() {
     return (
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Visitas por Día
-          </h3>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Visitas por Día</h3>
           <Icons.AlertCircle className="h-5 w-5 text-red-500" />
         </div>
         <div className="flex items-center justify-center h-48">
@@ -128,9 +124,7 @@ export function VisitsByDay() {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
       <div className="flex items-center justify-between mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Visitas por Día
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Visitas por Día</h3>
         <Icons.Activity className="h-5 w-5 text-blue-500" />
       </div>
 
@@ -169,9 +163,7 @@ export function VisitsByDay() {
                     <div className="text-xs font-medium text-gray-900 dark:text-white">
                       {dayNumber}
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">
-                      {dayName}
-                    </div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{dayName}</div>
                   </div>
                 </div>
               );
@@ -184,7 +176,11 @@ export function VisitsByDay() {
               Total: {state.data.reduce((sum, item) => sum + item.visits, 0)} visitas
             </div>
             <div className="text-sm text-gray-600 dark:text-gray-400">
-              Promedio: {Math.round(state.data.reduce((sum, item) => sum + item.visits, 0) / state.data.length)} por día
+              Promedio:{' '}
+              {Math.round(
+                state.data.reduce((sum, item) => sum + item.visits, 0) / state.data.length
+              )}{' '}
+              por día
             </div>
           </div>
         </div>

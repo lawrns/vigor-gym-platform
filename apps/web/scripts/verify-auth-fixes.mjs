@@ -2,7 +2,7 @@
 
 /**
  * Auth Fixes Verification Script
- * 
+ *
  * Verifies that:
  * 1. Guest /auth/me returns 401 (expected)
  * 2. Login flow works correctly
@@ -26,27 +26,35 @@ const tests = [
     cmd: 'curl',
     args: ['-s', '-w', '%{http_code}', 'http://localhost:7777/auth/me'],
     expectedStatus: '401',
-    description: 'Guest should get 401 without cookies'
+    description: 'Guest should get 401 without cookies',
   },
   {
     name: 'Login (expect 200 with cookies)',
     cmd: 'curl',
     args: [
-      '-s', '-w', '%{http_code}', '-c', 'test_cookies.txt',
-      '-X', 'POST', 'http://localhost:7777/auth/login',
-      '-H', 'Content-Type: application/json',
-      '-d', JSON.stringify({"email":"admin@testgym.mx","password":"TestPassword123!"})
+      '-s',
+      '-w',
+      '%{http_code}',
+      '-c',
+      'test_cookies.txt',
+      '-X',
+      'POST',
+      'http://localhost:7777/auth/login',
+      '-H',
+      'Content-Type: application/json',
+      '-d',
+      JSON.stringify({ email: 'admin@testgym.mx', password: 'TestPassword123!' }),
     ],
     expectedStatus: '200',
-    description: 'Login should succeed and set cookies'
+    description: 'Login should succeed and set cookies',
   },
   {
     name: 'Authenticated /auth/me (expect 200)',
     cmd: 'curl',
     args: ['-s', '-w', '%{http_code}', '-b', 'test_cookies.txt', 'http://localhost:7777/auth/me'],
     expectedStatus: '200',
-    description: 'Authenticated user should get 200 with user data'
-  }
+    description: 'Authenticated user should get 200 with user data',
+  },
 ];
 
 function runCommand(cmd, args, options = {}) {
@@ -55,29 +63,29 @@ function runCommand(cmd, args, options = {}) {
       stdio: ['pipe', 'pipe', 'pipe'],
       cwd: projectRoot,
       shell: true,
-      ...options
+      ...options,
     });
 
     let stdout = '';
     let stderr = '';
 
-    process.stdout.on('data', (data) => {
+    process.stdout.on('data', data => {
       stdout += data.toString();
     });
 
-    process.stderr.on('data', (data) => {
+    process.stderr.on('data', data => {
       stderr += data.toString();
     });
 
-    process.on('exit', (code) => {
+    process.on('exit', code => {
       resolve({
         code,
         stdout: stdout.trim(),
-        stderr: stderr.trim()
+        stderr: stderr.trim(),
       });
     });
 
-    process.on('error', (error) => {
+    process.on('error', error => {
       reject(error);
     });
   });
@@ -97,14 +105,14 @@ async function runVerification() {
       console.log(`   Command: ${test.cmd} ${test.args.join(' ')}`);
 
       const result = await runCommand(test.cmd, test.args);
-      
+
       // Extract status code from the end of stdout (curl -w '%{http_code}')
       const output = result.stdout;
       const statusCode = output.slice(-3); // Last 3 characters should be the status code
       const responseBody = output.slice(0, -3); // Everything except the last 3 characters
 
       console.log(`   Status: ${statusCode}`);
-      
+
       if (statusCode === test.expectedStatus) {
         console.log(`   ✅ PASS\n`);
         passed++;
@@ -124,10 +132,17 @@ async function runVerification() {
   console.log('🍪 Checking Cookie Attributes...');
   try {
     const result = await runCommand('curl', [
-      '-s', '-i', '-c', 'cookie_check.txt',
-      '-X', 'POST', 'http://localhost:7777/auth/login',
-      '-H', 'Content-Type: application/json',
-      '-d', JSON.stringify({"email":"admin@testgym.mx","password":"TestPassword123!"})
+      '-s',
+      '-i',
+      '-c',
+      'cookie_check.txt',
+      '-X',
+      'POST',
+      'http://localhost:7777/auth/login',
+      '-H',
+      'Content-Type: application/json',
+      '-d',
+      JSON.stringify({ email: 'admin@testgym.mx', password: 'TestPassword123!' }),
     ]);
 
     const headers = result.stdout;
@@ -161,7 +176,7 @@ async function runVerification() {
   }
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-  
+
   console.log('='.repeat(60));
   console.log('📊 AUTH FIXES VERIFICATION SUMMARY');
   console.log('='.repeat(60));
@@ -187,7 +202,7 @@ process.on('SIGINT', () => {
 });
 
 // Run the verification
-runVerification().catch((error) => {
+runVerification().catch(error => {
   console.error('\n💥 Verification runner failed:', error.message);
   process.exit(1);
 });

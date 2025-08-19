@@ -36,7 +36,7 @@ async function globalSetup(config: FullConfig) {
     try {
       await execAsync('npx tsx scripts/test-db-reset.ts', {
         cwd: process.cwd().replace('/apps/web', ''),
-        timeout: 30000
+        timeout: 30000,
       });
       console.log('✅ Test database reset completed');
     } catch (error) {
@@ -49,8 +49,8 @@ async function globalSetup(config: FullConfig) {
     const loginResponse = await page.request.post(`${apiURL}/auth/login`, {
       data: {
         email: 'admin@testgym.mx',
-        password: 'TestPassword123!'
-      }
+        password: 'TestPassword123!',
+      },
     });
 
     if (loginResponse.ok()) {
@@ -59,7 +59,6 @@ async function globalSetup(config: FullConfig) {
       console.error('❌ Test user authentication failed');
       throw new Error('Test user authentication failed');
     }
-
   } catch (error) {
     console.error('❌ Global setup failed:', error);
     throw error;

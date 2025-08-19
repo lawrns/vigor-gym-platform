@@ -1,0 +1,96 @@
+# Dependencies
+node_modules/
+.pnpm/
+
+# Build outputs
+dist/
+build/
+.next/
+coverage/
+
+# Generated files
+apps/api/src/generated/
+*.generated.*
+
+# Lock files
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test outputs
+e2e-report/
+a11y-report/
+test-results/
+playwright-report/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Binary files
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.svg
+*.ico
+*.pdf
+*.zip
+*.dylib
+*.node
+*.woff
+*.woff2
+*.ttf
+*.eot
+
+# Documentation that should preserve formatting
+*.md
+CHANGELOG.md
+README.md
+
+# Config files that may have specific formatting
+*.yml
+*.yaml
+docker-compose*.yml
+.github/workflows/*.yml
+
+# Data files
+*.json
+*.csv
+*.xml
+
+# Scripts that may have specific formatting
+*.sh
+*.bash
+
+# Prisma files (have their own formatter)
+*.prisma
+
+# Lockfiles and manifests
+manifest.json
+sw.js

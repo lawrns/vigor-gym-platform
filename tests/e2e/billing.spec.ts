@@ -21,7 +21,9 @@ test.describe('Billing Integration (BILL-01)', () => {
     const planCard = page.locator('[data-testid="plan-card"]').first();
     await expect(planCard).toBeVisible();
 
-    const subscribeButton = planCard.locator('button', { hasText: /seleccionar plan|elegir|suscribir|subscribe/i });
+    const subscribeButton = planCard.locator('button', {
+      hasText: /seleccionar plan|elegir|suscribir|subscribe/i,
+    });
     await expect(subscribeButton).toBeVisible();
 
     // Track network requests to Stripe
@@ -31,7 +33,7 @@ test.describe('Billing Integration (BILL-01)', () => {
         stripeRequests.push({
           url: request.url(),
           method: request.method(),
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
     });
@@ -61,8 +63,8 @@ test.describe('Billing Integration (BILL-01)', () => {
       console.log('✅ Stripe checkout page loaded successfully');
     } else {
       // Check if checkout session was created via API
-      const checkoutRequests = stripeRequests.filter(req =>
-        req.url.includes('/billing/checkout') || req.url.includes('/billing/stripe')
+      const checkoutRequests = stripeRequests.filter(
+        req => req.url.includes('/billing/checkout') || req.url.includes('/billing/stripe')
       );
 
       if (checkoutRequests.length > 0) {
@@ -80,7 +82,7 @@ test.describe('Billing Integration (BILL-01)', () => {
 
     // This test simulates webhook processing in CI environment
     const isCI = process.env.CI === 'true' || process.env.STRIPE_MODE === 'mock';
-    
+
     if (!isCI) {
       console.log('ℹ️ Skipping mock webhook test in local development');
       test.skip();
@@ -100,27 +102,32 @@ test.describe('Billing Integration (BILL-01)', () => {
           subscription: 'sub_test_subscription',
           metadata: {
             companyId: '00000000-0000-0000-0000-000000000001',
-            planId: 'test-plan-id'
-          }
-        }
+            planId: 'test-plan-id',
+          },
+        },
       },
-      created: Math.floor(Date.now() / 1000)
+      created: Math.floor(Date.now() / 1000),
     };
 
     // Send mock webhook to the API
-    const webhookResponse = await page.request.post('http://localhost:4001/v1/billing/webhook/stripe', {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Stripe-Signature': 'mock-signature'
-      },
-      data: mockWebhookEvent
-    });
+    const webhookResponse = await page.request.post(
+      'http://localhost:4001/v1/billing/webhook/stripe',
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Stripe-Signature': 'mock-signature',
+        },
+        data: mockWebhookEvent,
+      }
+    );
 
     if (webhookResponse.status() === 200) {
       console.log('✅ Mock webhook processed successfully');
-      
+
       // Verify webhook was recorded in database
-      const webhookCheck = await authSession.makeAuthenticatedRequest('/v1/billing/webhooks?limit=1');
+      const webhookCheck = await authSession.makeAuthenticatedRequest(
+        '/v1/billing/webhooks?limit=1'
+      );
       if (webhookCheck.ok()) {
         const webhookData = await webhookCheck.json();
         expect(webhookData.data).toBeDefined();
@@ -143,13 +150,13 @@ test.describe('Billing Integration (BILL-01)', () => {
       '[data-testid="billing-info"]',
       '[data-testid="current-plan"]',
       '.subscription',
-      '.billing'
+      '.billing',
     ];
 
     let foundSubscriptionInfo = false;
     for (const selector of subscriptionElements) {
       const element = page.locator(selector);
-      if (await element.count() > 0) {
+      if ((await element.count()) > 0) {
         foundSubscriptionInfo = true;
         console.log(`✅ Found subscription info: ${selector}`);
         break;
@@ -160,10 +167,10 @@ test.describe('Billing Integration (BILL-01)', () => {
       // Check if there's any billing-related text
       const pageContent = await page.textContent('body');
       const billingKeywords = ['subscription', 'plan', 'billing', 'payment'];
-      const foundKeywords = billingKeywords.filter(keyword => 
+      const foundKeywords = billingKeywords.filter(keyword =>
         pageContent?.toLowerCase().includes(keyword)
       );
-      
+
       if (foundKeywords.length > 0) {
         console.log(`✅ Found billing-related content: ${foundKeywords.join(', ')}`);
         foundSubscriptionInfo = true;
@@ -171,12 +178,14 @@ test.describe('Billing Integration (BILL-01)', () => {
     }
 
     // Test subscription API endpoint
-    const subscriptionResponse = await authSession.makeAuthenticatedRequest('/v1/billing/subscription');
-    
+    const subscriptionResponse = await authSession.makeAuthenticatedRequest(
+      '/v1/billing/subscription'
+    );
+
     if (subscriptionResponse.ok()) {
       const subscriptionData = await subscriptionResponse.json();
       console.log('✅ Subscription API accessible');
-      
+
       if (subscriptionData.subscription) {
         console.log(`📋 Subscription status: ${subscriptionData.subscription.status}`);
         expect(subscriptionData.subscription.status).toBeDefined();
@@ -198,14 +207,16 @@ test.describe('Billing Integration (BILL-01)', () => {
     console.log('💳 Testing payment method management...');
 
     // Test payment methods API
-    const paymentMethodsResponse = await authSession.makeAuthenticatedRequest('/v1/billing/payment-methods');
-    
+    const paymentMethodsResponse = await authSession.makeAuthenticatedRequest(
+      '/v1/billing/payment-methods'
+    );
+
     if (paymentMethodsResponse.ok()) {
       const paymentData = await paymentMethodsResponse.json();
       console.log('✅ Payment methods API accessible');
 
       // Handle both array response and object with data property
-      const methods = Array.isArray(paymentData) ? paymentData : (paymentData.data || []);
+      const methods = Array.isArray(paymentData) ? paymentData : paymentData.data || [];
       expect(methods).toBeDefined();
       console.log(`📋 Found ${methods.length} payment methods`);
     } else if (paymentMethodsResponse.status() === 404) {
@@ -216,18 +227,20 @@ test.describe('Billing Integration (BILL-01)', () => {
 
     // Test Stripe portal session creation
     const portalResponse = await authSession.makeAuthenticatedRequest('/v1/billing/stripe/portal', {
-      method: 'POST'
+      method: 'POST',
     });
 
     if (portalResponse.ok()) {
       const portalData = await portalResponse.json();
       console.log('✅ Stripe portal session created');
-      
+
       expect(portalData.url).toBeDefined();
       expect(portalData.url).toContain('billing.stripe.com');
       console.log('✅ Portal URL is valid Stripe URL');
     } else {
-      console.log(`ℹ️ Portal creation returned ${portalResponse.status()} (expected without active subscription)`);
+      console.log(
+        `ℹ️ Portal creation returned ${portalResponse.status()} (expected without active subscription)`
+      );
     }
 
     // At minimum, the endpoints should not crash
@@ -240,7 +253,7 @@ test.describe('Billing Integration (BILL-01)', () => {
     console.log('🔄 Testing webhook idempotency...');
 
     const isCI = process.env.CI === 'true' || process.env.STRIPE_MODE === 'mock';
-    
+
     if (!isCI) {
       console.log('ℹ️ Skipping idempotency test in local development');
       test.skip();
@@ -259,35 +272,43 @@ test.describe('Billing Integration (BILL-01)', () => {
           customer: 'cus_test_customer',
           subscription: 'sub_test_subscription',
           amount_paid: 1999,
-          currency: 'mxn'
-        }
+          currency: 'mxn',
+        },
       },
-      created: Math.floor(Date.now() / 1000)
+      created: Math.floor(Date.now() / 1000),
     };
 
     // Send the same webhook twice
-    const firstResponse = await page.request.post('http://localhost:4001/v1/billing/webhook/stripe', {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Stripe-Signature': 'mock-signature'
-      },
-      data: mockWebhookEvent
-    });
+    const firstResponse = await page.request.post(
+      'http://localhost:4001/v1/billing/webhook/stripe',
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Stripe-Signature': 'mock-signature',
+        },
+        data: mockWebhookEvent,
+      }
+    );
 
-    const secondResponse = await page.request.post('http://localhost:4001/v1/billing/webhook/stripe', {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Stripe-Signature': 'mock-signature'
-      },
-      data: mockWebhookEvent
-    });
+    const secondResponse = await page.request.post(
+      'http://localhost:4001/v1/billing/webhook/stripe',
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Stripe-Signature': 'mock-signature',
+        },
+        data: mockWebhookEvent,
+      }
+    );
 
     // Both should succeed (idempotent)
     if (firstResponse.status() === 200 && secondResponse.status() === 200) {
       console.log('✅ Webhook idempotency working - both requests succeeded');
-      
+
       // Verify only one webhook event was recorded
-      const webhookCheck = await authSession.makeAuthenticatedRequest(`/v1/billing/webhooks?eventId=${eventId}`);
+      const webhookCheck = await authSession.makeAuthenticatedRequest(
+        `/v1/billing/webhooks?eventId=${eventId}`
+      );
       if (webhookCheck.ok()) {
         const webhookData = await webhookCheck.json();
         // Should only have one record despite two requests
@@ -304,14 +325,17 @@ test.describe('Billing Integration (BILL-01)', () => {
     console.log('⚠️ Testing billing error handling...');
 
     // Test invalid checkout session creation
-    const invalidCheckoutResponse = await authSession.makeAuthenticatedRequest('/v1/billing/checkout', {
-      method: 'POST',
-      data: {
-        planId: 'invalid-plan-id',
-        successUrl: 'http://localhost:7777/success',
-        cancelUrl: 'http://localhost:7777/cancel'
+    const invalidCheckoutResponse = await authSession.makeAuthenticatedRequest(
+      '/v1/billing/checkout',
+      {
+        method: 'POST',
+        data: {
+          planId: 'invalid-plan-id',
+          successUrl: 'http://localhost:7777/success',
+          cancelUrl: 'http://localhost:7777/cancel',
+        },
       }
-    });
+    );
 
     // Should handle invalid plan gracefully
     if (invalidCheckoutResponse.status() === 400 || invalidCheckoutResponse.status() === 404) {
@@ -321,24 +345,31 @@ test.describe('Billing Integration (BILL-01)', () => {
     }
 
     // Test malformed webhook
-    const malformedWebhookResponse = await page.request.post('http://localhost:4001/v1/billing/webhook/stripe', {
-      headers: {
-        'Content-Type': 'application/json',
-        'X-Stripe-Signature': 'invalid-signature'
-      },
-      data: { invalid: 'data' }
-    });
+    const malformedWebhookResponse = await page.request.post(
+      'http://localhost:4001/v1/billing/webhook/stripe',
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Stripe-Signature': 'invalid-signature',
+        },
+        data: { invalid: 'data' },
+      }
+    );
 
     // Should reject malformed webhooks
     expect([400, 401, 403].includes(malformedWebhookResponse.status())).toBeTruthy();
     console.log(`✅ Malformed webhook rejected with ${malformedWebhookResponse.status()}`);
 
     // Test accessing billing without authentication
-    const unauthBillingResponse = await page.request.get('http://localhost:4001/v1/billing/subscription');
+    const unauthBillingResponse = await page.request.get(
+      'http://localhost:4001/v1/billing/subscription'
+    );
 
     // Should return 401 (unauthorized) or 404 (not found) depending on route implementation
     expect([401, 404].includes(unauthBillingResponse.status())).toBeTruthy();
-    console.log(`✅ Unauthenticated billing access properly rejected with ${unauthBillingResponse.status()}`);
+    console.log(
+      `✅ Unauthenticated billing access properly rejected with ${unauthBillingResponse.status()}`
+    );
 
     console.log('✅ Billing error handling is robust');
   });

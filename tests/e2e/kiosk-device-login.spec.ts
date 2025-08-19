@@ -3,11 +3,13 @@ import { test, expect } from '@playwright/test';
 // Test credentials
 const TEST_DEVICE = {
   id: '1da7ac94-8c08-4943-8200-c71b67869dea',
-  secret: '289c1fa5e0d0977d06a9f9ca6c92c56eb1da2adedb3af04216f48d69f42fb278'
+  secret: '289c1fa5e0d0977d06a9f9ca6c92c56eb1da2adedb3af04216f48d69f42fb278',
 };
 
 test.describe('Kiosk Device Login', () => {
-  test('should successfully authenticate device and proceed to location selection', async ({ page }) => {
+  test('should successfully authenticate device and proceed to location selection', async ({
+    page,
+  }) => {
     // Navigate to kiosk
     await page.goto('/kiosk');
 
@@ -19,8 +21,8 @@ test.describe('Kiosk Device Login', () => {
     await page.fill('[data-testid="device-secret-input"]', TEST_DEVICE.secret);
 
     // Intercept the authentication request
-    const authPromise = page.waitForResponse(response => 
-      response.url().includes('/api/proxy/devices/auth') && response.status() === 200
+    const authPromise = page.waitForResponse(
+      response => response.url().includes('/api/proxy/devices/auth') && response.status() === 200
     );
 
     // Submit login
@@ -29,7 +31,7 @@ test.describe('Kiosk Device Login', () => {
     // Wait for successful authentication
     const authResponse = await authPromise;
     const authData = await authResponse.json();
-    
+
     // Verify response contains device token
     expect(authData.deviceToken).toBeTruthy();
     expect(authData.device.id).toBe(TEST_DEVICE.id);
@@ -89,7 +91,7 @@ test.describe('PWA Features', () => {
 
     // Check required icons load
     const iconSizes = ['64x64', '144x144', '192x192', '512x512'];
-    
+
     for (const size of iconSizes) {
       const iconResponse = await page.goto(`/icons/icon-${size}.png`);
       expect(iconResponse?.status()).toBe(200);
@@ -115,8 +117,8 @@ test.describe('PWA Features', () => {
     });
 
     // Should not have service worker errors
-    const swErrors = logs.filter((log: any) => 
-      log.includes('Service Worker') && log.includes('error')
+    const swErrors = logs.filter(
+      (log: any) => log.includes('Service Worker') && log.includes('error')
     );
     expect(swErrors.length).toBe(0);
   });

@@ -1,10 +1,10 @@
 /**
  * Server-Sent Events Type Definitions
- * 
+ *
  * Defines the event system for real-time dashboard updates
  */
 
-export type EventType = 
+export type EventType =
   | 'visit.checkin'
   | 'visit.checkout'
   | 'membership.expiring'
@@ -68,7 +68,7 @@ export interface PaymentFailedEvent extends BaseEvent {
   };
 }
 
-export type DashboardEvent = 
+export type DashboardEvent =
   | VisitCheckinEvent
   | VisitCheckoutEvent
   | MembershipExpiringEvent
@@ -79,7 +79,7 @@ export interface SSEConnection {
   orgId: string;
   locationId: string | null;
   userId: string;
-  response: any; // Express Response object
+  response: Record<string, unknown>; // Express Response object
   lastHeartbeat: Date;
   connectedAt: Date;
 }

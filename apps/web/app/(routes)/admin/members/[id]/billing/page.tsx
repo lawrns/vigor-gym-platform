@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -30,7 +30,7 @@ export default function MemberBillingPage() {
 
   useEffect(() => {
     if (authStatus === 'loading') return;
-    
+
     if (!user) {
       router.push('/login');
       return;
@@ -42,9 +42,9 @@ export default function MemberBillingPage() {
   const loadPaymentMethods = async () => {
     try {
       setState(prev => ({ ...prev, status: 'loading' }));
-      
+
       const response = await apiClient.billing.getPaymentMethods();
-      
+
       if (isAPIError(response)) {
         throw new Error(response.message);
       }
@@ -140,7 +140,7 @@ export default function MemberBillingPage() {
   const handleOpenPortal = async () => {
     try {
       const response = await apiClient.billing.createPortalSession();
-      
+
       if (isAPIError(response)) {
         throw new Error(response.message);
       }
@@ -177,12 +177,8 @@ export default function MemberBillingPage() {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Error al cargar facturación
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            {state.error}
-          </p>
-          <Button onClick={loadPaymentMethods}>
-            Reintentar
-          </Button>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{state.error}</p>
+          <Button onClick={loadPaymentMethods}>Reintentar</Button>
         </div>
       </div>
     );
@@ -194,11 +190,7 @@ export default function MemberBillingPage() {
         {/* Header */}
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => router.back()}
-            >
+            <Button variant="ghost" size="icon" onClick={() => router.back()}>
               <Icons.ArrowLeft className="h-4 w-4" />
             </Button>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
@@ -215,10 +207,7 @@ export default function MemberBillingPage() {
                 Métodos de Pago
               </h2>
               <div className="flex gap-2">
-                <Button
-                  onClick={() => setShowAddCard(true)}
-                  className="flex items-center gap-2"
-                >
+                <Button onClick={() => setShowAddCard(true)} className="flex items-center gap-2">
                   <Icons.Plus className="h-4 w-4" />
                   Agregar Tarjeta
                 </Button>
@@ -243,13 +232,11 @@ export default function MemberBillingPage() {
                 <p className="text-gray-600 dark:text-gray-400 mb-4">
                   Agrega una tarjeta para comenzar a procesar pagos.
                 </p>
-                <Button onClick={() => setShowAddCard(true)}>
-                  Agregar Primera Tarjeta
-                </Button>
+                <Button onClick={() => setShowAddCard(true)}>Agregar Primera Tarjeta</Button>
               </div>
             ) : (
               <div className="space-y-4">
-                {state.paymentMethods.map((pm) => (
+                {state.paymentMethods.map(pm => (
                   <div
                     key={pm.id}
                     className="flex items-center justify-between p-4 border border-gray-200 dark:border-gray-700 rounded-lg"
@@ -284,11 +271,7 @@ export default function MemberBillingPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       {!pm.isDefault && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleSetDefault(pm.id)}
-                        >
+                        <Button variant="outline" size="sm" onClick={() => handleSetDefault(pm.id)}>
                           Hacer Predeterminada
                         </Button>
                       )}

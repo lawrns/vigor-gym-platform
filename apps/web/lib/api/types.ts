@@ -43,8 +43,6 @@ export interface Plan {
   } | null;
 }
 
-
-
 export interface Gym {
   id: string;
   name: string;
@@ -284,8 +282,6 @@ export interface UpdateMemberRequest {
   lastName?: string;
   status?: MemberStatus;
 }
-
-
 
 // Auth Types
 export interface LoginRequest {

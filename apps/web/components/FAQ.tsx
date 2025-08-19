@@ -17,7 +17,7 @@ export function FAQ() {
     <div className="max-w-6xl mx-auto px-4 py-12">
       <h3 className="font-display text-2xl">Preguntas frecuentes</h3>
       <div className="mt-6 space-y-3">
-        {items.map((it) => (
+        {items.map(it => (
           <details key={it.q} className="rounded-lg border border-neutral-200 bg-white p-4">
             <summary className="cursor-pointer text-neutral-900">{it.q}</summary>
             <div className="mt-2 text-neutral-700 text-sm">{it.a}</div>
@@ -27,7 +27,3 @@ export function FAQ() {
     </div>
   );
 }
-
-
-
-

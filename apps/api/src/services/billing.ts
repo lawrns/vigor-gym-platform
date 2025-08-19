@@ -6,9 +6,11 @@ const prisma = new PrismaClient();
 
 // Initialize Stripe (only if API key is provided)
 const stripeApiKey = process.env.STRIPE_SECRET_KEY;
-const stripe = stripeApiKey ? new Stripe(stripeApiKey, {
-  // Use default API version to avoid type conflicts
-}) : null;
+const stripe = stripeApiKey
+  ? new Stripe(stripeApiKey, {
+      // Use default API version to avoid type conflicts
+    })
+  : null;
 
 export interface CheckoutSessionRequest {
   planId: string;
@@ -56,7 +58,9 @@ export interface CreateSubscriptionResponse {
 /**
  * Create a Stripe SetupIntent for saving payment methods
  */
-export async function createStripeSetupIntent(request: SetupIntentRequest): Promise<SetupIntentResponse> {
+export async function createStripeSetupIntent(
+  request: SetupIntentRequest
+): Promise<SetupIntentResponse> {
   if (!stripe) {
     throw new Error('Stripe is not configured');
   }
@@ -118,7 +122,9 @@ export async function createStripeSetupIntent(request: SetupIntentRequest): Prom
 /**
  * Create a subscription using a saved payment method
  */
-export async function createStripeSubscription(request: CreateSubscriptionRequest): Promise<CreateSubscriptionResponse> {
+export async function createStripeSubscription(
+  request: CreateSubscriptionRequest
+): Promise<CreateSubscriptionResponse> {
   if (!stripe) {
     throw new Error('Stripe is not configured');
   }
@@ -185,7 +191,9 @@ export async function createStripeSubscription(request: CreateSubscriptionReques
         provider: 'stripe',
         externalId: subscription.id,
         status: subscription.status as any,
-        currentPeriodEnd: (subscription as any).current_period_end ? new Date((subscription as any).current_period_end * 1000) : null,
+        currentPeriodEnd: (subscription as any).current_period_end
+          ? new Date((subscription as any).current_period_end * 1000)
+          : null,
         cancelAtPeriodEnd: (subscription as any).cancel_at_period_end || false,
       },
     });
@@ -336,7 +344,9 @@ export async function applyEntitlementWithTransaction(
   eventData: WebhookEventData
 ): Promise<void> {
   try {
-    console.log(`[WEBHOOK] Processing ${eventData.provider} event: ${eventData.eventType} (${eventData.eventId})`);
+    console.log(
+      `[WEBHOOK] Processing ${eventData.provider} event: ${eventData.eventType} (${eventData.eventId})`
+    );
 
     if (eventData.provider === 'stripe') {
       await processStripeWebhookWithTransaction(tx, eventData);
@@ -387,7 +397,10 @@ async function processStripeWebhook(eventData: WebhookEventData): Promise<void> 
 /**
  * Process Stripe webhook events with transaction support
  */
-async function processStripeWebhookWithTransaction(tx: any, eventData: WebhookEventData): Promise<void> {
+async function processStripeWebhookWithTransaction(
+  tx: any,
+  eventData: WebhookEventData
+): Promise<void> {
   const { eventType, data } = eventData;
 
   console.log(`[WEBHOOK] Processing Stripe event: ${eventType}`);
@@ -540,10 +553,7 @@ export async function getPaymentMethods(companyId: string) {
         },
       },
     },
-    orderBy: [
-      { isDefault: 'desc' },
-      { createdAt: 'desc' },
-    ],
+    orderBy: [{ isDefault: 'desc' }, { createdAt: 'desc' }],
   });
 }
 
@@ -709,7 +719,7 @@ async function handleCustomerUpdated(customer: any): Promise<void> {
         await prisma.paymentMethod.updateMany({
           where: {
             companyId: company.id,
-            stripePaymentMethodId: invoice_settings.default_payment_method
+            stripePaymentMethodId: invoice_settings.default_payment_method,
           },
           data: { isDefault: true },
         });
@@ -792,12 +802,18 @@ async function findCompanyByStripeCustomer(customerId: string) {
  */
 function mapStripeInvoiceStatus(stripeStatus: string): 'draft' | 'issued' | 'paid' | 'void' {
   switch (stripeStatus) {
-    case 'draft': return 'draft';
-    case 'open': return 'issued';
-    case 'paid': return 'paid';
-    case 'void': return 'void';
-    case 'uncollectible': return 'void';
-    default: return 'draft';
+    case 'draft':
+      return 'draft';
+    case 'open':
+      return 'issued';
+    case 'paid':
+      return 'paid';
+    case 'void':
+      return 'void';
+    case 'uncollectible':
+      return 'void';
+    default:
+      return 'draft';
   }
 }
 
@@ -892,7 +908,10 @@ async function handleSubscriptionChangeWithTransaction(tx: any, subscription: an
   });
 }
 
-async function handleSubscriptionCanceledWithTransaction(tx: any, subscription: any): Promise<void> {
+async function handleSubscriptionCanceledWithTransaction(
+  tx: any,
+  subscription: any
+): Promise<void> {
   const { id: subscriptionId } = subscription;
 
   console.log(`[WEBHOOK] Canceling subscription ${subscriptionId}`);
@@ -909,7 +928,10 @@ async function handleSubscriptionCanceledWithTransaction(tx: any, subscription: 
   });
 }
 
-async function handlePaymentMethodAttachedWithTransaction(tx: any, paymentMethod: any): Promise<void> {
+async function handlePaymentMethodAttachedWithTransaction(
+  tx: any,
+  paymentMethod: any
+): Promise<void> {
   const { id: stripePaymentMethodId, customer, card, type } = paymentMethod;
 
   console.log(`[WEBHOOK] Processing payment method attached: ${stripePaymentMethodId}`);
@@ -1048,7 +1070,9 @@ async function handleSetupIntentSucceededWithTransaction(tx: any, setupIntent: a
       },
     });
 
-    console.log(`[WEBHOOK] Payment method ${paymentMethodId} saved for company ${company.id} via SetupIntent`);
+    console.log(
+      `[WEBHOOK] Payment method ${paymentMethodId} saved for company ${company.id} via SetupIntent`
+    );
   } catch (error) {
     console.error(`[WEBHOOK] Error retrieving payment method ${paymentMethodId}:`, error);
   }

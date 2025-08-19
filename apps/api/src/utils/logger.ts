@@ -3,7 +3,7 @@ import pino from 'pino';
 // PII fields that should be masked in logs
 const PII_FIELDS = [
   'email',
-  'firstName', 
+  'firstName',
   'lastName',
   'phone',
   'address',
@@ -15,7 +15,7 @@ const PII_FIELDS = [
   'token',
   'jwt',
   'authorization',
-  'cookie'
+  'cookie',
 ];
 
 /**
@@ -23,9 +23,9 @@ const PII_FIELDS = [
  */
 function maskPII(obj: any, depth = 0): any {
   if (depth > 10) return '[MAX_DEPTH]'; // Prevent infinite recursion
-  
+
   if (obj === null || obj === undefined) return obj;
-  
+
   if (typeof obj === 'string') {
     // Check if this looks like an email
     if (obj.includes('@') && obj.includes('.')) {
@@ -34,17 +34,17 @@ function maskPII(obj: any, depth = 0): any {
     }
     return obj;
   }
-  
+
   if (typeof obj !== 'object') return obj;
-  
+
   if (Array.isArray(obj)) {
     return obj.map(item => maskPII(item, depth + 1));
   }
-  
+
   const masked: any = {};
   for (const [key, value] of Object.entries(obj)) {
     const lowerKey = key.toLowerCase();
-    
+
     if (PII_FIELDS.some(field => lowerKey.includes(field))) {
       if (typeof value === 'string') {
         if (value.length <= 4) {
@@ -59,7 +59,7 @@ function maskPII(obj: any, depth = 0): any {
       masked[key] = maskPII(value, depth + 1);
     }
   }
-  
+
   return masked;
 }
 
@@ -69,7 +69,7 @@ function maskPII(obj: any, depth = 0): any {
 function createLoggerConfig() {
   const isDevelopment = process.env.NODE_ENV === 'development';
   const logLevel = process.env.LOG_LEVEL || (isDevelopment ? 'debug' : 'info');
-  
+
   const baseConfig = {
     level: logLevel,
     timestamp: pino.stdTimeFunctions.isoTime,
@@ -134,7 +134,7 @@ export function logRequestMetrics(data: {
   ip?: string;
 }) {
   const maskedData = maskPII(data);
-  
+
   if (data.statusCode >= 500) {
     logger.error(maskedData, 'Request completed with server error');
   } else if (data.statusCode >= 400) {
@@ -147,16 +147,19 @@ export function logRequestMetrics(data: {
 /**
  * Log authentication events
  */
-export function logAuthEvent(event: 'login' | 'logout' | 'register' | 'token_refresh' | 'auth_failure', data: {
-  userId?: string;
-  email?: string;
-  ip?: string;
-  userAgent?: string;
-  reason?: string;
-  requestId?: string;
-}) {
+export function logAuthEvent(
+  event: 'login' | 'logout' | 'register' | 'token_refresh' | 'auth_failure',
+  data: {
+    userId?: string;
+    email?: string;
+    ip?: string;
+    userAgent?: string;
+    reason?: string;
+    requestId?: string;
+  }
+) {
   const maskedData = maskPII(data);
-  
+
   if (event === 'auth_failure') {
     logger.warn({ ...maskedData, event }, 'Authentication failed');
   } else {
@@ -167,17 +170,20 @@ export function logAuthEvent(event: 'login' | 'logout' | 'register' | 'token_ref
 /**
  * Log billing events
  */
-export function logBillingEvent(event: 'payment_success' | 'payment_failure' | 'subscription_created' | 'webhook_received', data: {
-  companyId?: string;
-  amount?: number;
-  currency?: string;
-  provider?: string;
-  eventId?: string;
-  reason?: string;
-  requestId?: string;
-}) {
+export function logBillingEvent(
+  event: 'payment_success' | 'payment_failure' | 'subscription_created' | 'webhook_received',
+  data: {
+    companyId?: string;
+    amount?: number;
+    currency?: string;
+    provider?: string;
+    eventId?: string;
+    reason?: string;
+    requestId?: string;
+  }
+) {
   const maskedData = maskPII(data);
-  
+
   if (event === 'payment_failure') {
     logger.error({ ...maskedData, event }, 'Payment failed');
   } else {
@@ -188,14 +194,17 @@ export function logBillingEvent(event: 'payment_success' | 'payment_failure' | '
 /**
  * Log tenant actions for audit trail
  */
-export function logTenantAction(action: string, data: {
-  userId?: string;
-  tenantId?: string;
-  resourceType?: string;
-  resourceId?: string;
-  changes?: Record<string, any>;
-  requestId?: string;
-}) {
+export function logTenantAction(
+  action: string,
+  data: {
+    userId?: string;
+    tenantId?: string;
+    resourceType?: string;
+    resourceId?: string;
+    changes?: Record<string, any>;
+    requestId?: string;
+  }
+) {
   const maskedData = maskPII(data);
   logger.info({ ...maskedData, action }, `Tenant action: ${action}`);
 }
@@ -203,7 +212,12 @@ export function logTenantAction(action: string, data: {
 /**
  * Log performance metrics
  */
-export function logPerformanceMetric(metric: string, value: number, unit: string, context?: Record<string, any>) {
+export function logPerformanceMetric(
+  metric: string,
+  value: number,
+  unit: string,
+  context?: Record<string, any>
+) {
   const maskedContext = context ? maskPII(context) : {};
   logger.info({ metric, value, unit, ...maskedContext }, `Performance metric: ${metric}`);
 }
@@ -211,14 +225,17 @@ export function logPerformanceMetric(metric: string, value: number, unit: string
 /**
  * Log security events
  */
-export function logSecurityEvent(event: 'rate_limit_exceeded' | 'invalid_token' | 'unauthorized_access' | 'suspicious_activity', data: {
-  ip?: string;
-  userAgent?: string;
-  userId?: string;
-  path?: string;
-  reason?: string;
-  requestId?: string;
-}) {
+export function logSecurityEvent(
+  event: 'rate_limit_exceeded' | 'invalid_token' | 'unauthorized_access' | 'suspicious_activity',
+  data: {
+    ip?: string;
+    userAgent?: string;
+    userId?: string;
+    path?: string;
+    reason?: string;
+    requestId?: string;
+  }
+) {
   const maskedData = maskPII(data);
   logger.warn({ ...maskedData, event }, `Security event: ${event}`);
 }

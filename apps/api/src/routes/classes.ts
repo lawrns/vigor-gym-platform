@@ -14,14 +14,14 @@ const createClassSchema = z.object({
   gymId: z.string().uuid(),
   title: z.string().min(1).max(100),
   startsAt: z.string().datetime(),
-  capacity: z.number().int().min(1).max(100)
+  capacity: z.number().int().min(1).max(100),
 });
 
 const updateClassSchema = z.object({
   gymId: z.string().uuid().optional(),
   title: z.string().min(1).max(100).optional(),
   startsAt: z.string().datetime().optional(),
-  capacity: z.number().int().min(1).max(100).optional()
+  capacity: z.number().int().min(1).max(100).optional(),
 });
 
 /**
@@ -35,7 +35,8 @@ const updateClassSchema = z.object({
  * - id, name, startsAt, endsAt, capacity, booked, trainer
  * - Attendance tracking capabilities for trainers/managers
  */
-router.get('/today',
+router.get(
+  '/today',
   authRequired(['owner', 'manager', 'staff']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -118,12 +119,15 @@ router.get('/today',
           },
         });
       } catch (error) {
-        logger.warn({
-          error: error.message,
-          companyId,
-          locationId,
-          date: targetDate.toISOString().split('T')[0],
-        }, 'Failed to fetch classes - possibly corrupted data, returning empty result');
+        logger.warn(
+          {
+            error: error.message,
+            companyId,
+            locationId,
+            date: targetDate.toISOString().split('T')[0],
+          },
+          'Failed to fetch classes - possibly corrupted data, returning empty result'
+        );
 
         // Return empty result if there's a data corruption issue
         classes = [];
@@ -132,7 +136,9 @@ router.get('/today',
       // Transform classes to include booking counts and attendance info
       const classesWithStats = classes.map(classItem => {
         const allBookings = classItem.bookings;
-        const confirmedBookings = allBookings.filter(b => b.status === 'reserved' || b.status === 'confirmed');
+        const confirmedBookings = allBookings.filter(
+          b => b.status === 'reserved' || b.status === 'confirmed'
+        );
 
         // Calculate estimated end time (assume 1 hour duration)
         const estimatedEndTime = new Date(classItem.startsAt);
@@ -149,9 +155,10 @@ router.get('/today',
           attended: 0, // Not tracked in current schema
           noShows: 0, // Not tracked in current schema
           pending: confirmedBookings.length, // All bookings are pending attendance
-          utilizationPercent: classItem.capacity > 0
-            ? Math.round((confirmedBookings.length / classItem.capacity) * 100)
-            : 0,
+          utilizationPercent:
+            classItem.capacity > 0
+              ? Math.round((confirmedBookings.length / classItem.capacity) * 100)
+              : 0,
           gym: classItem.gym,
           trainer: null, // Not available in current schema
           bookings: confirmedBookings.map(booking => ({
@@ -176,29 +183,36 @@ router.get('/today',
           totalCapacity: classesWithStats.reduce((sum, c) => sum + c.capacity, 0),
           totalBooked: classesWithStats.reduce((sum, c) => sum + c.booked, 0),
           totalAttended: classesWithStats.reduce((sum, c) => sum + c.attended, 0),
-          averageUtilization: classesWithStats.length > 0
-            ? Math.round(classesWithStats.reduce((sum, c) => sum + c.utilizationPercent, 0) / classesWithStats.length)
-            : 0,
+          averageUtilization:
+            classesWithStats.length > 0
+              ? Math.round(
+                  classesWithStats.reduce((sum, c) => sum + c.utilizationPercent, 0) /
+                    classesWithStats.length
+                )
+              : 0,
         },
       });
-
     } catch (error) {
-      logger.error({
-        error: error.message,
-        companyId: req.tenant?.companyId,
-        locationId: req.query.locationId,
-        date: req.query.date,
-      }, 'Classes today error');
+      logger.error(
+        {
+          error: error.message,
+          companyId: req.tenant?.companyId,
+          locationId: req.query.locationId,
+          date: req.query.date,
+        },
+        'Classes today error'
+      );
 
       res.status(500).json({
-        message: 'Failed to fetch today\'s classes',
+        message: "Failed to fetch today's classes",
       });
     }
   }
 );
 
 // GET /v1/classes - List classes
-router.get('/',
+router.get(
+  '/',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -229,14 +243,14 @@ router.get('/',
           include: {
             gym: true,
             _count: {
-              select: { bookings: true }
-            }
+              select: { bookings: true },
+            },
           },
           orderBy: { startsAt: 'asc' },
           skip,
-          take: Number(limit)
+          take: Number(limit),
         }),
-        prisma.class.count({ where })
+        prisma.class.count({ where }),
       ]);
 
       res.json({
@@ -250,17 +264,16 @@ router.get('/',
           gym: {
             id: cls.gym.id,
             name: cls.gym.name,
-            city: cls.gym.city
-          }
+            city: cls.gym.city,
+          },
         })),
         pagination: {
           page: Number(page),
           limit: Number(limit),
           total,
-          pages: Math.ceil(total / Number(limit))
-        }
+          pages: Math.ceil(total / Number(limit)),
+        },
       });
-
     } catch (error) {
       console.error('Error fetching classes:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -269,16 +282,17 @@ router.get('/',
 );
 
 // POST /v1/classes - Create a new class
-router.post('/',
+router.post(
+  '/',
   authRequired(['manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
     try {
       const validation = createClassSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Validation error',
-          errors: validation.error.errors
+          errors: validation.error.errors,
         });
       }
 
@@ -286,7 +300,7 @@ router.post('/',
 
       // Verify gym exists
       const gym = await prisma.gym.findUnique({
-        where: { id: gymId }
+        where: { id: gymId },
       });
 
       if (!gym) {
@@ -302,19 +316,19 @@ router.post('/',
           gymId: gymId,
           startsAt: {
             gte: new Date(startsAtDate.getTime() - 60 * 60 * 1000), // 1 hour before
-            lte: new Date(startsAtDate.getTime() + 60 * 60 * 1000)  // 1 hour after
-          }
-        }
+            lte: new Date(startsAtDate.getTime() + 60 * 60 * 1000), // 1 hour after
+          },
+        },
       });
 
       if (conflictingClass) {
-        return res.status(409).json({ 
+        return res.status(409).json({
           message: 'Schedule conflict: Another class is scheduled at this time',
           conflictingClass: {
             id: conflictingClass.id,
             title: conflictingClass.title,
-            startsAt: conflictingClass.startsAt
-          }
+            startsAt: conflictingClass.startsAt,
+          },
         });
       }
 
@@ -324,11 +338,11 @@ router.post('/',
           gymId,
           title,
           startsAt: startsAtDate,
-          capacity
+          capacity,
         },
         include: {
-          gym: true
-        }
+          gym: true,
+        },
       });
 
       res.status(201).json({
@@ -341,10 +355,9 @@ router.post('/',
         gym: {
           id: newClass.gym.id,
           name: newClass.gym.name,
-          city: newClass.gym.city
-        }
+          city: newClass.gym.city,
+        },
       });
-
     } catch (error) {
       console.error('Error creating class:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -353,7 +366,8 @@ router.post('/',
 );
 
 // GET /v1/classes/:id - Get a specific class
-router.get('/:id',
+router.get(
+  '/:id',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -368,12 +382,12 @@ router.get('/:id',
             include: {
               membership: {
                 include: {
-                  member: true
-                }
-              }
-            }
-          }
-        }
+                  member: true,
+                },
+              },
+            },
+          },
+        },
       });
 
       if (!classData) {
@@ -390,21 +404,22 @@ router.get('/:id',
         gym: {
           id: classData.gym.id,
           name: classData.gym.name,
-          city: classData.gym.city
+          city: classData.gym.city,
         },
         bookings: classData.bookings.map(booking => ({
           id: booking.id,
           status: booking.status,
           bookedAt: booking.createdAt, // Use createdAt instead of bookedAt
-          member: booking.membership.member ? {
-            id: booking.membership.member.id,
-            firstName: booking.membership.member.firstName,
-            lastName: booking.membership.member.lastName,
-            email: booking.membership.member.email
-          } : null
-        }))
+          member: booking.membership.member
+            ? {
+                id: booking.membership.member.id,
+                firstName: booking.membership.member.firstName,
+                lastName: booking.membership.member.lastName,
+                email: booking.membership.member.email,
+              }
+            : null,
+        })),
       });
-
     } catch (error) {
       console.error('Error fetching class:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -413,7 +428,8 @@ router.get('/:id',
 );
 
 // PATCH /v1/classes/:id - Update a class
-router.patch('/:id',
+router.patch(
+  '/:id',
   authRequired(['manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -422,15 +438,15 @@ router.patch('/:id',
 
       const validation = updateClassSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Validation error',
-          errors: validation.error.errors
+          errors: validation.error.errors,
         });
       }
 
       // Check if class exists
       const existingClass = await prisma.class.findUnique({
-        where: { id: classId }
+        where: { id: classId },
       });
 
       if (!existingClass) {
@@ -442,7 +458,7 @@ router.patch('/:id',
       // Convert startsAt to Date if provided
       const processedData = {
         ...updateData,
-        ...(updateData.startsAt && { startsAt: new Date(updateData.startsAt) })
+        ...(updateData.startsAt && { startsAt: new Date(updateData.startsAt) }),
       };
 
       // Update the class
@@ -452,9 +468,9 @@ router.patch('/:id',
         include: {
           gym: true,
           _count: {
-            select: { bookings: true }
-          }
-        }
+            select: { bookings: true },
+          },
+        },
       });
 
       res.json({
@@ -467,10 +483,9 @@ router.patch('/:id',
         gym: {
           id: updatedClass.gym.id,
           name: updatedClass.gym.name,
-          city: updatedClass.gym.city
-        }
+          city: updatedClass.gym.city,
+        },
       });
-
     } catch (error) {
       console.error('Error updating class:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -479,7 +494,8 @@ router.patch('/:id',
 );
 
 // DELETE /v1/classes/:id - Delete a class
-router.delete('/:id',
+router.delete(
+  '/:id',
   authRequired(['manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -491,9 +507,9 @@ router.delete('/:id',
         where: { id: classId },
         include: {
           _count: {
-            select: { bookings: true }
-          }
-        }
+            select: { bookings: true },
+          },
+        },
       });
 
       if (!existingClass) {
@@ -501,19 +517,18 @@ router.delete('/:id',
       }
 
       if (existingClass._count.bookings > 0) {
-        return res.status(409).json({ 
+        return res.status(409).json({
           message: 'Cannot delete class with existing bookings',
-          bookingsCount: existingClass._count.bookings
+          bookingsCount: existingClass._count.bookings,
         });
       }
 
       // Delete the class
       await prisma.class.delete({
-        where: { id: classId }
+        where: { id: classId },
       });
 
       res.status(204).send();
-
     } catch (error) {
       console.error('Error deleting class:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -529,7 +544,8 @@ router.delete('/:id',
  *
  * Requires trainer or manager role
  */
-router.patch('/:classId/attendance/:bookingId',
+router.patch(
+  '/:classId/attendance/:bookingId',
   authRequired(['owner', 'manager', 'staff']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -594,16 +610,16 @@ router.patch('/:classId/attendance/:bookingId',
         },
         note: 'Schema migration needed to support attendance tracking',
       });
-
-
-
     } catch (error) {
-      logger.error({
-        error: error.message,
-        companyId: req.tenant?.companyId,
-        classId: req.params.classId,
-        bookingId: req.params.bookingId,
-      }, 'Mark attendance error');
+      logger.error(
+        {
+          error: error.message,
+          companyId: req.tenant?.companyId,
+          classId: req.params.classId,
+          bookingId: req.params.bookingId,
+        },
+        'Mark attendance error'
+      );
 
       res.status(500).json({
         message: 'Failed to update attendance',

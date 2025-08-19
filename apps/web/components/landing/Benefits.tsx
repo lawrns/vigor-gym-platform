@@ -27,9 +27,11 @@ const benefits: Benefit[] = [
 export function Benefits() {
   return (
     <section className="max-w-6xl mx-auto px-4 py-10">
-      <h2 className="font-display text-2xl">Con un solo pago mensual, tus colaboradores tienen acceso a:</h2>
+      <h2 className="font-display text-2xl">
+        Con un solo pago mensual, tus colaboradores tienen acceso a:
+      </h2>
       <div className="mt-6 grid md:grid-cols-3 gap-4">
-        {benefits.map((b) => (
+        {benefits.map(b => (
           <div key={b.title} className="rounded-xl border border-neutral-200 bg-white p-5">
             <Badge variant="secondary">{b.tag}</Badge>
             <div className="mt-3 font-medium text-lg">{b.title}</div>
@@ -43,7 +45,3 @@ export function Benefits() {
     </section>
   );
 }
-
-
-
-

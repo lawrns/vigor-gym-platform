@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../lib/auth/context';
 import { apiClient, isAPIError } from '../../../lib/api/client';
@@ -26,7 +26,7 @@ export default function PlanesPage() {
         posthog.capture('route.view', {
           path: '/planes',
           authed: !!user,
-          routeType: 'public'
+          routeType: 'public',
         });
       });
     }
@@ -43,8 +43,8 @@ export default function PlanesPage() {
 
       // Use different endpoints based on authentication status
       const response = user
-        ? await apiClient.plans.list()        // Authenticated endpoint
-        : await apiClient.plans.listPublic();  // Public endpoint
+        ? await apiClient.plans.list() // Authenticated endpoint
+        : await apiClient.plans.listPublic(); // Public endpoint
 
       if (isAPIError(response)) {
         setError(response.message);
@@ -138,7 +138,7 @@ export default function PlanesPage() {
         description: 'Plan básico para comenzar tu rutina',
         price: 'Desde $299',
         features: ['Acceso a gimnasios', 'Clases grupales básicas', 'App móvil'],
-        popular: false
+        popular: false,
       },
       {
         id: 'tp-pro',
@@ -146,16 +146,21 @@ export default function PlanesPage() {
         description: 'El plan más popular con beneficios adicionales',
         price: 'Desde $499',
         features: ['Todo lo de TP ON', 'Clases premium', 'Entrenador personal', 'Nutrición'],
-        popular: true
+        popular: true,
       },
       {
         id: 'tp-plus',
         name: 'TP+',
         description: 'Acceso completo a toda la red',
         price: 'Desde $799',
-        features: ['Todo lo de TP PRO', 'Acceso ilimitado', 'Servicios wellness', 'Prioridad en reservas'],
-        popular: false
-      }
+        features: [
+          'Todo lo de TP PRO',
+          'Acceso ilimitado',
+          'Servicios wellness',
+          'Prioridad en reservas',
+        ],
+        popular: false,
+      },
     ];
 
     return (
@@ -180,7 +185,7 @@ export default function PlanesPage() {
 
           {/* Static Plans Grid */}
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
-            {staticPlans.map((plan) => (
+            {staticPlans.map(plan => (
               <div
                 key={plan.id}
                 className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 transition-all duration-200 ${
@@ -203,9 +208,7 @@ export default function PlanesPage() {
                     <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
                       {plan.name}
                     </h3>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">
-                      {plan.description}
-                    </p>
+                    <p className="mt-2 text-gray-600 dark:text-gray-400">{plan.description}</p>
                     <div className="mt-4">
                       <span className="text-3xl font-bold text-gray-900 dark:text-white">
                         {plan.price}
@@ -285,8 +288,8 @@ export default function PlanesPage() {
             <div
               key={plan.id}
               className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 transition-all duration-200 ${
-                plan.code === 'TP_PRO' 
-                  ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800' 
+                plan.code === 'TP_PRO'
+                  ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800'
                   : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
               }`}
             >
@@ -302,9 +305,7 @@ export default function PlanesPage() {
               <div className="p-8">
                 {/* Plan Header */}
                 <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
-                    {plan.name}
-                  </h3>
+                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{plan.name}</h3>
                   <div className="mt-4">
                     <span className="text-4xl font-extrabold text-gray-900 dark:text-white">
                       {formatPrice(plan.priceMXNFrom)}
@@ -363,7 +364,8 @@ export default function PlanesPage() {
                 ¿Puedo cambiar de plan después?
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Sí, puedes actualizar o cambiar tu plan en cualquier momento desde tu panel de administración.
+                Sí, puedes actualizar o cambiar tu plan en cualquier momento desde tu panel de
+                administración.
               </p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
@@ -371,7 +373,8 @@ export default function PlanesPage() {
                 ¿Hay período de prueba?
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Todos los planes incluyen un período de prueba de 14 días para que puedas evaluar la plataforma.
+                Todos los planes incluyen un período de prueba de 14 días para que puedas evaluar la
+                plataforma.
               </p>
             </div>
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
@@ -379,7 +382,8 @@ export default function PlanesPage() {
                 ¿Qué métodos de pago aceptan?
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Aceptamos tarjetas de crédito y débito, transferencias bancarias y pagos con Mercado Pago.
+                Aceptamos tarjetas de crédito y débito, transferencias bancarias y pagos con Mercado
+                Pago.
               </p>
             </div>
           </div>

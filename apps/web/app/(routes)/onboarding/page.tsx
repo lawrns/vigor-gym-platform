@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { OnboardingWizard } from '@/components/onboarding/Wizard';
-import { OnboardingProgress } from '@/components/onboarding/Progress';
-import { useAuth } from '@/hooks/useAuth';
+import { OnboardingWizard } from '../../../components/onboarding/Wizard';
+import { OnboardingProgress } from '../../../components/onboarding/Progress';
+import { useAuth } from '../../../hooks/useAuth';
 
 interface OnboardingStatus {
   completed: {
@@ -80,14 +80,14 @@ export default function OnboardingPage() {
     try {
       setIsLoading(true);
       const response = await fetch('/api/onboarding/status');
-      
+
       if (!response.ok) {
         throw new Error('Failed to load onboarding status');
       }
 
       const data = await response.json();
       setStatus(data.status);
-      
+
       // Set current step based on status
       if (data.status.nextStep) {
         setCurrentStep(data.status.nextStep);
@@ -113,7 +113,7 @@ export default function OnboardingPage() {
     // Move to next step
     const steps = ['brand', 'locations', 'plans', 'staff'];
     const currentIndex = steps.indexOf(step);
-    
+
     if (currentIndex < steps.length - 1) {
       setCurrentStep(steps[currentIndex + 1]);
     } else {
@@ -197,16 +197,18 @@ export default function OnboardingPage() {
             <div className="flex">
               <div className="flex-shrink-0">
                 <svg className="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                  <path
+                    fillRule="evenodd"
+                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
+                    clipRule="evenodd"
+                  />
                 </svg>
               </div>
               <div className="ml-3">
                 <h3 className="text-sm font-medium text-red-800 dark:text-red-200">
                   Error en la configuración
                 </h3>
-                <div className="mt-2 text-sm text-red-700 dark:text-red-300">
-                  {error}
-                </div>
+                <div className="mt-2 text-sm text-red-700 dark:text-red-300">{error}</div>
               </div>
             </div>
           </div>

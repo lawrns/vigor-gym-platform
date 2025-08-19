@@ -12,8 +12,12 @@ import { Spotlight } from '../components/Spotlight';
 import { AuthProvider } from '../lib/auth/context';
 import { Inter, Sora } from 'next/font/google';
 
-const display = Sora({ subsets: ['latin'], weight: ['600','700'], variable: '--font-display' });
-const sans = Inter({ subsets: ['latin'], weight: ['400','500','600','700'], variable: '--font-sans' });
+const display = Sora({ subsets: ['latin'], weight: ['600', '700'], variable: '--font-display' });
+const sans = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-sans',
+});
 
 export const metadata: Metadata = {
   title: defaultSEO.title,
@@ -57,14 +61,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               cta={{ label: 'Iniciar Sesión', href: '/login' }}
             />
             <AnalyticsBinder />
-            <div className="fixed bottom-4 right-4"><ThemeToggle /></div>
+            <div className="fixed bottom-4 right-4">
+              <ThemeToggle />
+            </div>
             {children}
-            <Footer columns={(contentV2 as any)?.FooterMega?.columns || []} bottom={(contentV2 as any)?.FooterMega?.bottom || '© Vigor — Plataforma de gestión de gimnasios para México'} />
+            <Footer
+              columns={(contentV2 as any)?.FooterMega?.columns || []}
+              bottom={
+                (contentV2 as any)?.FooterMega?.bottom ||
+                '© Vigor — Plataforma de gestión de gimnasios para México'
+              }
+            />
           </AuthProvider>
         </ThemeProvider>
       </body>
     </html>
   );
 }
-
-

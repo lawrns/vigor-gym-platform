@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { Icons } from '../../lib/icons/registry';
 import { Button } from '../ui/Button';
@@ -28,7 +28,12 @@ interface BodyScanResultsProps {
   onSaveToProfile?: () => void;
 }
 
-export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }: BodyScanResultsProps) {
+export function BodyScanResults({
+  result,
+  memberName,
+  onClose,
+  onSaveToProfile,
+}: BodyScanResultsProps) {
   const getBMICategory = (bmi: number) => {
     if (bmi < 18.5) return { category: 'Bajo peso', color: 'text-blue-600' };
     if (bmi < 25) return { category: 'Normal', color: 'text-green-600' };
@@ -37,10 +42,9 @@ export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }
   };
 
   const getBodyFatCategory = (bodyFat: number, gender: 'male' | 'female' = 'male') => {
-    const ranges = gender === 'male' 
-      ? { low: 10, normal: 18, high: 25 }
-      : { low: 16, normal: 25, high: 32 };
-    
+    const ranges =
+      gender === 'male' ? { low: 10, normal: 18, high: 25 } : { low: 16, normal: 25, high: 32 };
+
     if (bodyFat < ranges.low) return { category: 'Bajo', color: 'text-blue-600' };
     if (bodyFat < ranges.normal) return { category: 'Normal', color: 'text-green-600' };
     if (bodyFat < ranges.high) return { category: 'Alto', color: 'text-yellow-600' };
@@ -49,11 +53,16 @@ export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }
 
   const getPoseQualityIcon = (quality: string) => {
     switch (quality) {
-      case 'excellent': return <Icons.CheckCircle className="h-5 w-5 text-green-600" />;
-      case 'good': return <Icons.Check className="h-5 w-5 text-blue-600" />;
-      case 'fair': return <Icons.AlertCircle className="h-5 w-5 text-yellow-600" />;
-      case 'poor': return <Icons.X className="h-5 w-5 text-red-600" />;
-      default: return <Icons.AlertCircle className="h-5 w-5 text-gray-400" />;
+      case 'excellent':
+        return <Icons.CheckCircle className="h-5 w-5 text-green-600" />;
+      case 'good':
+        return <Icons.Check className="h-5 w-5 text-blue-600" />;
+      case 'fair':
+        return <Icons.AlertCircle className="h-5 w-5 text-yellow-600" />;
+      case 'poor':
+        return <Icons.X className="h-5 w-5 text-red-600" />;
+      default:
+        return <Icons.AlertCircle className="h-5 w-5 text-gray-400" />;
     }
   };
 
@@ -94,9 +103,7 @@ export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }
               <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 {result.bmi}
               </div>
-              <div className={`text-sm font-medium ${bmiInfo.color}`}>
-                {bmiInfo.category}
-              </div>
+              <div className={`text-sm font-medium ${bmiInfo.color}`}>{bmiInfo.category}</div>
             </div>
           </CardContent>
         </Card>
@@ -104,9 +111,7 @@ export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }
         {/* Body Fat Card */}
         <Card>
           <CardHeader>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Grasa Corporal
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Grasa Corporal</h3>
           </CardHeader>
           <CardContent>
             <div className="text-center">
@@ -123,18 +128,14 @@ export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }
         {/* Muscle Mass Card */}
         <Card>
           <CardHeader>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Masa Muscular
-            </h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Masa Muscular</h3>
           </CardHeader>
           <CardContent>
             <div className="text-center">
               <div className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 {result.muscleMass} kg
               </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Estimado
-              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400">Estimado</div>
             </div>
           </CardContent>
         </Card>
@@ -151,15 +152,19 @@ export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {Object.entries(result.measurements).map(([key, value]) => (
               <div key={key} className="text-center">
-                <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                  {value}
-                </div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-white">{value}</div>
                 <div className="text-sm text-gray-600 dark:text-gray-400 capitalize">
-                  {key === 'chest' ? 'Pecho' :
-                   key === 'waist' ? 'Cintura' :
-                   key === 'hips' ? 'Cadera' :
-                   key === 'arms' ? 'Brazos' :
-                   key === 'thighs' ? 'Muslos' : key}
+                  {key === 'chest'
+                    ? 'Pecho'
+                    : key === 'waist'
+                      ? 'Cintura'
+                      : key === 'hips'
+                        ? 'Cadera'
+                        : key === 'arms'
+                          ? 'Brazos'
+                          : key === 'thighs'
+                            ? 'Muslos'
+                            : key}
                 </div>
               </div>
             ))}
@@ -177,11 +182,12 @@ export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }
         <CardContent>
           <div className="space-y-3">
             {result.recommendations.map((recommendation, index) => (
-              <div key={index} className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+              <div
+                key={index}
+                className="flex items-start gap-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg"
+              >
                 <Icons.CheckCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                <p className="text-blue-900 dark:text-blue-100 text-sm">
-                  {recommendation}
-                </p>
+                <p className="text-blue-900 dark:text-blue-100 text-sm">{recommendation}</p>
               </div>
             ))}
           </div>
@@ -203,7 +209,7 @@ export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex-1 bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                  <div 
+                  <div
                     className="bg-blue-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${result.confidence * 100}%` }}
                   />
@@ -214,12 +220,8 @@ export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }
               </div>
             </div>
             <div>
-              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">
-                ID del Escaneo
-              </div>
-              <div className="text-sm font-mono text-gray-900 dark:text-white">
-                {result.scanId}
-              </div>
+              <div className="text-sm text-gray-600 dark:text-gray-400 mb-1">ID del Escaneo</div>
+              <div className="text-sm font-mono text-gray-900 dark:text-white">{result.scanId}</div>
             </div>
           </div>
         </CardContent>
@@ -245,7 +247,7 @@ export function BodyScanResults({ result, memberName, onClose, onSaveToProfile }
           <div className="text-sm text-yellow-800 dark:text-yellow-200">
             <p className="font-medium mb-1">Aviso Importante</p>
             <p>
-              Los resultados son estimaciones basadas en análisis de imagen y datos antropométricos. 
+              Los resultados son estimaciones basadas en análisis de imagen y datos antropométricos.
               Para mediciones precisas, consulta con un profesional de la salud.
             </p>
           </div>

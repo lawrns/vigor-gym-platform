@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -35,13 +35,24 @@ const planTemplates = {
     name: 'Pro' as const,
     priceMxnCents: 129900, // $1,299
     billing: 'monthly' as const,
-    features: ['Todo lo de Basic', 'Clases grupales', 'Área de pesas', 'Entrenador personal (1 sesión)'],
+    features: [
+      'Todo lo de Basic',
+      'Clases grupales',
+      'Área de pesas',
+      'Entrenador personal (1 sesión)',
+    ],
   },
   VIP: {
     name: 'VIP' as const,
     priceMxnCents: 189900, // $1,899
     billing: 'monthly' as const,
-    features: ['Todo lo de Pro', 'Acceso 24/7', 'Spa y sauna', 'Entrenador personal (4 sesiones)', 'Nutricionista'],
+    features: [
+      'Todo lo de Pro',
+      'Acceso 24/7',
+      'Spa y sauna',
+      'Entrenador personal (4 sesiones)',
+      'Nutricionista',
+    ],
   },
 };
 
@@ -89,7 +100,9 @@ export function PlansStep({ initialData, onSubmit, isSubmitting }: PlansStepProp
 
   const handlePriceChange = (index: number, value: string) => {
     const numericValue = parseFloat(value) || 0;
-    setValue(`plans.${index}.priceMxnCents`, Math.round(numericValue * 100), { shouldValidate: true });
+    setValue(`plans.${index}.priceMxnCents`, Math.round(numericValue * 100), {
+      shouldValidate: true,
+    });
   };
 
   return (
@@ -137,7 +150,12 @@ export function PlansStep({ initialData, onSubmit, isSubmitting }: PlansStepProp
                   className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
                   </svg>
                 </button>
               )}
@@ -182,7 +200,7 @@ export function PlansStep({ initialData, onSubmit, isSubmitting }: PlansStepProp
                     min="0"
                     placeholder="899.00"
                     defaultValue={(watch(`plans.${index}.priceMxnCents`) || 0) / 100}
-                    onChange={(e) => handlePriceChange(index, e.target.value)}
+                    onChange={e => handlePriceChange(index, e.target.value)}
                     className={`
                       w-full pl-8 pr-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500
                       dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400
@@ -225,7 +243,7 @@ export function PlansStep({ initialData, onSubmit, isSubmitting }: PlansStepProp
                 rows={3}
                 placeholder="Una característica por línea&#10;Ej: Acceso al gimnasio&#10;Clases grupales&#10;Entrenador personal"
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400"
-                onChange={(e) => {
+                onChange={e => {
                   const features = e.target.value.split('\n').filter(f => f.trim());
                   setValue(`plans.${index}.features`, features, { shouldValidate: true });
                 }}
@@ -249,7 +267,12 @@ export function PlansStep({ initialData, onSubmit, isSubmitting }: PlansStepProp
                     {formatPrice(watch(`plans.${index}.priceMxnCents`) || 0)}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    por {watch(`plans.${index}.billing`) === 'yearly' ? 'año' : watch(`plans.${index}.billing`) === 'quarterly' ? 'trimestre' : 'mes'}
+                    por{' '}
+                    {watch(`plans.${index}.billing`) === 'yearly'
+                      ? 'año'
+                      : watch(`plans.${index}.billing`) === 'quarterly'
+                        ? 'trimestre'
+                        : 'mes'}
                   </div>
                 </div>
               </div>
@@ -260,9 +283,7 @@ export function PlansStep({ initialData, onSubmit, isSubmitting }: PlansStepProp
 
       {/* Errors */}
       {errors.plans && (
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {errors.plans.message}
-        </p>
+        <p className="text-sm text-red-600 dark:text-red-400">{errors.plans.message}</p>
       )}
 
       {/* Submit Button */}
@@ -272,9 +293,10 @@ export function PlansStep({ initialData, onSubmit, isSubmitting }: PlansStepProp
           disabled={!isValid || isSubmitting}
           className={`
             px-6 py-2 rounded-lg font-medium transition-all
-            ${isValid && !isSubmitting
-              ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
-              : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+            ${
+              isValid && !isSubmitting
+                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
             }
           `}
         >

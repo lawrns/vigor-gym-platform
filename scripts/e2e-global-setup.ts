@@ -15,7 +15,7 @@ async function globalSetup(config: FullConfig) {
   // Load environment variables
   const isStaging = process.env.E2E_ENV === 'staging';
   const envFile = isStaging ? '.env.staging' : '.env.local';
-  
+
   try {
     config({ path: path.resolve(process.cwd(), envFile) });
     console.log(`📄 Loaded environment from ${envFile}`);
@@ -23,8 +23,12 @@ async function globalSetup(config: FullConfig) {
     console.warn(`⚠️ Could not load ${envFile}, using process.env`);
   }
 
-  const baseURL = process.env.PW_BASE_URL || (isStaging ? 'https://staging.vigor-gym.com' : 'http://localhost:7777');
-  const apiURL = process.env.PW_API_URL || (isStaging ? 'https://api-staging.vigor-gym.com' : 'http://localhost:4001');
+  const baseURL =
+    process.env.PW_BASE_URL ||
+    (isStaging ? 'https://staging.vigor-gym.com' : 'http://localhost:7777');
+  const apiURL =
+    process.env.PW_API_URL ||
+    (isStaging ? 'https://api-staging.vigor-gym.com' : 'http://localhost:4001');
   const tenantId = process.env.TENANT_ID || '00000000-0000-0000-0000-000000000001';
 
   console.log(`🌐 Base URL: ${baseURL}`);
@@ -57,7 +61,7 @@ async function globalSetup(config: FullConfig) {
         `stripe listen --forward-to ${apiURL}/v1/billing/webhook/stripe --print-secret`,
         { encoding: 'utf8', timeout: 10000 }
       );
-      
+
       // Extract webhook secret
       const webhookSecret = stripeProcess.match(/whsec_[a-zA-Z0-9]+/)?.[0];
       if (webhookSecret) {
@@ -71,7 +75,7 @@ async function globalSetup(config: FullConfig) {
 
   // Step 3: Health check endpoints
   console.log('🏥 Running health checks...');
-  
+
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page = await context.newPage();
@@ -105,7 +109,6 @@ async function globalSetup(config: FullConfig) {
     } else {
       console.warn('⚠️ Could not check database connectivity');
     }
-
   } catch (error) {
     console.error('❌ Health checks failed:', error);
     throw error;
@@ -115,7 +118,7 @@ async function globalSetup(config: FullConfig) {
 
   // Step 4: Create admin session for API smoke tests
   console.log('🔐 Creating admin session...');
-  
+
   const adminBrowser = await chromium.launch();
   const adminContext = await adminBrowser.newContext();
   const adminPage = await adminContext.newPage();
@@ -129,7 +132,7 @@ async function globalSetup(config: FullConfig) {
     await adminPage.fill('[data-testid="login-email"]', adminEmail);
     await adminPage.fill('[data-testid="login-password"]', adminPassword);
     await adminPage.click('[data-testid="login-submit"]');
-    
+
     // Wait for successful login (handle page refresh)
     try {
       await adminPage.waitForURL(/dashboard/, { timeout: 15000 });
@@ -175,7 +178,6 @@ async function globalSetup(config: FullConfig) {
         console.warn('⚠️ Could not reset test data:', error);
       }
     }
-
   } catch (error) {
     console.error('❌ Admin session creation failed:', error);
     throw error;
@@ -185,7 +187,7 @@ async function globalSetup(config: FullConfig) {
 
   // Step 5: Warm up critical endpoints
   console.log('🔥 Warming up critical endpoints...');
-  
+
   const warmupBrowser = await chromium.launch();
   const warmupContext = await warmupBrowser.newContext();
   const warmupPage = await warmupContext.newPage();
@@ -207,7 +209,6 @@ async function globalSetup(config: FullConfig) {
         console.warn(`⚠️ Could not warm up: ${endpoint}`);
       }
     }
-
   } finally {
     await warmupBrowser.close();
   }

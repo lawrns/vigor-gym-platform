@@ -20,12 +20,12 @@ test.describe('User Flow Audit', () => {
 
     // Step 3: Verify successful redirect
     await page.waitForURL('/dashboard**');
-    
+
     const authTime = Date.now() - startTime;
-    
+
     // Authentication should complete within 3 seconds
     expect(authTime).toBeLessThan(3000);
-    
+
     console.log(`Authentication flow completed in: ${authTime}ms`);
   });
 
@@ -48,27 +48,27 @@ test.describe('User Flow Audit', () => {
       'active-visits-widget',
       'expiring-memberships-widget',
       'revenue-sparkline',
-      'live-activity-feed'
+      'live-activity-feed',
     ];
 
     for (const widgetTestId of expectedWidgets) {
       const widget = page.locator(`[data-testid="${widgetTestId}"]`);
       await expect(widget).toBeVisible();
-      
+
       // Verify widget has content (not empty state)
       const hasContent = await widget.evaluate(el => {
         const text = el.textContent || '';
         return text.length > 10 && !text.includes('No data') && !text.includes('Loading');
       });
-      
+
       expect(hasContent).toBeTruthy();
     }
 
     const dashboardLoadTime = Date.now() - dashboardStartTime;
-    
+
     // Dashboard should load with data within 2.5 seconds
     expect(dashboardLoadTime).toBeLessThan(2500);
-    
+
     console.log(`Dashboard loaded with data in: ${dashboardLoadTime}ms`);
   });
 
@@ -81,7 +81,7 @@ test.describe('User Flow Audit', () => {
 
     // Verify kiosk interface elements
     await expect(page.locator('[data-testid="device-login-form"]')).toBeVisible();
-    
+
     // Test device login form
     const deviceIdInput = page.locator('[data-testid="device-id-input"]');
     const deviceSecretInput = page.locator('[data-testid="device-secret-input"]');
@@ -94,10 +94,10 @@ test.describe('User Flow Audit', () => {
     }
 
     const kioskLoadTime = Date.now() - kioskStartTime;
-    
+
     // Kiosk should load within 2 seconds
     expect(kioskLoadTime).toBeLessThan(2000);
-    
+
     console.log(`Kiosk interface loaded in: ${kioskLoadTime}ms`);
   });
 
@@ -111,7 +111,7 @@ test.describe('User Flow Audit', () => {
     // Verify onboarding elements are present
     const companyForm = page.locator('[data-testid="company-form"]');
     const planSelector = page.locator('[data-testid="plan-selector"]');
-    
+
     // Check if onboarding forms are visible
     const hasOnboardingElements = await page.evaluate(() => {
       const forms = document.querySelectorAll('form');
@@ -122,10 +122,10 @@ test.describe('User Flow Audit', () => {
     expect(hasOnboardingElements).toBeTruthy();
 
     const onboardingLoadTime = Date.now() - onboardingStartTime;
-    
+
     // Onboarding should load within 2 seconds
     expect(onboardingLoadTime).toBeLessThan(2000);
-    
+
     console.log(`Onboarding page loaded in: ${onboardingLoadTime}ms`);
   });
 
@@ -141,12 +141,15 @@ test.describe('User Flow Audit', () => {
     await page.waitForLoadState('networkidle');
 
     // Monitor for SSE connections
-    const sseConnected = await page.waitForFunction(() => {
-      // Check if EventSource is connected
-      return window.performance.getEntriesByType('resource').some(entry => 
-        entry.name.includes('/v1/events')
-      );
-    }, { timeout: 5000 });
+    const sseConnected = await page.waitForFunction(
+      () => {
+        // Check if EventSource is connected
+        return window.performance
+          .getEntriesByType('resource')
+          .some(entry => entry.name.includes('/v1/events'));
+      },
+      { timeout: 5000 }
+    );
 
     expect(sseConnected).toBeTruthy();
 
@@ -161,31 +164,32 @@ test.describe('User Flow Audit', () => {
     });
 
     expect(hasRecentActivity).toBeTruthy();
-    
+
     console.log('Real-time updates verified successfully');
   });
 
   test('Flow 6: Error Handling and Recovery', async ({ page }) => {
     // Test 404 handling
     await page.goto('/nonexistent-page');
-    
+
     // Should either redirect or show proper 404
     const currentUrl = page.url();
     const pageContent = await page.textContent('body');
-    
-    const hasProperErrorHandling = currentUrl.includes('/login') || 
-                                  currentUrl.includes('/404') || 
-                                  pageContent?.includes('404') ||
-                                  pageContent?.includes('Not Found');
-    
+
+    const hasProperErrorHandling =
+      currentUrl.includes('/login') ||
+      currentUrl.includes('/404') ||
+      pageContent?.includes('404') ||
+      pageContent?.includes('Not Found');
+
     expect(hasProperErrorHandling).toBeTruthy();
 
     // Test unauthorized access
     await page.goto('/dashboard-v2');
-    
+
     // Should redirect to login if not authenticated
     await page.waitForURL('/login**', { timeout: 5000 });
-    
+
     console.log('Error handling verified successfully');
   });
 
@@ -203,11 +207,11 @@ test.describe('User Flow Audit', () => {
     // Verify form elements are accessible on mobile
     const emailInput = page.locator('[data-testid="email-input"]');
     const passwordInput = page.locator('[data-testid="password-input"]');
-    
+
     if (await emailInput.isVisible()) {
       const emailBox = await emailInput.boundingBox();
       const passwordBox = await passwordInput.boundingBox();
-      
+
       // Elements should be properly sized for mobile
       expect(emailBox?.width).toBeGreaterThan(200);
       expect(passwordBox?.width).toBeGreaterThan(200);

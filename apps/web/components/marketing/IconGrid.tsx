@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { motion } from 'framer-motion';
 import { Icons } from '../../lib/icons/registry';
@@ -18,14 +18,11 @@ interface IconGridProps {
 
 export function IconGrid({ items, disclaimer, testId = 'benefits' }: IconGridProps) {
   return (
-    <section 
-      data-testid={testId}
-      className="max-w-6xl mx-auto px-4 py-16"
-    >
+    <section data-testid={testId} className="max-w-6xl mx-auto px-4 py-16">
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {items.map((item, index) => {
           const IconComponent = Icons[item.icon as keyof typeof Icons] || Icons.Activity;
-          
+
           return (
             <motion.div
               key={item.title}
@@ -38,21 +35,17 @@ export function IconGrid({ items, disclaimer, testId = 'benefits' }: IconGridPro
               <div className="inline-flex items-center justify-center w-16 h-16 bg-primary/10 rounded-2xl">
                 <IconComponent className="h-8 w-8 text-primary" />
               </div>
-              
+
               {/* Content */}
               <div className="space-y-2">
-                <h3 className="font-display text-lg font-semibold text-heading">
-                  {item.title}
-                </h3>
-                <p className="text-text/80 text-sm leading-relaxed">
-                  {item.desc}
-                </p>
+                <h3 className="font-display text-lg font-semibold text-heading">{item.title}</h3>
+                <p className="text-text/80 text-sm leading-relaxed">{item.desc}</p>
               </div>
             </motion.div>
           );
         })}
       </div>
-      
+
       {/* Disclaimer */}
       {disclaimer && (
         <motion.div
@@ -61,9 +54,7 @@ export function IconGrid({ items, disclaimer, testId = 'benefits' }: IconGridPro
           viewport={{ once: true }}
           className="mt-8 text-center"
         >
-          <p className="text-xs text-muted italic">
-            {disclaimer}
-          </p>
+          <p className="text-xs text-muted italic">{disclaimer}</p>
         </motion.div>
       )}
     </section>

@@ -18,36 +18,50 @@ export function initializeScheduler(): void {
   logger.info({ timezone: JOB_TZ }, 'Initializing job scheduler');
 
   // Membership expiration job - runs daily at 2:00 AM
-  cron.schedule('0 2 * * *', async () => {
-    logger.info('Starting scheduled membership expiration job');
-    
-    try {
-      const result = await processMembershipExpirations();
-      logger.info({
-        processedCount: result.processedCount,
-        expiredCount: result.expiredCount,
-        soonToExpireCount: result.soonToExpireCount,
-        errorCount: result.errors.length,
-        executionTime: result.executionTime,
-      }, 'Scheduled membership expiration job completed');
-    } catch (error) {
-      logger.error({
-        error: error.message,
-        stack: error.stack,
-      }, 'Scheduled membership expiration job failed');
+  cron.schedule(
+    '0 2 * * *',
+    async () => {
+      logger.info('Starting scheduled membership expiration job');
+
+      try {
+        const result = await processMembershipExpirations();
+        logger.info(
+          {
+            processedCount: result.processedCount,
+            expiredCount: result.expiredCount,
+            soonToExpireCount: result.soonToExpireCount,
+            errorCount: result.errors.length,
+            executionTime: result.executionTime,
+          },
+          'Scheduled membership expiration job completed'
+        );
+      } catch (error) {
+        logger.error(
+          {
+            error: error.message,
+            stack: error.stack,
+          },
+          'Scheduled membership expiration job failed'
+        );
+      }
+    },
+    {
+      scheduled: true,
+      timezone: JOB_TZ,
     }
-  }, {
-    scheduled: true,
-    timezone: JOB_TZ,
-  });
+  );
 
   // Health check job - runs every hour to ensure scheduler is alive
-  cron.schedule('0 * * * *', () => {
-    logger.info('Job scheduler health check');
-  }, {
-    scheduled: true,
-    timezone: JOB_TZ,
-  });
+  cron.schedule(
+    '0 * * * *',
+    () => {
+      logger.info('Job scheduler health check');
+    },
+    {
+      scheduled: true,
+      timezone: JOB_TZ,
+    }
+  );
 
   logger.info('Job scheduler initialized successfully');
 }
@@ -85,14 +99,14 @@ export function getSchedulerStatus(): {
 /**
  * Calculate next run time for a cron expression
  */
-function getNextRunTime(cronExpression: string): string {
+function getNextRunTime(_cronExpression: string): string {
   try {
     // This is a simplified calculation - in production, use a proper cron parser
     const now = new Date();
     const tomorrow = new Date(now);
     tomorrow.setDate(tomorrow.getDate() + 1);
     tomorrow.setHours(2, 0, 0, 0); // Next 2 AM
-    
+
     return tomorrow.toISOString();
   } catch (error) {
     return 'Unable to calculate';

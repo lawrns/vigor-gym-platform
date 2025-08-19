@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { Icons } from '../../../lib/icons/registry';
 import { Widget, WidgetEmpty } from '../DashboardShell';
 import { apiClient } from '../../../lib/api/client';
 import { useSSE, SSEEvent } from '../../../lib/hooks/useSSE';
 import { useAuth } from '../../../lib/auth/context';
-import type { DashboardSummary } from '../../../lib/api/types';
+import type { DashboardSummary } from '../../../lib/dashboard/supabase-data-service';
 
 interface ActiveVisitsWidgetProps {
   locationId?: string;
@@ -16,7 +16,7 @@ interface ActiveVisitsWidgetProps {
 
 /**
  * ActiveVisitsWidget - Shows current gym occupancy with capacity and utilization
- * 
+ *
  * Features:
  * - Real-time active visits count
  * - Capacity limits and utilization percentage
@@ -33,12 +33,12 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
   const announcementRef = useRef<HTMLDivElement>(null);
 
   // Fetch dashboard summary data
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setError(null);
-      const summary = await apiClient.dashboard.summary({ 
+      const summary = await apiClient.dashboard.summary({
         locationId,
-        range: '7d' // Not used for active visits but required for API
+        range: '7d', // Not used for active visits but required for API
       });
       setData(summary);
     } catch (err) {
@@ -47,14 +47,14 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
     } finally {
       setLoading(false);
     }
-  };
+  }, [locationId]);
 
   useEffect(() => {
     fetchData();
-  }, [locationId]);
+  }, [fetchData]);
 
   // Handle SSE events for real-time updates
-  const handleSSEEvent = (event: SSEEvent) => {
+  const handleSSEEvent = useCallback((event: SSEEvent) => {
     if (event.type === 'visit.checkin' || event.type === 'visit.checkout') {
       // Refresh data when visits change
       fetchData();
@@ -66,14 +66,14 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
         announcementRef.current.textContent = `Member ${action}. Active visits updated.`;
       }
     }
-  };
+  }, [fetchData]);
 
   // SSE connection for real-time updates
   const sseState = useSSE({
     orgId: user?.company?.id || '',
     locationId,
     onEvent: handleSSEEvent,
-    onConnectionChange: (status) => {
+    onConnectionChange: status => {
       console.log('[ActiveVisitsWidget] SSE status:', status);
     },
     maxRetries: 3,
@@ -82,18 +82,13 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
 
   if (!data && !loading) {
     return (
-      <Widget
-        size="sm"
-        className={className}
-        testId="kpi-active-now"
-        error={error}
-      >
+      <Widget size="sm" className={className} testId="kpi-active-now" error={error}>
         <WidgetEmpty
           title="Sin datos de visitas"
           description="No se pudieron cargar los datos de visitas activas"
           action={{
-            label: "Reintentar",
-            onClick: fetchData
+            label: 'Reintentar',
+            onClick: fetchData,
           }}
         />
       </Widget>
@@ -148,12 +143,15 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
         <div className="space-y-2">
           <div className="flex items-center justify-between text-sm">
             <span className="text-gray-600 dark:text-gray-400">Capacidad</span>
-            <span 
+            <span
               className={`font-medium ${
-                capacityStatus.color === 'red' ? 'text-red-600 dark:text-red-400' :
-                capacityStatus.color === 'amber' ? 'text-amber-600 dark:text-amber-400' :
-                capacityStatus.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
-                'text-green-600 dark:text-green-400'
+                capacityStatus.color === 'red'
+                  ? 'text-red-600 dark:text-red-400'
+                  : capacityStatus.color === 'amber'
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : capacityStatus.color === 'blue'
+                      ? 'text-blue-600 dark:text-blue-400'
+                      : 'text-green-600 dark:text-green-400'
               }`}
               data-testid="kpi-capacity-badge"
             >
@@ -165,10 +163,13 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
             <div
               className={`h-2 rounded-full transition-all duration-300 ${
-                capacityStatus.color === 'red' ? 'bg-red-500' :
-                capacityStatus.color === 'amber' ? 'bg-amber-500' :
-                capacityStatus.color === 'blue' ? 'bg-blue-500' :
-                'bg-green-500'
+                capacityStatus.color === 'red'
+                  ? 'bg-red-500'
+                  : capacityStatus.color === 'amber'
+                    ? 'bg-amber-500'
+                    : capacityStatus.color === 'blue'
+                      ? 'bg-blue-500'
+                      : 'bg-green-500'
               }`}
               style={{ width: `${Math.min(utilizationPercent, 100)}%` }}
             />
@@ -176,7 +177,9 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
 
           {/* Capacity Details */}
           <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-            <span>{activeVisits} de {capacityLimit}</span>
+            <span>
+              {activeVisits} de {capacityLimit}
+            </span>
             <span className="flex items-center">
               {capacityStatus.status === 'critical' && (
                 <>
@@ -213,17 +216,13 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
               <div className="text-lg font-semibold text-gray-900 dark:text-white">
                 {capacityLimit - activeVisits}
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                Espacios libres
-              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Espacios libres</div>
             </div>
             <div>
               <div className="text-lg font-semibold text-gray-900 dark:text-white">
                 {Math.round((activeVisits / Math.max(capacityLimit, 1)) * 100)}%
               </div>
-              <div className="text-xs text-gray-600 dark:text-gray-400">
-                Ocupación
-              </div>
+              <div className="text-xs text-gray-600 dark:text-gray-400">Ocupación</div>
             </div>
           </div>
         </div>
@@ -231,13 +230,15 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
         {/* Real-time Indicator */}
         <div className="flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
           <div className="flex items-center">
-            <div className={`w-2 h-2 rounded-full mr-2 ${
-              sseState.status === 'connected'
-                ? 'bg-green-400 animate-pulse'
-                : sseState.status === 'connecting'
-                ? 'bg-yellow-400 animate-pulse'
-                : 'bg-red-400'
-            }`} />
+            <div
+              className={`w-2 h-2 rounded-full mr-2 ${
+                sseState.status === 'connected'
+                  ? 'bg-green-400 animate-pulse'
+                  : sseState.status === 'connecting'
+                    ? 'bg-yellow-400 animate-pulse'
+                    : 'bg-red-400'
+              }`}
+            />
             {sseState.status === 'connected' && 'Datos en tiempo real'}
             {sseState.status === 'connecting' && 'Conectando...'}
             {sseState.status === 'disconnected' && 'Desconectado'}
@@ -251,21 +252,13 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
         </div>
 
         {/* Screen reader announcements */}
-        <div
-          ref={announcementRef}
-          className="sr-only"
-          aria-live="polite"
-          aria-atomic="true"
-        />
+        <div ref={announcementRef} className="sr-only" aria-live="polite" aria-atomic="true" />
 
         {/* Critical capacity announcement */}
         {capacityStatus.status === 'critical' && (
-          <div
-            className="sr-only"
-            aria-live="assertive"
-            aria-atomic="true"
-          >
-            Atención: El gimnasio está en capacidad máxima con {activeVisits} personas de {capacityLimit} permitidas.
+          <div className="sr-only" aria-live="assertive" aria-atomic="true">
+            Atención: El gimnasio está en capacidad máxima con {activeVisits} personas de{' '}
+            {capacityLimit} permitidas.
           </div>
         )}
       </div>
@@ -314,9 +307,7 @@ export function ActiveVisitsCompact({ locationId, className }: ActiveVisitsWidge
       <div className="flex items-center justify-between">
         <div>
           <div className="text-sm text-gray-600 dark:text-gray-400">Activos ahora</div>
-          <div className="text-2xl font-bold text-gray-900 dark:text-white">
-            {activeVisits}
-          </div>
+          <div className="text-2xl font-bold text-gray-900 dark:text-white">{activeVisits}</div>
         </div>
         <div className="text-right">
           <div className="text-sm text-gray-600 dark:text-gray-400">Ocupación</div>

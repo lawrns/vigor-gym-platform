@@ -14,7 +14,7 @@ test.describe('Dashboard SSR & Performance', () => {
   test('DASH-01: Dashboard SSR KPIs render; filter bar drives query & trends', async ({
     page,
     performanceMonitor,
-    authSession
+    authSession,
   }) => {
     console.log('📊 Testing dashboard SSR and performance...');
 
@@ -65,9 +65,8 @@ test.describe('Dashboard SSR & Performance', () => {
 
     // Wait for potential API response (with shorter timeout since it might not happen)
     try {
-      await page.waitForResponse(response =>
-        response.url().includes('/kpi/overview') &&
-        response.url().includes('from='),
+      await page.waitForResponse(
+        response => response.url().includes('/kpi/overview') && response.url().includes('from='),
         { timeout: 3000 }
       );
       console.log('✅ Filter triggered API request');

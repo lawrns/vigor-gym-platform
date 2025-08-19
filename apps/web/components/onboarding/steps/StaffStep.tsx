@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -100,9 +100,7 @@ export function StaffStep({ initialData, onSubmit, isSubmitting, isLastStep }: S
     } else {
       onSubmit({
         importMethod: 'Manual',
-        staff: data.staff?.filter(member => 
-          member.firstName && member.lastName && member.email
-        ),
+        staff: data.staff?.filter(member => member.firstName && member.lastName && member.email),
       });
     }
   };
@@ -120,17 +118,20 @@ export function StaffStep({ initialData, onSubmit, isSubmitting, isLastStep }: S
             onClick={() => handleImportMethodChange('Manual')}
             className={`
               p-4 border-2 rounded-lg text-left transition-all
-              ${importMethod === 'Manual'
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+              ${
+                importMethod === 'Manual'
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
               }
             `}
           >
             <div className="flex items-center space-x-3">
-              <div className={`
+              <div
+                className={`
                 w-4 h-4 rounded-full border-2 flex items-center justify-center
                 ${importMethod === 'Manual' ? 'border-blue-500' : 'border-gray-300 dark:border-gray-600'}
-              `}>
+              `}
+              >
                 {importMethod === 'Manual' && (
                   <div className="w-2 h-2 rounded-full bg-blue-500"></div>
                 )}
@@ -149,20 +150,21 @@ export function StaffStep({ initialData, onSubmit, isSubmitting, isLastStep }: S
             onClick={() => handleImportMethodChange('CSV')}
             className={`
               p-4 border-2 rounded-lg text-left transition-all
-              ${importMethod === 'CSV'
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
-                : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
+              ${
+                importMethod === 'CSV'
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500'
               }
             `}
           >
             <div className="flex items-center space-x-3">
-              <div className={`
+              <div
+                className={`
                 w-4 h-4 rounded-full border-2 flex items-center justify-center
                 ${importMethod === 'CSV' ? 'border-blue-500' : 'border-gray-300 dark:border-gray-600'}
-              `}>
-                {importMethod === 'CSV' && (
-                  <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                )}
+              `}
+              >
+                {importMethod === 'CSV' && <div className="w-2 h-2 rounded-full bg-blue-500"></div>}
               </div>
               <div>
                 <div className="font-medium text-gray-900 dark:text-white">CSV</div>
@@ -197,9 +199,7 @@ export function StaffStep({ initialData, onSubmit, isSubmitting, isLastStep }: S
               className="border border-gray-200 dark:border-gray-600 rounded-lg p-4"
             >
               <div className="flex items-center justify-between mb-4">
-                <h5 className="font-medium text-gray-900 dark:text-white">
-                  Persona {index + 1}
-                </h5>
+                <h5 className="font-medium text-gray-900 dark:text-white">Persona {index + 1}</h5>
                 {fields.length > 1 && (
                   <button
                     type="button"
@@ -207,7 +207,12 @@ export function StaffStep({ initialData, onSubmit, isSubmitting, isLastStep }: S
                     className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
                     </svg>
                   </button>
                 )}
@@ -365,9 +370,10 @@ export function StaffStep({ initialData, onSubmit, isSubmitting, isLastStep }: S
           disabled={!isValid || isSubmitting}
           className={`
             px-6 py-2 rounded-lg font-medium transition-all
-            ${isValid && !isSubmitting
-              ? 'bg-green-600 hover:bg-green-700 text-white shadow-sm'
-              : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+            ${
+              isValid && !isSubmitting
+                ? 'bg-green-600 hover:bg-green-700 text-white shadow-sm'
+                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
             }
           `}
         >

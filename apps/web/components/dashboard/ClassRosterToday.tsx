@@ -1,12 +1,12 @@
 /**
  * Class Roster Today Widget
- * 
+ *
  * Displays today's scheduled classes with timeline, occupancy, and attendance tracking
  */
 
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Icons } from '../../lib/icons/registry';
 import { Widget, WidgetEmpty } from './DashboardShell';
 import { api } from '../../lib/api/client';
@@ -137,14 +137,9 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
 
   if (loading) {
     return (
-      <Widget
-        title="Clases de Hoy"
-        icon={Icons.Calendar}
-        className={className}
-        loading={true}
-      >
+      <Widget title="Clases de Hoy" icon={Icons.Calendar} className={className} loading={true}>
         <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3].map(i => (
             <div key={i} className="animate-pulse">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-lg"></div>
@@ -181,8 +176,8 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
         message="No hay clases programadas para hoy"
         description="Las clases aparecerán aquí cuando estén programadas"
         action={{
-          label: "Programar Clase",
-          href: "/classes/new",
+          label: 'Programar Clase',
+          href: '/classes/new',
         }}
       />
     );
@@ -194,8 +189,8 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
       icon={Icons.Calendar}
       className={className}
       action={{
-        label: "Ver Todas",
-        href: "/classes",
+        label: 'Ver Todas',
+        href: '/classes',
       }}
     >
       <div className="space-y-4">
@@ -205,31 +200,27 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
             <div className="text-lg font-semibold text-gray-900 dark:text-white">
               {data.summary.totalBooked}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Reservas
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Reservas</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900 dark:text-white">
               {data.summary.totalCapacity}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Capacidad
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Capacidad</div>
           </div>
           <div className="text-center">
-            <div className={`text-lg font-semibold ${getUtilizationColor(data.summary.averageUtilization)}`}>
+            <div
+              className={`text-lg font-semibold ${getUtilizationColor(data.summary.averageUtilization)}`}
+            >
               {data.summary.averageUtilization}%
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Ocupación
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Ocupación</div>
           </div>
         </div>
 
         {/* Classes Timeline */}
         <div className="space-y-3">
-          {data.classes.map((classItem) => {
+          {data.classes.map(classItem => {
             const statusDisplay = getStatusDisplay(classItem.status);
             const StatusIcon = statusDisplay.icon;
 
@@ -243,7 +234,9 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
                   <div className="text-sm font-medium text-gray-900 dark:text-white">
                     {formatTime(classItem.startsAt)}
                   </div>
-                  <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusDisplay.bgColor} ${statusDisplay.color} mt-1`}>
+                  <div
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusDisplay.bgColor} ${statusDisplay.color} mt-1`}
+                  >
                     <StatusIcon className="w-3 h-3 mr-1" />
                     {statusDisplay.label}
                   </div>
@@ -265,7 +258,7 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
                       </span>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center justify-between mt-1">
                     <div className="text-xs text-gray-500 dark:text-gray-400">
                       {classItem.trainer ? (
@@ -280,7 +273,7 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
                         </span>
                       )}
                     </div>
-                    
+
                     {classItem.gym && (
                       <div className="text-xs text-gray-500 dark:text-gray-400">
                         <Icons.MapPin className="w-3 h-3 inline mr-1" />
@@ -294,7 +287,9 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
                     <div className="mt-2">
                       <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mb-1">
                         <span>Asistencia</span>
-                        <span>{classItem.attended}/{classItem.booked}</span>
+                        <span>
+                          {classItem.attended}/{classItem.booked}
+                        </span>
                       </div>
                       <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
                         <div
@@ -309,20 +304,21 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
                 </div>
 
                 {/* Action Button */}
-                {(classItem.status === 'in-progress' || classItem.status === 'completed') && classItem.booked > 0 && (
-                  <div className="flex-shrink-0">
-                    <button
-                      onClick={() => {
-                        // TODO: Open attendance modal
-                        console.log('Open attendance for class:', classItem.id);
-                      }}
-                      className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                      title="Marcar asistencia"
-                    >
-                      <Icons.CheckSquare className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+                {(classItem.status === 'in-progress' || classItem.status === 'completed') &&
+                  classItem.booked > 0 && (
+                    <div className="flex-shrink-0">
+                      <button
+                        onClick={() => {
+                          // TODO: Open attendance modal
+                          console.log('Open attendance for class:', classItem.id);
+                        }}
+                        className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        title="Marcar asistencia"
+                      >
+                        <Icons.CheckSquare className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
               </div>
             );
           })}

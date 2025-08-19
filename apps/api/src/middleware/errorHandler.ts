@@ -1,12 +1,19 @@
 /**
  * Global Error Handler Middleware
- * 
+ *
  * Standardizes error responses across all API endpoints
  */
 
 import { Request, Response, NextFunction } from 'express';
 import { AppError, formatErrorResponse, isOperationalError } from '../lib/errors.js';
 import { logger } from '../utils/auditLogger.js';
+
+// Extended request types for middleware
+interface ExtendedRequest extends Request {
+  user?: { id: string };
+  tenant?: { companyId: string };
+  requestId?: string;
+}
 
 /**
  * Global error handling middleware
@@ -30,37 +37,43 @@ export function errorHandler(
     query: req.query,
     userAgent: req.get('User-Agent'),
     ip: req.ip,
-    userId: (req as any).user?.id,
-    tenantId: (req as any).tenant?.companyId,
-    requestId: (req as any).requestId,
+    userId: (req as ExtendedRequest).user?.id,
+    tenantId: (req as ExtendedRequest).tenant?.companyId,
+    requestId: (req as ExtendedRequest).requestId,
   };
 
   // Determine if this is an operational error or a programming error
   const isOperational = isOperationalError(error);
-  
+
   // Log the error appropriately
   if (isOperational) {
     // Operational errors are expected and logged at info/warn level
-    logger.warn({
-      ...requestContext,
-      error: {
-        name: error.name,
-        message: error.message,
-        code: error instanceof AppError ? error.code : 'UNKNOWN',
-        statusCode: error instanceof AppError ? error.statusCode : 500,
+    logger.warn(
+      {
+        ...requestContext,
+        error: {
+          name: error.name,
+          message: error.message,
+          code: error instanceof AppError ? error.code : 'UNKNOWN',
+          statusCode: error instanceof AppError ? error.statusCode : 500,
+        },
       },
-    }, 'Operational error occurred');
+      'Operational error occurred'
+    );
   } else {
     // Programming errors are unexpected and logged at error level with stack trace
-    logger.error({
-      ...requestContext,
-      error: {
-        name: error.name,
-        message: error.message,
-        stack: error.stack,
-        code: error instanceof AppError ? error.code : 'INTERNAL_ERROR',
+    logger.error(
+      {
+        ...requestContext,
+        error: {
+          name: error.name,
+          message: error.message,
+          stack: error.stack,
+          code: error instanceof AppError ? error.code : 'INTERNAL_ERROR',
+        },
       },
-    }, 'Programming error occurred');
+      'Programming error occurred'
+    );
   }
 
   // Determine status code
@@ -76,11 +89,7 @@ export function errorHandler(
   }
 
   // Format error response
-  const errorResponse = formatErrorResponse(
-    error,
-    req.path,
-    (req as any).requestId
-  );
+  const errorResponse = formatErrorResponse(error, req.path, (req as ExtendedRequest).requestId);
 
   // In production, don't expose internal error details
   if (process.env.NODE_ENV === 'production' && !isOperational) {
@@ -99,15 +108,18 @@ export function notFoundHandler(req: Request, res: Response): void {
   const errorResponse = formatErrorResponse(
     new AppError('NOT_FOUND', `Route ${req.method} ${req.path} not found`, 404),
     req.path,
-    (req as any).requestId
+    (req as ExtendedRequest).requestId
   );
 
-  logger.warn({
-    method: req.method,
-    path: req.path,
-    userAgent: req.get('User-Agent'),
-    ip: req.ip,
-  }, 'Route not found');
+  logger.warn(
+    {
+      method: req.method,
+      path: req.path,
+      userAgent: req.get('User-Agent'),
+      ip: req.ip,
+    },
+    'Route not found'
+  );
 
   res.status(404).json(errorResponse);
 }
@@ -127,51 +139,32 @@ export function asyncHandler<T extends Request, U extends Response>(
 /**
  * Validation error handler for common validation libraries
  */
-export function handleValidationError(error: any): AppError {
+export function handleValidationError(error: Record<string, unknown>): AppError {
   if (error.name === 'ValidationError') {
     // Mongoose validation error
-    const errors = Object.values(error.errors).map((err: any) => ({
+    const errors = Object.values(error.errors as Record<string, unknown>).map((err: Record<string, unknown>) => ({
       field: err.path,
       message: err.message,
     }));
-    
-    return new AppError(
-      'VALIDATION_ERROR',
-      'Validation failed',
-      422,
-      { errors }
-    );
+
+    return new AppError('VALIDATION_ERROR', 'Validation failed', 422, { errors });
   }
 
   if (error.code === 'P2002') {
     // Prisma unique constraint error
     const field = error.meta?.target?.[0] || 'field';
-    return new AppError(
-      'DUPLICATE_ENTRY',
-      `${field} already exists`,
-      409,
-      { field }
-    );
+    return new AppError('DUPLICATE_ENTRY', `${field} already exists`, 409, { field });
   }
 
   if (error.code === 'P2025') {
     // Prisma record not found
-    return new AppError(
-      'NOT_FOUND',
-      'Record not found',
-      404
-    );
+    return new AppError('NOT_FOUND', 'Record not found', 404);
   }
 
   if (error.code === 'P2003') {
     // Prisma foreign key constraint
     const field = error.meta?.field_name || 'reference';
-    return new AppError(
-      'INVALID_REFERENCE',
-      `Referenced ${field} does not exist`,
-      400,
-      { field }
-    );
+    return new AppError('INVALID_REFERENCE', `Referenced ${field} does not exist`, 400, { field });
   }
 
   // Return original error if not recognized
@@ -188,12 +181,15 @@ export function handleRateLimitError(req: Request, res: Response): void {
     (req as any).requestId
   );
 
-  logger.warn({
-    method: req.method,
-    path: req.path,
-    ip: req.ip,
-    userAgent: req.get('User-Agent'),
-  }, 'Rate limit exceeded');
+  logger.warn(
+    {
+      method: req.method,
+      path: req.path,
+      ip: req.ip,
+      userAgent: req.get('User-Agent'),
+    },
+    'Rate limit exceeded'
+  );
 
   res.status(429).json(errorResponse);
 }

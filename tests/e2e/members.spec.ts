@@ -16,7 +16,7 @@ test.describe('Members Management (MEM-01)', () => {
 
     // Navigate to members page
     await page.goto('/admin/members');
-    
+
     // Verify we're on the members page
     await expect(page).toHaveURL(/\/admin\/members/);
     console.log('✅ Navigated to members page');
@@ -31,7 +31,14 @@ test.describe('Members Management (MEM-01)', () => {
     console.log('✅ Members table rendered');
 
     // Verify table headers are present
-    await expect(page.locator('th')).toContainText(['Miembro', 'Email', 'Estado', 'Membresías', 'Fecha de registro', 'Acciones']);
+    await expect(page.locator('th')).toContainText([
+      'Miembro',
+      'Email',
+      'Estado',
+      'Membresías',
+      'Fecha de registro',
+      'Acciones',
+    ]);
     console.log('✅ Table headers correct');
 
     // Check if members are loaded (should have test data)
@@ -62,11 +69,11 @@ test.describe('Members Management (MEM-01)', () => {
 
     // Navigate to members page
     await page.goto('/admin/members');
-    
+
     // Wait for members to load
     const memberRows = page.locator(selectors.membersRow);
     await expect(memberRows.first()).toBeVisible();
-    
+
     // Get the first member's current data
     const firstMemberRow = memberRows.first();
     const originalName = await firstMemberRow.locator('td').first().textContent();
@@ -85,7 +92,7 @@ test.describe('Members Management (MEM-01)', () => {
     const firstNameInput = page.locator('[data-testid="member-form-firstName"]');
     const lastNameInput = page.locator('[data-testid="member-form-lastName"]');
     const emailInput = page.locator('[data-testid="member-form-email"]');
-    
+
     await expect(firstNameInput).toBeVisible();
     await expect(lastNameInput).toBeVisible();
     await expect(emailInput).toBeVisible();
@@ -109,7 +116,7 @@ test.describe('Members Management (MEM-01)', () => {
     await page.waitForTimeout(1000); // Allow time for table refresh
     const updatedMemberRow = memberRows.first();
     const updatedName = await updatedMemberRow.locator('td').first().textContent();
-    
+
     expect(updatedName).toContain(newFirstName);
     console.log(`✅ Member updated successfully: ${updatedName}`);
   });
@@ -119,11 +126,11 @@ test.describe('Members Management (MEM-01)', () => {
 
     // Navigate to members page
     await page.goto('/admin/members');
-    
+
     // Wait for members to load
     const memberRows = page.locator(selectors.membersRow);
     await expect(memberRows.first()).toBeVisible();
-    
+
     const initialCount = await memberRows.count();
     console.log(`📊 Initial member count: ${initialCount}`);
 
@@ -142,7 +149,7 @@ test.describe('Members Management (MEM-01)', () => {
     await searchInput.fill('');
     await page.keyboard.press('Enter');
     await page.waitForTimeout(1000);
-    
+
     // Verify count returns to original
     const clearedSearchCount = await memberRows.count();
     expect(clearedSearchCount).toBe(initialCount);
@@ -170,7 +177,7 @@ test.describe('Members Management (MEM-01)', () => {
 
     // Navigate to members page
     await page.goto('/admin/members');
-    
+
     // Click "Add Member" button (assuming it exists)
     const addButton = page.locator('button', { hasText: 'Nuevo Miembro' });
     if (await addButton.isVisible()) {
@@ -185,7 +192,7 @@ test.describe('Members Management (MEM-01)', () => {
       const testMember = {
         firstName: 'TestFirst',
         lastName: 'TestLast',
-        email: `test.member.${Date.now()}@testgym.mx`
+        email: `test.member.${Date.now()}@testgym.mx`,
       };
 
       await page.locator('[data-testid="member-form-firstName"]').fill(testMember.firstName);

@@ -23,20 +23,23 @@ function getClientIp(req: Request): string {
 // Rate limiting for check-ins (disabled in test mode)
 const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_RATE_LIMITING === 'true';
 
-const checkInRateLimit = isTestMode ? (req: any, res: any, next: any) => next() : rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 10,
-  keyGenerator: (req: Request) => `checkin:${getClientIp(req)}`,
-  message: { message: 'Too many check-in attempts, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+const checkInRateLimit = isTestMode
+  ? (req: any, res: any, next: any) => next()
+  : rateLimit({
+      windowMs: 60 * 1000, // 1 minute
+      max: 10,
+      keyGenerator: (req: Request) => `checkin:${getClientIp(req)}`,
+      message: { message: 'Too many check-in attempts, please try again later' },
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
 
 // POST /v1/visits - Create a new visit (check-in)
-router.post('/', 
+router.post(
+  '/',
   checkInRateLimit,
-  authRequired(['staff', 'manager', 'owner']), 
-  tenantRequired(), 
+  authRequired(['staff', 'manager', 'owner']),
+  tenantRequired(),
   async (req: TenantRequest, res: Response) => {
     try {
       const { membershipId, gymId } = req.body;
@@ -51,11 +54,11 @@ router.post('/',
       const membership = await prisma.membership.findFirst({
         where: {
           id: membershipId,
-          companyId: companyId
+          companyId: companyId,
         },
         include: {
-          member: true
-        }
+          member: true,
+        },
       });
 
       if (!membership) {
@@ -70,20 +73,20 @@ router.post('/',
       const existingVisit = await prisma.visit.findFirst({
         where: {
           membershipId: membershipId,
-          checkOut: null // Still checked in
-        }
+          checkOut: null, // Still checked in
+        },
       });
 
       if (existingVisit) {
         // Check if it's within 2 minutes (allow re-entry for mistakes)
         const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000);
         if (existingVisit.checkIn > twoMinutesAgo) {
-          return res.status(409).json({ 
+          return res.status(409).json({
             message: 'Member is already checked in',
             existingVisit: {
               id: existingVisit.id,
-              checkIn: existingVisit.checkIn
-            }
+              checkIn: existingVisit.checkIn,
+            },
           });
         }
       }
@@ -100,7 +103,7 @@ router.post('/',
 
       // Verify gym exists
       const gym = await prisma.gym.findUnique({
-        where: { id: selectedGymId }
+        where: { id: selectedGymId },
       });
 
       if (!gym) {
@@ -112,16 +115,16 @@ router.post('/',
         data: {
           membershipId: membershipId,
           gymId: selectedGymId,
-          checkIn: new Date()
+          checkIn: new Date(),
         },
         include: {
           membership: {
             include: {
-              member: true
-            }
+              member: true,
+            },
           },
-          gym: true
-        }
+          gym: true,
+        },
       });
 
       res.status(201).json({
@@ -131,18 +134,19 @@ router.post('/',
           gymId: visit.gymId,
           checkIn: visit.checkIn,
           status: 'in_progress',
-          member: visit.membership.member ? {
-            id: visit.membership.member.id,
-            firstName: visit.membership.member.firstName,
-            lastName: visit.membership.member.lastName
-          } : null,
+          member: visit.membership.member
+            ? {
+                id: visit.membership.member.id,
+                firstName: visit.membership.member.firstName,
+                lastName: visit.membership.member.lastName,
+              }
+            : null,
           gym: {
             id: visit.gym.id,
-            name: visit.gym.name
-          }
-        }
+            name: visit.gym.name,
+          },
+        },
       });
-
     } catch (error) {
       console.error('Error creating visit:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -151,7 +155,8 @@ router.post('/',
 );
 
 // PATCH /v1/visits/:id/checkout - Check out from a visit
-router.patch('/:id/checkout',
+router.patch(
+  '/:id/checkout',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -164,17 +169,17 @@ router.patch('/:id/checkout',
         where: {
           id: visitId,
           membership: {
-            companyId: companyId
-          }
+            companyId: companyId,
+          },
         },
         include: {
           membership: {
             include: {
-              member: true
-            }
+              member: true,
+            },
           },
-          gym: true
-        }
+          gym: true,
+        },
       });
 
       if (!visit) {
@@ -182,9 +187,9 @@ router.patch('/:id/checkout',
       }
 
       if (visit.checkOut) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Visit already checked out',
-          checkOut: visit.checkOut
+          checkOut: visit.checkOut,
         });
       }
 
@@ -196,11 +201,11 @@ router.patch('/:id/checkout',
         include: {
           membership: {
             include: {
-              member: true
-            }
+              member: true,
+            },
           },
-          gym: true
-        }
+          gym: true,
+        },
       });
 
       // Calculate duration in minutes (minimum 1 minute)
@@ -216,18 +221,19 @@ router.patch('/:id/checkout',
           checkOut: updatedVisit.checkOut,
           durationMinutes: durationMinutes,
           status: 'completed',
-          member: updatedVisit.membership.member ? {
-            id: updatedVisit.membership.member.id,
-            firstName: updatedVisit.membership.member.firstName,
-            lastName: updatedVisit.membership.member.lastName
-          } : null,
+          member: updatedVisit.membership.member
+            ? {
+                id: updatedVisit.membership.member.id,
+                firstName: updatedVisit.membership.member.firstName,
+                lastName: updatedVisit.membership.member.lastName,
+              }
+            : null,
           gym: {
             id: updatedVisit.gym.id,
-            name: updatedVisit.gym.name
-          }
-        }
+            name: updatedVisit.gym.name,
+          },
+        },
       });
-
     } catch (error) {
       console.error('Error checking out visit:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -236,7 +242,8 @@ router.patch('/:id/checkout',
 );
 
 // GET /v1/visits - List visits for the tenant
-router.get('/',
+router.get(
+  '/',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -245,12 +252,12 @@ router.get('/',
       const { page = 1, limit = 20, memberId, gymId, from, to } = req.query;
 
       const skip = (Number(page) - 1) * Number(limit);
-      
+
       // Build where clause
       const where: any = {
         membership: {
-          companyId: companyId
-        }
+          companyId: companyId,
+        },
       };
 
       if (memberId) {
@@ -277,16 +284,16 @@ router.get('/',
           include: {
             membership: {
               include: {
-                member: true
-              }
+                member: true,
+              },
             },
-            gym: true
+            gym: true,
           },
           orderBy: { checkIn: 'desc' },
           skip,
-          take: Number(limit)
+          take: Number(limit),
         }),
-        prisma.visit.count({ where })
+        prisma.visit.count({ where }),
       ]);
 
       res.json({
@@ -296,28 +303,29 @@ router.get('/',
           gymId: visit.gymId,
           checkIn: visit.checkIn,
           checkOut: visit.checkOut,
-          durationMinutes: visit.checkOut 
+          durationMinutes: visit.checkOut
             ? Math.round((visit.checkOut.getTime() - visit.checkIn.getTime()) / (1000 * 60))
             : null,
           status: visit.checkOut ? 'completed' : 'in_progress',
-          member: visit.membership.member ? {
-            id: visit.membership.member.id,
-            firstName: visit.membership.member.firstName,
-            lastName: visit.membership.member.lastName
-          } : null,
+          member: visit.membership.member
+            ? {
+                id: visit.membership.member.id,
+                firstName: visit.membership.member.firstName,
+                lastName: visit.membership.member.lastName,
+              }
+            : null,
           gym: {
             id: visit.gym.id,
-            name: visit.gym.name
-          }
+            name: visit.gym.name,
+          },
         })),
         pagination: {
           page: Number(page),
           limit: Number(limit),
           total,
-          pages: Math.ceil(total / Number(limit))
-        }
+          pages: Math.ceil(total / Number(limit)),
+        },
       });
-
     } catch (error) {
       console.error('Error fetching visits:', error);
       res.status(500).json({ message: 'Internal server error' });

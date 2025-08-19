@@ -1,6 +1,6 @@
 /**
  * k6 Load Test
- * 
+ *
  * Simulates realistic user load on critical application flows.
  * Tests authentication, dashboard access, and widget performance.
  */
@@ -19,16 +19,16 @@ const authFailures = new Counter('auth_failures');
 // Load test configuration
 export const options = {
   stages: [
-    { duration: '1m', target: 10 },   // Ramp up to 10 users
-    { duration: '3m', target: 50 },   // Stay at 50 users for 3 minutes
-    { duration: '1m', target: 0 },    // Ramp down
+    { duration: '1m', target: 10 }, // Ramp up to 10 users
+    { duration: '3m', target: 50 }, // Stay at 50 users for 3 minutes
+    { duration: '1m', target: 0 }, // Ramp down
   ],
   thresholds: {
-    http_req_duration: ['p(95)<600'],     // 95% under 600ms (SLO: 500ms + buffer)
-    http_req_failed: ['rate<0.005'],      // Error rate under 0.5% (SLO)
-    auth_latency: ['p(95)<300'],          // Auth should be fast
-    dashboard_latency: ['p(95)<800'],     // Dashboard can be slower
-    widget_latency: ['p(95)<400'],        // Widget init under 400ms (SLO)
+    http_req_duration: ['p(95)<600'], // 95% under 600ms (SLO: 500ms + buffer)
+    http_req_failed: ['rate<0.005'], // Error rate under 0.5% (SLO)
+    auth_latency: ['p(95)<300'], // Auth should be fast
+    dashboard_latency: ['p(95)<800'], // Dashboard can be slower
+    widget_latency: ['p(95)<400'], // Widget init under 400ms (SLO)
     errors: ['rate<0.005'],
   },
 };
@@ -47,10 +47,10 @@ const TEST_USERS = [
 export default function () {
   const requestId = `load-${__VU}-${__ITER}`;
   const user = TEST_USERS[__VU % TEST_USERS.length];
-  
+
   // Simulate user session
   userSession(requestId, user);
-  
+
   // Think time between sessions
   sleep(Math.random() * 3 + 1); // 1-4 seconds
 }
@@ -65,18 +65,19 @@ function userSession(requestId, user) {
   // Step 1: Visit homepage
   let response = http.get(`${WEB_ORIGIN}/`, { headers });
   check(response, {
-    'homepage loads': (r) => r.status === 200,
+    'homepage loads': r => r.status === 200,
   });
-  
+
   sleep(0.5);
 
   // Step 2: Login
   const loginStart = Date.now();
-  response = http.post(`${WEB_ORIGIN}/auth/login`, 
+  response = http.post(
+    `${WEB_ORIGIN}/auth/login`,
     JSON.stringify({
       email: user.email,
       password: user.password,
-    }), 
+    }),
     {
       headers: {
         ...headers,
@@ -85,10 +86,10 @@ function userSession(requestId, user) {
       jar,
     }
   );
-  
+
   const loginSuccess = check(response, {
-    'login succeeds': (r) => r.status === 200,
-    'login returns user data': (r) => {
+    'login succeeds': r => r.status === 200,
+    'login returns user data': r => {
       try {
         const data = JSON.parse(r.body);
         return data.user && data.user.email === user.email;
@@ -97,31 +98,31 @@ function userSession(requestId, user) {
       }
     },
   });
-  
+
   if (!loginSuccess) {
     authFailures.add(1);
     return; // Skip rest of session if login fails
   }
-  
+
   authLatency.add(Date.now() - loginStart);
   sleep(0.5);
 
   // Step 3: Access dashboard
   const dashboardStart = Date.now();
-  response = http.get(`${WEB_ORIGIN}/dashboard`, { 
+  response = http.get(`${WEB_ORIGIN}/dashboard`, {
     headers,
     jar,
   });
-  
+
   const dashboardOk = check(response, {
-    'dashboard loads': (r) => r.status === 200 || r.status === 302, // May redirect
-    'dashboard has content': (r) => r.body.length > 1000,
+    'dashboard loads': r => r.status === 200 || r.status === 302, // May redirect
+    'dashboard has content': r => r.body.length > 1000,
   });
-  
+
   if (dashboardOk) {
     dashboardLatency.add(Date.now() - dashboardStart);
   }
-  
+
   sleep(1);
 
   // Step 4: Test widget performance (if available)
@@ -130,15 +131,15 @@ function userSession(requestId, user) {
     headers,
     jar,
   });
-  
+
   const widgetOk = check(response, {
-    'widget config loads': (r) => r.status === 200 || r.status === 404, // May not exist yet
+    'widget config loads': r => r.status === 200 || r.status === 404, // May not exist yet
   });
-  
+
   if (response.status === 200) {
     widgetLatency.add(Date.now() - widgetStart);
   }
-  
+
   sleep(0.5);
 
   // Step 5: Check auth status
@@ -146,10 +147,10 @@ function userSession(requestId, user) {
     headers,
     jar,
   });
-  
+
   check(response, {
-    'auth check succeeds': (r) => r.status === 200,
-    'auth returns user': (r) => {
+    'auth check succeeds': r => r.status === 200,
+    'auth returns user': r => {
       try {
         const data = JSON.parse(r.body);
         return data.user && data.user.email;
@@ -164,9 +165,9 @@ function userSession(requestId, user) {
     headers,
     jar,
   });
-  
+
   check(response, {
-    'logout succeeds': (r) => r.status === 200 || r.status === 302,
+    'logout succeeds': r => r.status === 200 || r.status === 302,
   });
 }
 

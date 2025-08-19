@@ -66,14 +66,10 @@ export default async function NoAccessPage({ searchParams }: NoAccessPageProps) 
             <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               {reasonInfo.title}
             </h1>
-            
-            <p className="text-gray-600 dark:text-gray-400 mb-4">
-              {reasonInfo.message}
-            </p>
-            
-            <p className="text-sm text-gray-500 dark:text-gray-500 mb-8">
-              {reasonInfo.details}
-            </p>
+
+            <p className="text-gray-600 dark:text-gray-400 mb-4">{reasonInfo.message}</p>
+
+            <p className="text-sm text-gray-500 dark:text-gray-500 mb-8">{reasonInfo.details}</p>
 
             {/* User Info */}
             {session && (
@@ -82,11 +78,19 @@ export default async function NoAccessPage({ searchParams }: NoAccessPageProps) 
                   Información de la Cuenta
                 </h3>
                 <div className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
-                  <p><span className="font-medium">Email:</span> {session.email}</p>
-                  <p><span className="font-medium">Rol:</span> {session.role}</p>
-                  <p><span className="font-medium">ID:</span> {session.userId}</p>
+                  <p>
+                    <span className="font-medium">Email:</span> {session.email}
+                  </p>
+                  <p>
+                    <span className="font-medium">Rol:</span> {session.role}
+                  </p>
+                  <p>
+                    <span className="font-medium">ID:</span> {session.userId}
+                  </p>
                   {session.companyId && (
-                    <p><span className="font-medium">Organización:</span> {session.companyId}</p>
+                    <p>
+                      <span className="font-medium">Organización:</span> {session.companyId}
+                    </p>
                   )}
                 </div>
               </div>
@@ -100,7 +104,7 @@ export default async function NoAccessPage({ searchParams }: NoAccessPageProps) 
               >
                 Volver al Dashboard
               </Link>
-              
+
               <Link
                 href="/"
                 className="w-full flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"

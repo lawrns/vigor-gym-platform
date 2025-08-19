@@ -12,44 +12,59 @@ const prisma = new PrismaClient();
 const brandStepSchema = z.object({
   gymName: z.string().min(1, 'Gym name is required').max(100),
   logoUrl: z.string().url().optional(),
-  primaryColor: z.string().regex(/^#[0-9A-F]{6}$/i, 'Invalid color format').optional(),
+  primaryColor: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i, 'Invalid color format')
+    .optional(),
 });
 
 const locationStepSchema = z.object({
-  locations: z.array(z.object({
-    name: z.string().min(1, 'Location name is required').max(100),
-    address: z.string().min(1, 'Address is required').max(200),
-    capacity: z.number().int().min(1).max(1000),
-    hours: z.object({
-      monday: z.object({ open: z.string(), close: z.string() }),
-      tuesday: z.object({ open: z.string(), close: z.string() }),
-      wednesday: z.object({ open: z.string(), close: z.string() }),
-      thursday: z.object({ open: z.string(), close: z.string() }),
-      friday: z.object({ open: z.string(), close: z.string() }),
-      saturday: z.object({ open: z.string(), close: z.string() }),
-      sunday: z.object({ open: z.string(), close: z.string() }),
-    }),
-  })).min(1, 'At least one location is required'),
+  locations: z
+    .array(
+      z.object({
+        name: z.string().min(1, 'Location name is required').max(100),
+        address: z.string().min(1, 'Address is required').max(200),
+        capacity: z.number().int().min(1).max(1000),
+        hours: z.object({
+          monday: z.object({ open: z.string(), close: z.string() }),
+          tuesday: z.object({ open: z.string(), close: z.string() }),
+          wednesday: z.object({ open: z.string(), close: z.string() }),
+          thursday: z.object({ open: z.string(), close: z.string() }),
+          friday: z.object({ open: z.string(), close: z.string() }),
+          saturday: z.object({ open: z.string(), close: z.string() }),
+          sunday: z.object({ open: z.string(), close: z.string() }),
+        }),
+      })
+    )
+    .min(1, 'At least one location is required'),
 });
 
 const plansStepSchema = z.object({
-  plans: z.array(z.object({
-    name: z.enum(['Basic', 'Pro', 'VIP']),
-    priceMxnCents: z.number().int().min(0),
-    billing: z.enum(['monthly', 'quarterly', 'yearly']).default('monthly'),
-    features: z.array(z.string()).optional(),
-  })).min(1, 'At least one plan is required'),
+  plans: z
+    .array(
+      z.object({
+        name: z.enum(['Basic', 'Pro', 'VIP']),
+        priceMxnCents: z.number().int().min(0),
+        billing: z.enum(['monthly', 'quarterly', 'yearly']).default('monthly'),
+        features: z.array(z.string()).optional(),
+      })
+    )
+    .min(1, 'At least one plan is required'),
 });
 
 const staffStepSchema = z.object({
   importMethod: z.enum(['CSV', 'Manual']),
-  staff: z.array(z.object({
-    firstName: z.string().min(1).max(50),
-    lastName: z.string().min(1).max(50),
-    email: z.string().email(),
-    role: z.enum(['MANAGER', 'RECEPTIONIST', 'TRAINER']),
-    phone: z.string().optional(),
-  })).optional(),
+  staff: z
+    .array(
+      z.object({
+        firstName: z.string().min(1).max(50),
+        lastName: z.string().min(1).max(50),
+        email: z.string().email(),
+        role: z.enum(['MANAGER', 'RECEPTIONIST', 'TRAINER']),
+        phone: z.string().optional(),
+      })
+    )
+    .optional(),
   csvData: z.string().optional(),
 });
 
@@ -64,7 +79,8 @@ const onboardingSeedSchema = z.object({
  * GET /v1/onboarding/status
  * Get current onboarding status for the company
  */
-router.get('/status',
+router.get(
+  '/status',
   authRequired(['owner', 'manager']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -126,7 +142,10 @@ router.get('/status',
         },
       });
     } catch (error) {
-      logger.error({ error: error.message, companyId: req.tenant?.companyId }, 'Onboarding status error');
+      logger.error(
+        { error: error.message, companyId: req.tenant?.companyId },
+        'Onboarding status error'
+      );
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to fetch onboarding status',
@@ -139,18 +158,19 @@ router.get('/status',
  * POST /v1/onboarding/seed
  * Seed company with onboarding data (idempotent)
  */
-router.post('/seed',
+router.post(
+  '/seed',
   authRequired(['owner', 'manager']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
     try {
       const { companyId } = req.tenant!;
-      
+
       // Validate the onboarding payload
       const validatedData = onboardingSeedSchema.parse(req.body);
 
       // Start transaction for atomic operations
-      const result = await prisma.$transaction(async (tx) => {
+      const result = await prisma.$transaction(async tx => {
         // Update company brand information
         const company = await tx.company.update({
           where: { id: companyId },
@@ -223,12 +243,15 @@ router.post('/seed',
         };
       });
 
-      logger.info({
-        companyId,
-        gymsCreated: result.gyms.length,
-        plansCreated: result.plans.length,
-        staffCreated: result.staff.length,
-      }, 'Onboarding seed completed');
+      logger.info(
+        {
+          companyId,
+          gymsCreated: result.gyms.length,
+          plansCreated: result.plans.length,
+          staffCreated: result.staff.length,
+        },
+        'Onboarding seed completed'
+      );
 
       res.json({
         message: 'Onboarding seed completed successfully',
@@ -248,7 +271,10 @@ router.post('/seed',
         });
       }
 
-      logger.error({ error: error.message, companyId: req.tenant?.companyId }, 'Onboarding seed error');
+      logger.error(
+        { error: error.message, companyId: req.tenant?.companyId },
+        'Onboarding seed error'
+      );
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to complete onboarding seed',

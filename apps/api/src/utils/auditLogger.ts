@@ -17,20 +17,20 @@ const logger = pino({
       'creditCard',
       'token',
       'authorization',
-      'cookie'
+      'cookie',
     ],
-    censor: '[REDACTED]'
+    censor: '[REDACTED]',
   },
   formatters: {
-    level: (label) => {
+    level: label => {
       return { level: label };
-    }
+    },
   },
   timestamp: pino.stdTimeFunctions.isoTime,
   base: {
     service: 'vigor-api',
-    version: process.env.npm_package_version || '1.0.0'
-  }
+    version: process.env.npm_package_version || '1.0.0',
+  },
 });
 
 export interface AuditEvent {
@@ -64,7 +64,7 @@ const metrics: SecurityMetrics = {
   checkinsBlockedDuplicate: 0,
   devicesActive24h: 0,
   authFailures: 0,
-  rateLimitHits: 0
+  rateLimitHits: 0,
 };
 
 /**
@@ -86,7 +86,7 @@ export async function logAuditEvent(event: AuditEvent): Promise<void> {
       errorMessage: event.errorMessage,
       ipAddress: event.ipAddress,
       userAgent: event.userAgent,
-      metadata: event.metadata
+      metadata: event.metadata,
     };
 
     // Log to structured logger
@@ -136,7 +136,7 @@ export async function logDeviceRegistration(
     metadata: { deviceName },
     ipAddress,
     userAgent,
-    success: true
+    success: true,
   });
 }
 
@@ -162,7 +162,7 @@ export async function logDeviceLogin(
     userAgent,
     success,
     errorCode,
-    errorMessage
+    errorMessage,
   });
 
   // Update metrics
@@ -199,7 +199,7 @@ export async function logCheckinScan(
     userAgent,
     success,
     errorCode,
-    errorMessage
+    errorMessage,
   });
 
   // Update metrics
@@ -236,7 +236,7 @@ export async function logCheckinCheckout(
     userAgent,
     success,
     errorCode,
-    errorMessage
+    errorMessage,
   });
 }
 
@@ -255,7 +255,7 @@ export async function logRateLimitHit(
     ipAddress,
     userAgent,
     success: false,
-    errorCode: 'RATE_LIMITED'
+    errorCode: 'RATE_LIMITED',
   });
 
   metrics.rateLimitHits++;
@@ -283,13 +283,13 @@ export function resetMetrics(): void {
 export async function updateActiveDevicesCount(): Promise<void> {
   try {
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    
+
     const activeDevices = await prisma.device.count({
       where: {
         lastSeenAt: {
-          gte: twentyFourHoursAgo
-        }
-      }
+          gte: twentyFourHoursAgo,
+        },
+      },
     });
 
     metrics.devicesActive24h = activeDevices;
@@ -301,29 +301,35 @@ export async function updateActiveDevicesCount(): Promise<void> {
 /**
  * Check for security alerts
  */
-export function checkSecurityAlerts(): Array<{ type: string; message: string; severity: 'low' | 'medium' | 'high' }> {
+export function checkSecurityAlerts(): Array<{
+  type: string;
+  message: string;
+  severity: 'low' | 'medium' | 'high';
+}> {
   const alerts = [];
 
   // Check device login failure rate
   const totalLogins = metrics.deviceLogins + metrics.authFailures;
   if (totalLogins > 0) {
     const failureRate = metrics.authFailures / totalLogins;
-    if (failureRate > 0.02) { // 2% threshold
+    if (failureRate > 0.02) {
+      // 2% threshold
       alerts.push({
         type: 'device_login_failure_rate',
         message: `Device login failure rate is ${(failureRate * 100).toFixed(1)}% (threshold: 2%)`,
-        severity: failureRate > 0.05 ? 'high' : 'medium' as 'high' | 'medium'
+        severity: failureRate > 0.05 ? 'high' : ('medium' as 'high' | 'medium'),
       });
     }
   }
 
   // Check duplicate check-ins spike
   const duplicateRate = metrics.checkinsBlockedDuplicate / Math.max(metrics.checkinsScanned, 1);
-  if (duplicateRate > 0.01) { // 1% baseline
+  if (duplicateRate > 0.01) {
+    // 1% baseline
     alerts.push({
       type: 'duplicate_checkins_spike',
       message: `Duplicate check-ins rate is ${(duplicateRate * 100).toFixed(1)}% (baseline: 1%)`,
-      severity: duplicateRate > 0.05 ? 'high' : 'medium' as 'high' | 'medium'
+      severity: duplicateRate > 0.05 ? 'high' : ('medium' as 'high' | 'medium'),
     });
   }
 
@@ -332,7 +338,7 @@ export function checkSecurityAlerts(): Array<{ type: string; message: string; se
     alerts.push({
       type: 'high_rate_limit_hits',
       message: `High number of rate limit hits: ${metrics.rateLimitHits}`,
-      severity: 'medium'
+      severity: 'medium',
     });
   }
 

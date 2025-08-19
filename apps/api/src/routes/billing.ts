@@ -12,7 +12,6 @@ import {
   getPaymentMethods,
   setDefaultPaymentMethod,
   createStripePortalSession,
-  applyEntitlement,
   applyEntitlementWithTransaction,
   verifyStripeWebhook,
   CheckoutSessionRequest,
@@ -50,7 +49,7 @@ router.post('/checkout/session', async (req: Request, res: Response) => {
       console.log(`[BILLING-TEST] Bypassing Stripe for plan ${planId}`);
       return res.status(200).json({
         sessionId: 'cs_test_stub',
-        url: '/checkout/success?test=1'
+        url: '/checkout/success?test=1',
       });
     }
 
@@ -62,11 +61,11 @@ router.post('/checkout/session', async (req: Request, res: Response) => {
         // Re-run auth middleware to get user context
         const authMiddleware = authRequired();
         const tenantMiddleware = tenantRequired();
-        
+
         await new Promise<void>((resolve, reject) => {
-          authMiddleware(req as AuthenticatedRequest, res, (err) => {
+          authMiddleware(req as AuthenticatedRequest, res, err => {
             if (err) return reject(err);
-            tenantMiddleware(req as TenantRequest, res, (err) => {
+            tenantMiddleware(req as TenantRequest, res, err => {
               if (err) return reject(err);
               resolve();
             });
@@ -93,11 +92,13 @@ router.post('/checkout/session', async (req: Request, res: Response) => {
     // Normalize response structure
     res.json({
       sessionId: session.id,
-      url: session.url
+      url: session.url,
     });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return res.status(400).json({ error: 'Validation error', code: 'VALIDATION_ERROR', details: error.errors });
+      return res
+        .status(400)
+        .json({ error: 'Validation error', code: 'VALIDATION_ERROR', details: error.errors });
     }
 
     console.error('Checkout session creation error:', error);
@@ -108,40 +109,214 @@ router.post('/checkout/session', async (req: Request, res: Response) => {
 
 // POST /v1/billing/stripe/setup-intent
 // Create SetupIntent for saving payment methods
-router.post('/stripe/setup-intent', authRequired(['owner', 'manager', 'staff']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const companyId = req.tenant?.companyId;
-    if (!companyId) {
-      return res.status(400).json({ message: 'Company ID is required' });
+router.post(
+  '/stripe/setup-intent',
+  authRequired(['owner', 'manager', 'staff']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const companyId = req.tenant?.companyId;
+      if (!companyId) {
+        return res.status(400).json({ message: 'Company ID is required' });
+      }
+
+      const setupIntentRequest: SetupIntentRequest = {
+        companyId,
+        memberId: req.body.memberId, // Optional member ID
+      };
+
+      const setupIntent = await createStripeSetupIntent(setupIntentRequest);
+      res.json(setupIntent);
+    } catch (error) {
+      console.error('SetupIntent creation error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to create SetupIntent';
+      res.status(500).json({ message });
     }
-
-    const setupIntentRequest: SetupIntentRequest = {
-      companyId,
-      memberId: req.body.memberId, // Optional member ID
-    };
-
-    const setupIntent = await createStripeSetupIntent(setupIntentRequest);
-    res.json(setupIntent);
-  } catch (error) {
-    console.error('SetupIntent creation error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to create SetupIntent';
-    res.status(500).json({ message });
   }
-});
+);
 
 // POST /v1/billing/subscription
 // Create subscription with saved payment method
-router.post('/subscription', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const companyId = req.tenant?.companyId;
-    if (!companyId) {
-      return res.status(400).json({ message: 'Company ID is required' });
+router.post(
+  '/subscription',
+  authRequired(['owner', 'manager']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const companyId = req.tenant?.companyId;
+      if (!companyId) {
+        return res.status(400).json({ message: 'Company ID is required' });
+      }
+
+      const { planId, paymentMethodId, memberId } = createSubscriptionSchema.parse(req.body);
+
+      // Validate payment method belongs to company if provided
+      if (paymentMethodId) {
+        const paymentMethod = await prisma.paymentMethod.findFirst({
+          where: {
+            id: paymentMethodId,
+            companyId,
+          },
+        });
+
+        if (!paymentMethod) {
+          return res
+            .status(400)
+            .json({ message: 'Payment method not found or does not belong to company' });
+        }
+      }
+
+      const subscriptionRequest: CreateSubscriptionRequest = {
+        companyId,
+        planId,
+        paymentMethodId,
+        memberId,
+      };
+
+      const subscription = await createStripeSubscription(subscriptionRequest);
+      res.json(subscription);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+
+      console.error('Subscription creation error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to create subscription';
+      res.status(500).json({ message });
     }
+  }
+);
 
-    const { planId, paymentMethodId, memberId } = createSubscriptionSchema.parse(req.body);
+// GET /v1/billing/payment-methods
+// List payment methods for the company
+router.get(
+  '/payment-methods',
+  authRequired(['owner', 'manager', 'staff']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const companyId = req.tenant?.companyId;
+      if (!companyId) {
+        return res.status(400).json({ message: 'Company ID is required' });
+      }
 
-    // Validate payment method belongs to company if provided
-    if (paymentMethodId) {
+      const paymentMethods = await getPaymentMethods(companyId);
+      res.json({ paymentMethods });
+    } catch (error) {
+      console.error('Payment methods fetch error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to fetch payment methods';
+      res.status(500).json({ message });
+    }
+  }
+);
+
+// POST /v1/billing/payment-methods/default
+// Set default payment method
+router.post(
+  '/payment-methods/default',
+  authRequired(['owner', 'manager']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const companyId = req.tenant?.companyId;
+      if (!companyId) {
+        return res.status(400).json({ message: 'Company ID is required' });
+      }
+
+      const { paymentMethodId } = req.body;
+      if (!paymentMethodId) {
+        return res.status(400).json({ message: 'Payment method ID is required' });
+      }
+
+      const paymentMethod = await setDefaultPaymentMethod(companyId, paymentMethodId);
+      res.json({ paymentMethod });
+    } catch (error) {
+      console.error('Set default payment method error:', error);
+      const message =
+        error instanceof Error ? error.message : 'Failed to set default payment method';
+      res.status(500).json({ message });
+    }
+  }
+);
+
+// PATCH /v1/billing/payment-methods/:id
+// Update payment method (e.g., associate with member)
+router.patch(
+  '/payment-methods/:id',
+  authRequired(['owner', 'manager', 'staff']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const companyId = req.tenant?.companyId;
+      if (!companyId) {
+        return res.status(400).json({ message: 'Company ID is required' });
+      }
+
+      const { id: paymentMethodId } = req.params;
+      const { memberId } = req.body;
+
+      // Validate member belongs to company if provided
+      if (memberId) {
+        const member = await prisma.member.findFirst({
+          where: {
+            id: memberId,
+            companyId,
+          },
+        });
+
+        if (!member) {
+          return res
+            .status(400)
+            .json({ message: 'Member not found or does not belong to company' });
+        }
+      }
+
+      // Update payment method
+      const paymentMethod = await prisma.paymentMethod.update({
+        where: {
+          id: paymentMethodId,
+          companyId, // Ensure tenant isolation
+        },
+        data: {
+          memberId: memberId || null,
+        },
+        include: {
+          member: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+            },
+          },
+        },
+      });
+
+      res.json({ paymentMethod });
+    } catch (error) {
+      console.error('Update payment method error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to update payment method';
+      res.status(500).json({ message });
+    }
+  }
+);
+
+// DELETE /v1/billing/payment-methods/:id
+// Remove payment method
+router.delete(
+  '/payment-methods/:id',
+  authRequired(['owner', 'manager']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const companyId = req.tenant?.companyId;
+      if (!companyId) {
+        return res.status(400).json({ message: 'Company ID is required' });
+      }
+
+      const { id: paymentMethodId } = req.params;
+
+      // Get payment method to check if it exists and get Stripe ID
       const paymentMethod = await prisma.paymentMethod.findFirst({
         where: {
           id: paymentMethodId,
@@ -150,420 +325,312 @@ router.post('/subscription', authRequired(['owner', 'manager']), tenantRequired(
       });
 
       if (!paymentMethod) {
-        return res.status(400).json({ message: 'Payment method not found or does not belong to company' });
+        return res.status(404).json({ message: 'Payment method not found' });
       }
-    }
 
-    const subscriptionRequest: CreateSubscriptionRequest = {
-      companyId,
-      planId,
-      paymentMethodId,
-      memberId,
-    };
+      // Detach from Stripe if it has a Stripe ID
+      if (paymentMethod.stripePaymentMethodId && stripe) {
+        try {
+          await stripe.paymentMethods.detach(paymentMethod.stripePaymentMethodId);
+        } catch (stripeError) {
+          console.warn('Failed to detach payment method from Stripe:', stripeError);
+          // Continue with database deletion even if Stripe detach fails
+        }
+      }
 
-    const subscription = await createStripeSubscription(subscriptionRequest);
-    res.json(subscription);
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: 'Validation error', errors: error.errors });
-    }
-
-    console.error('Subscription creation error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to create subscription';
-    res.status(500).json({ message });
-  }
-});
-
-// GET /v1/billing/payment-methods
-// List payment methods for the company
-router.get('/payment-methods', authRequired(['owner', 'manager', 'staff']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const companyId = req.tenant?.companyId;
-    if (!companyId) {
-      return res.status(400).json({ message: 'Company ID is required' });
-    }
-
-    const paymentMethods = await getPaymentMethods(companyId);
-    res.json({ paymentMethods });
-  } catch (error) {
-    console.error('Payment methods fetch error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to fetch payment methods';
-    res.status(500).json({ message });
-  }
-});
-
-// POST /v1/billing/payment-methods/default
-// Set default payment method
-router.post('/payment-methods/default', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const companyId = req.tenant?.companyId;
-    if (!companyId) {
-      return res.status(400).json({ message: 'Company ID is required' });
-    }
-
-    const { paymentMethodId } = req.body;
-    if (!paymentMethodId) {
-      return res.status(400).json({ message: 'Payment method ID is required' });
-    }
-
-    const paymentMethod = await setDefaultPaymentMethod(companyId, paymentMethodId);
-    res.json({ paymentMethod });
-  } catch (error) {
-    console.error('Set default payment method error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to set default payment method';
-    res.status(500).json({ message });
-  }
-});
-
-// PATCH /v1/billing/payment-methods/:id
-// Update payment method (e.g., associate with member)
-router.patch('/payment-methods/:id', authRequired(['owner', 'manager', 'staff']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const companyId = req.tenant?.companyId;
-    if (!companyId) {
-      return res.status(400).json({ message: 'Company ID is required' });
-    }
-
-    const { id: paymentMethodId } = req.params;
-    const { memberId } = req.body;
-
-    // Validate member belongs to company if provided
-    if (memberId) {
-      const member = await prisma.member.findFirst({
+      // Delete from database
+      await prisma.paymentMethod.delete({
         where: {
-          id: memberId,
-          companyId,
+          id: paymentMethodId,
+          companyId, // Ensure tenant isolation
         },
       });
 
-      if (!member) {
-        return res.status(400).json({ message: 'Member not found or does not belong to company' });
-      }
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Delete payment method error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to delete payment method';
+      res.status(500).json({ message });
     }
-
-    // Update payment method
-    const paymentMethod = await prisma.paymentMethod.update({
-      where: {
-        id: paymentMethodId,
-        companyId, // Ensure tenant isolation
-      },
-      data: {
-        memberId: memberId || null,
-      },
-      include: {
-        member: {
-          select: {
-            id: true,
-            firstName: true,
-            lastName: true,
-            email: true,
-          },
-        },
-      },
-    });
-
-    res.json({ paymentMethod });
-  } catch (error) {
-    console.error('Update payment method error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to update payment method';
-    res.status(500).json({ message });
   }
-});
-
-// DELETE /v1/billing/payment-methods/:id
-// Remove payment method
-router.delete('/payment-methods/:id', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const companyId = req.tenant?.companyId;
-    if (!companyId) {
-      return res.status(400).json({ message: 'Company ID is required' });
-    }
-
-    const { id: paymentMethodId } = req.params;
-
-    // Get payment method to check if it exists and get Stripe ID
-    const paymentMethod = await prisma.paymentMethod.findFirst({
-      where: {
-        id: paymentMethodId,
-        companyId,
-      },
-    });
-
-    if (!paymentMethod) {
-      return res.status(404).json({ message: 'Payment method not found' });
-    }
-
-    // Detach from Stripe if it has a Stripe ID
-    if (paymentMethod.stripePaymentMethodId && stripe) {
-      try {
-        await stripe.paymentMethods.detach(paymentMethod.stripePaymentMethodId);
-      } catch (stripeError) {
-        console.warn('Failed to detach payment method from Stripe:', stripeError);
-        // Continue with database deletion even if Stripe detach fails
-      }
-    }
-
-    // Delete from database
-    await prisma.paymentMethod.delete({
-      where: {
-        id: paymentMethodId,
-        companyId, // Ensure tenant isolation
-      },
-    });
-
-    res.json({ success: true });
-  } catch (error) {
-    console.error('Delete payment method error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to delete payment method';
-    res.status(500).json({ message });
-  }
-});
+);
 
 // POST /v1/billing/stripe/portal
 // Create Stripe customer portal session
-router.post('/stripe/portal', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const companyId = req.tenant?.companyId;
-    if (!companyId) {
-      return res.status(400).json({ message: 'Company ID is required' });
+router.post(
+  '/stripe/portal',
+  authRequired(['owner', 'manager']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const companyId = req.tenant?.companyId;
+      if (!companyId) {
+        return res.status(400).json({ message: 'Company ID is required' });
+      }
+
+      const baseUrl = process.env.APP_URL || 'http://localhost:7777';
+      const returnUrl = `${baseUrl}/admin/billing`;
+
+      const portalSession = await createStripePortalSession(companyId, returnUrl);
+      res.json(portalSession);
+    } catch (error) {
+      console.error('Portal session creation error:', error);
+      const message = error instanceof Error ? error.message : 'Failed to create portal session';
+      res.status(500).json({ message });
     }
-
-    const baseUrl = process.env.APP_URL || 'http://localhost:7777';
-    const returnUrl = `${baseUrl}/admin/billing`;
-
-    const portalSession = await createStripePortalSession(companyId, returnUrl);
-    res.json(portalSession);
-  } catch (error) {
-    console.error('Portal session creation error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to create portal session';
-    res.status(500).json({ message });
   }
-});
+);
 
 // POST /v1/billing/webhook/stripe
 // Handle Stripe webhook events
-router.post('/webhook/stripe', express.raw({ type: 'application/json' }), async (req: Request, res: Response) => {
-  const startTime = Date.now();
-  let eventId = 'unknown';
+router.post(
+  '/webhook/stripe',
+  express.raw({ type: 'application/json' }),
+  async (req: Request, res: Response) => {
+    const startTime = Date.now();
+    let eventId = 'unknown';
 
-  try {
-    const signature = req.headers['stripe-signature'] as string;
-
-    if (!signature) {
-      console.warn('[WEBHOOK] Missing stripe-signature header');
-      return res.status(400).json({ message: 'Missing stripe-signature header' });
-    }
-
-    // Verify webhook signature with raw body (Buffer)
-    const rawBody = req.body as Buffer;
-    const event = verifyStripeWebhook(rawBody, signature);
-    eventId = event.id;
-
-    // Log webhook received
-    logBillingEvent('webhook_received', {
-      provider: 'stripe',
-      eventId: event.id,
-      requestId: (req as any).requestId,
-    });
-
-    // Log webhook received with PII-masked structured logging
-    logBillingEvent('webhook_received', {
-      provider: 'stripe',
-      eventId: event.id,
-      requestId: (req as any).requestId,
-    });
-
-    console.log(`[WEBHOOK] Received Stripe webhook: ${event.type} (${event.id})`);
-
-    // Check for duplicate event first (before any processing) with better error handling
-    let existingEvent;
     try {
-      existingEvent = await prisma.webhookEvent.findUnique({
-        where: { eventId: event.id },
+      const signature = req.headers['stripe-signature'] as string;
+
+      if (!signature) {
+        console.warn('[WEBHOOK] Missing stripe-signature header');
+        return res.status(400).json({ message: 'Missing stripe-signature header' });
+      }
+
+      // Verify webhook signature with raw body (Buffer)
+      const rawBody = req.body as Buffer;
+      const event = verifyStripeWebhook(rawBody, signature);
+      eventId = event.id;
+
+      // Log webhook received
+      logBillingEvent('webhook_received', {
+        provider: 'stripe',
+        eventId: event.id,
+        requestId: (req as any).requestId,
       });
-    } catch (dbError) {
-      console.error(`[WEBHOOK] Database error checking for existing event ${event.id}:`, dbError);
-      throw new Error('Database connectivity issue during idempotency check');
-    }
 
-    if (existingEvent?.processed) {
-      console.log(`[WEBHOOK] Event ${event.id} already processed, returning success`);
-      console.log(`[WEBHOOK] Duplicate event ${event.id} detected and skipped`);
-      return res.json({ received: true, duplicate: true, eventId: event.id });
-    }
+      // Log webhook received with PII-masked structured logging
+      logBillingEvent('webhook_received', {
+        provider: 'stripe',
+        eventId: event.id,
+        requestId: (req as any).requestId,
+      });
 
-    // Process the webhook in a transaction for data consistency
-    await prisma.$transaction(async (tx) => {
-      // Create or update webhook event record (idempotency)
-      await tx.webhookEvent.upsert({
-        where: { eventId: event.id },
-        update: {
-          processed: false,
-          eventType: event.type,
-        },
-        create: {
+      console.log(`[WEBHOOK] Received Stripe webhook: ${event.type} (${event.id})`);
+
+      // Check for duplicate event first (before any processing) with better error handling
+      let existingEvent;
+      try {
+        existingEvent = await prisma.webhookEvent.findUnique({
+          where: { eventId: event.id },
+        });
+      } catch (dbError) {
+        console.error(`[WEBHOOK] Database error checking for existing event ${event.id}:`, dbError);
+        throw new Error('Database connectivity issue during idempotency check');
+      }
+
+      if (existingEvent?.processed) {
+        console.log(`[WEBHOOK] Event ${event.id} already processed, returning success`);
+        console.log(`[WEBHOOK] Duplicate event ${event.id} detected and skipped`);
+        return res.json({ received: true, duplicate: true, eventId: event.id });
+      }
+
+      // Process the webhook in a transaction for data consistency
+      await prisma.$transaction(async tx => {
+        // Create or update webhook event record (idempotency)
+        await tx.webhookEvent.upsert({
+          where: { eventId: event.id },
+          update: {
+            processed: false,
+            eventType: event.type,
+          },
+          create: {
+            provider: 'stripe',
+            eventId: event.id,
+            eventType: event.type,
+            processed: false,
+          },
+        });
+
+        // Process the webhook with transaction context
+        await applyEntitlementWithTransaction(tx, {
           provider: 'stripe',
           eventId: event.id,
           eventType: event.type,
-          processed: false,
-        },
+          data: event.data.object,
+        });
+
+        // Mark event as processed
+        await tx.webhookEvent.update({
+          where: { eventId: event.id },
+          data: { processed: true },
+        });
       });
 
-      // Process the webhook with transaction context
-      await applyEntitlementWithTransaction(tx, {
-        provider: 'stripe',
-        eventId: event.id,
-        eventType: event.type,
-        data: event.data.object,
-      });
+      const processingTime = Date.now() - startTime;
+      console.log(
+        `[WEBHOOK] Successfully processed ${event.type} (${event.id}) in ${processingTime}ms`
+      );
 
-      // Mark event as processed
-      await tx.webhookEvent.update({
-        where: { eventId: event.id },
-        data: { processed: true },
-      });
-    });
+      // Log successful processing with console (structured logging)
+      console.log(
+        `[WEBHOOK] Event processed successfully: ${event.type} (${event.id}) in ${processingTime}ms`
+      );
 
-    const processingTime = Date.now() - startTime;
-    console.log(`[WEBHOOK] Successfully processed ${event.type} (${event.id}) in ${processingTime}ms`);
+      res.json({ received: true, eventId: event.id, processingTimeMs: processingTime });
+    } catch (error) {
+      const processingTime = Date.now() - startTime;
+      console.error(
+        `[WEBHOOK] Error processing webhook ${eventId} after ${processingTime}ms:`,
+        error
+      );
 
-    // Log successful processing with console (structured logging)
-    console.log(`[WEBHOOK] Event processed successfully: ${event.type} (${event.id}) in ${processingTime}ms`);
-
-    res.json({ received: true, eventId: event.id, processingTimeMs: processingTime });
-  } catch (error) {
-    const processingTime = Date.now() - startTime;
-    console.error(`[WEBHOOK] Error processing webhook ${eventId} after ${processingTime}ms:`, error);
-
-    // Return appropriate status codes
-    if (error instanceof Error) {
-      if (error.message.includes('Invalid webhook signature')) {
-        return res.status(401).json({ message: 'Invalid webhook signature' });
+      // Return appropriate status codes
+      if (error instanceof Error) {
+        if (error.message.includes('Invalid webhook signature')) {
+          return res.status(401).json({ message: 'Invalid webhook signature' });
+        }
+        if (error.message.includes('Stripe not configured')) {
+          return res.status(500).json({ message: 'Webhook configuration error' });
+        }
       }
-      if (error.message.includes('Stripe not configured')) {
-        return res.status(500).json({ message: 'Webhook configuration error' });
-      }
+
+      const message = error instanceof Error ? error.message : 'Webhook processing failed';
+      res.status(400).json({ message, eventId });
     }
-
-    const message = error instanceof Error ? error.message : 'Webhook processing failed';
-    res.status(400).json({ message, eventId });
   }
-});
+);
 
 // GET /v1/billing/subscription
 // Get current subscription for authenticated company
-router.get('/subscription', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const { companyId } = req.tenant!;
+router.get(
+  '/subscription',
+  authRequired(['owner', 'manager']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const { companyId } = req.tenant!;
 
-    const subscription = await prisma.subscription.findFirst({
-      where: { companyId },
-      include: {
-        plan: {
-          select: {
-            id: true,
-            code: true,
-            name: true,
-            priceMxnCents: true,
-            billingCycle: true,
-          },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (!subscription) {
-      return res.status(404).json({ message: 'No subscription found' });
-    }
-
-    res.json({ subscription });
-  } catch (error) {
-    console.error('Get subscription error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-// POST /v1/billing/subscription/cancel
-// Cancel current subscription
-router.post('/subscription/cancel', authRequired(['owner']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const { companyId } = req.tenant!;
-
-    const subscription = await prisma.subscription.findFirst({
-      where: { 
-        companyId,
-        status: 'active',
-      },
-    });
-
-    if (!subscription) {
-      return res.status(404).json({ message: 'No active subscription found' });
-    }
-
-    // For now, just mark as canceled in our database
-    // In production, you'd also cancel with the payment provider
-    await prisma.subscription.update({
-      where: { id: subscription.id },
-      data: { 
-        status: 'canceled',
-        cancelAtPeriodEnd: true,
-      },
-    });
-
-    // Remove plan from company
-    await prisma.company.update({
-      where: { id: companyId },
-      data: { planId: null },
-    });
-
-    res.json({ message: 'Subscription canceled successfully' });
-  } catch (error) {
-    console.error('Cancel subscription error:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-});
-
-// GET /v1/billing/invoices
-// Get billing history for authenticated company
-router.get('/invoices', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const { companyId } = req.tenant!;
-    const { limit = '20', offset = '0' } = req.query;
-
-    const limitNum = Math.min(parseInt(limit as string, 10), 100);
-    const offsetNum = parseInt(offset as string, 10);
-
-    const [invoices, total] = await Promise.all([
-      prisma.invoice.findMany({
+      const subscription = await prisma.subscription.findFirst({
         where: { companyId },
         include: {
-          payments: {
+          plan: {
             select: {
               id: true,
-              provider: true,
-              status: true,
-              paidMxnCents: true,
-              createdAt: true,
+              code: true,
+              name: true,
+              priceMxnCents: true,
+              billingCycle: true,
             },
           },
         },
-        orderBy: { issuedAt: 'desc' },
-        take: limitNum,
-        skip: offsetNum,
-      }),
-      prisma.invoice.count({ where: { companyId } }),
-    ]);
+        orderBy: { createdAt: 'desc' },
+      });
 
-    res.json({
-      invoices,
-      total,
-      limit: limitNum,
-      offset: offsetNum,
-    });
-  } catch (error) {
-    console.error('Get invoices error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+      if (!subscription) {
+        return res.status(404).json({ message: 'No subscription found' });
+      }
+
+      res.json({ subscription });
+    } catch (error) {
+      console.error('Get subscription error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   }
-});
+);
+
+// POST /v1/billing/subscription/cancel
+// Cancel current subscription
+router.post(
+  '/subscription/cancel',
+  authRequired(['owner']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const { companyId } = req.tenant!;
+
+      const subscription = await prisma.subscription.findFirst({
+        where: {
+          companyId,
+          status: 'active',
+        },
+      });
+
+      if (!subscription) {
+        return res.status(404).json({ message: 'No active subscription found' });
+      }
+
+      // For now, just mark as canceled in our database
+      // In production, you'd also cancel with the payment provider
+      await prisma.subscription.update({
+        where: { id: subscription.id },
+        data: {
+          status: 'canceled',
+          cancelAtPeriodEnd: true,
+        },
+      });
+
+      // Remove plan from company
+      await prisma.company.update({
+        where: { id: companyId },
+        data: { planId: null },
+      });
+
+      res.json({ message: 'Subscription canceled successfully' });
+    } catch (error) {
+      console.error('Cancel subscription error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+);
+
+// GET /v1/billing/invoices
+// Get billing history for authenticated company
+router.get(
+  '/invoices',
+  authRequired(['owner', 'manager']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const { companyId } = req.tenant!;
+      const { limit = '20', offset = '0' } = req.query;
+
+      const limitNum = Math.min(parseInt(limit as string, 10), 100);
+      const offsetNum = parseInt(offset as string, 10);
+
+      const [invoices, total] = await Promise.all([
+        prisma.invoice.findMany({
+          where: { companyId },
+          include: {
+            payments: {
+              select: {
+                id: true,
+                provider: true,
+                status: true,
+                paidMxnCents: true,
+                createdAt: true,
+              },
+            },
+          },
+          orderBy: { issuedAt: 'desc' },
+          take: limitNum,
+          skip: offsetNum,
+        }),
+        prisma.invoice.count({ where: { companyId } }),
+      ]);
+
+      res.json({
+        invoices,
+        total,
+        limit: limitNum,
+        offset: offsetNum,
+      });
+    } catch (error) {
+      console.error('Get invoices error:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
+  }
+);
 
 export default router;

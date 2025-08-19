@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Icons } from '../../lib/icons/registry';
 import { useAuth } from '../../lib/auth/context';
@@ -53,18 +53,16 @@ export function QuickActions({ mobile = false }: QuickActionsProps) {
   const { user } = useAuth();
 
   // Filter actions based on user permissions
-  const availableActions = quickActions.filter(action => 
-    user?.role && action.permissions.includes(user.role)
+  const availableActions = quickActions.filter(
+    action => user?.role && action.permissions.includes(user.role)
   );
 
   if (mobile) {
     return (
       <div className="space-y-2">
-        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          Acciones rápidas
-        </h3>
+        <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300">Acciones rápidas</h3>
         <div className="grid grid-cols-1 gap-2">
-          {availableActions.map((action) => {
+          {availableActions.map(action => {
             const IconComponent = Icons[action.icon];
             return (
               <Link
@@ -106,11 +104,7 @@ export function QuickActions({ mobile = false }: QuickActionsProps) {
       {isOpen && (
         <>
           {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-10"
-            onClick={() => setIsOpen(false)}
-            aria-hidden="true"
-          />
+          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)} aria-hidden="true" />
 
           {/* Menu Panel */}
           <div className="absolute right-0 z-20 mt-2 w-72 bg-white dark:bg-gray-800 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
@@ -125,7 +119,7 @@ export function QuickActions({ mobile = false }: QuickActionsProps) {
               </div>
 
               <div className="py-2">
-                {availableActions.map((action) => {
+                {availableActions.map(action => {
                   const IconComponent = Icons[action.icon];
                   return (
                     <Link
@@ -172,30 +166,32 @@ interface QuickActionButtonProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function QuickActionButton({ 
-  action, 
+export function QuickActionButton({
+  action,
   variant = 'secondary',
-  size = 'md' 
+  size = 'md',
 }: QuickActionButtonProps) {
   const IconComponent = Icons[action.icon];
 
-  const baseClasses = "inline-flex items-center font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors";
-  
+  const baseClasses =
+    'inline-flex items-center font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors';
+
   const variantClasses = {
-    primary: "text-white bg-blue-600 hover:bg-blue-700",
-    secondary: "text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600",
+    primary: 'text-white bg-blue-600 hover:bg-blue-700',
+    secondary:
+      'text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600',
   };
 
   const sizeClasses = {
-    sm: "px-2.5 py-1.5 text-xs",
-    md: "px-3 py-2 text-sm",
-    lg: "px-4 py-2 text-base",
+    sm: 'px-2.5 py-1.5 text-xs',
+    md: 'px-3 py-2 text-sm',
+    lg: 'px-4 py-2 text-base',
   };
 
   const iconSizes = {
-    sm: "h-3 w-3",
-    md: "h-4 w-4", 
-    lg: "h-5 w-5",
+    sm: 'h-3 w-3',
+    md: 'h-4 w-4',
+    lg: 'h-5 w-5',
   };
 
   return (

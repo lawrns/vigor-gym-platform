@@ -16,7 +16,7 @@ const config: Config = {
           600: '#009A81',
           700: '#039A7E',
           800: '#026E5A',
-          900: '#014236'
+          900: '#014236',
         },
         bg: 'var(--bg)',
         surface: 'var(--surface)',
@@ -28,33 +28,31 @@ const config: Config = {
         primary: 'var(--primary)',
         'primary-emph': 'var(--primary-emph)',
         secondary: 'var(--secondary)',
-        accent: 'var(--accent)'
+        accent: 'var(--accent)',
       },
       boxShadow: {
         card: 'var(--shadow-card)',
-        elevated: 'var(--shadow-elevated)'
+        elevated: 'var(--shadow-elevated)',
       },
       borderRadius: {
         sm: '8px',
         md: '12px',
         lg: '16px',
         xl: '28px',
-        full: '999px'
+        full: '999px',
       },
       fontFamily: {
         sans: ['var(--font-sans)'],
-        display: ['var(--font-display)']
+        display: ['var(--font-display)'],
       },
       transitionDuration: {
         fast: '150ms',
         base: '300ms',
-        slow: '600ms'
-      }
-    }
+        slow: '600ms',
+      },
+    },
   },
-  plugins: []
+  plugins: [],
 };
 
 export default config;
-
-

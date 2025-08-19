@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { motion } from 'framer-motion';
 import { motionPresets } from '../../lib/motion/presets';
@@ -15,17 +15,9 @@ interface BigCTAProps {
   testId?: string;
 }
 
-export function BigCTA({
-  title,
-  primaryCta,
-  secondaryCta,
-  testId = 'final-cta'
-}: BigCTAProps) {
+export function BigCTA({ title, primaryCta, secondaryCta, testId = 'final-cta' }: BigCTAProps) {
   return (
-    <section 
-      data-testid={testId}
-      className="bg-gradient-to-r from-primary to-primary-emph py-16"
-    >
+    <section data-testid={testId} className="bg-gradient-to-r from-primary to-primary-emph py-16">
       <div className="max-w-4xl mx-auto px-4 text-center">
         <motion.div
           {...motionPresets['enter.fadeUp']}
@@ -33,9 +25,7 @@ export function BigCTA({
           className="space-y-8"
         >
           {/* Title */}
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-white">
-            {title}
-          </h2>
+          <h2 className="font-display text-3xl md:text-4xl font-bold text-white">{title}</h2>
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -49,7 +39,7 @@ export function BigCTA({
             >
               {primaryCta.label_es}
             </motion.a>
-            
+
             <motion.a
               href={secondaryCta.href}
               data-cta="secondary"

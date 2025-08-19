@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect } from 'react';
 
@@ -41,7 +41,7 @@ export interface TrackingEvents {
 // Initialize PostHog if not already done
 function initPostHog() {
   if (typeof window === 'undefined') return null;
-  
+
   try {
     const key = process.env.NEXT_PUBLIC_POSTHOG_KEY;
     if (!key) return null;
@@ -70,7 +70,7 @@ export function trackEvent<K extends keyof TrackingEvents>(
 ) {
   if (typeof window === 'undefined') return;
 
-  initPostHog()?.then((posthog) => {
+  initPostHog()?.then(posthog => {
     if (posthog) {
       posthog.capture(eventName, properties);
     }
@@ -131,11 +131,12 @@ export function useTracking() {
     const handleCTAClick = (event: Event) => {
       const target = event.target as HTMLElement;
       const ctaElement = target.closest('[data-cta]') as HTMLElement;
-      
+
       if (ctaElement) {
         const cta = ctaElement.getAttribute('data-cta') || 'unknown';
         const section = ctaElement.getAttribute('data-section') || 'unknown';
-        const href = (ctaElement as HTMLAnchorElement).href || ctaElement.getAttribute('href') || undefined;
+        const href =
+          (ctaElement as HTMLAnchorElement).href || ctaElement.getAttribute('href') || undefined;
         const label = ctaElement.textContent?.trim();
 
         trackCTAClick(cta, section, href, label);

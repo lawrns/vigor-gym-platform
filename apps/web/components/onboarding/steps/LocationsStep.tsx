@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -127,10 +127,15 @@ export function LocationsStep({ initialData, onSubmit, isSubmitting }: Locations
                   stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </button>
-              
+
               {fields.length > 1 && (
                 <button
                   type="button"
@@ -138,7 +143,12 @@ export function LocationsStep({ initialData, onSubmit, isSubmitting }: Locations
                   className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
                   </svg>
                 </button>
               )}
@@ -224,15 +234,21 @@ export function LocationsStep({ initialData, onSubmit, isSubmitting }: Locations
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {Object.entries(dayLabels).map(([day, label]) => (
                       <div key={day} className="flex items-center space-x-2">
-                        <span className="w-20 text-sm text-gray-600 dark:text-gray-400">{label}:</span>
+                        <span className="w-20 text-sm text-gray-600 dark:text-gray-400">
+                          {label}:
+                        </span>
                         <input
-                          {...register(`locations.${index}.hours.${day as keyof typeof dayLabels}.open`)}
+                          {...register(
+                            `locations.${index}.hours.${day as keyof typeof dayLabels}.open`
+                          )}
                           type="time"
                           className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm dark:bg-gray-700 dark:text-white"
                         />
                         <span className="text-gray-500">-</span>
                         <input
-                          {...register(`locations.${index}.hours.${day as keyof typeof dayLabels}.close`)}
+                          {...register(
+                            `locations.${index}.hours.${day as keyof typeof dayLabels}.close`
+                          )}
                           type="time"
                           className="px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm dark:bg-gray-700 dark:text-white"
                         />
@@ -257,9 +273,7 @@ export function LocationsStep({ initialData, onSubmit, isSubmitting }: Locations
 
       {/* Errors */}
       {errors.locations && (
-        <p className="text-sm text-red-600 dark:text-red-400">
-          {errors.locations.message}
-        </p>
+        <p className="text-sm text-red-600 dark:text-red-400">{errors.locations.message}</p>
       )}
 
       {/* Submit Button */}
@@ -269,9 +283,10 @@ export function LocationsStep({ initialData, onSubmit, isSubmitting }: Locations
           disabled={!isValid || isSubmitting}
           className={`
             px-6 py-2 rounded-lg font-medium transition-all
-            ${isValid && !isSubmitting
-              ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
-              : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+            ${
+              isValid && !isSubmitting
+                ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-sm'
+                : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
             }
           `}
         >

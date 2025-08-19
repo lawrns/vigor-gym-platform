@@ -1,6 +1,6 @@
 /**
  * Revenue Sparkline Component
- * 
+ *
  * Pure SVG sparkline chart for revenue trends visualization.
  * Lightweight, responsive, and accessible.
  */
@@ -20,14 +20,11 @@ export function RevenueSparkline({
   height = 40,
   color = '#10b981', // green-500
   strokeWidth = 2,
-  className = ''
+  className = '',
 }: RevenueSparklineProps) {
   if (!data || data.length < 2) {
     return (
-      <div 
-        className={`flex items-center justify-center ${className}`}
-        style={{ width, height }}
-      >
+      <div className={`flex items-center justify-center ${className}`} style={{ width, height }}>
         <span className="text-xs text-gray-400">No data</span>
       </div>
     );
@@ -39,11 +36,13 @@ export function RevenueSparkline({
   const range = max - min || 1; // Avoid division by zero
 
   // Generate SVG path
-  const points = data.map((value, index) => {
-    const x = (index / (data.length - 1)) * width;
-    const y = height - ((value - min) / range) * height;
-    return `${x},${y}`;
-  }).join(' ');
+  const points = data
+    .map((value, index) => {
+      const x = (index / (data.length - 1)) * width;
+      const y = height - ((value - min) / range) * height;
+      return `${x},${y}`;
+    })
+    .join(' ');
 
   const pathData = `M ${points}`;
 
@@ -65,12 +64,7 @@ export function RevenueSparkline({
       >
         {/* Background grid (subtle) */}
         <defs>
-          <pattern
-            id="sparkline-grid"
-            width="10"
-            height="10"
-            patternUnits="userSpaceOnUse"
-          >
+          <pattern id="sparkline-grid" width="10" height="10" patternUnits="userSpaceOnUse">
             <path
               d="M 10 0 L 0 0 0 10"
               fill="none"
@@ -97,7 +91,7 @@ export function RevenueSparkline({
         {data.map((value, index) => {
           const x = (index / (data.length - 1)) * width;
           const y = height - ((value - min) / range) * height;
-          
+
           return (
             <circle
               key={index}
@@ -115,7 +109,7 @@ export function RevenueSparkline({
           const lastIndex = data.length - 1;
           const x = (lastIndex / (data.length - 1)) * width;
           const y = height - ((data[lastIndex] - min) / range) * height;
-          
+
           return (
             <circle
               cx={x}
@@ -133,9 +127,7 @@ export function RevenueSparkline({
       {/* Trend indicator */}
       <div className="absolute -top-1 -right-1">
         <div
-          className={`w-2 h-2 rounded-full ${
-            isPositive ? 'bg-green-500' : 'bg-red-500'
-          }`}
+          className={`w-2 h-2 rounded-full ${isPositive ? 'bg-green-500' : 'bg-red-500'}`}
           title={`Trend: ${isPositive ? 'Up' : 'Down'}`}
         />
       </div>
@@ -148,20 +140,18 @@ export function useRevenueTrendData(days: number = 7): number[] {
   // Simulate revenue data with realistic patterns
   const baseRevenue = 2000;
   const data: number[] = [];
-  
+
   for (let i = 0; i < days; i++) {
     // Add some realistic variance
     const dayOfWeek = i % 7;
-    const weekendMultiplier = (dayOfWeek === 0 || dayOfWeek === 6) ? 1.3 : 1.0; // Weekend boost
-    const randomVariance = 0.8 + (Math.random() * 0.4); // ±20% variance
-    const trendFactor = 1 + (i * 0.02); // Slight upward trend
-    
-    const revenue = Math.floor(
-      baseRevenue * weekendMultiplier * randomVariance * trendFactor
-    );
-    
+    const weekendMultiplier = dayOfWeek === 0 || dayOfWeek === 6 ? 1.3 : 1.0; // Weekend boost
+    const randomVariance = 0.8 + Math.random() * 0.4; // ±20% variance
+    const trendFactor = 1 + i * 0.02; // Slight upward trend
+
+    const revenue = Math.floor(baseRevenue * weekendMultiplier * randomVariance * trendFactor);
+
     data.push(revenue);
   }
-  
+
   return data;
 }

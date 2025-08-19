@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import posthog from 'posthog-js';
 
 let initialized = false;
@@ -16,7 +16,7 @@ export function initPostHog() {
 }
 
 export function bindCtaTracking(root: HTMLElement | Document = document) {
-  root.addEventListener('click', (e) => {
+  root.addEventListener('click', e => {
     const target = (e.target as HTMLElement).closest('[data-cta]') as HTMLElement | null;
     if (!target) return;
     const label = target.textContent?.trim() || '';
@@ -27,13 +27,10 @@ export function bindCtaTracking(root: HTMLElement | Document = document) {
 }
 
 export function bindPlanTracking(root: HTMLElement | Document = document) {
-  root.addEventListener('click', (e) => {
+  root.addEventListener('click', e => {
     const target = (e.target as HTMLElement).closest('[data-cta="plan"]') as HTMLElement | null;
     if (!target) return;
     const plan = target.getAttribute('data-plan') || target.getAttribute('aria-label') || '';
     posthog?.capture?.('plan.select', { plan });
   });
 }
-
-
-

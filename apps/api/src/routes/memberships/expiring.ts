@@ -11,15 +11,22 @@ const prisma = new PrismaClient();
 // Validation schemas
 const expiringQuerySchema = z.object({
   days: z.enum(['7', '14']).optional().default('14'),
-  page: z.string().optional().transform(val => parseInt(val || '1')),
-  limit: z.string().optional().transform(val => parseInt(val || '20')),
+  page: z
+    .string()
+    .optional()
+    .transform(val => parseInt(val || '1')),
+  limit: z
+    .string()
+    .optional()
+    .transform(val => parseInt(val || '20')),
 });
 
 /**
  * GET /v1/memberships/expiring
  * Get memberships expiring within specified days
  */
-router.get('/', 
+router.get(
+  '/',
   authRequired(['owner', 'manager', 'staff']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -116,7 +123,8 @@ router.get('/',
  * GET /v1/memberships/expiring/summary
  * Get expiration summary counts for dashboard widgets
  */
-router.get('/summary', 
+router.get(
+  '/summary',
   authRequired(['owner', 'manager', 'staff']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -139,7 +147,8 @@ router.get('/summary',
  * POST /v1/memberships/expiring/process
  * Manually trigger expiration job (admin only)
  */
-router.post('/process', 
+router.post(
+  '/process',
   authRequired(['owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -152,7 +161,7 @@ router.post('/process',
       });
     } catch (error) {
       console.error('Error running expiration job:', error);
-      res.status(500).json({ 
+      res.status(500).json({
         message: 'Expiration job failed',
         error: error.message,
       });
@@ -164,7 +173,8 @@ router.post('/process',
  * GET /v1/memberships/expiring/details/:membershipId
  * Get detailed expiration information for a specific membership
  */
-router.get('/details/:membershipId', 
+router.get(
+  '/details/:membershipId',
   authRequired(['owner', 'manager', 'staff']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -224,9 +234,9 @@ router.get('/details/:membershipId',
       }
 
       const today = new Date();
-      const daysUntilExpiry = membership.endsAt ? 
-        Math.ceil((membership.endsAt.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : 
-        null;
+      const daysUntilExpiry = membership.endsAt
+        ? Math.ceil((membership.endsAt.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+        : null;
 
       // Calculate usage statistics
       const totalVisits = await prisma.visit.count({
@@ -245,10 +255,12 @@ router.get('/details/:membershipId',
           usage: {
             totalVisits,
             visitsLast30Days,
-            lastVisit: lastVisit ? {
-              date: lastVisit.checkIn,
-              gym: lastVisit.gym.name,
-            } : null,
+            lastVisit: lastVisit
+              ? {
+                  date: lastVisit.checkIn,
+                  gym: lastVisit.gym.name,
+                }
+              : null,
           },
         },
       });

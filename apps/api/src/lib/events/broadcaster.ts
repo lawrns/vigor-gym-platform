@@ -1,6 +1,6 @@
 /**
  * Server-Sent Events Broadcaster
- * 
+ *
  * Manages SSE connections and broadcasts events to subscribed clients
  */
 
@@ -17,7 +17,7 @@ class SSEBroadcaster implements EventBroadcaster {
 
   addConnection(connection: SSEConnection): void {
     this.connections.set(connection.id, connection);
-    
+
     // Send initial connection event
     this.sendToConnection(connection, {
       id: this.generateEventId(),
@@ -30,7 +30,9 @@ class SSEBroadcaster implements EventBroadcaster {
       }),
     });
 
-    console.log(`[SSE] Connection added: ${connection.id} (org: ${connection.orgId}, location: ${connection.locationId})`);
+    console.log(
+      `[SSE] Connection added: ${connection.id} (org: ${connection.orgId}, location: ${connection.locationId})`
+    );
     console.log(`[SSE] Total connections: ${this.connections.size}`);
   }
 
@@ -50,7 +52,7 @@ class SSEBroadcaster implements EventBroadcaster {
 
   broadcast(event: DashboardEvent, filter?: EventFilter): void {
     const targetConnections = this.getFilteredConnections(filter);
-    
+
     const sseEvent = {
       id: this.generateEventId(),
       type: event.type,
@@ -111,9 +113,7 @@ class SSEBroadcaster implements EventBroadcaster {
   }
 
   getConnectionsByOrg(orgId: string): SSEConnection[] {
-    return Array.from(this.connections.values()).filter(
-      connection => connection.orgId === orgId
-    );
+    return Array.from(this.connections.values()).filter(connection => connection.orgId === orgId);
   }
 
   private getFilteredConnections(filter?: EventFilter): SSEConnection[] {
@@ -140,7 +140,7 @@ class SSEBroadcaster implements EventBroadcaster {
 
   private sendToConnection(connection: SSEConnection, event: any): void {
     const response = connection.response;
-    
+
     // Check if connection is still writable
     if (response.destroyed || response.writableEnded) {
       throw new Error('Connection is closed');

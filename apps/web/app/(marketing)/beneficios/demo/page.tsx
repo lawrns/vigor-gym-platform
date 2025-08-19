@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { DemoCheckIn } from '../../../../components/marketing/DemoCheckIn';
 import { DemoClassPicker } from '../../../../components/marketing/DemoClassPicker';
@@ -16,9 +16,7 @@ export default function DemoPage() {
             <h1 className="font-display text-3xl font-bold text-heading mb-4">
               Prueba Vigor en 60 segundos
             </h1>
-            <p className="text-text/80 text-lg">
-              Experimenta cómo funciona sin registrarte
-            </p>
+            <p className="text-text/80 text-lg">Experimenta cómo funciona sin registrarte</p>
           </div>
 
           {/* Demo Modules */}
@@ -34,9 +32,9 @@ export default function DemoPage() {
             {/* Class Picker Demo */}
             <DemoClassPicker
               classes={[
-                { id: "c1", name: "HIIT 45", spots: 3 },
-                { id: "c2", name: "Yoga Flow", spots: 2 },
-                { id: "c3", name: "Funcional", spots: 5 }
+                { id: 'c1', name: 'HIIT 45', spots: 3 },
+                { id: 'c2', name: 'Yoga Flow', spots: 2 },
+                { id: 'c3', name: 'Funcional', spots: 5 },
               ]}
               testId="demo-classes"
             />

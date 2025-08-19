@@ -13,7 +13,7 @@
   },
   "files": ["dist"],
   "scripts": {
-    "build": "rm -rf dist && pnpm exec tsc -p tsconfig.build.json",
+    "build": "rm -rf dist && npx tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {

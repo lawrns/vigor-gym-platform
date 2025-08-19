@@ -2,8 +2,12 @@ import { test as base, expect, Page, APIRequestContext } from '@playwright/test'
 
 // Test environment configuration
 const isStaging = process.env.E2E_ENV === 'staging';
-const baseURL = process.env.PW_BASE_URL || (isStaging ? 'https://staging.vigor-gym.com' : 'http://localhost:7777');
-const apiURL = process.env.PW_API_URL || (isStaging ? 'https://api-staging.vigor-gym.com' : 'http://localhost:4001');
+const baseURL =
+  process.env.PW_BASE_URL ||
+  (isStaging ? 'https://staging.vigor-gym.com' : 'http://localhost:7777');
+const apiURL =
+  process.env.PW_API_URL ||
+  (isStaging ? 'https://api-staging.vigor-gym.com' : 'http://localhost:4001');
 
 // Test credentials
 const adminEmail = process.env.E2E_ADMIN_EMAIL || 'admin@testgym.mx';
@@ -20,7 +24,7 @@ export const selectors = {
   filterBar: "[data-testid='dashboard-filter-bar']",
   membersRow: "[data-testid^='member-row-']",
   checkoutPlanButton: "[data-testid^='plan-choose-']",
-  stripeSuccessMarker: "text=Payment successful",
+  stripeSuccessMarker: 'text=Payment successful',
   visitsCheckinButton: "[data-testid='visit-checkin']",
   toastError: "[data-testid='toast-error']",
   toastSuccess: "[data-testid='toast-success']",
@@ -43,20 +47,23 @@ type TestFixtures = {
 
 // Auth session fixture
 export class AuthSessionFixture {
-  constructor(private page: Page, private request: APIRequestContext) {}
+  constructor(
+    private page: Page,
+    private request: APIRequestContext
+  ) {}
 
   async login(email: string = adminEmail, password: string = adminPassword) {
     console.log(`🔐 Logging in as ${email}...`);
-    
+
     await this.page.goto('/login');
     await this.page.fill(selectors.loginEmail, email);
     await this.page.fill(selectors.loginPassword, password);
     await this.page.click(selectors.loginSubmit);
-    
+
     // Wait for redirect to dashboard
     await expect(this.page).toHaveURL(/dashboard/);
     await expect(this.page.locator(selectors.sessionChip)).toBeVisible();
-    
+
     console.log('✅ Login successful');
   }
 
@@ -74,12 +81,14 @@ export class AuthSessionFixture {
       try {
         await this.page.waitForSelector('[data-testid="logout-button"]', {
           state: 'visible',
-          timeout: 3000
+          timeout: 3000,
         });
         break; // Success, exit the loop
       } catch (error) {
         attempts++;
-        console.log(`⚠️ Attempt ${attempts}/${maxAttempts}: Logout button not visible, retrying...`);
+        console.log(
+          `⚠️ Attempt ${attempts}/${maxAttempts}: Logout button not visible, retrying...`
+        );
 
         if (attempts < maxAttempts) {
           // Click the user menu button again to ensure it's open
@@ -130,19 +139,19 @@ export class AuthSessionFixture {
     }
 
     return {
-      'Authorization': `Bearer ${token}`,
+      Authorization: `Bearer ${token}`,
       'Content-Type': 'application/json',
-      'X-Tenant-ID': defaultTenantId
+      'X-Tenant-ID': defaultTenantId,
     };
   }
 
   async makeAuthenticatedRequest(endpoint: string, options: any = {}) {
     const token = await this.getAuthToken();
-    
+
     return this.request.get(`${apiURL}${endpoint}`, {
       ...options,
       headers: {
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json',
         ...options.headers,
       },
@@ -156,7 +165,7 @@ export class OrgContextFixture {
 
   async setTenantContext(tenantId: string = defaultTenantId) {
     // Set tenant context in headers or localStorage
-    await this.page.addInitScript((id) => {
+    await this.page.addInitScript(id => {
       window.localStorage.setItem('tenantId', id);
     }, tenantId);
   }
@@ -164,7 +173,7 @@ export class OrgContextFixture {
   async validateTenantIsolation() {
     // Verify that API calls include proper tenant scoping
     const responses: any[] = [];
-    
+
     this.page.on('response', response => {
       if (response.url().includes('/api/v1/')) {
         responses.push({
@@ -182,7 +191,7 @@ export class OrgContextFixture {
     // Verify tenant isolation
     const memberRequests = responses.filter(r => r.url.includes('/members'));
     expect(memberRequests.length).toBeGreaterThan(0);
-    
+
     console.log('✅ Tenant isolation validated');
   }
 }
@@ -194,7 +203,7 @@ export class WSHealthFixture {
   async checkRealtimeConnection() {
     // Monitor WebSocket connections for realtime features
     const wsConnections: any[] = [];
-    
+
     this.page.on('websocket', ws => {
       wsConnections.push({
         url: ws.url(),
@@ -217,17 +226,19 @@ export class PerformanceMonitorFixture {
 
   async measurePageLoad(url: string): Promise<{ lcp: number; fcp: number; ttfb: number }> {
     const startTime = Date.now();
-    
+
     await this.page.goto(url);
-    
+
     // Measure Core Web Vitals
     const metrics = await this.page.evaluate(() => {
-      return new Promise((resolve) => {
-        new PerformanceObserver((list) => {
+      return new Promise(resolve => {
+        new PerformanceObserver(list => {
           const entries = list.getEntries();
           const lcpEntry = entries.find(entry => entry.entryType === 'largest-contentful-paint');
-          const fcpEntry = entries.find(entry => entry.entryType === 'paint' && entry.name === 'first-contentful-paint');
-          
+          const fcpEntry = entries.find(
+            entry => entry.entryType === 'paint' && entry.name === 'first-contentful-paint'
+          );
+
           if (lcpEntry) {
             resolve({
               lcp: lcpEntry.startTime,
@@ -236,7 +247,7 @@ export class PerformanceMonitorFixture {
             });
           }
         }).observe({ entryTypes: ['largest-contentful-paint', 'paint'] });
-        
+
         // Fallback timeout
         setTimeout(() => {
           resolve({
@@ -251,15 +262,18 @@ export class PerformanceMonitorFixture {
     return metrics as { lcp: number; fcp: number; ttfb: number };
   }
 
-  async measureAPIResponse(endpoint: string, authToken?: string): Promise<{ responseTime: number; status: number }> {
+  async measureAPIResponse(
+    endpoint: string,
+    authToken?: string
+  ): Promise<{ responseTime: number; status: number }> {
     const startTime = Date.now();
-    
+
     const response = await this.page.request.get(`${apiURL}${endpoint}`, {
-      headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {},
+      headers: authToken ? { Authorization: `Bearer ${authToken}` } : {},
     });
-    
+
     const responseTime = Date.now() - startTime;
-    
+
     return {
       responseTime,
       status: response.status(),
@@ -275,7 +289,9 @@ export class PerformanceMonitorFixture {
 
     if (metrics.apiResponseTime) {
       expect(metrics.apiResponseTime).toBeLessThan(budgets.api_p95_ms);
-      console.log(`✅ API Response: ${metrics.apiResponseTime}ms (budget: ${budgets.api_p95_ms}ms)`);
+      console.log(
+        `✅ API Response: ${metrics.apiResponseTime}ms (budget: ${budgets.api_p95_ms}ms)`
+      );
     }
   }
 }
@@ -292,19 +308,18 @@ class ConsoleFilterFixture {
   }
 
   private setupConsoleFiltering() {
-    this.page.on('console', (msg) => {
+    this.page.on('console', msg => {
       const text = msg.text();
       const type = msg.type();
 
       // Filter out expected 401s from auth endpoints
       if (type === 'error' || type === 'warn') {
         const isExpected401 =
-          text.includes('401') && (
-            text.includes('/auth/me') ||
+          text.includes('401') &&
+          (text.includes('/auth/me') ||
             text.includes('/api/kpi/overview') ||
             text.includes('Authentication required') ||
-            text.includes('Unauthorized')
-          );
+            text.includes('Unauthorized'));
 
         if (!isExpected401) {
           if (type === 'error') {

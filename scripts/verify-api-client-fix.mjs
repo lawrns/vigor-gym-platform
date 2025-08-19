@@ -2,7 +2,7 @@
 
 /**
  * API Client Fix Verification Script
- * 
+ *
  * Verifies that the apiClient.get is not a function error has been fixed
  * and that all API calls now use the proper namespaced methods.
  */
@@ -28,12 +28,18 @@ const tests = [
     test: async () => {
       // Login first
       const loginResult = await runCommand('curl', [
-        '-s', '-c', 'verify_cookies.txt',
-        '-X', 'POST', `${WEB_ORIGIN}/auth/login`,
-        '-H', 'Content-Type: application/json',
-        '-d', '{"email":"admin@testgym.mx","password":"TestPassword123!"}'
+        '-s',
+        '-c',
+        'verify_cookies.txt',
+        '-X',
+        'POST',
+        `${WEB_ORIGIN}/auth/login`,
+        '-H',
+        'Content-Type: application/json',
+        '-d',
+        '{"email":"admin@testgym.mx","password":"TestPassword123!"}',
       ]);
-      
+
       let loginSuccess = false;
       try {
         const loginData = JSON.parse(loginResult.stdout);
@@ -41,7 +47,7 @@ const tests = [
       } catch (e) {
         // Ignore parse errors
       }
-      
+
       if (!loginSuccess) {
         return {
           success: false,
@@ -50,53 +56,61 @@ const tests = [
           actual: 'Login failed',
         };
       }
-      
+
       // Access members page
       const membersResult = await runCommand('curl', [
-        '-s', '-b', 'verify_cookies.txt',
-        `${WEB_ORIGIN}/admin/members`
+        '-s',
+        '-b',
+        'verify_cookies.txt',
+        `${WEB_ORIGIN}/admin/members`,
       ]);
-      
+
       // Check if page loads (should not have JS errors in the HTML)
-      const pageLoads = membersResult.stdout.includes('<!DOCTYPE html>') && 
-                       membersResult.stdout.includes('admin@testgym.mx');
-      
+      const pageLoads =
+        membersResult.stdout.includes('<!DOCTYPE html>') &&
+        membersResult.stdout.includes('admin@testgym.mx');
+
       return {
         success: pageLoads,
         details: pageLoads ? 'Members page loads successfully' : 'Members page failed to load',
         expected: 'Page loads with user context',
         actual: pageLoads ? 'Page loaded' : 'Page failed',
       };
-    }
+    },
   },
   {
     name: 'TypeScript compilation check',
     description: 'Verify no TypeScript errors for API client usage',
     test: async () => {
       const result = await runCommand('npx', [
-        'tsc', '--noEmit', '--skipLibCheck',
+        'tsc',
+        '--noEmit',
+        '--skipLibCheck',
         'app/(routes)/admin/members/page.tsx',
         'components/admin/MemberForm.tsx',
-        'components/admin/ImportCsvDialog.tsx'
+        'components/admin/ImportCsvDialog.tsx',
       ]);
-      
+
       const hasErrors = result.code !== 0;
       const errorOutput = result.stderr || result.stdout;
-      
+
       return {
         success: !hasErrors,
-        details: hasErrors ? `TypeScript errors: ${errorOutput.substring(0, 100)}...` : 'No TypeScript errors',
+        details: hasErrors
+          ? `TypeScript errors: ${errorOutput.substring(0, 100)}...`
+          : 'No TypeScript errors',
         expected: 'Clean TypeScript compilation',
         actual: hasErrors ? 'TypeScript errors found' : 'Clean compilation',
       };
-    }
+    },
   },
   {
     name: 'API Client structure verification',
     description: 'Verify apiClient has proper namespaced methods',
     test: async () => {
       const result = await runCommand('node', [
-        '-e', `
+        '-e',
+        `
         const { apiClient } = require('./lib/api/client.ts');
         console.log('members:', typeof apiClient.members);
         console.log('members.list:', typeof apiClient.members?.list);
@@ -105,23 +119,23 @@ const tests = [
         console.log('members.delete:', typeof apiClient.members?.delete);
         console.log('get:', typeof apiClient.get);
         console.log('post:', typeof apiClient.post);
-        `
+        `,
       ]);
-      
+
       const output = result.stdout;
-      const hasNamespacedMethods = output.includes('members: object') && 
-                                  output.includes('members.list: function');
-      const lacksGenericMethods = output.includes('get: undefined') && 
-                                 output.includes('post: undefined');
-      
+      const hasNamespacedMethods =
+        output.includes('members: object') && output.includes('members.list: function');
+      const lacksGenericMethods =
+        output.includes('get: undefined') && output.includes('post: undefined');
+
       return {
         success: hasNamespacedMethods && lacksGenericMethods,
         details: `Namespaced: ${hasNamespacedMethods}, No generic: ${lacksGenericMethods}`,
         expected: 'Namespaced methods present, generic methods absent',
         actual: `Namespaced: ${hasNamespacedMethods}, Generic absent: ${lacksGenericMethods}`,
       };
-    }
-  }
+    },
+  },
 ];
 
 function runCommand(cmd, args, options = {}) {
@@ -130,29 +144,29 @@ function runCommand(cmd, args, options = {}) {
       stdio: ['pipe', 'pipe', 'pipe'],
       cwd: projectRoot,
       shell: true,
-      ...options
+      ...options,
     });
 
     let stdout = '';
     let stderr = '';
 
-    process.stdout.on('data', (data) => {
+    process.stdout.on('data', data => {
       stdout += data.toString();
     });
 
-    process.stderr.on('data', (data) => {
+    process.stderr.on('data', data => {
       stderr += data.toString();
     });
 
-    process.on('exit', (code) => {
+    process.on('exit', code => {
       resolve({
         code,
         stdout: stdout.trim(),
-        stderr: stderr.trim()
+        stderr: stderr.trim(),
       });
     });
 
-    process.on('error', (error) => {
+    process.on('error', error => {
       reject(error);
     });
   });
@@ -172,7 +186,7 @@ async function runTests() {
       console.log(`   ${test.description}`);
 
       const result = await test.test();
-      
+
       if (result.success) {
         console.log(`   ✅ PASS - ${result.details}\n`);
         passed++;
@@ -181,7 +195,12 @@ async function runTests() {
         console.log(`   ❌ FAIL - Expected: ${result.expected}, Got: ${result.actual}`);
         console.log(`   Details: ${result.details}\n`);
         failed++;
-        results.push({ name: test.name, status: 'FAIL', expected: result.expected, actual: result.actual });
+        results.push({
+          name: test.name,
+          status: 'FAIL',
+          expected: result.expected,
+          actual: result.actual,
+        });
       }
     } catch (error) {
       console.log(`   💥 ERROR: ${error.message}\n`);
@@ -198,7 +217,7 @@ async function runTests() {
   }
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-  
+
   console.log('='.repeat(60));
   console.log('📊 API CLIENT FIX VERIFICATION SUMMARY');
   console.log('='.repeat(60));
@@ -219,9 +238,11 @@ async function runTests() {
   } else {
     console.log('\n⚠️  Some verifications failed. Check the errors above.');
     console.log('\n📋 Failed Tests:');
-    results.filter(r => r.status !== 'PASS').forEach(r => {
-      console.log(`   • ${r.name}: ${r.status}`);
-    });
+    results
+      .filter(r => r.status !== 'PASS')
+      .forEach(r => {
+        console.log(`   • ${r.name}: ${r.status}`);
+      });
     process.exit(1);
   }
 }
@@ -233,7 +254,7 @@ process.on('SIGINT', () => {
 });
 
 // Run the tests
-runTests().catch((error) => {
+runTests().catch(error => {
   console.error('\n💥 Verification failed:', error.message);
   process.exit(1);
 });

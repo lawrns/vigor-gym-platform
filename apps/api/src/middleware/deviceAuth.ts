@@ -26,7 +26,10 @@ export interface DeviceAuthenticatedRequest extends Request {
 /**
  * Generate device JWT token with session tracking and enhanced security
  */
-export async function generateDeviceToken(device: { id: string; companyId: string }): Promise<string> {
+export async function generateDeviceToken(device: {
+  id: string;
+  companyId: string;
+}): Promise<string> {
   const deviceJwtSecret = process.env.DEVICE_JWT_SECRET;
   if (!deviceJwtSecret) {
     throw new Error('DEVICE_JWT_SECRET environment variable is required');
@@ -65,7 +68,11 @@ export async function generateDeviceToken(device: { id: string; companyId: strin
 /**
  * Verify device JWT token and check session validity with enhanced security
  */
-export async function verifyDeviceToken(token: string, ipAddress?: string, userAgent?: string): Promise<DeviceJWTPayload> {
+export async function verifyDeviceToken(
+  token: string,
+  ipAddress?: string,
+  userAgent?: string
+): Promise<DeviceJWTPayload> {
   const deviceJwtSecret = process.env.DEVICE_JWT_SECRET;
   if (!deviceJwtSecret) {
     throw new Error('DEVICE_JWT_SECRET environment variable is required');
@@ -88,7 +95,15 @@ export async function verifyDeviceToken(token: string, ipAddress?: string, userA
     });
 
     if (!session) {
-      await logDeviceLogin(payload.deviceId, payload.companyId, false, ipAddress, userAgent, 'SESSION_NOT_FOUND', 'Device session not found');
+      await logDeviceLogin(
+        payload.deviceId,
+        payload.companyId,
+        false,
+        ipAddress,
+        userAgent,
+        'SESSION_NOT_FOUND',
+        'Device session not found'
+      );
       throw new Error('Device session not found or expired');
     }
 
@@ -97,7 +112,15 @@ export async function verifyDeviceToken(token: string, ipAddress?: string, userA
       await prisma.deviceSession.delete({
         where: { jwtId: payload.jti },
       });
-      await logDeviceLogin(payload.deviceId, payload.companyId, false, ipAddress, userAgent, 'SESSION_EXPIRED', 'Device session expired');
+      await logDeviceLogin(
+        payload.deviceId,
+        payload.companyId,
+        false,
+        ipAddress,
+        userAgent,
+        'SESSION_EXPIRED',
+        'Device session expired'
+      );
       throw new Error('Device session expired');
     }
 
@@ -110,7 +133,15 @@ export async function verifyDeviceToken(token: string, ipAddress?: string, userA
     return payload;
   } catch (error) {
     if (error instanceof jwt.JsonWebTokenError) {
-      await logDeviceLogin('unknown', 'unknown', false, ipAddress, userAgent, 'INVALID_TOKEN', error.message);
+      await logDeviceLogin(
+        'unknown',
+        'unknown',
+        false,
+        ipAddress,
+        userAgent,
+        'INVALID_TOKEN',
+        error.message
+      );
     }
     throw new Error('Invalid or expired device token');
   }
@@ -128,7 +159,7 @@ export function deviceAuthRequired() {
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({
           message: 'Device authentication required',
-          code: 'MISSING_AUTH_HEADER'
+          code: 'MISSING_AUTH_HEADER',
         });
       }
 
@@ -149,10 +180,18 @@ export function deviceAuthRequired() {
       });
 
       if (!device) {
-        await logDeviceLogin(payload.deviceId, payload.companyId, false, ipAddress, userAgent, 'DEVICE_NOT_FOUND', 'Device not found');
+        await logDeviceLogin(
+          payload.deviceId,
+          payload.companyId,
+          false,
+          ipAddress,
+          userAgent,
+          'DEVICE_NOT_FOUND',
+          'Device not found'
+        );
         return res.status(401).json({
           message: 'Device not found',
-          code: 'DEVICE_NOT_FOUND'
+          code: 'DEVICE_NOT_FOUND',
         });
       }
 
@@ -164,7 +203,7 @@ export function deviceAuthRequired() {
       console.error('Device auth middleware error:', error);
       return res.status(401).json({
         message: 'Invalid device authentication',
-        code: 'INVALID_AUTH'
+        code: 'INVALID_AUTH',
       });
     }
   };

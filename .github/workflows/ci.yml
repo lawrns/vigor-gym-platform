@@ -37,6 +37,12 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check code formatting
+        run: npm run fmt:check
+
+      - name: Lint code
+        run: npm run lint
+
       - name: Setup test environment
         run: |
           echo "DATABASE_URL=postgresql://postgres:postgres@localhost:5432/vigor_test" >> apps/api/.env.local
@@ -78,7 +84,6 @@ jobs:
 
       - name: Run E2E tests
         run: npm run e2e
-        continue-on-error: true  # Allow E2E to fail initially while we stabilize
 
   # Accessibility & Mobile Testing
   accessibility-mobile:
@@ -139,11 +144,9 @@ jobs:
 
       - name: Run accessibility tests
         run: cd apps/web && npx playwright test tests/e2e/audit/simple-a11y.spec.ts --reporter=line
-        continue-on-error: true
 
       - name: Run mobile responsiveness tests
         run: cd apps/web && npx playwright test tests/e2e/audit/mobile-responsive.spec.ts --reporter=line
-        continue-on-error: true
 
       - name: Upload test reports
         uses: actions/upload-artifact@v4

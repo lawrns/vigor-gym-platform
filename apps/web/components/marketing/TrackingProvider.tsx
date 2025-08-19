@@ -1,5 +1,6 @@
-"use client";
+'use client';
 
+import React from 'react';
 import { useTracking } from '../../hooks/useTracking';
 
 interface TrackingProviderProps {
@@ -9,6 +10,6 @@ interface TrackingProviderProps {
 export function TrackingProvider({ children }: TrackingProviderProps) {
   // Initialize tracking on mount
   useTracking();
-  
+
   return <>{children}</>;
 }

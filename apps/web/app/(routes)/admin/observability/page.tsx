@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useAuth } from '../../../../lib/auth/context';
@@ -59,7 +59,7 @@ interface MetricCardProps {
 
 function MetricCard({ title, value, icon, description, status = 'good' }: MetricCardProps) {
   const IconComponent = Icons[icon];
-  
+
   const statusColors = {
     good: 'text-green-600 dark:text-green-400',
     warning: 'text-yellow-600 dark:text-yellow-400',
@@ -96,7 +96,7 @@ export default function ObservabilityPage() {
 
   useEffect(() => {
     if (authStatus === 'loading') return;
-    
+
     if (!user || (user.role !== 'owner' && user.role !== 'manager')) {
       setError('Access denied. Only owners and managers can view observability metrics.');
       setLoading(false);
@@ -200,9 +200,7 @@ export default function ObservabilityPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Observabilidad
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Observabilidad</h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Métricas del sistema y monitoreo en tiempo real
           </p>
@@ -253,11 +251,7 @@ export default function ObservabilityPage() {
             Autenticación ({metrics.auth.timeframe})
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <MetricCard
-              title="Usuarios Totales"
-              value={metrics.auth.totalUsers}
-              icon="Users"
-            />
+            <MetricCard title="Usuarios Totales" value={metrics.auth.totalUsers} icon="Users" />
             <MetricCard
               title="Usuarios Activos"
               value={metrics.auth.activeUsers}

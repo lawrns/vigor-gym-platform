@@ -8,21 +8,22 @@ export const designTokens = {
     neutral: { 50: '#F8FAFC', 200: '#E5E7EB', 900: '#0B1220' },
     success: { 500: '#10B981' },
     warning: { 500: '#F59E0B' },
-    danger: { 500: '#EF4444' }
+    danger: { 500: '#EF4444' },
   },
   typography: {
     fontFamily: { sans: 'Inter, ui-sans-serif', display: 'Sora, ui-sans-serif' },
-    scale: { xs: 12, sm: 14, base: 16, lg: 18, xl: 20, '2xl': 24, '3xl': 30 }
+    scale: { xs: 12, sm: 14, base: 16, lg: 18, xl: 20, '2xl': 24, '3xl': 30 },
   },
   radius: { sm: 8, md: 12, lg: 16, xl: 24, full: 999 },
   shadow: { card: '0 8px 24px rgba(0,0,0,.08)' },
   motion: {
     duration: { fast: 0.15, base: 0.3, slow: 0.6 },
-    easing: { standard: 'easeInOut' }
+    easing: { standard: 'easeInOut' },
   },
-  shadcn: { preset: 'new-york', border: 'neutral-200', background: 'neutral-50', foreground: 'neutral-900' }
+  shadcn: {
+    preset: 'new-york',
+    border: 'neutral-200',
+    background: 'neutral-50',
+    foreground: 'neutral-900',
+  },
 } as const;
-
-
-
-

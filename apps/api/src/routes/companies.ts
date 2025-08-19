@@ -32,10 +32,10 @@ const updateCompanySchema = z.object({
 router.post('/', authRequired(['owner']), async (req: AuthenticatedRequest, res: Response) => {
   try {
     const validatedData = createCompanySchema.parse(req.body);
-    
+
     // Check if RFC already exists
     const existingCompany = await prisma.company.findUnique({
-      where: { rfc: validatedData.rfc.toUpperCase() }
+      where: { rfc: validatedData.rfc.toUpperCase() },
     });
 
     if (existingCompany) {
@@ -150,7 +150,7 @@ router.get('/me', authRequired(), tenantRequired(), async (req: TenantRequest, r
 router.get('/:id', authRequired(), tenantRequired(), async (req: TenantRequest, res: Response) => {
   try {
     const { id } = req.params;
-    
+
     // Check if user has access to this company (tenant middleware already validates this)
     if (req.tenant!.companyId !== id) {
       return res.status(403).json({ message: 'Access denied to this company' });
@@ -194,64 +194,69 @@ router.get('/:id', authRequired(), tenantRequired(), async (req: TenantRequest, 
 });
 
 // PATCH /v1/companies/:id - Update company details
-router.patch('/:id', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const { id } = req.params;
-    const validatedData = updateCompanySchema.parse(req.body);
-    
-    // Check if user has access to this company (tenant middleware already validates this)
-    if (req.tenant!.companyId !== id) {
-      return res.status(403).json({ message: 'Access denied to this company' });
+router.patch(
+  '/:id',
+  authRequired(['owner', 'manager']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const { id } = req.params;
+      const validatedData = updateCompanySchema.parse(req.body);
+
+      // Check if user has access to this company (tenant middleware already validates this)
+      if (req.tenant!.companyId !== id) {
+        return res.status(403).json({ message: 'Access denied to this company' });
+      }
+
+      // Get current company data for audit log
+      const currentCompany = await prisma.company.findUnique({
+        where: { id },
+      });
+
+      if (!currentCompany) {
+        return res.status(404).json({ message: 'Company not found' });
+      }
+
+      // Update company
+      const updatedCompany = await prisma.company.update({
+        where: { id },
+        data: validatedData,
+      });
+
+      // Log audit trail
+      await logTenantAction(
+        prisma,
+        req,
+        'company.updated',
+        'company',
+        id,
+        {
+          name: currentCompany.name,
+          billingEmail: currentCompany.billingEmail,
+          timezone: currentCompany.timezone,
+          industry: currentCompany.industry,
+        },
+        validatedData
+      );
+
+      res.json({
+        company: {
+          id: updatedCompany.id,
+          name: updatedCompany.name,
+          rfc: updatedCompany.rfc,
+          billingEmail: updatedCompany.billingEmail,
+          timezone: updatedCompany.timezone,
+          industry: updatedCompany.industry,
+        },
+      });
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: 'Validation error', errors: error.errors });
+      }
+      console.error('Update company error:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
-
-    // Get current company data for audit log
-    const currentCompany = await prisma.company.findUnique({
-      where: { id },
-    });
-
-    if (!currentCompany) {
-      return res.status(404).json({ message: 'Company not found' });
-    }
-
-    // Update company
-    const updatedCompany = await prisma.company.update({
-      where: { id },
-      data: validatedData,
-    });
-
-    // Log audit trail
-    await logTenantAction(
-      prisma,
-      req,
-      'company.updated',
-      'company',
-      id,
-      {
-        name: currentCompany.name,
-        billingEmail: currentCompany.billingEmail,
-        timezone: currentCompany.timezone,
-        industry: currentCompany.industry,
-      },
-      validatedData
-    );
-
-    res.json({
-      company: {
-        id: updatedCompany.id,
-        name: updatedCompany.name,
-        rfc: updatedCompany.rfc,
-        billingEmail: updatedCompany.billingEmail,
-        timezone: updatedCompany.timezone,
-        industry: updatedCompany.industry,
-      },
-    });
-  } catch (error) {
-    if (error instanceof z.ZodError) {
-      return res.status(400).json({ message: 'Validation error', errors: error.errors });
-    }
-    console.error('Update company error:', error);
-    res.status(500).json({ message: 'Internal server error' });
   }
-});
+);
 
 export default router;

@@ -42,17 +42,20 @@ const bodyScanSchema = z.object({
 
 const churnPredictionSchema = z.object({
   memberId: z.string().uuid(),
-  features: z.object({
-    visitFrequency: z.number().min(0).max(20).optional(),
-    lastVisitDays: z.number().min(0).max(365).optional(),
-    membershipDuration: z.number().min(0).max(3650).optional(),
-    classAttendance: z.number().min(0).max(1).optional(),
-    paymentHistory: z.number().min(0).max(1).optional(),
-  }).optional(),
+  features: z
+    .object({
+      visitFrequency: z.number().min(0).max(20).optional(),
+      lastVisitDays: z.number().min(0).max(365).optional(),
+      membershipDuration: z.number().min(0).max(3650).optional(),
+      classAttendance: z.number().min(0).max(1).optional(),
+      paymentHistory: z.number().min(0).max(1).optional(),
+    })
+    .optional(),
 });
 
 // POST /v1/ai/body-scan - Process body scan image
-router.post('/body-scan',
+router.post(
+  '/body-scan',
   aiRateLimit,
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
@@ -72,7 +75,7 @@ router.post('/body-scan',
       // Verify member belongs to the company
       const { PrismaClient } = await import('../generated/prisma/index.js');
       const prisma = new PrismaClient();
-      
+
       const member = await prisma.member.findFirst({
         where: {
           id: memberId,
@@ -120,7 +123,8 @@ router.post('/body-scan',
 );
 
 // POST /v1/ai/churn-prediction - Predict member churn risk
-router.post('/churn-prediction',
+router.post(
+  '/churn-prediction',
   aiRateLimit,
   authRequired(['manager', 'owner']),
   tenantRequired(),
@@ -140,7 +144,7 @@ router.post('/churn-prediction',
       // Verify member belongs to the company
       const { PrismaClient } = await import('../generated/prisma/index.js');
       const prisma = new PrismaClient();
-      
+
       const member = await prisma.member.findFirst({
         where: {
           id: memberId,
@@ -183,7 +187,8 @@ router.post('/churn-prediction',
 );
 
 // GET /v1/ai/member-insights/:memberId - Get comprehensive AI insights for a member
-router.get('/member-insights/:memberId',
+router.get(
+  '/member-insights/:memberId',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -194,7 +199,7 @@ router.get('/member-insights/:memberId',
       // Verify member belongs to the company
       const { PrismaClient } = await import('../generated/prisma/index.js');
       const prisma = new PrismaClient();
-      
+
       const member = await prisma.member.findFirst({
         where: {
           id: memberId,
@@ -225,9 +230,9 @@ router.get('/member-insights/:memberId',
       const membership = member.memberships[0];
       const visits = membership?.visits || [];
       const now = new Date();
-      
+
       const lastVisit = visits[0]?.checkIn;
-      const daysSinceLastVisit = lastVisit 
+      const daysSinceLastVisit = lastVisit
         ? Math.floor((now.getTime() - lastVisit.getTime()) / (1000 * 60 * 60 * 24))
         : null;
 
@@ -257,9 +262,9 @@ router.get('/member-insights/:memberId',
         engagement: {
           visitsThisMonth,
           daysSinceLastVisit,
-          membershipDuration: membership ? Math.floor(
-            (now.getTime() - membership.createdAt.getTime()) / (1000 * 60 * 60 * 24)
-          ) : 0,
+          membershipDuration: membership
+            ? Math.floor((now.getTime() - membership.createdAt.getTime()) / (1000 * 60 * 60 * 24))
+            : 0,
         },
         recommendations,
         lastBodyScan: null, // Would fetch from body scan records
@@ -321,7 +326,8 @@ function generatePersonalizedRecommendations(
 }
 
 // GET /v1/ai/analytics/churn-overview - Get company-wide churn analytics
-router.get('/analytics/churn-overview',
+router.get(
+  '/analytics/churn-overview',
   authRequired(['manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -331,7 +337,7 @@ router.get('/analytics/churn-overview',
       // Get all active members
       const { PrismaClient } = await import('../generated/prisma/index.js');
       const prisma = new PrismaClient();
-      
+
       const members = await prisma.member.findMany({
         where: {
           companyId: companyId,
@@ -362,7 +368,8 @@ router.get('/analytics/churn-overview',
 
       let totalProbability = 0;
 
-      for (const member of members.slice(0, 20)) { // Limit for demo
+      for (const member of members.slice(0, 20)) {
+        // Limit for demo
         try {
           const prediction = await churnPredictionService.predictChurnRisk({
             memberId: member.id,

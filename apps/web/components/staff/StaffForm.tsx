@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Icons } from '../../lib/icons/registry';
 import { Button } from '../ui/Button';
 
@@ -68,7 +68,9 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
         role: staff.role,
         phone: staff.phone || '',
         active: staff.active,
-        hireDate: staff.hireDate ? staff.hireDate.split('T')[0] : new Date().toISOString().split('T')[0],
+        hireDate: staff.hireDate
+          ? staff.hireDate.split('T')[0]
+          : new Date().toISOString().split('T')[0],
       });
     }
   }, [staff]);
@@ -113,7 +115,9 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.message || `Failed to ${isEditing ? 'update' : 'create'} staff member`);
+        throw new Error(
+          errorData.message || `Failed to ${isEditing ? 'update' : 'create'} staff member`
+        );
       }
 
       onSuccess();
@@ -154,7 +158,10 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="firstName"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 First Name *
               </label>
               <input
@@ -169,7 +176,10 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
             </div>
 
             <div>
-              <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label
+                htmlFor="lastName"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+              >
                 Last Name *
               </label>
               <input
@@ -185,7 +195,10 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Email *
             </label>
             <input
@@ -200,7 +213,10 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
           </div>
 
           <div>
-            <label htmlFor="role" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="role"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Role *
             </label>
             <select
@@ -211,7 +227,7 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
               required
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
             >
-              {roleOptions.map((option) => (
+              {roleOptions.map(option => (
                 <option key={option.value} value={option.value}>
                   {option.label}
                 </option>
@@ -220,7 +236,10 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
           </div>
 
           <div>
-            <label htmlFor="phone" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="phone"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Phone
             </label>
             <input
@@ -234,7 +253,10 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
           </div>
 
           <div>
-            <label htmlFor="hireDate" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="hireDate"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Hire Date
             </label>
             <input
@@ -257,7 +279,10 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
                 onChange={handleInputChange}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
-              <label htmlFor="active" className="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="active"
+                className="ml-2 block text-sm text-gray-700 dark:text-gray-300"
+              >
                 Active
               </label>
             </div>
@@ -265,19 +290,10 @@ export function StaffForm({ staff, onClose, onSuccess }: StaffFormProps) {
 
           {/* Actions */}
           <div className="flex justify-end space-x-3 pt-4">
-            <Button
-              type="button"
-              onClick={onClose}
-              variant="outline"
-              disabled={loading}
-            >
+            <Button type="button" onClick={onClose} variant="outline" disabled={loading}>
               Cancel
             </Button>
-            <Button
-              type="submit"
-              disabled={loading}
-              className="flex items-center gap-2"
-            >
+            <Button type="submit" disabled={loading} className="flex items-center gap-2">
               {loading && <Icons.Loader2 className="h-4 w-4 animate-spin" />}
               {isEditing ? 'Update' : 'Create'} Staff Member
             </Button>

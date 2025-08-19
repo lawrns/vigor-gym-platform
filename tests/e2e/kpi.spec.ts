@@ -19,23 +19,24 @@ test.describe('KPI Access Control (KPI-01)', () => {
 
     // Make direct API call to KPI endpoint without authentication
     const response = await page.request.get('http://localhost:4001/v1/kpi/overview');
-    
+
     // Should get 401 Unauthorized
     expect(response.status()).toBe(401);
     console.log('✅ Guest KPI request returns 401 as expected');
 
     // Verify no console errors were logged (401s should be handled silently)
-    const unexpectedErrors = consoleErrors.filter(error => 
-      !error.includes('401') && 
-      !error.includes('Unauthorized') &&
-      !error.includes('Failed to fetch')
+    const unexpectedErrors = consoleErrors.filter(
+      error =>
+        !error.includes('401') &&
+        !error.includes('Unauthorized') &&
+        !error.includes('Failed to fetch')
     );
     expect(unexpectedErrors).toHaveLength(0);
     console.log('✅ No unexpected console errors from 401 response');
 
     // Try accessing KPI through web proxy route
     const proxyResponse = await page.request.get('http://localhost:7777/api/kpi/overview');
-    
+
     // Should also get 401 or redirect
     expect([401, 302, 307].includes(proxyResponse.status())).toBeTruthy();
     console.log(`✅ Web proxy KPI request returns ${proxyResponse.status()} as expected`);
@@ -52,23 +53,25 @@ test.describe('KPI Access Control (KPI-01)', () => {
 
     // Test direct API access with authentication
     const apiResponse = await authSession.makeAuthenticatedRequest('/v1/kpi/overview');
-    
+
     expect(apiResponse.ok()).toBeTruthy();
     const kpiData = await apiResponse.json();
-    
+
     // Verify KPI data structure (based on actual API response)
     expect(kpiData).toBeDefined();
     expect(kpiData.activeMembers).toBeDefined();
     expect(kpiData.monthlyRevenue).toBeDefined();
     expect(kpiData.totalVisits).toBeDefined();
     expect(kpiData.avgActivationHours).toBeDefined();
-    
+
     console.log('✅ Authenticated API KPI access successful');
-    console.log(`📊 KPI Data: ${kpiData.activeMembers} active members, $${kpiData.monthlyRevenue} revenue`);
+    console.log(
+      `📊 KPI Data: ${kpiData.activeMembers} active members, $${kpiData.monthlyRevenue} revenue`
+    );
 
     // Test web proxy access
     await page.goto('/dashboard');
-    
+
     // Verify KPI cards are visible and populated
     await expect(page.locator(selectors.kpiCard)).toHaveCount(4);
     console.log('✅ KPI cards rendered on dashboard');
@@ -101,13 +104,15 @@ test.describe('KPI Access Control (KPI-01)', () => {
         kpiRequests.push({
           url: request.url(),
           method: request.method(),
-          timestamp: Date.now()
+          timestamp: Date.now(),
         });
       }
     });
 
     // Get initial KPI value for comparison
-    const initialValue = await page.locator('[data-testid="kpi-card-miembros-activos"] .text-2xl').textContent();
+    const initialValue = await page
+      .locator('[data-testid="kpi-card-miembros-activos"] .text-2xl')
+      .textContent();
     console.log(`📊 Initial active members: ${initialValue}`);
 
     // Click 30d filter
@@ -136,10 +141,10 @@ test.describe('KPI Access Control (KPI-01)', () => {
     // Check if any KPI requests were made (they might be cached or SSR)
     if (kpiRequests.length > 0) {
       console.log(`📡 ${kpiRequests.length} KPI API requests triggered by filters`);
-      
+
       // Verify requests include filter parameters
-      const filteredRequests = kpiRequests.filter(req => 
-        req.url.includes('from=') || req.url.includes('to=')
+      const filteredRequests = kpiRequests.filter(
+        req => req.url.includes('from=') || req.url.includes('to=')
       );
       expect(filteredRequests.length).toBeGreaterThan(0);
       console.log('✅ Filter parameters propagated to API requests');
@@ -160,7 +165,7 @@ test.describe('KPI Access Control (KPI-01)', () => {
         proxyRequests.push({
           url: request.url(),
           headers: request.headers(),
-          method: request.method()
+          method: request.method(),
         });
       }
     });
@@ -168,10 +173,11 @@ test.describe('KPI Access Control (KPI-01)', () => {
     // Make a request through the web proxy
     const response = await page.request.get('http://localhost:7777/api/kpi/overview', {
       headers: {
-        'Cookie': await page.context().cookies().then(cookies => 
-          cookies.map(c => `${c.name}=${c.value}`).join('; ')
-        )
-      }
+        Cookie: await page
+          .context()
+          .cookies()
+          .then(cookies => cookies.map(c => `${c.name}=${c.value}`).join('; ')),
+      },
     });
 
     // Should succeed with proper authentication
@@ -189,11 +195,12 @@ test.describe('KPI Access Control (KPI-01)', () => {
     // Verify tenant isolation by testing with wrong tenant header
     const wrongTenantResponse = await page.request.get('http://localhost:7777/api/kpi/overview', {
       headers: {
-        'Cookie': await page.context().cookies().then(cookies => 
-          cookies.map(c => `${c.name}=${c.value}`).join('; ')
-        ),
-        'X-Tenant-ID': '99999999-9999-9999-9999-999999999999'
-      }
+        Cookie: await page
+          .context()
+          .cookies()
+          .then(cookies => cookies.map(c => `${c.name}=${c.value}`).join('; ')),
+        'X-Tenant-ID': '99999999-9999-9999-9999-999999999999',
+      },
     });
 
     // Should either fail or return empty data (depending on implementation)
@@ -232,10 +239,19 @@ test.describe('KPI Access Control (KPI-01)', () => {
 
     // Should either show error state, fallback to default range, or handle gracefully
     // Check for error handling or fallback behavior
-    const hasErrorState = await page.locator('[data-testid="kpi-error"]').isVisible().catch(() => false);
-    const hasKpiCards = await page.locator(selectors.kpiCard).count() > 0;
-    const hasFallbackBadge = await page.locator('text=Últimos 30 días').isVisible().catch(() => false);
-    const hasLoadingState = await page.locator('[data-testid="loading"]').isVisible().catch(() => false);
+    const hasErrorState = await page
+      .locator('[data-testid="kpi-error"]')
+      .isVisible()
+      .catch(() => false);
+    const hasKpiCards = (await page.locator(selectors.kpiCard).count()) > 0;
+    const hasFallbackBadge = await page
+      .locator('text=Últimos 30 días')
+      .isVisible()
+      .catch(() => false);
+    const hasLoadingState = await page
+      .locator('[data-testid="loading"]')
+      .isVisible()
+      .catch(() => false);
     const pageLoaded = await page.locator('body').isVisible();
 
     // As long as the page loads without crashing, it's handling the error gracefully
@@ -250,10 +266,11 @@ test.describe('KPI Access Control (KPI-01)', () => {
     console.log('✅ Extreme date ranges handled gracefully');
 
     // Verify no critical console errors
-    const criticalErrors = consoleErrors.filter(error => 
-      error.includes('TypeError') || 
-      error.includes('ReferenceError') ||
-      error.includes('SyntaxError')
+    const criticalErrors = consoleErrors.filter(
+      error =>
+        error.includes('TypeError') ||
+        error.includes('ReferenceError') ||
+        error.includes('SyntaxError')
     );
     expect(criticalErrors).toHaveLength(0);
     console.log('✅ No critical JavaScript errors during KPI operations');
@@ -265,7 +282,9 @@ test.describe('KPI Access Control (KPI-01)', () => {
     await authSession.login();
 
     // Test invalid date format
-    const invalidResponse = await page.request.get('http://localhost:7777/api/kpi/overview?from=invalid-date&to=2024-01-01');
+    const invalidResponse = await page.request.get(
+      'http://localhost:7777/api/kpi/overview?from=invalid-date&to=2024-01-01'
+    );
     expect(invalidResponse.status()).toBe(422);
 
     const invalidData = await invalidResponse.json();
@@ -273,7 +292,9 @@ test.describe('KPI Access Control (KPI-01)', () => {
     console.log('✅ Invalid date format returns 422');
 
     // Test from > to
-    const reverseResponse = await page.request.get('http://localhost:7777/api/kpi/overview?from=2024-01-31&to=2024-01-01');
+    const reverseResponse = await page.request.get(
+      'http://localhost:7777/api/kpi/overview?from=2024-01-31&to=2024-01-01'
+    );
     expect(reverseResponse.status()).toBe(422);
 
     const reverseData = await reverseResponse.json();

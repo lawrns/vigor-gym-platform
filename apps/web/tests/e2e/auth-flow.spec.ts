@@ -2,7 +2,7 @@ import { test, expect, type Page } from '@playwright/test';
 
 const TEST_USER = {
   email: 'admin@testgym.mx',
-  password: 'TestPassword123!'
+  password: 'TestPassword123!',
 };
 
 const BASE_URL = process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:7777';
@@ -18,7 +18,7 @@ test.describe('Authentication Flow', () => {
     consoleErrors = [];
 
     // Track console errors
-    page.on('console', (msg) => {
+    page.on('console', msg => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text());
       }
@@ -27,11 +27,12 @@ test.describe('Authentication Flow', () => {
 
   test.afterEach(async () => {
     // Check for unexpected console errors
-    const unexpectedErrors = consoleErrors.filter(error =>
-      // Filter out expected errors
-      !error.includes('Expected 401 for guest endpoint') &&
-      !error.includes('Guest auth check (expected 401)') &&
-      !error.includes('KPI-PROXY] Upstream returned 401')
+    const unexpectedErrors = consoleErrors.filter(
+      error =>
+        // Filter out expected errors
+        !error.includes('Expected 401 for guest endpoint') &&
+        !error.includes('Guest auth check (expected 401)') &&
+        !error.includes('KPI-PROXY] Upstream returned 401')
     );
 
     if (unexpectedErrors.length > 0) {
@@ -72,10 +73,10 @@ test.describe('Authentication Flow', () => {
 
       // Click submit and wait for successful response
       await Promise.all([
-        page.waitForResponse(response =>
-          response.url().includes('/auth/login') && response.status() === 200
+        page.waitForResponse(
+          response => response.url().includes('/auth/login') && response.status() === 200
         ),
-        page.click('button[type="submit"]')
+        page.click('button[type="submit"]'),
       ]);
 
       // Wait for redirect to dashboard with longer timeout
@@ -91,7 +92,7 @@ test.describe('Authentication Flow', () => {
 
       // Verify cookies are set with proper attributes
       const cookies = await page.context().cookies();
-      
+
       const accessTokenCookie = cookies.find(c => c.name === 'accessToken');
       const refreshTokenCookie = cookies.find(c => c.name === 'refreshToken');
 
@@ -182,20 +183,22 @@ test.describe('Authentication Flow', () => {
 
       for (const publicPage of publicPages) {
         await page.goto(publicPage);
-        
+
         // Should stay on the public page
         expect(page.url()).toContain(publicPage);
-        
+
         // Should not redirect to login
         expect(page.url()).not.toContain('/login');
-        
+
         // Should show public navigation
         await expect(page.locator('text=Iniciar Sesión')).toBeVisible();
         await expect(page.locator('nav').locator('text=Solicitar Demo')).toBeVisible();
       }
     });
 
-    test('should show authenticated navigation for logged-in users on public pages', async ({ page }) => {
+    test('should show authenticated navigation for logged-in users on public pages', async ({
+      page,
+    }) => {
       // Log in first
       await loginUser(page);
 
@@ -203,14 +206,14 @@ test.describe('Authentication Flow', () => {
 
       for (const publicPage of publicPages) {
         await page.goto(publicPage);
-        
+
         // Should stay on the public page
         expect(page.url()).toContain(publicPage);
-        
+
         // Should show authenticated navigation
         await expect(page.locator('nav').locator('text=Dashboard')).toBeVisible();
         await expect(page.locator('[data-testid="session-chip"]')).toContainText(TEST_USER.email);
-        
+
         // Should not show login CTA
         await expect(page.locator('text=Iniciar Sesión')).not.toBeVisible();
       }
@@ -221,9 +224,9 @@ test.describe('Authentication Flow', () => {
     test('should show appropriate error for insufficient permissions', async ({ page }) => {
       // This test would require a user with limited permissions
       // For now, we'll test the no-acceso page directly
-      
+
       await page.goto('/no-acceso?reason=role');
-      
+
       await expect(page.locator('text=Permisos Insuficientes')).toBeVisible();
       await expect(page.locator('text=Tu cuenta no tiene los permisos necesarios')).toBeVisible();
       await expect(page.locator('text=Contactar Administrador')).toBeVisible();
@@ -231,7 +234,7 @@ test.describe('Authentication Flow', () => {
 
     test('should show appropriate error for missing tenant', async ({ page }) => {
       await page.goto('/no-acceso?reason=tenant');
-      
+
       await expect(page.locator('text=Organización No Configurada')).toBeVisible();
       await expect(page.locator('text=Tu cuenta no está asociada')).toBeVisible();
     });
@@ -257,9 +260,9 @@ test.describe('Authentication Flow', () => {
     test('should handle expired tokens gracefully', async ({ page }) => {
       // This would require manipulating cookies to simulate expiration
       // For now, we'll test the behavior with no cookies
-      
+
       await page.goto('/dashboard');
-      
+
       // Should redirect to login
       await page.waitForURL(/\/login/);
       expect(page.url()).toContain('/login');
@@ -278,7 +281,7 @@ test.describe('Authentication Flow', () => {
 
       // Should redirect to home page
       await page.waitForURL('/');
-      
+
       // Verify cookies are cleared
       const cookies = await page.context().cookies();
       const accessTokenCookie = cookies.find(c => c.name === 'accessToken');
@@ -307,10 +310,10 @@ async function loginUser(page: Page) {
 
   // Click submit and wait for response
   await Promise.all([
-    page.waitForResponse(response =>
-      response.url().includes('/auth/login') && response.status() === 200
+    page.waitForResponse(
+      response => response.url().includes('/auth/login') && response.status() === 200
     ),
-    page.click('button[type="submit"]')
+    page.click('button[type="submit"]'),
   ]);
 
   // Wait for redirect to dashboard with more specific checks

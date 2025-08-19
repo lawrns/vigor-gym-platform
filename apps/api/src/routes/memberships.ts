@@ -2,7 +2,12 @@ import { Router, Request, Response } from 'express';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
 import { authRequired } from '../middleware/auth.js';
-import { tenantRequired, withTenantFilter, TenantRequest, logTenantAction } from '../middleware/tenant.js';
+import {
+  tenantRequired,
+  withTenantFilter,
+  TenantRequest,
+  logTenantAction,
+} from '../middleware/tenant.js';
 import expiringRoutes from './memberships/expiring.js';
 
 const router = Router();
@@ -32,10 +37,11 @@ const createMembershipSchema = z.object({
 });
 
 // POST /v1/memberships - Create a new membership (draft or active)
-router.post('/', 
+router.post(
+  '/',
   membershipRateLimit,
-  authRequired(['owner', 'manager']), 
-  tenantRequired(), 
+  authRequired(['owner', 'manager']),
+  tenantRequired(),
   async (req: TenantRequest, res: Response) => {
     try {
       const validatedData = createMembershipSchema.parse(req.body);
@@ -44,7 +50,7 @@ router.post('/',
       // Validate that the plan exists
       const plan = await prisma.plan.findUnique({
         where: { id: planId },
-        select: { id: true, name: true, code: true }
+        select: { id: true, name: true, code: true },
       });
 
       if (!plan) {
@@ -55,7 +61,7 @@ router.post('/',
       if (memberId) {
         const member = await prisma.member.findUnique({
           where: withTenantFilter(req, { id: memberId }),
-          select: { id: true, firstName: true, lastName: true }
+          select: { id: true, firstName: true, lastName: true },
         });
 
         if (!member) {
@@ -70,13 +76,14 @@ router.post('/',
             companyId: req.tenant!.companyId,
             status: 'draft',
           },
-          select: { id: true }
+          select: { id: true },
         });
 
         if (existingDraft) {
-          return res.status(409).json({ 
-            message: 'A draft membership already exists for this company. Please complete or cancel it first.',
-            existingDraftId: existingDraft.id
+          return res.status(409).json({
+            message:
+              'A draft membership already exists for this company. Please complete or cancel it first.',
+            existingDraftId: existingDraft.id,
           });
         }
       }
@@ -105,17 +112,19 @@ router.post('/',
               name: true,
               code: true,
               priceMxnCents: true,
-            }
+            },
           },
-          member: memberId ? {
-            select: {
-              id: true,
-              firstName: true,
-              lastName: true,
-              email: true,
-            }
-          } : false,
-        }
+          member: memberId
+            ? {
+                select: {
+                  id: true,
+                  firstName: true,
+                  lastName: true,
+                  email: true,
+                },
+              }
+            : false,
+        },
       });
 
       // Log audit trail
@@ -144,7 +153,7 @@ router.post('/',
             planCode: plan.code,
             companyId: req.tenant!.companyId,
             hasMember: !!memberId,
-          }
+          },
         });
       }
 
@@ -160,13 +169,13 @@ router.post('/',
           createdAt: membership.createdAt,
           plan: membership.plan,
           member: membership.member,
-        }
+        },
       });
     } catch (error) {
       if (error instanceof z.ZodError) {
-        return res.status(400).json({ 
-          message: 'Validation error', 
-          errors: error.errors 
+        return res.status(400).json({
+          message: 'Validation error',
+          errors: error.errors,
         });
       }
       console.error('Create membership error:', error);
@@ -176,9 +185,10 @@ router.post('/',
 );
 
 // GET /v1/memberships - List memberships for the current tenant
-router.get('/', 
-  authRequired(['owner', 'manager', 'staff']), 
-  tenantRequired(), 
+router.get(
+  '/',
+  authRequired(['owner', 'manager', 'staff']),
+  tenantRequired(),
   async (req: TenantRequest, res: Response) => {
     try {
       const { status, limit = '50', offset = '0' } = req.query;
@@ -198,7 +208,7 @@ router.get('/',
                 name: true,
                 code: true,
                 priceMxnCents: true,
-              }
+              },
             },
             member: {
               select: {
@@ -206,14 +216,14 @@ router.get('/',
                 firstName: true,
                 lastName: true,
                 email: true,
-              }
+              },
             },
           },
           orderBy: { createdAt: 'desc' },
           take: limitNum,
           skip: offsetNum,
         }),
-        prisma.membership.count({ where: whereClause })
+        prisma.membership.count({ where: whereClause }),
       ]);
 
       res.json({
@@ -230,9 +240,10 @@ router.get('/',
 );
 
 // GET /v1/memberships/:id - Get specific membership
-router.get('/:id', 
-  authRequired(['owner', 'manager', 'staff']), 
-  tenantRequired(), 
+router.get(
+  '/:id',
+  authRequired(['owner', 'manager', 'staff']),
+  tenantRequired(),
   async (req: TenantRequest, res: Response) => {
     try {
       const { id } = req.params;
@@ -247,7 +258,7 @@ router.get('/:id',
               code: true,
               priceMxnCents: true,
               featuresJson: true,
-            }
+            },
           },
           member: {
             select: {
@@ -255,9 +266,9 @@ router.get('/:id',
               firstName: true,
               lastName: true,
               email: true,
-            }
+            },
           },
-        }
+        },
       });
 
       if (!membership) {

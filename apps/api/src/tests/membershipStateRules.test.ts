@@ -11,16 +11,16 @@ interface MockMembership {
  * Evaluate membership state and determine access rules
  * (Copied from checkins.ts for testing)
  */
-function evaluateMembershipState(membership: MockMembership): { 
-  allowed: boolean; 
-  denied: boolean; 
-  warning: boolean; 
-  state: 'OK' | 'PAST_DUE' | 'DENIED'; 
-  code?: string; 
-  message: string 
+function evaluateMembershipState(membership: MockMembership): {
+  allowed: boolean;
+  denied: boolean;
+  warning: boolean;
+  state: 'OK' | 'PAST_DUE' | 'DENIED';
+  code?: string;
+  message: string;
 } {
   const now = new Date();
-  
+
   // Check if membership has expired by date
   if (membership.endsAt && membership.endsAt < now) {
     return {
@@ -29,7 +29,7 @@ function evaluateMembershipState(membership: MockMembership): {
       warning: false,
       state: 'DENIED',
       code: 'MEMBERSHIP_EXPIRED',
-      message: 'Membership has expired'
+      message: 'Membership has expired',
     };
   }
 
@@ -41,9 +41,9 @@ function evaluateMembershipState(membership: MockMembership): {
         denied: false,
         warning: false,
         state: 'OK',
-        message: 'Access granted'
+        message: 'Access granted',
       };
-      
+
     case 'past_due':
       // Allow access but show warning
       return {
@@ -52,9 +52,9 @@ function evaluateMembershipState(membership: MockMembership): {
         warning: true,
         state: 'PAST_DUE',
         code: 'PAST_DUE',
-        message: 'Access granted - membership payment overdue'
+        message: 'Access granted - membership payment overdue',
       };
-      
+
     case 'frozen':
       // Deny access unless override flag (future implementation)
       return {
@@ -63,9 +63,9 @@ function evaluateMembershipState(membership: MockMembership): {
         warning: false,
         state: 'DENIED',
         code: 'MEMBERSHIP_FROZEN',
-        message: 'Membership is frozen'
+        message: 'Membership is frozen',
       };
-      
+
     case 'expired':
     case 'canceled':
       return {
@@ -74,9 +74,9 @@ function evaluateMembershipState(membership: MockMembership): {
         warning: false,
         state: 'DENIED',
         code: 'NO_ACTIVE_MEMBERSHIP',
-        message: 'No active membership found'
+        message: 'No active membership found',
       };
-      
+
     default:
       return {
         allowed: false,
@@ -84,7 +84,7 @@ function evaluateMembershipState(membership: MockMembership): {
         warning: false,
         state: 'DENIED',
         code: 'INVALID_MEMBERSHIP_STATUS',
-        message: 'Invalid membership status'
+        message: 'Invalid membership status',
       };
   }
 }
@@ -98,7 +98,7 @@ describe('Membership State Rules', () => {
       const membership: MockMembership = {
         id: '1',
         status: 'active',
-        endsAt: null
+        endsAt: null,
       };
 
       const result = evaluateMembershipState(membership);
@@ -114,7 +114,7 @@ describe('Membership State Rules', () => {
       const membership: MockMembership = {
         id: '2',
         status: 'active',
-        endsAt: futureDate
+        endsAt: futureDate,
       };
 
       const result = evaluateMembershipState(membership);
@@ -129,7 +129,7 @@ describe('Membership State Rules', () => {
       const membership: MockMembership = {
         id: '3',
         status: 'active',
-        endsAt: pastDate
+        endsAt: pastDate,
       };
 
       const result = evaluateMembershipState(membership);
@@ -146,7 +146,7 @@ describe('Membership State Rules', () => {
       const membership: MockMembership = {
         id: '4',
         status: 'past_due',
-        endsAt: futureDate
+        endsAt: futureDate,
       };
 
       const result = evaluateMembershipState(membership);
@@ -163,7 +163,7 @@ describe('Membership State Rules', () => {
       const membership: MockMembership = {
         id: '5',
         status: 'past_due',
-        endsAt: pastDate
+        endsAt: pastDate,
       };
 
       const result = evaluateMembershipState(membership);
@@ -180,7 +180,7 @@ describe('Membership State Rules', () => {
       const membership: MockMembership = {
         id: '6',
         status: 'frozen',
-        endsAt: futureDate
+        endsAt: futureDate,
       };
 
       const result = evaluateMembershipState(membership);
@@ -199,7 +199,7 @@ describe('Membership State Rules', () => {
       const membership: MockMembership = {
         id: '7',
         status: 'expired',
-        endsAt: pastDate
+        endsAt: pastDate,
       };
 
       const result = evaluateMembershipState(membership);
@@ -217,7 +217,7 @@ describe('Membership State Rules', () => {
       const membership: MockMembership = {
         id: '8',
         status: 'canceled',
-        endsAt: null
+        endsAt: null,
       };
 
       const result = evaluateMembershipState(membership);
@@ -235,7 +235,7 @@ describe('Membership State Rules', () => {
       const membership = {
         id: '9',
         status: 'invalid_status' as any,
-        endsAt: null
+        endsAt: null,
       };
 
       const result = evaluateMembershipState(membership);
@@ -252,7 +252,7 @@ describe('Membership State Rules', () => {
       const membership: MockMembership = {
         id: '10',
         status: 'active',
-        endsAt: pastDate
+        endsAt: pastDate,
       };
 
       const result = evaluateMembershipState(membership);
@@ -267,56 +267,56 @@ describe('Membership State Rules', () => {
       {
         name: 'Active with no end date',
         membership: { id: '1', status: 'active' as const, endsAt: null },
-        expected: { allowed: true, state: 'OK' }
+        expected: { allowed: true, state: 'OK' },
       },
       {
         name: 'Active with future end date',
         membership: { id: '2', status: 'active' as const, endsAt: futureDate },
-        expected: { allowed: true, state: 'OK' }
+        expected: { allowed: true, state: 'OK' },
       },
       {
         name: 'Active with past end date',
         membership: { id: '3', status: 'active' as const, endsAt: pastDate },
-        expected: { allowed: false, state: 'DENIED', code: 'MEMBERSHIP_EXPIRED' }
+        expected: { allowed: false, state: 'DENIED', code: 'MEMBERSHIP_EXPIRED' },
       },
       {
         name: 'Past due with future end date',
         membership: { id: '4', status: 'past_due' as const, endsAt: futureDate },
-        expected: { allowed: true, state: 'PAST_DUE', warning: true }
+        expected: { allowed: true, state: 'PAST_DUE', warning: true },
       },
       {
         name: 'Past due with past end date',
         membership: { id: '5', status: 'past_due' as const, endsAt: pastDate },
-        expected: { allowed: false, state: 'DENIED', code: 'MEMBERSHIP_EXPIRED' }
+        expected: { allowed: false, state: 'DENIED', code: 'MEMBERSHIP_EXPIRED' },
       },
       {
         name: 'Frozen membership',
         membership: { id: '6', status: 'frozen' as const, endsAt: futureDate },
-        expected: { allowed: false, state: 'DENIED', code: 'MEMBERSHIP_FROZEN' }
+        expected: { allowed: false, state: 'DENIED', code: 'MEMBERSHIP_FROZEN' },
       },
       {
         name: 'Expired membership',
         membership: { id: '7', status: 'expired' as const, endsAt: pastDate },
-        expected: { allowed: false, state: 'DENIED', code: 'NO_ACTIVE_MEMBERSHIP' }
+        expected: { allowed: false, state: 'DENIED', code: 'NO_ACTIVE_MEMBERSHIP' },
       },
       {
         name: 'Canceled membership',
         membership: { id: '8', status: 'canceled' as const, endsAt: null },
-        expected: { allowed: false, state: 'DENIED', code: 'NO_ACTIVE_MEMBERSHIP' }
-      }
+        expected: { allowed: false, state: 'DENIED', code: 'NO_ACTIVE_MEMBERSHIP' },
+      },
     ];
 
     testCases.forEach(({ name, membership, expected }) => {
       it(`should handle ${name}`, () => {
         const result = evaluateMembershipState(membership);
-        
+
         expect(result.allowed).toBe(expected.allowed);
         expect(result.state).toBe(expected.state);
-        
+
         if (expected.code) {
           expect(result.code).toBe(expected.code);
         }
-        
+
         if (expected.warning !== undefined) {
           expect(result.warning).toBe(expected.warning);
         }

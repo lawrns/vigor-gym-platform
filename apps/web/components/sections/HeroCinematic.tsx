@@ -41,7 +41,9 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
             {left.title}
           </h1>
           {left.subtitle && (
-            <p className="mt-4 text-[clamp(16px,2vw,20px)] leading-[1.5] text-[#374151] font-normal">{left.subtitle}</p>
+            <p className="mt-4 text-[clamp(16px,2vw,20px)] leading-[1.5] text-[#374151] font-normal">
+              {left.subtitle}
+            </p>
           )}
           <div className="mt-6 flex gap-3">
             {left.primaryCta && (
@@ -65,7 +67,7 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
           </div>
           {left.trustBadges && left.trustBadges.length > 0 && (
             <div className="mt-5 flex flex-wrap gap-3 text-text/80">
-              {left.trustBadges.map((b) => {
+              {left.trustBadges.map(b => {
                 const Icon = (Icons as any)[b.icon] || Icons.ShieldCheck;
                 return (
                   <div key={b.label} className="inline-flex items-center gap-2 text-sm">
@@ -107,5 +109,3 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
     </section>
   );
 }
-
-

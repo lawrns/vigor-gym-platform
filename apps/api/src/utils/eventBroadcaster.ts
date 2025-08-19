@@ -31,20 +31,28 @@ class EventBroadcaster {
     }, 15000);
 
     // Clean up dead connections every 5 minutes
-    setInterval(() => {
-      this.cleanupDeadConnections();
-    }, 5 * 60 * 1000);
+    setInterval(
+      () => {
+        this.cleanupDeadConnections();
+      },
+      5 * 60 * 1000
+    );
   }
 
   /**
    * Add a new subscriber for real-time events
    */
-  addSubscriber(id: string, companyId: string, response: Response, locationId: string | null = null): void {
+  addSubscriber(
+    id: string,
+    companyId: string,
+    response: Response,
+    locationId: string | null = null
+  ): void {
     // Set up SSE headers
     response.writeHead(200, {
       'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive',
+      Connection: 'keep-alive',
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Headers': 'Cache-Control',
       'X-Accel-Buffering': 'no', // Disable nginx buffering
@@ -104,38 +112,43 @@ class EventBroadcaster {
    * Broadcast event to all subscribers of a company with optional location filtering
    */
   broadcast(event: BroadcastEvent): void {
-    const targetSubscribers = Array.from(this.subscribers.values())
-      .filter(sub => {
-        // Must match organization
-        if (sub.companyId !== event.orgId) {
+    const targetSubscribers = Array.from(this.subscribers.values()).filter(sub => {
+      // Must match organization
+      if (sub.companyId !== event.orgId) {
+        return false;
+      }
+
+      // If event has locationId, subscriber must match or be null (all locations)
+      if (event.locationId !== null) {
+        if (sub.locationId !== null && sub.locationId !== event.locationId) {
           return false;
         }
+      }
 
-        // If event has locationId, subscriber must match or be null (all locations)
-        if (event.locationId !== null) {
-          if (sub.locationId !== null && sub.locationId !== event.locationId) {
-            return false;
-          }
-        }
-
-        return true;
-      });
+      return true;
+    });
 
     if (targetSubscribers.length === 0) {
-      logger.debug({
-        orgId: event.orgId,
-        locationId: event.locationId,
-        eventType: event.type
-      }, 'No subscribers for event');
+      logger.debug(
+        {
+          orgId: event.orgId,
+          locationId: event.locationId,
+          eventType: event.type,
+        },
+        'No subscribers for event'
+      );
       return;
     }
 
-    logger.info({
-      orgId: event.orgId,
-      locationId: event.locationId,
-      eventType: event.type,
-      subscriberCount: targetSubscribers.length
-    }, 'Broadcasting event');
+    logger.info(
+      {
+        orgId: event.orgId,
+        locationId: event.locationId,
+        eventType: event.type,
+        subscriberCount: targetSubscribers.length,
+      },
+      'Broadcasting event'
+    );
 
     targetSubscribers.forEach(subscriber => {
       this.sendToSubscriber(subscriber.response, event);
@@ -230,8 +243,8 @@ class EventBroadcaster {
    */
   getSubscriberCount(companyId?: string): number {
     if (companyId) {
-      return Array.from(this.subscribers.values())
-        .filter(sub => sub.companyId === companyId).length;
+      return Array.from(this.subscribers.values()).filter(sub => sub.companyId === companyId)
+        .length;
     }
     return this.subscribers.size;
   }

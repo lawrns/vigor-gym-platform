@@ -1,7 +1,7 @@
 {
   "ci": {
     "collect": {
-      "startServerCommand": "pnpm dev",
+      "startServerCommand": "npm run dev",
       "startServerReadyPattern": "Ready in",
       "startServerReadyTimeout": 30000,
       "url": [

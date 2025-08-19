@@ -16,7 +16,7 @@ export interface PaymentData {
 export function createPaymentFactory() {
   // Payment amounts in MXN cents (realistic gym membership prices)
   const membershipPrices = [
-    89900,  // $899 Basic monthly
+    89900, // $899 Basic monthly
     129900, // $1,299 Pro monthly
     189900, // $1,899 VIP monthly
     249900, // $2,499 Pro quarterly
@@ -27,10 +27,7 @@ export function createPaymentFactory() {
   ];
 
   // Payment providers distribution: 60% MercadoPago, 40% Stripe
-  const providers = [
-    ...Array(60).fill('mercadopago'),
-    ...Array(40).fill('stripe'),
-  ];
+  const providers = [...Array(60).fill('mercadopago'), ...Array(40).fill('stripe')];
 
   // Status distribution: 92% succeeded, 6% failed, 2% refunded
   const statusDistribution = [
@@ -57,16 +54,21 @@ export function createPaymentFactory() {
 
       // Select amount, provider, and status
       const amount = membershipPrices[Math.floor(Math.random() * membershipPrices.length)];
-      const provider = providers[Math.floor(Math.random() * providers.length)] as 'stripe' | 'mercadopago';
-      const status = statusDistribution[Math.floor(Math.random() * statusDistribution.length)] as PaymentData['status'];
+      const provider = providers[Math.floor(Math.random() * providers.length)] as
+        | 'stripe'
+        | 'mercadopago';
+      const status = statusDistribution[
+        Math.floor(Math.random() * statusDistribution.length)
+      ] as PaymentData['status'];
 
       // Generate provider reference
       const providerRef = this.generateProviderRef(provider, createdAt);
 
       // Add failure reason for failed payments
-      const failureReason = status === 'failed' 
-        ? failureReasons[Math.floor(Math.random() * failureReasons.length)]
-        : undefined;
+      const failureReason =
+        status === 'failed'
+          ? failureReasons[Math.floor(Math.random() * failureReasons.length)]
+          : undefined;
 
       return {
         memberId,
@@ -97,7 +99,7 @@ export function createPaymentFactory() {
      * Create payment history for a member
      */
     createMemberPaymentHistory(
-      memberId: string, 
+      memberId: string,
       monthsBack: number = 6,
       paymentsPerMonth: number = 1
     ): PaymentData[] {
@@ -123,10 +125,10 @@ export function createPaymentFactory() {
       successRate: number = 0.92
     ): PaymentData[] {
       const payments: PaymentData[] = [];
-      
+
       for (let i = 0; i < count; i++) {
         const payment = this.create(memberId);
-        
+
         // Override status based on desired success rate
         if (Math.random() < successRate) {
           payment.status = 'succeeded';
@@ -135,10 +137,11 @@ export function createPaymentFactory() {
           // Split failures between failed and refunded (80/20)
           payment.status = Math.random() < 0.8 ? 'failed' : 'refunded';
           if (payment.status === 'failed') {
-            payment.failureReason = failureReasons[Math.floor(Math.random() * failureReasons.length)];
+            payment.failureReason =
+              failureReasons[Math.floor(Math.random() * failureReasons.length)];
           }
         }
-        
+
         payments.push(payment);
       }
 
@@ -148,16 +151,13 @@ export function createPaymentFactory() {
     /**
      * Generate revenue trend with weekend uplift
      */
-    createRevenueTrend(
-      memberIds: string[],
-      days: number = 7
-    ): PaymentData[] {
+    createRevenueTrend(memberIds: string[], days: number = 7): PaymentData[] {
       const payments: PaymentData[] = [];
 
       for (let day = 0; day < days; day++) {
         const date = new Date(Date.now() - day * 24 * 60 * 60 * 1000);
         const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-        
+
         // Weekend uplift: 30% more payments on weekends
         const basePayments = isWeekend ? 13 : 10;
         const dailyPayments = Math.floor(basePayments + Math.random() * 5);
@@ -165,7 +165,7 @@ export function createPaymentFactory() {
         for (let p = 0; p < dailyPayments; p++) {
           const memberId = memberIds[Math.floor(Math.random() * memberIds.length)];
           const payment = this.create(memberId, day);
-          
+
           // Adjust creation time to specific day
           payment.createdAt = new Date(date);
           payment.createdAt.setHours(

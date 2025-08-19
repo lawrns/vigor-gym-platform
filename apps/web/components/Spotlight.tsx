@@ -2,7 +2,10 @@ import * as React from 'react';
 
 export function Spotlight({ className = '' }: { className?: string }) {
   return (
-    <div aria-hidden className={'pointer-events-none fixed inset-0 -z-10 overflow-hidden ' + className}>
+    <div
+      aria-hidden
+      className={'pointer-events-none fixed inset-0 -z-10 overflow-hidden ' + className}
+    >
       <div
         className="absolute top-[-20%] left-1/2 -translate-x-1/2 h-[60vh] w-[80vw] rounded-full opacity-30 blur-3xl"
         style={{
@@ -13,5 +16,3 @@ export function Spotlight({ className = '' }: { className?: string }) {
     </div>
   );
 }
-
-

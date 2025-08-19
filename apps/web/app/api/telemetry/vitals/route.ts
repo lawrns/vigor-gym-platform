@@ -1,6 +1,6 @@
 /**
  * Web Vitals Telemetry Endpoint
- * 
+ *
  * Receives Core Web Vitals and custom performance metrics from the browser.
  * Logs them in structured format for monitoring and alerting.
  */
@@ -22,21 +22,17 @@ interface VitalMetric {
 export async function POST(request: NextRequest) {
   try {
     const metric: VitalMetric = await request.json();
-    
+
     // Validate required fields
     if (!metric.metric || typeof metric.value !== 'number') {
-      return NextResponse.json(
-        { error: 'Invalid metric data' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Invalid metric data' }, { status: 400 });
     }
 
     // Extract useful context
     const requestId = request.headers.get('x-request-id') || crypto.randomUUID();
     const userAgent = request.headers.get('user-agent') || 'unknown';
-    const ip = request.headers.get('x-forwarded-for') || 
-               request.headers.get('x-real-ip') || 
-               'unknown';
+    const ip =
+      request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 
     // Structure the log entry
     const logEntry = {
@@ -59,25 +55,23 @@ export async function POST(request: NextRequest) {
     // Check against SLO thresholds and alert if needed
     const alerts = checkSLOViolations(metric);
     if (alerts.length > 0) {
-      console.warn(JSON.stringify({
-        timestamp: new Date().toISOString(),
-        level: 'warn',
-        msg: 'slo_violation',
-        request_id: requestId,
-        metric: metric.metric,
-        value: metric.value,
-        violations: alerts,
-      }));
+      console.warn(
+        JSON.stringify({
+          timestamp: new Date().toISOString(),
+          level: 'warn',
+          msg: 'slo_violation',
+          request_id: requestId,
+          metric: metric.metric,
+          value: metric.value,
+          violations: alerts,
+        })
+      );
     }
 
     return NextResponse.json({ status: 'ok' });
-
   } catch (error) {
     console.error('[TELEMETRY] Failed to process vitals:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -89,10 +83,10 @@ function checkSLOViolations(metric: VitalMetric): string[] {
 
   // SLO thresholds from the spec
   const thresholds = {
-    'TTFB': 200,      // p75 < 200ms
-    'LCP': 2300,      // p75 < 2300ms  
-    'INP': 150,       // p75 < 150ms
-    'CLS': 0.1,       // p75 < 0.1
+    TTFB: 200, // p75 < 200ms
+    LCP: 2300, // p75 < 2300ms
+    INP: 150, // p75 < 150ms
+    CLS: 0.1, // p75 < 0.1
     'widget-init': 400, // p95 < 400ms
   };
 

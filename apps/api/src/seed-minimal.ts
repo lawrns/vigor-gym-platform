@@ -54,15 +54,17 @@ async function main() {
     where: { name: 'Vigor Gym Demo' },
   });
 
-  const gym = existingGym || await prisma.gym.create({
-    data: {
-      name: 'Vigor Gym Demo',
-      city: 'Mexico City',
-      state: 'CDMX',
-      lat: 19.4326, // Mexico City coordinates
-      lng: -99.1332,
-    },
-  });
+  const gym =
+    existingGym ||
+    (await prisma.gym.create({
+      data: {
+        name: 'Vigor Gym Demo',
+        city: 'Mexico City',
+        state: 'CDMX',
+        lat: 19.4326, // Mexico City coordinates
+        lng: -99.1332,
+      },
+    }));
 
   console.log('✅ Created gym:', gym.name);
 
@@ -139,7 +141,7 @@ async function main() {
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error('❌ Seed failed:', e);
     process.exit(1);
   })

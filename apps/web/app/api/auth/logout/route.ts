@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 /**
  * POST /api/auth/logout
- * 
+ *
  * Handles user logout by clearing authentication cookies.
  */
 export async function POST(request: NextRequest) {
@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Cookie': request.headers.get('cookie') || '',
+          Cookie: request.headers.get('cookie') || '',
         },
       });
 
@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     // Create response
     const response = NextResponse.json({
       message: 'Logged out successfully',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     // Clear authentication cookies with multiple approaches to ensure they're removed

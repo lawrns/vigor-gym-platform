@@ -15,7 +15,15 @@ export interface SessionPayload extends SessionUser {
  */
 export const AUTH_ROUTES = ['/login', '/register'];
 export const PROTECTED_PREFIXES = ['/dashboard', '/admin', '/partner'];
-export const PUBLIC_ROUTES = ['/', '/planes', '/checkout', '/checkout/success', '/demo', '/contacto', '/no-acceso'];
+export const PUBLIC_ROUTES = [
+  '/',
+  '/planes',
+  '/checkout',
+  '/checkout/success',
+  '/demo',
+  '/contacto',
+  '/no-acceso',
+];
 
 export function isAuthRoute(path: string): boolean {
   return AUTH_ROUTES.includes(path);

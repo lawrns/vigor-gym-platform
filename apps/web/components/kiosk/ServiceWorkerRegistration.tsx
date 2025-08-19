@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 
 export function ServiceWorkerRegistration() {
   const registeredRef = useRef(false);
@@ -14,7 +14,7 @@ export function ServiceWorkerRegistration() {
     registeredRef.current = true;
 
     // Check if service worker is already registered
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
+    navigator.serviceWorker.getRegistrations().then(registrations => {
       const existingRegistration = registrations.find(reg =>
         reg.active?.scriptURL.includes('/sw.js')
       );
@@ -28,18 +28,18 @@ export function ServiceWorkerRegistration() {
       // Register new service worker
       navigator.serviceWorker
         .register('/sw.js')
-        .then((registration) => {
+        .then(registration => {
           console.log('Service Worker registered successfully:', registration);
           setupServiceWorkerListeners(registration);
         })
-        .catch((error) => {
+        .catch(error => {
           console.error('Service Worker registration failed:', error);
           registeredRef.current = false; // Allow retry
         });
     });
 
     // Listen for messages from service worker
-    navigator.serviceWorker.addEventListener('message', (event) => {
+    navigator.serviceWorker.addEventListener('message', event => {
       if (event.data && event.data.type === 'OFFLINE_CHECKIN_PROCESSED') {
         // Handle offline check-in processing results
         console.log('Offline check-in processed:', event.data);

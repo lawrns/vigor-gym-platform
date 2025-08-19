@@ -1,65 +1,34 @@
-import jwt from 'jsonwebtoken';
 import { cookies } from 'next/headers';
 import { SessionUser, SessionPayload } from './types';
+import { verifyToken } from './supabase-auth';
 
 // Re-export types for convenience
 export type { SessionUser, SessionPayload } from './types';
 
 /**
- * Verify and decode a JWT token
- */
-export function verifyToken(token: string): SessionPayload {
-  const jwtSecret = process.env.JWT_SECRET || process.env.NEXT_PUBLIC_JWT_SECRET;
-  if (!jwtSecret) {
-    throw new Error('JWT_SECRET environment variable is required');
-  }
-
-  try {
-    return jwt.verify(token, jwtSecret) as SessionPayload;
-  } catch (error) {
-    throw new Error('Invalid or expired token');
-  }
-}
-
-/**
- * Get session from cookies (server-side only)
+ * Get session from cookies (server-side only) using Supabase tokens
  */
 export async function getServerSession(): Promise<SessionUser | null> {
   try {
     const cookieStore = cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
-    const refreshToken = cookieStore.get('refreshToken')?.value;
 
-    // Try access token first
+    // Try access token with Supabase verification
     if (accessToken) {
       try {
-        const payload = verifyToken(accessToken);
-        return {
-          userId: payload.userId,
-          email: payload.email,
-          role: payload.role,
-          companyId: payload.companyId,
-        };
+        const user = await verifyToken(accessToken);
+        if (user) {
+          return {
+            userId: user.id,
+            email: user.email,
+            role: user.role as SessionUser['role'],
+            companyId: null, // Supabase doesn't have companyId in the token
+          };
+        }
       } catch (error) {
-        // Access token invalid, try refresh token
+        // Token verification failed, continue to return null
       }
     }
-
-    // Try refresh token if access token failed
-    if (refreshToken) {
-      try {
-        const payload = verifyToken(refreshToken);
-        return {
-          userId: payload.userId,
-          email: payload.email,
-          role: payload.role,
-          companyId: payload.companyId,
-        };
-      } catch (error) {
-        // Both tokens invalid
-      }
-    }
-
     return null;
   } catch (error) {
     console.error('Session verification error:', error);
@@ -115,7 +84,10 @@ export async function requireCompany(): Promise<SessionUser> {
 /**
  * Check if user has minimum role level
  */
-export function hasMinimumRole(userRole: SessionUser['role'], minimumRole: SessionUser['role']): boolean {
+export function hasMinimumRole(
+  userRole: SessionUser['role'],
+  minimumRole: SessionUser['role']
+): boolean {
   const roleHierarchy: Record<SessionUser['role'], number> = {
     member: 1,
     trainer: 2,
@@ -127,5 +99,3 @@ export function hasMinimumRole(userRole: SessionUser['role'], minimumRole: Sessi
 
   return roleHierarchy[userRole] >= roleHierarchy[minimumRole];
 }
-
-

@@ -28,8 +28,10 @@ test.describe('Marketing Benefits Page (MKT-02)', () => {
 
     // Hero section
     await expect(page.locator('[data-testid="hero"]')).toBeVisible();
-    await expect(page.locator('[data-testid="hero"] h1')).toContainText('Tu gimnasio, en tu bolsillo');
-    
+    await expect(page.locator('[data-testid="hero"] h1')).toContainText(
+      'Tu gimnasio, en tu bolsillo'
+    );
+
     // Check primary and secondary CTAs in hero
     await expect(page.locator('[data-testid="hero"] [data-cta="primary"]')).toBeVisible();
     await expect(page.locator('[data-testid="hero"] [data-cta="secondary"]')).toBeVisible();
@@ -63,7 +65,9 @@ test.describe('Marketing Benefits Page (MKT-02)', () => {
 
     // Final CTA
     await expect(page.locator('[data-testid="final-cta"]')).toBeVisible();
-    await expect(page.locator('[data-testid="final-cta"] h2')).toContainText('¿Listo para entrenar mejor?');
+    await expect(page.locator('[data-testid="final-cta"] h2')).toContainText(
+      '¿Listo para entrenar mejor?'
+    );
     await expect(page.locator('[data-testid="final-cta"] [data-cta="primary"]')).toBeVisible();
     await expect(page.locator('[data-testid="final-cta"] [data-cta="secondary"]')).toBeVisible();
     console.log('✅ Final CTA section rendered with both CTAs');
@@ -80,20 +84,20 @@ test.describe('Marketing Benefits Page (MKT-02)', () => {
           window.capturedEvents.push({ event, properties });
         },
         init: () => {},
-        __loaded: true
+        __loaded: true,
       };
     });
 
     // Click the primary CTA in hero
     await page.click('[data-testid="hero"] [data-cta="primary"]');
-    
+
     // Wait a bit for the event to be captured
     await page.waitForTimeout(500);
 
     // Check if the event was captured
     const events = await page.evaluate(() => window.capturedEvents);
     const ctaClickEvent = events.find(e => e.event === 'lp_cta_click');
-    
+
     expect(ctaClickEvent).toBeDefined();
     expect(ctaClickEvent.properties.cta).toBe('primary');
     expect(ctaClickEvent.properties.section).toBe('hero');
@@ -111,7 +115,7 @@ test.describe('Marketing Benefits Page (MKT-02)', () => {
           window.capturedEvents.push({ event, properties });
         },
         init: () => {},
-        __loaded: true
+        __loaded: true,
       };
     });
 
@@ -137,7 +141,7 @@ test.describe('Marketing Benefits Page (MKT-02)', () => {
     await page.waitForTimeout(500);
     const events = await page.evaluate(() => window.capturedEvents);
     const faqEvents = events.filter(e => e.event === 'lp_faq_toggle');
-    
+
     expect(faqEvents.length).toBeGreaterThanOrEqual(2); // Open and close
     console.log('✅ FAQ toggle events tracked');
   });
@@ -146,13 +150,13 @@ test.describe('Marketing Benefits Page (MKT-02)', () => {
     console.log('⚡ Testing page performance...');
 
     const startTime = Date.now();
-    
+
     // Navigate and wait for page to be fully loaded
     await page.goto('/beneficios');
     await page.waitForLoadState('networkidle');
-    
+
     const loadTime = Date.now() - startTime;
-    
+
     // Should load in under 2 seconds (2000ms)
     expect(loadTime).toBeLessThan(2000);
     console.log(`✅ Page loaded in ${loadTime}ms (< 2000ms target)`);
@@ -192,10 +196,10 @@ test.describe('Marketing Benefits Page (MKT-02)', () => {
     // Check FAQ accessibility
     const faqButtons = page.locator('[data-testid="faq"] button');
     const firstFaqButton = faqButtons.first();
-    
+
     await expect(firstFaqButton).toHaveAttribute('aria-expanded', 'false');
     await expect(firstFaqButton).toHaveAttribute('aria-controls');
-    
+
     // Click and check aria-expanded changes
     await firstFaqButton.click();
     await expect(firstFaqButton).toHaveAttribute('aria-expanded', 'true');
@@ -204,7 +208,7 @@ test.describe('Marketing Benefits Page (MKT-02)', () => {
     // Check focus visibility on CTAs
     const primaryCTA = page.locator('[data-testid="hero"] [data-cta="primary"]');
     await primaryCTA.focus();
-    
+
     // Should have focus ring styles
     await expect(primaryCTA).toHaveClass(/focus:ring/);
     console.log('✅ Focus styles present on CTAs');
@@ -237,7 +241,7 @@ test.describe('Marketing Benefits Page (MKT-02)', () => {
     const ogTitle = page.locator('meta[property="og:title"]');
     const ogDescription = page.locator('meta[property="og:description"]');
     const ogImage = page.locator('meta[property="og:image"]');
-    
+
     await expect(ogTitle).toHaveAttribute('content');
     await expect(ogDescription).toHaveAttribute('content');
     await expect(ogImage).toHaveAttribute('content', /vigor-beneficios/);
@@ -284,7 +288,9 @@ test.describe('Demo Page (/beneficios/demo)', () => {
     await checkinSection.locator('button:has-text("Simular escaneo")').click();
 
     // Should show success state
-    await expect(checkinSection.locator('text=¡Listo! Check-in exitoso.')).toBeVisible({ timeout: 3000 });
+    await expect(checkinSection.locator('text=¡Listo! Check-in exitoso.')).toBeVisible({
+      timeout: 3000,
+    });
 
     console.log('✅ Check-in demo flow completed successfully');
   });
@@ -325,7 +331,9 @@ test.describe('Demo Page (/beneficios/demo)', () => {
     await expect(progressSection.locator('text=Consejo de IA')).toBeVisible({ timeout: 3000 });
 
     // Should show action buttons
-    await expect(progressSection.locator('button:has-text("Ver historial completo")')).toBeVisible();
+    await expect(
+      progressSection.locator('button:has-text("Ver historial completo")')
+    ).toBeVisible();
 
     console.log('✅ Progress demo animations and insights working');
   });
@@ -338,8 +346,12 @@ test.describe('Demo Page (/beneficios/demo)', () => {
     await expect(page.locator('[data-cta="secondary"][data-section="demo-footer"]')).toBeVisible();
 
     // Check CTA text
-    await expect(page.locator('[data-cta="primary"][data-section="demo-footer"]')).toContainText('Ver planes');
-    await expect(page.locator('[data-cta="secondary"][data-section="demo-footer"]')).toContainText('Volver a beneficios');
+    await expect(page.locator('[data-cta="primary"][data-section="demo-footer"]')).toContainText(
+      'Ver planes'
+    );
+    await expect(page.locator('[data-cta="secondary"][data-section="demo-footer"]')).toContainText(
+      'Volver a beneficios'
+    );
 
     console.log('✅ Demo footer CTAs present and correctly labeled');
   });

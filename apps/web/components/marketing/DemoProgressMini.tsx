@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Icons } from '../../lib/icons/registry';
 import { motionPresets } from '../../lib/motion/presets';
@@ -17,7 +17,7 @@ export function DemoProgressMini({
   streakDays,
   monthlyVisits,
   trendUp,
-  testId = 'demo-progress'
+  testId = 'demo-progress',
 }: DemoProgressMiniProps) {
   const [animatedStreak, setAnimatedStreak] = useState(0);
   const [animatedVisits, setAnimatedVisits] = useState(0);
@@ -28,7 +28,7 @@ export function DemoProgressMini({
     trackEvent('demo_progress_view', {
       streakDays,
       monthlyVisits,
-      trendUp
+      trendUp,
     });
 
     // Animate numbers
@@ -65,30 +65,26 @@ export function DemoProgressMini({
   }, [streakDays, monthlyVisits, trendUp]);
 
   const getStreakMessage = () => {
-    if (streakDays >= 7) return "¡Increíble racha! 🔥";
-    if (streakDays >= 3) return "¡Vas muy bien! 💪";
-    return "¡Sigue así! ⭐";
+    if (streakDays >= 7) return '¡Increíble racha! 🔥';
+    if (streakDays >= 3) return '¡Vas muy bien! 💪';
+    return '¡Sigue así! ⭐';
   };
 
   const getTrendMessage = () => {
     if (trendUp) {
-      return "Estás visitando más que el mes pasado";
+      return 'Estás visitando más que el mes pasado';
     }
-    return "Intenta mantener tu ritmo de visitas";
+    return 'Intenta mantener tu ritmo de visitas';
   };
 
   return (
-    <section 
+    <section
       data-testid={testId}
       className="bg-white rounded-2xl border border-outline p-8 shadow-sm"
     >
       <div className="text-center mb-8">
-        <h2 className="font-display text-2xl font-semibold text-heading mb-2">
-          3. Ve tu progreso
-        </h2>
-        <p className="text-text/80">
-          Métricas que te motivan a seguir
-        </p>
+        <h2 className="font-display text-2xl font-semibold text-heading mb-2">3. Ve tu progreso</h2>
+        <p className="text-text/80">Métricas que te motivan a seguir</p>
       </div>
 
       <div className="max-w-md mx-auto space-y-6">
@@ -116,7 +112,7 @@ export function DemoProgressMini({
               {animatedStreak}
             </motion.div>
           </div>
-          
+
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: animatedStreak === streakDays ? 1 : 0 }}
@@ -169,9 +165,9 @@ export function DemoProgressMini({
         {/* AI Insight */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ 
-            opacity: showInsight ? 1 : 0, 
-            y: showInsight ? 0 : 20 
+          animate={{
+            opacity: showInsight ? 1 : 0,
+            y: showInsight ? 0 : 20,
           }}
           transition={{ delay: 0.5 }}
           className="bg-gradient-to-r from-purple-50 to-accent-50 border border-purple-200 rounded-xl p-6"
@@ -181,9 +177,7 @@ export function DemoProgressMini({
               <Icons.Sparkles className="h-5 w-5 text-purple-600" />
             </div>
             <div>
-              <div className="font-medium text-heading mb-1">
-                Consejo de IA
-              </div>
+              <div className="font-medium text-heading mb-1">Consejo de IA</div>
               <p className="text-sm text-text/80 leading-relaxed">
                 {getTrendMessage()}. Tu mejor día es martes por la tarde.
               </p>

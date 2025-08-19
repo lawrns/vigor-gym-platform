@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
-    
+
     const response = await fetch(`${API_BASE_URL}/v1/staff/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': request.headers.get('Authorization') || '',
-        'Cookie': request.headers.get('Cookie') || '',
+        Authorization: request.headers.get('Authorization') || '',
+        Cookie: request.headers.get('Cookie') || '',
       },
     });
 
@@ -27,51 +24,60 @@ export async function GET(
         staffId: id,
       });
 
-      return NextResponse.json({
-        error: data?.error || data?.code || 'STAFF_GET_FAILED',
-        message: data?.message || `Failed to get staff member (${response.status})`,
-        proxyError: true,
-        status: response.status
-      }, { status: response.status });
+      return NextResponse.json(
+        {
+          error: data?.error || data?.code || 'STAFF_GET_FAILED',
+          message: data?.message || `Failed to get staff member (${response.status})`,
+          proxyError: true,
+          status: response.status,
+        },
+        { status: response.status }
+      );
     }
 
     return NextResponse.json(data, { status: 200 });
   } catch (error: any) {
     console.error('Staff get proxy internal error:', {
       error: error?.message,
-      stack: error?.stack
+      stack: error?.stack,
     });
 
-    return NextResponse.json({
-      error: 'PROXY_INTERNAL_ERROR',
-      message: 'Internal proxy error occurred'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'PROXY_INTERNAL_ERROR',
+        message: 'Internal proxy error occurred',
+      },
+      { status: 500 }
+    );
   }
 }
 
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
 
     // Validate content type
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
-      return NextResponse.json({
-        error: 'CONTENT_TYPE_JSON_REQUIRED',
-        message: 'Content-Type must be application/json'
-      }, { status: 415 });
+      return NextResponse.json(
+        {
+          error: 'CONTENT_TYPE_JSON_REQUIRED',
+          message: 'Content-Type must be application/json',
+        },
+        { status: 415 }
+      );
     }
 
     // Parse and validate request body
     const body = await request.json().catch(() => null);
     if (!body) {
-      return NextResponse.json({
-        error: 'INVALID_JSON',
-        message: 'Request body must be valid JSON'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'INVALID_JSON',
+          message: 'Request body must be valid JSON',
+        },
+        { status: 400 }
+      );
     }
 
     // Forward request to API
@@ -79,8 +85,8 @@ export async function PATCH(
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': request.headers.get('Authorization') || '',
-        'Cookie': request.headers.get('Cookie') || '',
+        Authorization: request.headers.get('Authorization') || '',
+        Cookie: request.headers.get('Cookie') || '',
       },
       body: JSON.stringify(body),
     });
@@ -94,12 +100,15 @@ export async function PATCH(
         staffId: id,
       });
 
-      return NextResponse.json({
-        error: data?.error || data?.code || 'STAFF_UPDATE_FAILED',
-        message: data?.message || `Failed to update staff member (${response.status})`,
-        proxyError: true,
-        status: response.status
-      }, { status: response.status });
+      return NextResponse.json(
+        {
+          error: data?.error || data?.code || 'STAFF_UPDATE_FAILED',
+          message: data?.message || `Failed to update staff member (${response.status})`,
+          proxyError: true,
+          status: response.status,
+        },
+        { status: response.status }
+      );
     }
 
     console.log('Staff updated successfully:', {
@@ -110,20 +119,20 @@ export async function PATCH(
   } catch (error: any) {
     console.error('Staff update proxy internal error:', {
       error: error?.message,
-      stack: error?.stack
+      stack: error?.stack,
     });
 
-    return NextResponse.json({
-      error: 'PROXY_INTERNAL_ERROR',
-      message: 'Internal proxy error occurred'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'PROXY_INTERNAL_ERROR',
+        message: 'Internal proxy error occurred',
+      },
+      { status: 500 }
+    );
   }
 }
 
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
 
@@ -132,8 +141,8 @@ export async function DELETE(
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': request.headers.get('Authorization') || '',
-        'Cookie': request.headers.get('Cookie') || '',
+        Authorization: request.headers.get('Authorization') || '',
+        Cookie: request.headers.get('Cookie') || '',
       },
     });
 
@@ -146,12 +155,15 @@ export async function DELETE(
         staffId: id,
       });
 
-      return NextResponse.json({
-        error: data?.error || data?.code || 'STAFF_DELETE_FAILED',
-        message: data?.message || `Failed to delete staff member (${response.status})`,
-        proxyError: true,
-        status: response.status
-      }, { status: response.status });
+      return NextResponse.json(
+        {
+          error: data?.error || data?.code || 'STAFF_DELETE_FAILED',
+          message: data?.message || `Failed to delete staff member (${response.status})`,
+          proxyError: true,
+          status: response.status,
+        },
+        { status: response.status }
+      );
     }
 
     console.log('Staff deleted successfully:', {
@@ -162,12 +174,15 @@ export async function DELETE(
   } catch (error: any) {
     console.error('Staff delete proxy internal error:', {
       error: error?.message,
-      stack: error?.stack
+      stack: error?.stack,
     });
 
-    return NextResponse.json({
-      error: 'PROXY_INTERNAL_ERROR',
-      message: 'Internal proxy error occurred'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'PROXY_INTERNAL_ERROR',
+        message: 'Internal proxy error occurred',
+      },
+      { status: 500 }
+    );
   }
 }

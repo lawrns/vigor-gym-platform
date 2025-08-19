@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../lib/auth/context';
 import { apiClient, isAPIError } from '../../lib/api/client';
 import { Icons } from '../../lib/icons/registry';
@@ -47,7 +47,7 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
 
     try {
       let response;
-      
+
       if (isEditing) {
         response = await apiClient.members.update(member.id, formData);
       } else {
@@ -113,14 +113,17 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
 
           {/* First Name */}
           <div>
-            <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="firstName"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Nombre *
             </label>
             <input
               type="text"
               id="firstName"
               value={formData.firstName}
-              onChange={(e) => handleChange('firstName', e.target.value)}
+              onChange={e => handleChange('firstName', e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Ingresa el nombre"
@@ -129,14 +132,17 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
 
           {/* Last Name */}
           <div>
-            <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="lastName"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Apellido *
             </label>
             <input
               type="text"
               id="lastName"
               value={formData.lastName}
-              onChange={(e) => handleChange('lastName', e.target.value)}
+              onChange={e => handleChange('lastName', e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Ingresa el apellido"
@@ -145,14 +151,17 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
 
           {/* Email */}
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Email *
             </label>
             <input
               type="email"
               id="email"
               value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
+              onChange={e => handleChange('email', e.target.value)}
               required
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="ejemplo@correo.com"
@@ -161,13 +170,16 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
 
           {/* Status */}
           <div>
-            <label htmlFor="status" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+            <label
+              htmlFor="status"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
+            >
               Estado
             </label>
             <select
               id="status"
               value={formData.status}
-              onChange={(e) => handleChange('status', e.target.value as FormData['status'])}
+              onChange={e => handleChange('status', e.target.value as FormData['status'])}
               className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="active">Activo</option>
@@ -196,8 +208,10 @@ export function MemberForm({ member, onSuccess, onCancel }: MemberFormProps) {
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                   {isEditing ? 'Actualizando...' : 'Creando...'}
                 </div>
+              ) : isEditing ? (
+                'Actualizar'
               ) : (
-                isEditing ? 'Actualizar' : 'Crear Miembro'
+                'Crear Miembro'
               )}
             </button>
           </div>

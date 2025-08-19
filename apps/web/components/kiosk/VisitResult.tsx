@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '../ui/Button';
 import { Icons } from '../../lib/icons/registry';
 
@@ -59,7 +59,7 @@ export function VisitResult({ type, visit, error, onReturnToScan }: VisitResultP
 
   if (type === 'success' && visit) {
     const checkInTime = new Date(visit.visit.checkIn).toLocaleTimeString();
-    
+
     return (
       <div className="max-w-lg mx-auto">
         <div
@@ -73,16 +73,15 @@ export function VisitResult({ type, visit, error, onReturnToScan }: VisitResultP
           <div className="text-center">
             {/* Success Icon */}
             <div className="w-20 h-20 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Icons.CheckCircle className="h-12 w-12 text-green-600 dark:text-green-400" aria-hidden="true" />
+              <Icons.CheckCircle
+                className="h-12 w-12 text-green-600 dark:text-green-400"
+                aria-hidden="true"
+              />
             </div>
 
             {/* Success Message */}
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Welcome!
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-400 mb-6">
-              Check-in successful
-            </p>
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Welcome!</h2>
+            <p className="text-xl text-gray-600 dark:text-gray-400 mb-6">Check-in successful</p>
 
             {/* Member Info */}
             <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-6 mb-6">
@@ -109,11 +108,7 @@ export function VisitResult({ type, visit, error, onReturnToScan }: VisitResultP
             </div>
 
             {/* Action Button */}
-            <Button
-              onClick={onReturnToScan}
-              className="w-full"
-              size="lg"
-            >
+            <Button onClick={onReturnToScan} className="w-full" size="lg">
               <Icons.ArrowLeft className="h-5 w-5 mr-2" />
               Scan Next Member
             </Button>
@@ -168,11 +163,7 @@ export function VisitResult({ type, visit, error, onReturnToScan }: VisitResultP
 
             {/* Action Buttons */}
             <div className="space-y-3">
-              <Button
-                onClick={onReturnToScan}
-                className="w-full"
-                size="lg"
-              >
+              <Button onClick={onReturnToScan} className="w-full" size="lg">
                 <Icons.RotateCcw className="h-5 w-5 mr-2" />
                 Try Again
               </Button>

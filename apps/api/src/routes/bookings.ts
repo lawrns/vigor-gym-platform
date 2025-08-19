@@ -10,20 +10,21 @@ const prisma = new PrismaClient();
 // Validation schemas
 const createBookingSchema = z.object({
   classId: z.string().uuid(),
-  membershipId: z.string().uuid()
+  membershipId: z.string().uuid(),
 });
 
 // POST /v1/bookings - Create a new booking
-router.post('/',
+router.post(
+  '/',
   authRequired(['staff', 'manager', 'owner', 'member']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
     try {
       const validation = createBookingSchema.safeParse(req.body);
       if (!validation.success) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Validation error',
-          errors: validation.error.errors
+          errors: validation.error.errors,
         });
       }
 
@@ -35,11 +36,11 @@ router.post('/',
         where: {
           id: membershipId,
           companyId: companyId,
-          status: 'active'
+          status: 'active',
         },
         include: {
-          member: true
-        }
+          member: true,
+        },
       });
 
       if (!membership) {
@@ -52,9 +53,9 @@ router.post('/',
         include: {
           gym: true,
           _count: {
-            select: { bookings: true }
-          }
-        }
+            select: { bookings: true },
+          },
+        },
       });
 
       if (!classData) {
@@ -68,10 +69,10 @@ router.post('/',
 
       // Check capacity
       if (classData._count.bookings >= classData.capacity) {
-        return res.status(409).json({ 
+        return res.status(409).json({
           message: 'Class is fully booked',
           capacity: classData.capacity,
-          currentBookings: classData._count.bookings
+          currentBookings: classData._count.bookings,
         });
       }
 
@@ -81,9 +82,9 @@ router.post('/',
           classId: classId,
           membershipId: membershipId,
           status: {
-            in: ['reserved', 'checked_in']
-          }
-        }
+            in: ['reserved', 'checked_in'],
+          },
+        },
       });
 
       if (existingBooking) {
@@ -92,8 +93,8 @@ router.post('/',
           existingBooking: {
             id: existingBooking.id,
             status: existingBooking.status,
-            bookedAt: existingBooking.createdAt
-          }
+            bookedAt: existingBooking.createdAt,
+          },
         });
       }
 
@@ -102,20 +103,20 @@ router.post('/',
         data: {
           classId: classId,
           membershipId: membershipId,
-          status: 'reserved'
+          status: 'reserved',
         },
         include: {
           class: {
             include: {
-              gym: true
-            }
+              gym: true,
+            },
           },
           membership: {
             include: {
-              member: true
-            }
-          }
-        }
+              member: true,
+            },
+          },
+        },
       });
 
       res.status(201).json({
@@ -129,17 +130,18 @@ router.post('/',
           gym: {
             id: booking.class.gym.id,
             name: booking.class.gym.name,
-            city: booking.class.gym.city
-          }
+            city: booking.class.gym.city,
+          },
         },
-        member: booking.membership.member ? {
-          id: booking.membership.member.id,
-          firstName: booking.membership.member.firstName,
-          lastName: booking.membership.member.lastName,
-          email: booking.membership.member.email
-        } : null
+        member: booking.membership.member
+          ? {
+              id: booking.membership.member.id,
+              firstName: booking.membership.member.firstName,
+              lastName: booking.membership.member.lastName,
+              email: booking.membership.member.email,
+            }
+          : null,
       });
-
     } catch (error) {
       console.error('Error creating booking:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -148,7 +150,8 @@ router.post('/',
 );
 
 // GET /v1/bookings - List bookings for the tenant
-router.get('/',
+router.get(
+  '/',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -160,8 +163,8 @@ router.get('/',
       // Build where clause
       const where: any = {
         membership: {
-          companyId: companyId
-        }
+          companyId: companyId,
+        },
       };
 
       if (classId) {
@@ -192,20 +195,20 @@ router.get('/',
           include: {
             class: {
               include: {
-                gym: true
-              }
+                gym: true,
+              },
             },
             membership: {
               include: {
-                member: true
-              }
-            }
+                member: true,
+              },
+            },
           },
           orderBy: { createdAt: 'desc' },
           skip,
-          take: Number(limit)
+          take: Number(limit),
         }),
-        prisma.booking.count({ where })
+        prisma.booking.count({ where }),
       ]);
 
       res.json({
@@ -220,24 +223,25 @@ router.get('/',
             gym: {
               id: booking.class.gym.id,
               name: booking.class.gym.name,
-              city: booking.class.gym.city
-            }
+              city: booking.class.gym.city,
+            },
           },
-          member: booking.membership.member ? {
-            id: booking.membership.member.id,
-            firstName: booking.membership.member.firstName,
-            lastName: booking.membership.member.lastName,
-            email: booking.membership.member.email
-          } : null
+          member: booking.membership.member
+            ? {
+                id: booking.membership.member.id,
+                firstName: booking.membership.member.firstName,
+                lastName: booking.membership.member.lastName,
+                email: booking.membership.member.email,
+              }
+            : null,
         })),
         pagination: {
           page: Number(page),
           limit: Number(limit),
           total,
-          pages: Math.ceil(total / Number(limit))
-        }
+          pages: Math.ceil(total / Number(limit)),
+        },
       });
-
     } catch (error) {
       console.error('Error fetching bookings:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -246,7 +250,8 @@ router.get('/',
 );
 
 // PATCH /v1/bookings/:id/checkin - Check in to a class
-router.patch('/:id/checkin',
+router.patch(
+  '/:id/checkin',
   authRequired(['staff', 'manager', 'owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -259,17 +264,17 @@ router.patch('/:id/checkin',
         where: {
           id: bookingId,
           membership: {
-            companyId: companyId
-          }
+            companyId: companyId,
+          },
         },
         include: {
           class: true,
           membership: {
             include: {
-              member: true
-            }
-          }
-        }
+              member: true,
+            },
+          },
+        },
       });
 
       if (!booking) {
@@ -277,9 +282,9 @@ router.patch('/:id/checkin',
       }
 
       if (booking.status !== 'reserved') {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Can only check in reserved bookings',
-          currentStatus: booking.status
+          currentStatus: booking.status,
         });
       }
 
@@ -290,10 +295,10 @@ router.patch('/:id/checkin',
       const thirtyMinutesAfter = new Date(classStart.getTime() + 30 * 60 * 1000);
 
       if (now < thirtyMinutesBefore || now > thirtyMinutesAfter) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Check-in only allowed 30 minutes before to 30 minutes after class start time',
           classStartsAt: classStart,
-          currentTime: now
+          currentTime: now,
         });
       }
 
@@ -304,15 +309,15 @@ router.patch('/:id/checkin',
         include: {
           class: {
             include: {
-              gym: true
-            }
+              gym: true,
+            },
           },
           membership: {
             include: {
-              member: true
-            }
-          }
-        }
+              member: true,
+            },
+          },
+        },
       });
 
       res.json({
@@ -326,17 +331,18 @@ router.patch('/:id/checkin',
           gym: {
             id: updatedBooking.class.gym.id,
             name: updatedBooking.class.gym.name,
-            city: updatedBooking.class.gym.city
-          }
+            city: updatedBooking.class.gym.city,
+          },
         },
-        member: updatedBooking.membership.member ? {
-          id: updatedBooking.membership.member.id,
-          firstName: updatedBooking.membership.member.firstName,
-          lastName: updatedBooking.membership.member.lastName,
-          email: updatedBooking.membership.member.email
-        } : null
+        member: updatedBooking.membership.member
+          ? {
+              id: updatedBooking.membership.member.id,
+              firstName: updatedBooking.membership.member.firstName,
+              lastName: updatedBooking.membership.member.lastName,
+              email: updatedBooking.membership.member.email,
+            }
+          : null,
       });
-
     } catch (error) {
       console.error('Error checking in booking:', error);
       res.status(500).json({ message: 'Internal server error' });
@@ -345,7 +351,8 @@ router.patch('/:id/checkin',
 );
 
 // DELETE /v1/bookings/:id - Cancel a booking
-router.delete('/:id',
+router.delete(
+  '/:id',
   authRequired(['staff', 'manager', 'owner', 'member']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -358,12 +365,12 @@ router.delete('/:id',
         where: {
           id: bookingId,
           membership: {
-            companyId: companyId
-          }
+            companyId: companyId,
+          },
         },
         include: {
-          class: true
-        }
+          class: true,
+        },
       });
 
       if (!booking) {
@@ -375,7 +382,9 @@ router.delete('/:id',
       }
 
       if (booking.status === 'checked_in') {
-        return res.status(400).json({ message: 'Cannot cancel a booking that has been checked in' });
+        return res
+          .status(400)
+          .json({ message: 'Cannot cancel a booking that has been checked in' });
       }
 
       // Check if cancellation is allowed (e.g., at least 2 hours before class)
@@ -383,21 +392,20 @@ router.delete('/:id',
       const twoHoursBefore = new Date(booking.class.startsAt.getTime() - 2 * 60 * 60 * 1000);
 
       if (now > twoHoursBefore) {
-        return res.status(400).json({ 
+        return res.status(400).json({
           message: 'Cancellation not allowed less than 2 hours before class start time',
           classStartsAt: booking.class.startsAt,
-          currentTime: now
+          currentTime: now,
         });
       }
 
       // Update booking status to cancelled
       await prisma.booking.update({
         where: { id: bookingId },
-        data: { status: 'cancelled' }
+        data: { status: 'cancelled' },
       });
 
       res.status(204).send();
-
     } catch (error) {
       console.error('Error cancelling booking:', error);
       res.status(500).json({ message: 'Internal server error' });

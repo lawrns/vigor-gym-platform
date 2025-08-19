@@ -15,30 +15,29 @@ describe('Auth Flow - Error Handling Integration', () => {
       expect(isAPIClientError(genericError)).toBe(false);
     });
 
-    it('should properly identify different error scenarios', () => {
-      // Simulate different auth initialization scenarios
-      const scenarios = [
-        { error: { status: 401 }, expected: 'unauthorized' },
-        { error: new Error('fetch failed'), expected: 'network' },
-        { error: new Error('ECONNREFUSED'), expected: 'network' },
-        { error: { status: 500 }, expected: 'api' },
-        { error: new Error('Unknown'), expected: 'unknown' }
-      ];
+    it('should identify unauthorized errors', () => {
+      const error = { status: 401 };
+      expect(isUnauthorizedError(error)).toBe(true);
+    });
 
-      scenarios.forEach(({ error, expected }) => {
-        if (expected === 'unauthorized') {
-          expect(isUnauthorizedError(error)).toBe(true);
-        } else if (expected === 'network') {
-          expect(isNetworkError(error)).toBe(true);
-        } else if (expected === 'api') {
-          expect(isAPIClientError(error)).toBe(true);
-          expect(isUnauthorizedError(error)).toBe(false);
-        } else {
-          expect(isAPIClientError(error)).toBe(false);
-          expect(isUnauthorizedError(error)).toBe(false);
-          expect(isNetworkError(error)).toBe(false);
-        }
-      });
+    it('should identify network errors', () => {
+      const fetchError = new Error('fetch failed');
+      const connError = new Error('ECONNREFUSED');
+      expect(isNetworkError(fetchError)).toBe(true);
+      expect(isNetworkError(connError)).toBe(true);
+    });
+
+    it('should identify API client errors', () => {
+      const error = { status: 500 };
+      expect(isAPIClientError(error)).toBe(true);
+      expect(isUnauthorizedError(error)).toBe(false);
+    });
+
+    it('should handle unknown errors', () => {
+      const error = new Error('Unknown');
+      expect(isAPIClientError(error)).toBe(false);
+      expect(isUnauthorizedError(error)).toBe(false);
+      expect(isNetworkError(error)).toBe(false);
     });
   });
 

@@ -1,5 +1,5 @@
-"use client";
-import { useState } from 'react';
+'use client';
+import React, { useState } from 'react';
 
 type Item = { q: string; a: string };
 
@@ -23,7 +23,12 @@ export function FAQAccordion({ title, items }: { title?: string; items: Item[] }
                 {it.q}
               </button>
               {open && (
-                <div id={`faq-panel-${idx}`} role="region" aria-labelledby={`faq-button-${idx}`} className="px-4 pb-4 text-sm text-text/80">
+                <div
+                  id={`faq-panel-${idx}`}
+                  role="region"
+                  aria-labelledby={`faq-button-${idx}`}
+                  className="px-4 pb-4 text-sm text-text/80"
+                >
                   {it.a}
                 </div>
               )}
@@ -34,6 +39,3 @@ export function FAQAccordion({ title, items }: { title?: string; items: Item[] }
     </section>
   );
 }
-
-
-

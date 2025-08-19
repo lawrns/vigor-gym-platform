@@ -1,6 +1,6 @@
 /**
  * Dashboard Revenue Analytics Proxy Route
- * 
+ *
  * Proxies revenue analytics requests to the API with proper cookie forwarding and tenant context.
  */
 
@@ -8,7 +8,7 @@ import { cookies, headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '../../../../lib/auth/session';
 
-const API_ORIGIN = process.env.API_ORIGIN || 'http://localhost:4003';
+const API_ORIGIN = process.env.API_ORIGIN || 'http://localhost:4001';
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,10 +17,7 @@ export async function GET(request: NextRequest) {
 
     if (!session) {
       console.debug('[REVENUE-PROXY] No session found - returning 401');
-      return NextResponse.json(
-        { message: 'Authentication required' },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
     }
 
     // Build upstream URL with query parameters
@@ -89,14 +86,13 @@ export async function GET(request: NextRequest) {
       statusText: upstreamResponse.statusText,
       headers: responseHeaders,
     });
-
   } catch (error) {
     console.error('[REVENUE-PROXY] Failed to proxy revenue request:', error);
-    
+
     return NextResponse.json(
-      { 
+      {
         message: 'Failed to fetch revenue data',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     );

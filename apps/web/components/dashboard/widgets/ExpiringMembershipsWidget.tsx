@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Icons } from '../../../lib/icons/registry';
 import { Widget, WidgetEmpty } from '../DashboardShell';
 import { apiClient } from '../../../lib/api/client';
-import type { DashboardSummary } from '../../../lib/api/types';
+import type { DashboardSummary } from '../../../lib/dashboard/supabase-data-service';
 
 interface ExpiringMember {
   id: string;
@@ -24,14 +24,17 @@ interface ExpiringMembershipsWidgetProps {
 
 /**
  * ExpiringMembershipsWidget - Shows members with expiring memberships
- * 
+ *
  * Features:
  * - Filter by 7d/14d/30d windows
  * - Member details with expiration dates
  * - Quick actions: send reminder, collect payment
  * - Real-time updates via SSE
  */
-export function ExpiringMembershipsWidget({ locationId, className }: ExpiringMembershipsWidgetProps) {
+export function ExpiringMembershipsWidget({
+  locationId,
+  className,
+}: ExpiringMembershipsWidgetProps) {
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<'7d' | '14d' | '30d'>('7d');
   const [loading, setLoading] = useState(true);
@@ -72,9 +75,9 @@ export function ExpiringMembershipsWidget({ locationId, className }: ExpiringMem
   const fetchData = async () => {
     try {
       setError(null);
-      const summary = await apiClient.dashboard.summary({ 
+      const summary = await apiClient.dashboard.summary({
         locationId,
-        range: selectedFilter
+        range: selectedFilter,
       });
       setData(summary);
     } catch (err) {
@@ -135,7 +138,7 @@ export function ExpiringMembershipsWidget({ locationId, className }: ExpiringMem
     <div className="flex items-center space-x-2">
       {/* Filter Chips */}
       <div className="flex items-center space-x-1" data-testid="expiring-filter">
-        {filterOptions.map((option) => (
+        {filterOptions.map(option => (
           <button
             key={option.value}
             onClick={() => setSelectedFilter(option.value)}
@@ -165,8 +168,8 @@ export function ExpiringMembershipsWidget({ locationId, className }: ExpiringMem
           title="Todo bajo control"
           description={`Ninguna membresía vence en los próximos ${selectedFilter.replace('d', ' días')}.`}
           action={{
-            label: "Ver todas las membresías",
-            href: "/memberships"
+            label: 'Ver todas las membresías',
+            href: '/memberships',
           }}
           icon={<Icons.CheckCircle className="h-6 w-6 text-green-500" />}
         />
@@ -185,7 +188,7 @@ export function ExpiringMembershipsWidget({ locationId, className }: ExpiringMem
       testId="expiring-list"
     >
       <div className="space-y-3">
-        {filteredMembers.map((member) => (
+        {filteredMembers.map(member => (
           <div
             key={member.id}
             className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
@@ -201,26 +204,28 @@ export function ExpiringMembershipsWidget({ locationId, className }: ExpiringMem
                   <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
                     {member.memberName}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {member.plan}
-                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">{member.plan}</p>
                 </div>
                 <div className="flex-shrink-0 text-right">
-                  <div className={`text-sm font-medium ${
-                    member.daysLeft <= 3 
-                      ? 'text-red-600 dark:text-red-400'
-                      : member.daysLeft <= 7
-                      ? 'text-amber-600 dark:text-amber-400'
-                      : 'text-blue-600 dark:text-blue-400'
-                  }`}>
-                    {member.daysLeft === 0 ? 'Hoy' : 
-                     member.daysLeft === 1 ? 'Mañana' :
-                     `${member.daysLeft} días`}
+                  <div
+                    className={`text-sm font-medium ${
+                      member.daysLeft <= 3
+                        ? 'text-red-600 dark:text-red-400'
+                        : member.daysLeft <= 7
+                          ? 'text-amber-600 dark:text-amber-400'
+                          : 'text-blue-600 dark:text-blue-400'
+                    }`}
+                  >
+                    {member.daysLeft === 0
+                      ? 'Hoy'
+                      : member.daysLeft === 1
+                        ? 'Mañana'
+                        : `${member.daysLeft} días`}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     {new Date(member.expiresAt).toLocaleDateString('es-MX', {
                       month: 'short',
-                      day: 'numeric'
+                      day: 'numeric',
                     })}
                   </div>
                 </div>

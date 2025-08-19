@@ -9,7 +9,7 @@ const router = express.Router();
 router.get('/openapi.yaml', (req: Request, res: Response) => {
   try {
     const specPath = path.join(process.cwd(), '../../openapi/devices-checkins.yaml');
-    
+
     if (!fs.existsSync(specPath)) {
       return res.status(404).json({ message: 'OpenAPI specification not found' });
     }
@@ -27,14 +27,14 @@ router.get('/openapi.yaml', (req: Request, res: Response) => {
 router.get('/openapi.json', (req: Request, res: Response) => {
   try {
     const specPath = path.join(process.cwd(), '../../openapi/devices-checkins.yaml');
-    
+
     if (!fs.existsSync(specPath)) {
       return res.status(404).json({ message: 'OpenAPI specification not found' });
     }
 
     const spec = fs.readFileSync(specPath, 'utf8');
     const jsonSpec = yaml.load(spec);
-    
+
     res.setHeader('Content-Type', 'application/json');
     res.json(jsonSpec);
   } catch (error) {
@@ -119,10 +119,10 @@ router.get('/docs', (req: Request, res: Response) => {
 
 // Health check for docs
 router.get('/docs/health', (req: Request, res: Response) => {
-  res.json({ 
-    status: 'ok', 
+  res.json({
+    status: 'ok',
     service: 'openapi-docs',
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 });
 

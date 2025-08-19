@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../../../lib/auth/context';
@@ -209,7 +209,7 @@ export default function MembersPage() {
               type="text"
               placeholder="Buscar por nombre o email..."
               value={search}
-              onChange={(e) => handleSearch(e.target.value)}
+              onChange={e => handleSearch(e.target.value)}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
           </div>
@@ -217,7 +217,7 @@ export default function MembersPage() {
         <div className="sm:w-48">
           <select
             value={statusFilter}
-            onChange={(e) => handleStatusFilter(e.target.value)}
+            onChange={e => handleStatusFilter(e.target.value)}
             className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="">Todos los estados</option>

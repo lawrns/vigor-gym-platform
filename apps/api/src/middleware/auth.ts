@@ -3,9 +3,9 @@ import jwt from 'jsonwebtoken';
 import { UserRole } from '../generated/prisma/index.js';
 
 // We'll inject the prisma instance from the main app
-let prisma: any;
+let prisma: unknown;
 
-export function setPrismaInstance(prismaInstance: any) {
+export function setPrismaInstance(prismaInstance: unknown) {
   prisma = prismaInstance;
 }
 
@@ -27,7 +27,12 @@ export interface JWTPayload {
   exp?: number;
 }
 
-export function generateTokens(user: { id: string; email: string; role: UserRole; companyId: string | null }) {
+export function generateTokens(user: {
+  id: string;
+  email: string;
+  role: UserRole;
+  companyId: string | null;
+}) {
   const jwtSecret = process.env.JWT_SECRET;
   if (!jwtSecret) {
     throw new Error('JWT_SECRET environment variable is required');
@@ -42,7 +47,7 @@ export function generateTokens(user: { id: string; email: string; role: UserRole
 
   // Short-lived access token (15 minutes)
   const accessToken = jwt.sign(payload, jwtSecret, { expiresIn: '15m' });
-  
+
   // Long-lived refresh token (7 days)
   const refreshToken = jwt.sign(payload, jwtSecret, { expiresIn: '7d' });
 
@@ -63,7 +68,7 @@ export function verifyToken(token: string): JWTPayload {
       // Extend the token expiration for test stability
       const extendedPayload = {
         ...payload,
-        exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // Extend by 24 hours
+        exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // Extend by 24 hours
       };
       return extendedPayload;
     }
@@ -78,7 +83,7 @@ export function verifyToken(token: string): JWTPayload {
         if (decoded && decoded.userId) {
           return {
             ...decoded,
-            exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60) // Extend by 24 hours
+            exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60, // Extend by 24 hours
           };
         }
       } catch (decodeError) {
@@ -95,7 +100,7 @@ export function authRequired(allowedRoles?: UserRole[]) {
     try {
       // Try to get token from Authorization header or cookies
       let token: string | undefined;
-      
+
       const authHeader = req.headers.authorization;
       if (authHeader && authHeader.startsWith('Bearer ')) {
         token = authHeader.substring(7);
@@ -113,7 +118,7 @@ export function authRequired(allowedRoles?: UserRole[]) {
       // Get fresh user data from database
       const user = await prisma.user.findUnique({
         where: { id: payload.userId },
-        include: { company: true }
+        include: { company: true },
       });
 
       if (!user || !user.isActive) {
@@ -122,18 +127,18 @@ export function authRequired(allowedRoles?: UserRole[]) {
 
       // Check if user is locked due to failed login attempts
       if (user.lockedUntil && user.lockedUntil > new Date()) {
-        return res.status(423).json({ 
+        return res.status(423).json({
           message: 'Account temporarily locked due to failed login attempts',
-          lockedUntil: user.lockedUntil
+          lockedUntil: user.lockedUntil,
         });
       }
 
       // Check role permissions
       if (allowedRoles && !allowedRoles.includes(user.role)) {
-        return res.status(403).json({ 
+        return res.status(403).json({
           message: 'Insufficient permissions',
           required: allowedRoles,
-          current: user.role
+          current: user.role,
         });
       }
 

@@ -31,9 +31,7 @@ export function OnboardingProgress({
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Progreso de configuración
           </span>
-          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            {progress}%
-          </span>
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-300">{progress}%</span>
         </div>
         <div
           className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3"
@@ -63,17 +61,22 @@ export function OnboardingProgress({
               <div
                 className={`
                   w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300
-                  ${isCompleted
-                    ? 'bg-green-500 text-white shadow-lg'
-                    : isCurrent
-                    ? 'bg-blue-500 text-white shadow-lg ring-4 ring-blue-200 dark:ring-blue-800'
-                    : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                  ${
+                    isCompleted
+                      ? 'bg-green-500 text-white shadow-lg'
+                      : isCurrent
+                        ? 'bg-blue-500 text-white shadow-lg ring-4 ring-blue-200 dark:ring-blue-800'
+                        : 'bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
                   }
                 `}
               >
                 {isCompleted ? (
                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    <path
+                      fillRule="evenodd"
+                      d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                      clipRule="evenodd"
+                    />
                   </svg>
                 ) : (
                   <span>{step.icon}</span>
@@ -85,11 +88,12 @@ export function OnboardingProgress({
                 <div
                   className={`
                     text-xs font-medium transition-colors duration-300
-                    ${isCompleted
-                      ? 'text-green-600 dark:text-green-400'
-                      : isCurrent
-                      ? 'text-blue-600 dark:text-blue-400'
-                      : 'text-gray-500 dark:text-gray-400'
+                    ${
+                      isCompleted
+                        ? 'text-green-600 dark:text-green-400'
+                        : isCurrent
+                          ? 'text-blue-600 dark:text-blue-400'
+                          : 'text-gray-500 dark:text-gray-400'
                     }
                   `}
                 >
@@ -101,9 +105,7 @@ export function OnboardingProgress({
                   </div>
                 )}
                 {isCurrent && (
-                  <div className="text-xs text-blue-500 dark:text-blue-400 mt-1">
-                    En progreso
-                  </div>
+                  <div className="text-xs text-blue-500 dark:text-blue-400 mt-1">En progreso</div>
                 )}
               </div>
 
@@ -112,9 +114,10 @@ export function OnboardingProgress({
                 <div
                   className={`
                     absolute top-5 left-1/2 w-full h-0.5 -z-10 transition-colors duration-300
-                    ${isCompleted
-                      ? 'bg-green-300 dark:bg-green-600'
-                      : 'bg-gray-200 dark:bg-gray-700'
+                    ${
+                      isCompleted
+                        ? 'bg-green-300 dark:bg-green-600'
+                        : 'bg-gray-200 dark:bg-gray-700'
                     }
                   `}
                   style={{
@@ -137,7 +140,8 @@ export function OnboardingProgress({
             </span>
           ) : (
             <>
-              {Object.values(completedSteps).filter(Boolean).length} de {steps.length} pasos completados
+              {Object.values(completedSteps).filter(Boolean).length} de {steps.length} pasos
+              completados
             </>
           )}
         </div>

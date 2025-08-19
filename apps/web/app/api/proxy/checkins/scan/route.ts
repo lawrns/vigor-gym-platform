@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4002';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
 
 export async function POST(request: NextRequest) {
   try {
@@ -8,17 +8,14 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get('authorization');
 
     if (!authHeader) {
-      return NextResponse.json(
-        { message: 'Authorization header required' },
-        { status: 401 }
-      );
+      return NextResponse.json({ message: 'Authorization header required' }, { status: 401 });
     }
 
     const response = await fetch(`${API_BASE_URL}/v1/checkins/scan`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': authHeader,
+        Authorization: authHeader,
       },
       body: JSON.stringify(body),
     });
@@ -32,9 +29,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(data);
   } catch (error) {
     console.error('Check-in scan proxy error:', error);
-    return NextResponse.json(
-      { message: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 /**
  * Dashboard 2.0 - Server Component
- * 
+ *
  * This is the new orientative, gym-ops cockpit dashboard that provides:
  * - Real-time active visits and capacity monitoring
  * - Expiring memberships with renewal actions

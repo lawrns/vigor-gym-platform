@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Icons } from '../../lib/icons/registry';
 
 interface Visit {
@@ -61,7 +61,7 @@ export function TodayCheckins({ className = '' }: TodayCheckinsProps) {
         setError(null);
       };
 
-      eventSource.onmessage = (event) => {
+      eventSource.onmessage = event => {
         try {
           const data = JSON.parse(event.data);
           handleRealtimeEvent(data);
@@ -70,7 +70,7 @@ export function TodayCheckins({ className = '' }: TodayCheckinsProps) {
         }
       };
 
-      eventSource.onerror = (error) => {
+      eventSource.onerror = error => {
         console.error('EventSource error:', error);
         setIsConnected(false);
         setError('Connection lost. Attempting to reconnect...');
@@ -140,8 +140,7 @@ export function TodayCheckins({ className = '' }: TodayCheckinsProps) {
     // Simple toast implementation - in production, use a proper toast library
     const toast = document.createElement('div');
     toast.className = `fixed top-4 right-4 p-4 rounded-lg shadow-lg z-50 ${
-      type === 'success' ? 'bg-green-500' : 
-      type === 'info' ? 'bg-blue-500' : 'bg-red-500'
+      type === 'success' ? 'bg-green-500' : type === 'info' ? 'bg-blue-500' : 'bg-red-500'
     } text-white`;
     toast.textContent = message;
     document.body.appendChild(toast);
@@ -161,9 +160,7 @@ export function TodayCheckins({ className = '' }: TodayCheckinsProps) {
   return (
     <div className={`bg-white dark:bg-gray-800 rounded-lg shadow p-6 ${className}`}>
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          Today's Check-ins
-        </h3>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">Today's Check-ins</h3>
         <div className="flex items-center space-x-2">
           <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
           <span className="text-sm text-gray-500 dark:text-gray-400">
@@ -179,41 +176,36 @@ export function TodayCheckins({ className = '' }: TodayCheckinsProps) {
       )}
 
       <div className="mb-6">
-        <div className="text-3xl font-bold text-gray-900 dark:text-white">
-          {todayCount}
-        </div>
-        <p className="text-sm text-gray-500 dark:text-gray-400">
-          Total check-ins today
-        </p>
+        <div className="text-3xl font-bold text-gray-900 dark:text-white">{todayCount}</div>
+        <p className="text-sm text-gray-500 dark:text-gray-400">Total check-ins today</p>
       </div>
 
       <div className="space-y-3">
-        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">
-          Recent Activity
-        </h4>
-        
+        <h4 className="text-sm font-medium text-gray-700 dark:text-gray-300">Recent Activity</h4>
+
         {visits.length === 0 ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            No recent activity
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400">No recent activity</p>
         ) : (
           <div className="space-y-2">
-            {visits.map((visit) => (
+            {visits.map(visit => (
               <div
                 key={`${visit.id}-${visit.type}-${visit.timestamp}`}
                 className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
               >
                 <div className="flex items-center space-x-3">
-                  <div className={`w-2 h-2 rounded-full ${
-                    visit.type === 'checkin' ? 'bg-green-500' : 'bg-blue-500'
-                  }`} />
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      visit.type === 'checkin' ? 'bg-green-500' : 'bg-blue-500'
+                    }`}
+                  />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {visit.memberName}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {visit.type === 'checkin' ? `Checked in at ${visit.gymName}` : 
-                       `Checked out (${visit.durationMinutes}m)`}
+                      {visit.type === 'checkin'
+                        ? `Checked in at ${visit.gymName}`
+                        : `Checked out (${visit.durationMinutes}m)`}
                     </p>
                   </div>
                 </div>

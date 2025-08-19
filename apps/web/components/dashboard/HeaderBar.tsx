@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Icons } from '../../lib/icons/registry';
 import { QuickActions } from './QuickActions';
 
@@ -39,11 +39,11 @@ export function HeaderBar() {
               <select
                 id="location-select"
                 value={selectedLocation}
-                onChange={(e) => setSelectedLocation(e.target.value)}
+                onChange={e => setSelectedLocation(e.target.value)}
                 className="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 pr-8 text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 data-testid="header-location-switcher"
               >
-                {locations.map((location) => (
+                {locations.map(location => (
                   <option key={location.id} value={location.id}>
                     {location.name}
                   </option>
@@ -62,11 +62,11 @@ export function HeaderBar() {
               <select
                 id="range-select"
                 value={dateRange}
-                onChange={(e) => setDateRange(e.target.value)}
+                onChange={e => setDateRange(e.target.value)}
                 className="appearance-none bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 pr-8 text-sm font-medium text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 data-testid="header-range-picker"
               >
-                {dateRanges.map((range) => (
+                {dateRanges.map(range => (
                   <option key={range.value} value={range.value}>
                     {range.label}
                   </option>
@@ -80,15 +80,13 @@ export function HeaderBar() {
 
           {/* Center - Dashboard Title */}
           <div className="flex-1 flex justify-center">
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Dashboard
-            </h1>
+            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">Dashboard</h1>
           </div>
 
           {/* Right side - Quick Actions and Menu */}
           <div className="flex items-center space-x-4">
             <QuickActions />
-            
+
             {/* Help Menu */}
             <button
               type="button"
@@ -126,9 +124,7 @@ export function MobileHeaderBar() {
       <div className="px-4 sm:px-6">
         <div className="flex items-center justify-between h-16">
           {/* Dashboard Title */}
-          <h1 className="text-lg font-semibold text-gray-900 dark:text-white">
-            Dashboard
-          </h1>
+          <h1 className="text-lg font-semibold text-gray-900 dark:text-white">Dashboard</h1>
 
           {/* Mobile menu button */}
           <button
@@ -138,11 +134,7 @@ export function MobileHeaderBar() {
             aria-label="Abrir menú"
             aria-expanded={isMenuOpen}
           >
-            {isMenuOpen ? (
-              <Icons.X className="h-6 w-6" />
-            ) : (
-              <Icons.Menu className="h-6 w-6" />
-            )}
+            {isMenuOpen ? <Icons.X className="h-6 w-6" /> : <Icons.Menu className="h-6 w-6" />}
           </button>
         </div>
 
@@ -151,7 +143,10 @@ export function MobileHeaderBar() {
           <div className="pb-4 space-y-4">
             {/* Location Switcher */}
             <div>
-              <label htmlFor="mobile-location-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="mobile-location-select"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Ubicación
               </label>
               <select
@@ -167,7 +162,10 @@ export function MobileHeaderBar() {
 
             {/* Date Range */}
             <div>
-              <label htmlFor="mobile-range-select" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="mobile-range-select"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Período
               </label>
               <select

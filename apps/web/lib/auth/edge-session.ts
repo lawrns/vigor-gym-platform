@@ -1,32 +1,42 @@
 /**
  * Edge Runtime compatible session verification
- * 
+ *
  * This module contains ONLY Edge Runtime compatible code for use in middleware.
  * DO NOT import Node.js specific modules here (like 'jsonwebtoken', 'next/headers', etc.)
- * 
+ *
  * For server-side session verification, use lib/auth/session.ts instead.
  */
 
 import { AUTH_ROUTES, PROTECTED_PREFIXES, PUBLIC_ROUTES } from './types';
 
 /**
- * Simple JWT token validation for Edge Runtime
- * Only checks format and expiration, not signature (for performance)
+ * Supabase JWT token validation for Edge Runtime
+ * Validates Supabase access tokens (format and expiration)
  */
-export function isValidJWTFormat(token: string): boolean {
+export function isValidSupabaseToken(token: string): boolean {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return false;
-    
-    // Decode payload to check expiration
+
+    // Decode payload to check expiration and Supabase-specific fields
     const payload = JSON.parse(atob(parts[1]));
     const now = Math.floor(Date.now() / 1000);
-    
+
     // Check if token is expired
     if (payload.exp && payload.exp < now) {
       return false;
     }
-    
+
+    // Verify it's a Supabase token by checking for expected fields
+    if (!payload.iss || !payload.iss.includes('supabase')) {
+      return false;
+    }
+
+    // Check for user ID (Supabase tokens should have 'sub' field)
+    if (!payload.sub) {
+      return false;
+    }
+
     return true;
   } catch (error) {
     return false;
@@ -34,16 +44,20 @@ export function isValidJWTFormat(token: string): boolean {
 }
 
 /**
- * Check if user has valid session based on cookies
+ * Check if user has valid Supabase session based on cookies
  * Edge Runtime compatible version
  */
 export function hasValidSession(accessToken?: string, refreshToken?: string): boolean {
-  if (accessToken && isValidJWTFormat(accessToken)) {
+  // For Supabase, we primarily rely on the access token
+  if (accessToken && isValidSupabaseToken(accessToken)) {
     return true;
   }
-  if (refreshToken && isValidJWTFormat(refreshToken)) {
+
+  // Fallback to refresh token if access token is invalid/expired
+  if (refreshToken && isValidSupabaseToken(refreshToken)) {
     return true;
   }
+
   return false;
 }
 
@@ -66,7 +80,7 @@ export function isPublic(path: string): boolean {
  * Determine redirect action for middleware
  */
 export function getRedirectAction(
-  pathname: string, 
+  pathname: string,
   hasSession: boolean
 ): { shouldRedirect: boolean; destination?: string } {
   // If protected and no session → login

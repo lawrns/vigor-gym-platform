@@ -1,6 +1,6 @@
 /**
  * Dashboard Activity Endpoint
- * 
+ *
  * Provides recent activity events for polling fallback when SSE is unavailable
  */
 
@@ -20,7 +20,7 @@ interface ActivityQuery {
 
 /**
  * GET /v1/dashboard/activity - Get recent activity events
- * 
+ *
  * Query Parameters:
  * - orgId: Required UUID of the organization
  * - locationId: Optional UUID of specific gym location
@@ -79,10 +79,7 @@ router.get('/activity', requireAuth, async (req: Request, res: Response) => {
         },
         gym: true,
       },
-      orderBy: [
-        { checkedInAt: 'desc' },
-        { checkedOutAt: 'desc' },
-      ],
+      orderBy: [{ checkedInAt: 'desc' }, { checkedOutAt: 'desc' }],
       take: limitNum,
     });
 
@@ -111,9 +108,10 @@ router.get('/activity', requireAuth, async (req: Request, res: Response) => {
 
       // Check-out event
       if (visit.checkedOutAt && visit.checkedOutAt >= sinceDate) {
-        const durationMinutes = visit.checkedInAt && visit.checkedOutAt
-          ? Math.floor((visit.checkedOutAt.getTime() - visit.checkedInAt.getTime()) / 60000)
-          : 0;
+        const durationMinutes =
+          visit.checkedInAt && visit.checkedOutAt
+            ? Math.floor((visit.checkedOutAt.getTime() - visit.checkedInAt.getTime()) / 60000)
+            : 0;
 
         events.push({
           id: `visit-checkout-${visit.id}`,
@@ -158,8 +156,10 @@ router.get('/activity', requireAuth, async (req: Request, res: Response) => {
     });
 
     for (const membership of expiringMemberships) {
-      const daysLeft = Math.ceil((membership.endsAt.getTime() - Date.now()) / (24 * 60 * 60 * 1000));
-      
+      const daysLeft = Math.ceil(
+        (membership.endsAt.getTime() - Date.now()) / (24 * 60 * 60 * 1000)
+      );
+
       // Only include if expiring soon (within 7 days) for activity feed
       if (daysLeft <= 7) {
         events.push({
@@ -241,7 +241,6 @@ router.get('/activity', requireAuth, async (req: Request, res: Response) => {
       since: sinceDate.toISOString(),
       generatedAt: new Date().toISOString(),
     });
-
   } catch (error) {
     console.error('Dashboard activity error:', error);
     res.status(500).json({

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -108,9 +108,7 @@ export default function CheckoutPage() {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Error en el Checkout
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {error}
-          </p>
+          <p className="text-gray-600 dark:text-gray-400 mb-6">{error}</p>
           <div className="space-y-3">
             <button
               onClick={handleCheckout}

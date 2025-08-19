@@ -20,7 +20,7 @@ describe('Billing API Client', () => {
     it('should create setup intent without member ID', async () => {
       const mockResponse = {
         clientSecret: 'seti_test_client_secret',
-        setupIntentId: 'seti_test_123'
+        setupIntentId: 'seti_test_123',
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -50,7 +50,7 @@ describe('Billing API Client', () => {
       const memberId = 'member_123';
       const mockResponse = {
         clientSecret: 'seti_test_client_secret',
-        setupIntentId: 'seti_test_123'
+        setupIntentId: 'seti_test_123',
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -75,7 +75,7 @@ describe('Billing API Client', () => {
 
     it('should handle API errors', async () => {
       const errorResponse = {
-        message: 'Failed to create SetupIntent'
+        message: 'Failed to create SetupIntent',
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -85,13 +85,10 @@ describe('Billing API Client', () => {
         headers: new Headers(),
       });
 
-      try {
-        await apiClient.billing.createSetupIntent();
-        fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error.message).toBe('Failed to create SetupIntent');
-        expect(error.status).toBe(500);
-      }
+      await expect(apiClient.billing.createSetupIntent()).rejects.toMatchObject({
+        message: 'Failed to create SetupIntent',
+        status: 500,
+      });
     });
   });
 
@@ -113,9 +110,9 @@ describe('Billing API Client', () => {
             id: 'member_1',
             firstName: 'Test',
             lastName: 'Member',
-            email: 'test@example.com'
-          }
-        }
+            email: 'test@example.com',
+          },
+        },
       ];
 
       const mockResponse = { paymentMethods: mockPaymentMethods };
@@ -165,8 +162,8 @@ describe('Billing API Client', () => {
           isDefault: true,
           type: 'card',
           brand: 'visa',
-          last4: '4242'
-        }
+          last4: '4242',
+        },
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -192,7 +189,7 @@ describe('Billing API Client', () => {
     it('should handle invalid payment method ID', async () => {
       const paymentMethodId = 'invalid_id';
       const errorResponse = {
-        message: 'Payment method not found'
+        message: 'Payment method not found',
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -202,20 +199,17 @@ describe('Billing API Client', () => {
         headers: new Headers(),
       });
 
-      try {
-        await apiClient.billing.setDefaultPaymentMethod(paymentMethodId);
-        fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error.message).toBe('Payment method not found');
-        expect(error.status).toBe(404);
-      }
+      await expect(apiClient.billing.setDefaultPaymentMethod(paymentMethodId)).rejects.toMatchObject({
+        message: 'Payment method not found',
+        status: 404,
+      });
     });
   });
 
   describe('createPortalSession', () => {
     it('should create portal session', async () => {
       const mockResponse = {
-        url: 'https://billing.stripe.com/session/test_session_id'
+        url: 'https://billing.stripe.com/session/test_session_id',
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -240,7 +234,7 @@ describe('Billing API Client', () => {
 
     it('should handle portal creation errors', async () => {
       const errorResponse = {
-        message: 'No Stripe customer found for this company'
+        message: 'No Stripe customer found for this company',
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -250,13 +244,10 @@ describe('Billing API Client', () => {
         headers: new Headers(),
       });
 
-      try {
-        await apiClient.billing.createPortalSession();
-        fail('Should have thrown an error');
-      } catch (error: any) {
-        expect(error.message).toBe('No Stripe customer found for this company');
-        expect(error.status).toBe(400);
-      }
+      await expect(apiClient.billing.createPortalSession()).rejects.toMatchObject({
+        message: 'No Stripe customer found for this company',
+        status: 400,
+      });
     });
   });
 
@@ -266,7 +257,7 @@ describe('Billing API Client', () => {
       const mockResponse = {
         provider: 'stripe',
         url: 'https://checkout.stripe.com/session/test_session_id',
-        sessionId: 'cs_test_123'
+        sessionId: 'cs_test_123',
       };
 
       mockFetch.mockResolvedValueOnce({
@@ -294,25 +285,17 @@ describe('Billing API Client', () => {
     it('should handle network failures', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-      try {
-        await apiClient.billing.getPaymentMethods();
-        fail('Should have thrown an error');
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toContain('Network request failed');
-      }
+      await expect(apiClient.billing.getPaymentMethods()).rejects.toMatchObject({
+        message: expect.stringContaining('Network request failed'),
+      });
     });
 
     it('should handle timeout errors', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Request timeout'));
 
-      try {
-        await apiClient.billing.createSetupIntent();
-        fail('Should have thrown an error');
-      } catch (error) {
-        expect(error).toBeInstanceOf(Error);
-        expect((error as Error).message).toContain('Network request failed');
-      }
+      await expect(apiClient.billing.createSetupIntent()).rejects.toMatchObject({
+        message: expect.stringContaining('Network request failed'),
+      });
     });
   });
 });

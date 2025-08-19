@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -53,9 +53,7 @@ export default function CheckoutSuccessPage() {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500 dark:text-gray-400">RFC:</span>
-                <span className="text-gray-900 dark:text-white">
-                  {user?.company?.rfc}
-                </span>
+                <span className="text-gray-900 dark:text-white">{user?.company?.rfc}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500 dark:text-gray-400">Estado:</span>
@@ -99,7 +97,10 @@ export default function CheckoutSuccessPage() {
           <div className="mt-8 text-center">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               ¿Necesitas ayuda? Contacta a nuestro{' '}
-              <a href="mailto:soporte@vigor.mx" className="text-blue-600 dark:text-blue-400 hover:underline">
+              <a
+                href="mailto:soporte@vigor.mx"
+                className="text-blue-600 dark:text-blue-400 hover:underline"
+              >
                 equipo de soporte
               </a>
             </p>

@@ -28,7 +28,8 @@ test.describe('Accessibility Audit', () => {
 
     // Log all violations for review
     if (accessibilityScanResults.violations.length > 0) {
-      console.log('Accessibility violations found:', 
+      console.log(
+        'Accessibility violations found:',
         JSON.stringify(accessibilityScanResults.violations, null, 2)
       );
     }
@@ -94,13 +95,11 @@ test.describe('Accessibility Audit', () => {
       const focusedElement = await page.locator(':focus').first();
       if (await focusedElement.isVisible()) {
         // Ensure focused elements have proper focus indicators
-        const outline = await focusedElement.evaluate(el => 
-          window.getComputedStyle(el).outline
+        const outline = await focusedElement.evaluate(el => window.getComputedStyle(el).outline);
+        const boxShadow = await focusedElement.evaluate(
+          el => window.getComputedStyle(el).boxShadow
         );
-        const boxShadow = await focusedElement.evaluate(el => 
-          window.getComputedStyle(el).boxShadow
-        );
-        
+
         // Should have some form of focus indicator
         expect(outline !== 'none' || boxShadow !== 'none').toBeTruthy();
       }
@@ -118,20 +117,21 @@ test.describe('Accessibility Audit', () => {
       '[data-testid="revenue-sparkline"]',
       'button',
       'a',
-      'input'
+      'input',
     ];
 
     for (const selector of criticalElements) {
       const elements = await page.locator(selector).all();
-      
-      for (const element of elements.slice(0, 5)) { // Test first 5 of each type
+
+      for (const element of elements.slice(0, 5)) {
+        // Test first 5 of each type
         if (await element.isVisible()) {
           const styles = await element.evaluate(el => {
             const computed = window.getComputedStyle(el);
             return {
               color: computed.color,
               backgroundColor: computed.backgroundColor,
-              fontSize: computed.fontSize
+              fontSize: computed.fontSize,
             };
           });
 
@@ -148,7 +148,7 @@ test.describe('Accessibility Audit', () => {
 
     // Check for proper ARIA labels on interactive elements
     const interactiveElements = await page.locator('button, a, input, [role="button"]').all();
-    
+
     for (const element of interactiveElements.slice(0, 10)) {
       if (await element.isVisible()) {
         const ariaLabel = await element.getAttribute('aria-label');

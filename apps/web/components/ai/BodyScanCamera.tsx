@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { Icons } from '../../lib/icons/registry';
 import { Button } from '../ui/Button';
 
@@ -20,7 +20,7 @@ export function BodyScanCamera({ onCapture, onCancel, isProcessing = false }: Bo
   const startCamera = useCallback(async () => {
     try {
       setError(null);
-      
+
       // Request camera access with specific constraints for body scanning
       const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: {
@@ -88,9 +88,7 @@ export function BodyScanCamera({ onCapture, onCancel, isProcessing = false }: Bo
         <h3 className="text-lg font-semibold text-red-900 dark:text-red-100 mb-2">
           Error de Cámara
         </h3>
-        <p className="text-red-700 dark:text-red-300 text-center mb-4">
-          {error}
-        </p>
+        <p className="text-red-700 dark:text-red-300 text-center mb-4">{error}</p>
         <div className="flex gap-2">
           <Button onClick={startCamera} variant="outline">
             Reintentar
@@ -111,13 +109,12 @@ export function BodyScanCamera({ onCapture, onCancel, isProcessing = false }: Bo
           Escaneo Corporal con IA
         </h3>
         <p className="text-blue-700 dark:text-blue-300 text-center mb-6 max-w-md">
-          Utiliza la cámara de tu dispositivo para obtener un análisis completo de composición corporal.
+          Utiliza la cámara de tu dispositivo para obtener un análisis completo de composición
+          corporal.
         </p>
-        
+
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg mb-6 max-w-md">
-          <h4 className="font-medium text-gray-900 dark:text-white mb-2">
-            Instrucciones:
-          </h4>
+          <h4 className="font-medium text-gray-900 dark:text-white mb-2">Instrucciones:</h4>
           <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1">
             <li>• Párate frente a la cámara con buena iluminación</li>
             <li>• Mantén los brazos ligeramente separados del cuerpo</li>
@@ -143,23 +140,18 @@ export function BodyScanCamera({ onCapture, onCancel, isProcessing = false }: Bo
     <div className="relative">
       {/* Video feed */}
       <div className="relative bg-black rounded-lg overflow-hidden">
-        <video
-          ref={videoRef}
-          className="w-full h-auto max-h-96 object-cover"
-          playsInline
-          muted
-        />
-        
+        <video ref={videoRef} className="w-full h-auto max-h-96 object-cover" playsInline muted />
+
         {/* Overlay guide */}
         <div className="absolute inset-0 pointer-events-none">
           {/* Body outline guide */}
           <div className="absolute inset-4 border-2 border-white/50 rounded-full opacity-30" />
-          
+
           {/* Center crosshair */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
             <div className="w-8 h-8 border-2 border-white rounded-full opacity-60" />
           </div>
-          
+
           {/* Instructions overlay */}
           <div className="absolute top-4 left-4 right-4">
             <div className="bg-black/60 text-white p-3 rounded-lg text-sm">
@@ -189,21 +181,14 @@ export function BodyScanCamera({ onCapture, onCancel, isProcessing = false }: Bo
             </>
           )}
         </Button>
-        
-        <Button
-          onClick={handleCancel}
-          variant="outline"
-          disabled={isProcessing}
-        >
+
+        <Button onClick={handleCancel} variant="outline" disabled={isProcessing}>
           Cancelar
         </Button>
       </div>
 
       {/* Hidden canvas for image capture */}
-      <canvas
-        ref={canvasRef}
-        className="hidden"
-      />
+      <canvas ref={canvasRef} className="hidden" />
     </div>
   );
 }

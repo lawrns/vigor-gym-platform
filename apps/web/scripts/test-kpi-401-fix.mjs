@@ -2,7 +2,7 @@
 
 /**
  * KPI 401 Fix Verification Script
- * 
+ *
  * Tests the complete AUTH → KPI 401 fix pack:
  * 1. Guest KPI returns 401 without console spam
  * 2. Login + KPI returns 200 with data
@@ -28,7 +28,12 @@ const tests = [
     name: 'Guest KPI (expect 401, no console spam)',
     description: 'Guest should get 401 from KPI proxy without errors',
     test: async () => {
-      const result = await runCommand('curl', ['-s', '-w', '%{http_code}', `${WEB_ORIGIN}/api/kpi/overview`]);
+      const result = await runCommand('curl', [
+        '-s',
+        '-w',
+        '%{http_code}',
+        `${WEB_ORIGIN}/api/kpi/overview`,
+      ]);
       const statusCode = result.stdout.slice(-3);
       const responseBody = result.stdout.slice(0, -3);
 
@@ -38,7 +43,7 @@ const tests = [
         expected: '401 status code for guest user',
         actual: `${statusCode} status code`,
       };
-    }
+    },
   },
   {
     name: 'Dashboard SSR with cookies',
@@ -46,11 +51,18 @@ const tests = [
     test: async () => {
       // First login to get cookies
       const loginResult = await runCommand('curl', [
-        '-s', '-c', '/tmp/test-cookies.txt', '-w', '%{http_code}',
-        '-X', 'POST',
-        '-H', 'Content-Type: application/json',
-        '-d', '{"email":"admin@testgym.mx","password":"TestPassword123!"}',
-        `${WEB_ORIGIN}/api/auth/login`
+        '-s',
+        '-c',
+        '/tmp/test-cookies.txt',
+        '-w',
+        '%{http_code}',
+        '-X',
+        'POST',
+        '-H',
+        'Content-Type: application/json',
+        '-d',
+        '{"email":"admin@testgym.mx","password":"TestPassword123!"}',
+        `${WEB_ORIGIN}/api/auth/login`,
       ]);
 
       const loginStatus = loginResult.stdout.slice(-3);
@@ -66,8 +78,12 @@ const tests = [
 
       // Now test dashboard access with cookies
       const dashboardResult = await runCommand('curl', [
-        '-s', '-b', '/tmp/test-cookies.txt', '-w', '%{http_code}',
-        `${WEB_ORIGIN}/dashboard`
+        '-s',
+        '-b',
+        '/tmp/test-cookies.txt',
+        '-w',
+        '%{http_code}',
+        `${WEB_ORIGIN}/dashboard`,
       ]);
 
       const dashboardStatus = dashboardResult.stdout.slice(-3);
@@ -79,37 +95,50 @@ const tests = [
         expected: '200 status with dashboard content',
         actual: `${dashboardStatus} status`,
       };
-    }
+    },
   },
   {
     name: 'Auth/Me Guest (expect 401, silent)',
     description: 'Guest auth check should be silent',
     test: async () => {
-      const result = await runCommand('curl', ['-s', '-w', '%{http_code}', `${WEB_ORIGIN}/auth/me`]);
+      const result = await runCommand('curl', [
+        '-s',
+        '-w',
+        '%{http_code}',
+        `${WEB_ORIGIN}/auth/me`,
+      ]);
       const statusCode = result.stdout.slice(-3);
-      
+
       return {
         success: statusCode === '401',
         details: `Auth/me status: ${statusCode}`,
         expected: '401 status code',
         actual: `${statusCode} status code`,
       };
-    }
+    },
   },
   {
     name: 'Login Flow',
     description: 'Login should succeed and set cookies',
     test: async () => {
       const result = await runCommand('curl', [
-        '-s', '-w', '%{http_code}', '-c', 'test_login_cookies.txt',
-        '-X', 'POST', `${WEB_ORIGIN}/auth/login`,
-        '-H', 'Content-Type: application/json',
-        '-d', '{"email":"admin@testgym.mx","password":"TestPassword123!"}'
+        '-s',
+        '-w',
+        '%{http_code}',
+        '-c',
+        'test_login_cookies.txt',
+        '-X',
+        'POST',
+        `${WEB_ORIGIN}/auth/login`,
+        '-H',
+        'Content-Type: application/json',
+        '-d',
+        '{"email":"admin@testgym.mx","password":"TestPassword123!"}',
       ]);
-      
+
       const statusCode = result.stdout.slice(-3);
       const responseBody = result.stdout.slice(0, -3);
-      
+
       let hasUserData = false;
       try {
         const data = JSON.parse(responseBody);
@@ -117,27 +146,31 @@ const tests = [
       } catch (e) {
         // Ignore parse errors
       }
-      
+
       return {
         success: statusCode === '200' && hasUserData,
         details: `Status: ${statusCode}, Has user data: ${hasUserData}`,
         expected: '200 status with user data',
         actual: `${statusCode} status, user data: ${hasUserData}`,
       };
-    }
+    },
   },
   {
     name: 'Authenticated KPI (expect 200)',
     description: 'Authenticated KPI should return data',
     test: async () => {
       const result = await runCommand('curl', [
-        '-s', '-w', '%{http_code}', '-b', 'test_login_cookies.txt',
-        `${WEB_ORIGIN}/api/kpi/overview`
+        '-s',
+        '-w',
+        '%{http_code}',
+        '-b',
+        'test_login_cookies.txt',
+        `${WEB_ORIGIN}/api/kpi/overview`,
       ]);
-      
+
       const statusCode = result.stdout.slice(-3);
       const responseBody = result.stdout.slice(0, -3);
-      
+
       let hasKpiData = false;
       try {
         const data = JSON.parse(responseBody);
@@ -145,27 +178,31 @@ const tests = [
       } catch (e) {
         // Ignore parse errors
       }
-      
+
       return {
         success: statusCode === '200' && hasKpiData,
         details: `Status: ${statusCode}, Has KPI data: ${hasKpiData}`,
         expected: '200 status with KPI data',
         actual: `${statusCode} status, KPI data: ${hasKpiData}`,
       };
-    }
+    },
   },
   {
     name: 'Authenticated Auth/Me (expect 200)',
     description: 'Authenticated user should get user data',
     test: async () => {
       const result = await runCommand('curl', [
-        '-s', '-w', '%{http_code}', '-b', 'test_login_cookies.txt',
-        `${WEB_ORIGIN}/auth/me`
+        '-s',
+        '-w',
+        '%{http_code}',
+        '-b',
+        'test_login_cookies.txt',
+        `${WEB_ORIGIN}/auth/me`,
       ]);
-      
+
       const statusCode = result.stdout.slice(-3);
       const responseBody = result.stdout.slice(0, -3);
-      
+
       let hasUserData = false;
       try {
         const data = JSON.parse(responseBody);
@@ -173,15 +210,15 @@ const tests = [
       } catch (e) {
         // Ignore parse errors
       }
-      
+
       return {
         success: statusCode === '200' && hasUserData,
         details: `Status: ${statusCode}, Has user data: ${hasUserData}`,
         expected: '200 status with user data',
         actual: `${statusCode} status, user data: ${hasUserData}`,
       };
-    }
-  }
+    },
+  },
 ];
 
 function runCommand(cmd, args, options = {}) {
@@ -190,29 +227,29 @@ function runCommand(cmd, args, options = {}) {
       stdio: ['pipe', 'pipe', 'pipe'],
       cwd: projectRoot,
       shell: true,
-      ...options
+      ...options,
     });
 
     let stdout = '';
     let stderr = '';
 
-    process.stdout.on('data', (data) => {
+    process.stdout.on('data', data => {
       stdout += data.toString();
     });
 
-    process.stderr.on('data', (data) => {
+    process.stderr.on('data', data => {
       stderr += data.toString();
     });
 
-    process.on('exit', (code) => {
+    process.on('exit', code => {
       resolve({
         code,
         stdout: stdout.trim(),
-        stderr: stderr.trim()
+        stderr: stderr.trim(),
       });
     });
 
-    process.on('error', (error) => {
+    process.on('error', error => {
       reject(error);
     });
   });
@@ -232,7 +269,7 @@ async function runTests() {
       console.log(`   ${test.description}`);
 
       const result = await test.test();
-      
+
       if (result.success) {
         console.log(`   ✅ PASS - ${result.details}\n`);
         passed++;
@@ -241,7 +278,12 @@ async function runTests() {
         console.log(`   ❌ FAIL - Expected: ${result.expected}, Got: ${result.actual}`);
         console.log(`   Details: ${result.details}\n`);
         failed++;
-        results.push({ name: test.name, status: 'FAIL', expected: result.expected, actual: result.actual });
+        results.push({
+          name: test.name,
+          status: 'FAIL',
+          expected: result.expected,
+          actual: result.actual,
+        });
       }
     } catch (error) {
       console.log(`   💥 ERROR: ${error.message}\n`);
@@ -258,7 +300,7 @@ async function runTests() {
   }
 
   const duration = ((Date.now() - startTime) / 1000).toFixed(1);
-  
+
   console.log('='.repeat(60));
   console.log('📊 KPI 401 FIX VERIFICATION SUMMARY');
   console.log('='.repeat(60));
@@ -278,9 +320,11 @@ async function runTests() {
   } else {
     console.log('\n⚠️  Some verifications failed. Check the errors above.');
     console.log('\n📋 Failed Tests:');
-    results.filter(r => r.status !== 'PASS').forEach(r => {
-      console.log(`   • ${r.name}: ${r.status}`);
-    });
+    results
+      .filter(r => r.status !== 'PASS')
+      .forEach(r => {
+        console.log(`   • ${r.name}: ${r.status}`);
+      });
     process.exit(1);
   }
 }
@@ -302,7 +346,7 @@ if (!globalThis.fetch) {
 }
 
 // Run the tests
-runTests().catch((error) => {
+runTests().catch(error => {
   console.error('\n💥 Test runner failed:', error.message);
   process.exit(1);
 });

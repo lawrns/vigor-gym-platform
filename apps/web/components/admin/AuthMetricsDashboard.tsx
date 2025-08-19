@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getAuthMetrics, getRecentAuthMetrics } from '../../lib/monitoring/auth-metrics';
 
 interface AuthMetrics {
@@ -44,13 +44,15 @@ export function AuthMetricsDashboard() {
     );
   }
 
-  const successRate = metrics.loginAttempts > 0 
-    ? ((metrics.loginSuccesses / metrics.loginAttempts) * 100).toFixed(1)
-    : '0';
+  const successRate =
+    metrics.loginAttempts > 0
+      ? ((metrics.loginSuccesses / metrics.loginAttempts) * 100).toFixed(1)
+      : '0';
 
-  const recentSuccessRate = recentMetrics.loginAttempts > 0 
-    ? ((recentMetrics.loginSuccesses / recentMetrics.loginAttempts) * 100).toFixed(1)
-    : '0';
+  const recentSuccessRate =
+    recentMetrics.loginAttempts > 0
+      ? ((recentMetrics.loginSuccesses / recentMetrics.loginAttempts) * 100).toFixed(1)
+      : '0';
 
   return (
     <div className="space-y-6">
@@ -60,7 +62,7 @@ export function AuthMetricsDashboard() {
         </h2>
         <select
           value={timeframe}
-          onChange={(e) => setTimeframe(Number(e.target.value))}
+          onChange={e => setTimeframe(Number(e.target.value))}
           className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
         >
           <option value={15}>Last 15 minutes</option>
@@ -76,28 +78,46 @@ export function AuthMetricsDashboard() {
           title="Success Rate"
           value={`${recentSuccessRate}%`}
           subtitle={`${recentMetrics.loginSuccesses}/${recentMetrics.loginAttempts} attempts`}
-          trend={Number(recentSuccessRate) >= 95 ? 'good' : Number(recentSuccessRate) >= 85 ? 'warning' : 'danger'}
+          trend={
+            Number(recentSuccessRate) >= 95
+              ? 'good'
+              : Number(recentSuccessRate) >= 85
+                ? 'warning'
+                : 'danger'
+          }
         />
-        
+
         <MetricCard
           title="Avg Login Time"
           value={`${Math.round(recentMetrics.averageLoginTime)}ms`}
           subtitle="Response time"
-          trend={recentMetrics.averageLoginTime < 1000 ? 'good' : recentMetrics.averageLoginTime < 3000 ? 'warning' : 'danger'}
+          trend={
+            recentMetrics.averageLoginTime < 1000
+              ? 'good'
+              : recentMetrics.averageLoginTime < 3000
+                ? 'warning'
+                : 'danger'
+          }
         />
-        
+
         <MetricCard
           title="Avg Session Duration"
           value={formatDuration(recentMetrics.averageSessionDuration)}
           subtitle="User engagement"
           trend={recentMetrics.averageSessionDuration > 300000 ? 'good' : 'neutral'} // 5+ minutes
         />
-        
+
         <MetricCard
           title="Redirect Performance"
           value={`${Math.round(recentMetrics.redirectPerformance)}ms`}
           subtitle="Navigation speed"
-          trend={recentMetrics.redirectPerformance < 500 ? 'good' : recentMetrics.redirectPerformance < 1000 ? 'warning' : 'danger'}
+          trend={
+            recentMetrics.redirectPerformance < 500
+              ? 'good'
+              : recentMetrics.redirectPerformance < 1000
+                ? 'warning'
+                : 'danger'
+          }
         />
       </div>
 
@@ -110,7 +130,9 @@ export function AuthMetricsDashboard() {
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Total Login Attempts:</span>
-              <span className="font-medium text-gray-900 dark:text-white">{metrics.loginAttempts}</span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                {metrics.loginAttempts}
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Success Rate:</span>
@@ -118,11 +140,15 @@ export function AuthMetricsDashboard() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Avg Login Time:</span>
-              <span className="font-medium text-gray-900 dark:text-white">{Math.round(metrics.averageLoginTime)}ms</span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                {Math.round(metrics.averageLoginTime)}ms
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600 dark:text-gray-400">Avg Session Duration:</span>
-              <span className="font-medium text-gray-900 dark:text-white">{formatDuration(metrics.averageSessionDuration)}</span>
+              <span className="font-medium text-gray-900 dark:text-white">
+                {formatDuration(metrics.averageSessionDuration)}
+              </span>
             </div>
           </div>
         </div>
@@ -134,7 +160,7 @@ export function AuthMetricsDashboard() {
           <div className="space-y-2">
             {Object.entries(metrics.errorPatterns).length > 0 ? (
               Object.entries(metrics.errorPatterns)
-                .sort(([,a], [,b]) => b - a)
+                .sort(([, a], [, b]) => b - a)
                 .slice(0, 5)
                 .map(([error, count]) => (
                   <div key={error} className="flex justify-between items-center">
@@ -163,11 +189,11 @@ export function AuthMetricsDashboard() {
             <div
               key={index}
               className={`p-3 rounded-md ${
-                alert.type === 'danger' 
+                alert.type === 'danger'
                   ? 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-800'
                   : alert.type === 'warning'
-                  ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800'
-                  : 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800'
+                    ? 'bg-yellow-50 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-200 border border-yellow-200 dark:border-yellow-800'
+                    : 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-200 border border-green-200 dark:border-green-800'
               }`}
             >
               <div className="flex items-center">
@@ -198,15 +224,9 @@ function MetricCard({ title, value, subtitle, trend }: MetricCardProps) {
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-      <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-        {title}
-      </h3>
-      <div className={`text-2xl font-bold mb-1 ${trendColors[trend]}`}>
-        {value}
-      </div>
-      <p className="text-xs text-gray-500 dark:text-gray-500">
-        {subtitle}
-      </p>
+      <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">{title}</h3>
+      <div className={`text-2xl font-bold mb-1 ${trendColors[trend]}`}>{value}</div>
+      <p className="text-xs text-gray-500 dark:text-gray-500">{subtitle}</p>
     </div>
   );
 }
@@ -218,7 +238,9 @@ function formatDuration(ms: number): string {
   return `${Math.round(ms / 3600000)}h`;
 }
 
-function getPerformanceAlerts(metrics: AuthMetrics): Array<{type: 'good' | 'warning' | 'danger', message: string}> {
+function getPerformanceAlerts(
+  metrics: AuthMetrics
+): Array<{ type: 'good' | 'warning' | 'danger'; message: string }> {
   const alerts = [];
 
   if (metrics.loginAttempts === 0) {
@@ -229,23 +251,44 @@ function getPerformanceAlerts(metrics: AuthMetrics): Array<{type: 'good' | 'warn
   const successRate = (metrics.loginSuccesses / metrics.loginAttempts) * 100;
 
   if (successRate < 85) {
-    alerts.push({ type: 'danger' as const, message: `Low success rate: ${successRate.toFixed(1)}% (target: >95%)` });
+    alerts.push({
+      type: 'danger' as const,
+      message: `Low success rate: ${successRate.toFixed(1)}% (target: >95%)`,
+    });
   } else if (successRate < 95) {
-    alerts.push({ type: 'warning' as const, message: `Success rate below target: ${successRate.toFixed(1)}% (target: >95%)` });
+    alerts.push({
+      type: 'warning' as const,
+      message: `Success rate below target: ${successRate.toFixed(1)}% (target: >95%)`,
+    });
   } else {
-    alerts.push({ type: 'good' as const, message: `Success rate healthy: ${successRate.toFixed(1)}%` });
+    alerts.push({
+      type: 'good' as const,
+      message: `Success rate healthy: ${successRate.toFixed(1)}%`,
+    });
   }
 
   if (metrics.averageLoginTime > 3000) {
-    alerts.push({ type: 'danger' as const, message: `Slow login performance: ${Math.round(metrics.averageLoginTime)}ms (target: <1000ms)` });
+    alerts.push({
+      type: 'danger' as const,
+      message: `Slow login performance: ${Math.round(metrics.averageLoginTime)}ms (target: <1000ms)`,
+    });
   } else if (metrics.averageLoginTime > 1000) {
-    alerts.push({ type: 'warning' as const, message: `Login performance degraded: ${Math.round(metrics.averageLoginTime)}ms (target: <1000ms)` });
+    alerts.push({
+      type: 'warning' as const,
+      message: `Login performance degraded: ${Math.round(metrics.averageLoginTime)}ms (target: <1000ms)`,
+    });
   }
 
   if (metrics.redirectPerformance > 1000) {
-    alerts.push({ type: 'danger' as const, message: `Slow redirects: ${Math.round(metrics.redirectPerformance)}ms (target: <500ms)` });
+    alerts.push({
+      type: 'danger' as const,
+      message: `Slow redirects: ${Math.round(metrics.redirectPerformance)}ms (target: <500ms)`,
+    });
   } else if (metrics.redirectPerformance > 500) {
-    alerts.push({ type: 'warning' as const, message: `Redirect performance degraded: ${Math.round(metrics.redirectPerformance)}ms (target: <500ms)` });
+    alerts.push({
+      type: 'warning' as const,
+      message: `Redirect performance degraded: ${Math.round(metrics.redirectPerformance)}ms (target: <500ms)`,
+    });
   }
 
   if (alerts.length === 1 && alerts[0].type === 'good') {

@@ -12,39 +12,54 @@ const prisma = new PrismaClient();
 // Rate limiting for check-ins (disabled in test mode)
 const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_RATE_LIMITING === 'true';
 
-const scanRateLimit = isTestMode ? (req: any, res: any, next: any) => next() : rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 60, // 60 scans per minute per device
-  message: { message: 'Too many scan attempts, please try again later', code: 'RATE_LIMITED' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: async (req: Request, res: Response) => {
-    await logRateLimitHit('checkin.scan', req.ip, req.ip, req.get('User-Agent'));
-    res.status(429).json({ message: 'Too many scan attempts, please try again later', code: 'RATE_LIMITED' });
-  },
-});
+const scanRateLimit = isTestMode
+  ? (req: any, res: any, next: any) => next()
+  : rateLimit({
+      windowMs: 60 * 1000, // 1 minute
+      max: 60, // 60 scans per minute per device
+      message: { message: 'Too many scan attempts, please try again later', code: 'RATE_LIMITED' },
+      standardHeaders: true,
+      legacyHeaders: false,
+      handler: async (req: Request, res: Response) => {
+        await logRateLimitHit('checkin.scan', req.ip, req.ip, req.get('User-Agent'));
+        res.status(429).json({
+          message: 'Too many scan attempts, please try again later',
+          code: 'RATE_LIMITED',
+        });
+      },
+    });
 
-const checkoutRateLimit = isTestMode ? (req: any, res: any, next: any) => next() : rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 60, // 60 checkouts per minute per device
-  message: { message: 'Too many checkout attempts, please try again later', code: 'RATE_LIMITED' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: async (req: Request, res: Response) => {
-    await logRateLimitHit('checkin.checkout', req.ip, req.ip, req.get('User-Agent'));
-    res.status(429).json({ message: 'Too many checkout attempts, please try again later', code: 'RATE_LIMITED' });
-  },
-});
+const checkoutRateLimit = isTestMode
+  ? (req: any, res: any, next: any) => next()
+  : rateLimit({
+      windowMs: 60 * 1000, // 1 minute
+      max: 60, // 60 checkouts per minute per device
+      message: {
+        message: 'Too many checkout attempts, please try again later',
+        code: 'RATE_LIMITED',
+      },
+      standardHeaders: true,
+      legacyHeaders: false,
+      handler: async (req: Request, res: Response) => {
+        await logRateLimitHit('checkin.checkout', req.ip, req.ip, req.get('User-Agent'));
+        res.status(429).json({
+          message: 'Too many checkout attempts, please try again later',
+          code: 'RATE_LIMITED',
+        });
+      },
+    });
 
 // Validation schemas
-const scanMemberSchema = z.object({
-  memberId: z.string().uuid().optional(),
-  qrCode: z.string().optional(),
-  biometricStub: z.string().optional(),
-  gymId: z.string().uuid(),
-}).refine(data => data.memberId || data.qrCode || data.biometricStub, {
-  message: "At least one of memberId, qrCode, or biometricStub must be provided"
-});
+const scanMemberSchema = z
+  .object({
+    memberId: z.string().uuid().optional(),
+    qrCode: z.string().optional(),
+    biometricStub: z.string().optional(),
+    gymId: z.string().uuid(),
+  })
+  .refine(data => data.memberId || data.qrCode || data.biometricStub, {
+    message: 'At least one of memberId, qrCode, or biometricStub must be provided',
+  });
 
 const checkoutSchema = z.object({
   visitId: z.string().uuid(),
@@ -59,7 +74,7 @@ function evaluateMembershipState(membership: any): {
   warning: boolean;
   state: 'OK' | 'PAST_DUE' | 'DENIED';
   code?: string;
-  message: string
+  message: string;
 } {
   const now = new Date();
 
@@ -71,7 +86,7 @@ function evaluateMembershipState(membership: any): {
       warning: false,
       state: 'DENIED',
       code: 'MEMBERSHIP_EXPIRED',
-      message: 'Membership has expired'
+      message: 'Membership has expired',
     };
   }
 
@@ -83,7 +98,7 @@ function evaluateMembershipState(membership: any): {
         denied: false,
         warning: false,
         state: 'OK',
-        message: 'Access granted'
+        message: 'Access granted',
       };
 
     case 'past_due':
@@ -94,7 +109,7 @@ function evaluateMembershipState(membership: any): {
         warning: true,
         state: 'PAST_DUE',
         code: 'PAST_DUE',
-        message: 'Access granted - membership payment overdue'
+        message: 'Access granted - membership payment overdue',
       };
 
     case 'frozen':
@@ -105,7 +120,7 @@ function evaluateMembershipState(membership: any): {
         warning: false,
         state: 'DENIED',
         code: 'MEMBERSHIP_FROZEN',
-        message: 'Membership is frozen'
+        message: 'Membership is frozen',
       };
 
     case 'expired':
@@ -116,7 +131,7 @@ function evaluateMembershipState(membership: any): {
         warning: false,
         state: 'DENIED',
         code: 'NO_ACTIVE_MEMBERSHIP',
-        message: 'No active membership found'
+        message: 'No active membership found',
       };
 
     default:
@@ -126,7 +141,7 @@ function evaluateMembershipState(membership: any): {
         warning: false,
         state: 'DENIED',
         code: 'INVALID_MEMBERSHIP_STATUS',
-        message: 'Invalid membership status'
+        message: 'Invalid membership status',
       };
   }
 }
@@ -134,11 +149,15 @@ function evaluateMembershipState(membership: any): {
 /**
  * Helper function to extract member ID from different input types
  */
-function extractMemberId(data: { memberId?: string; qrCode?: string; biometricStub?: string }): string | null {
+function extractMemberId(data: {
+  memberId?: string;
+  qrCode?: string;
+  biometricStub?: string;
+}): string | null {
   if (data.memberId) {
     return data.memberId;
   }
-  
+
   if (data.qrCode) {
     try {
       // Try to parse as JSON first
@@ -149,18 +168,19 @@ function extractMemberId(data: { memberId?: string; qrCode?: string; biometricSt
     } catch {
       // If not JSON, treat as direct member ID
       // Validate UUID format
-      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+      const uuidRegex =
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
       if (uuidRegex.test(data.qrCode)) {
         return data.qrCode;
       }
     }
   }
-  
+
   if (data.biometricStub) {
     // For now, treat biometric stub as member ID (future implementation)
     return data.biometricStub;
   }
-  
+
   return null;
 }
 
@@ -168,7 +188,8 @@ function extractMemberId(data: { memberId?: string; qrCode?: string; biometricSt
  * POST /v1/checkins/scan
  * Scan member and create visit (check-in)
  */
-router.post('/scan', 
+router.post(
+  '/scan',
   deviceAuthRequired(),
   scanRateLimit,
   async (req: DeviceAuthenticatedRequest, res: Response) => {
@@ -180,14 +201,29 @@ router.post('/scan',
       // Extract member ID from input
       const memberId = extractMemberId(validatedData);
       if (!memberId) {
-        await logCheckinScan(deviceId, deviceCompanyId, 'unknown', 'unknown', false, 'manual', req.ip, req.get('User-Agent'), 'INVALID_FORMAT', 'Invalid member identification format');
-        return res.status(400).json({ message: 'Invalid member identification format', code: 'INVALID_FORMAT' });
+        await logCheckinScan(
+          deviceId,
+          deviceCompanyId,
+          'unknown',
+          'unknown',
+          false,
+          'manual',
+          req.ip,
+          req.get('User-Agent'),
+          'INVALID_FORMAT',
+          'Invalid member identification format'
+        );
+        return res
+          .status(400)
+          .json({ message: 'Invalid member identification format', code: 'INVALID_FORMAT' });
       }
 
       // Determine scan method
-      const scanMethod: 'qr' | 'manual' | 'biometric' =
-        validatedData.qrCode ? 'qr' :
-        validatedData.biometricStub ? 'biometric' : 'manual';
+      const scanMethod: 'qr' | 'manual' | 'biometric' = validatedData.qrCode
+        ? 'qr'
+        : validatedData.biometricStub
+          ? 'biometric'
+          : 'manual';
 
       // Find member and their memberships (including non-active ones for state checking)
       const member = await prisma.member.findFirst({
@@ -213,30 +249,82 @@ router.post('/scan',
       });
 
       if (!member) {
-        await logCheckinScan(deviceId, deviceCompanyId, memberId, 'unknown', false, scanMethod, req.ip, req.get('User-Agent'), 'MEMBER_NOT_FOUND', 'Member not found or access denied');
-        return res.status(404).json({ message: 'Member not found or access denied', code: 'MEMBER_NOT_FOUND' });
+        await logCheckinScan(
+          deviceId,
+          deviceCompanyId,
+          memberId,
+          'unknown',
+          false,
+          scanMethod,
+          req.ip,
+          req.get('User-Agent'),
+          'MEMBER_NOT_FOUND',
+          'Member not found or access denied'
+        );
+        return res
+          .status(404)
+          .json({ message: 'Member not found or access denied', code: 'MEMBER_NOT_FOUND' });
       }
 
       if (member.status !== 'active') {
-        await logCheckinScan(deviceId, deviceCompanyId, memberId, 'unknown', false, scanMethod, req.ip, req.get('User-Agent'), 'MEMBER_INACTIVE', 'Member account is not active');
-        return res.status(403).json({ message: 'Member account is not active', code: 'MEMBER_INACTIVE', state: 'DENIED' });
+        await logCheckinScan(
+          deviceId,
+          deviceCompanyId,
+          memberId,
+          'unknown',
+          false,
+          scanMethod,
+          req.ip,
+          req.get('User-Agent'),
+          'MEMBER_INACTIVE',
+          'Member account is not active'
+        );
+        return res.status(403).json({
+          message: 'Member account is not active',
+          code: 'MEMBER_INACTIVE',
+          state: 'DENIED',
+        });
       }
 
       const membership = member.memberships[0];
       if (!membership) {
-        await logCheckinScan(deviceId, deviceCompanyId, memberId, 'unknown', false, scanMethod, req.ip, req.get('User-Agent'), 'NO_MEMBERSHIP', 'No membership found');
-        return res.status(403).json({ message: 'No membership found', code: 'NO_MEMBERSHIP', state: 'DENIED' });
+        await logCheckinScan(
+          deviceId,
+          deviceCompanyId,
+          memberId,
+          'unknown',
+          false,
+          scanMethod,
+          req.ip,
+          req.get('User-Agent'),
+          'NO_MEMBERSHIP',
+          'No membership found'
+        );
+        return res
+          .status(403)
+          .json({ message: 'No membership found', code: 'NO_MEMBERSHIP', state: 'DENIED' });
       }
 
       // Implement membership state business rules
       const membershipStateResult = evaluateMembershipState(membership);
 
       if (membershipStateResult.denied) {
-        await logCheckinScan(deviceId, deviceCompanyId, memberId, 'unknown', false, scanMethod, req.ip, req.get('User-Agent'), membershipStateResult.code, membershipStateResult.message);
+        await logCheckinScan(
+          deviceId,
+          deviceCompanyId,
+          memberId,
+          'unknown',
+          false,
+          scanMethod,
+          req.ip,
+          req.get('User-Agent'),
+          membershipStateResult.code,
+          membershipStateResult.message
+        );
         return res.status(403).json({
           message: membershipStateResult.message,
           code: membershipStateResult.code,
-          state: 'DENIED'
+          state: 'DENIED',
         });
       }
 
@@ -252,7 +340,18 @@ router.post('/scan',
         // Check if it's within 5 minutes (allow re-entry for mistakes)
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
         if (existingVisit.checkIn > fiveMinutesAgo) {
-          await logCheckinScan(deviceId, deviceCompanyId, memberId, existingVisit.id, false, scanMethod, req.ip, req.get('User-Agent'), 'DUPLICATE_CHECKIN', 'Member is already checked in');
+          await logCheckinScan(
+            deviceId,
+            deviceCompanyId,
+            memberId,
+            existingVisit.id,
+            false,
+            scanMethod,
+            req.ip,
+            req.get('User-Agent'),
+            'DUPLICATE_CHECKIN',
+            'Member is already checked in'
+          );
           return res.status(409).json({
             message: 'Member is already checked in',
             code: 'DUPLICATE_CHECKIN',
@@ -301,7 +400,16 @@ router.post('/scan',
       });
 
       // Log successful check-in
-      await logCheckinScan(deviceId, deviceCompanyId, memberId, visit.id, true, scanMethod, req.ip, req.get('User-Agent'));
+      await logCheckinScan(
+        deviceId,
+        deviceCompanyId,
+        memberId,
+        visit.id,
+        true,
+        scanMethod,
+        req.ip,
+        req.get('User-Agent')
+      );
 
       // Broadcast real-time event for dashboard updates
       broadcastVisitCheckin(
@@ -338,7 +446,8 @@ router.post('/scan',
  * POST /v1/checkins/checkout
  * Close visit (check-out)
  */
-router.post('/checkout', 
+router.post(
+  '/checkout',
   deviceAuthRequired(),
   checkoutRateLimit,
   async (req: DeviceAuthenticatedRequest, res: Response) => {
@@ -371,8 +480,20 @@ router.post('/checkout',
       });
 
       if (!visit) {
-        await logCheckinCheckout(deviceCompanyId, deviceCompanyId, validatedData.visitId, 0, false, req.ip, req.get('User-Agent'), 'VISIT_NOT_FOUND', 'Visit not found or already checked out');
-        return res.status(404).json({ message: 'Visit not found or already checked out', code: 'VISIT_NOT_FOUND' });
+        await logCheckinCheckout(
+          deviceCompanyId,
+          deviceCompanyId,
+          validatedData.visitId,
+          0,
+          false,
+          req.ip,
+          req.get('User-Agent'),
+          'VISIT_NOT_FOUND',
+          'Visit not found or already checked out'
+        );
+        return res
+          .status(404)
+          .json({ message: 'Visit not found or already checked out', code: 'VISIT_NOT_FOUND' });
       }
 
       // Calculate duration (minimum 1 minute as per requirements)
@@ -400,7 +521,15 @@ router.post('/checkout',
       });
 
       // Log successful checkout
-      await logCheckinCheckout(deviceCompanyId, deviceCompanyId, visit.id, durationMinutes, true, req.ip, req.get('User-Agent'));
+      await logCheckinCheckout(
+        deviceCompanyId,
+        deviceCompanyId,
+        visit.id,
+        durationMinutes,
+        true,
+        req.ip,
+        req.get('User-Agent')
+      );
 
       // Broadcast real-time event for dashboard updates
       broadcastVisitCheckout(
@@ -437,75 +566,72 @@ router.post('/checkout',
  * GET /v1/checkins/:id
  * Get visit details
  */
-router.get('/:id', 
-  deviceAuthRequired(),
-  async (req: DeviceAuthenticatedRequest, res: Response) => {
-    try {
-      const visitId = req.params.id;
-      const deviceCompanyId = req.device!.companyId;
+router.get('/:id', deviceAuthRequired(), async (req: DeviceAuthenticatedRequest, res: Response) => {
+  try {
+    const visitId = req.params.id;
+    const deviceCompanyId = req.device!.companyId;
 
-      const visit = await prisma.visit.findFirst({
-        where: {
-          id: visitId,
-          membership: {
-            companyId: deviceCompanyId,
-          },
+    const visit = await prisma.visit.findFirst({
+      where: {
+        id: visitId,
+        membership: {
+          companyId: deviceCompanyId,
         },
-        include: {
-          membership: {
-            include: {
-              member: {
-                select: {
-                  id: true,
-                  firstName: true,
-                  lastName: true,
-                  email: true,
-                },
+      },
+      include: {
+        membership: {
+          include: {
+            member: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
               },
             },
           },
-          gym: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
-          device: {
-            select: {
-              id: true,
-              name: true,
-            },
+        },
+        gym: {
+          select: {
+            id: true,
+            name: true,
           },
         },
-      });
-
-      if (!visit) {
-        return res.status(404).json({ message: 'Visit not found' });
-      }
-
-      // Calculate duration if checked out
-      let durationMinutes = null;
-      if (visit.checkOut) {
-        const durationMs = visit.checkOut.getTime() - visit.checkIn.getTime();
-        durationMinutes = Math.floor(durationMs / (1000 * 60));
-      }
-
-      res.json({
-        visit: {
-          id: visit.id,
-          checkIn: visit.checkIn,
-          checkOut: visit.checkOut,
-          durationMinutes,
-          member: visit.membership.member,
-          gym: visit.gym,
-          device: visit.device,
+        device: {
+          select: {
+            id: true,
+            name: true,
+          },
         },
-      });
-    } catch (error) {
-      console.error('Get visit error:', error);
-      res.status(500).json({ message: 'Internal server error' });
+      },
+    });
+
+    if (!visit) {
+      return res.status(404).json({ message: 'Visit not found' });
     }
+
+    // Calculate duration if checked out
+    let durationMinutes = null;
+    if (visit.checkOut) {
+      const durationMs = visit.checkOut.getTime() - visit.checkIn.getTime();
+      durationMinutes = Math.floor(durationMs / (1000 * 60));
+    }
+
+    res.json({
+      visit: {
+        id: visit.id,
+        checkIn: visit.checkIn,
+        checkOut: visit.checkOut,
+        durationMinutes,
+        member: visit.membership.member,
+        gym: visit.gym,
+        device: visit.device,
+      },
+    });
+  } catch (error) {
+    console.error('Get visit error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
-);
+});
 
 export default router;

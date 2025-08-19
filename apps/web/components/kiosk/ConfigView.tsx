@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '../ui/Button';
 import { Icons } from '../../lib/icons/registry';
 
@@ -55,7 +55,7 @@ export function ConfigView({ session, onConfigComplete }: ConfigViewProps) {
       ];
 
       setGyms(mockGyms);
-      
+
       // Auto-select first gym if only one available
       if (mockGyms.length === 1) {
         setSelectedGymId(mockGyms[0].id);
@@ -70,7 +70,7 @@ export function ConfigView({ session, onConfigComplete }: ConfigViewProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     const selectedGym = gyms.find(gym => gym.id === selectedGymId);
     if (!selectedGym) {
       setError('Please select a gym location');
@@ -82,7 +82,7 @@ export function ConfigView({ session, onConfigComplete }: ConfigViewProps) {
       gymId: selectedGym.id,
       gymName: selectedGym.name,
     };
-    
+
     localStorage.setItem('kioskConfig', JSON.stringify(config));
     onConfigComplete(config);
   };
@@ -120,9 +120,7 @@ export function ConfigView({ session, onConfigComplete }: ConfigViewProps) {
           <div className="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-4">
             <Icons.MapPin className="h-8 w-8 text-blue-600 dark:text-blue-400" />
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Select Location
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Select Location</h2>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Choose the gym location for this kiosk
           </p>
@@ -130,11 +128,14 @@ export function ConfigView({ session, onConfigComplete }: ConfigViewProps) {
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="gymSelect" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+            <label
+              htmlFor="gymSelect"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3"
+            >
               Gym Location
             </label>
             <div className="space-y-2">
-              {gyms.map((gym) => (
+              {gyms.map(gym => (
                 <label
                   key={gym.id}
                   className={`block p-4 border rounded-lg cursor-pointer transition-colors ${
@@ -148,14 +149,12 @@ export function ConfigView({ session, onConfigComplete }: ConfigViewProps) {
                     name="gym"
                     value={gym.id}
                     checked={selectedGymId === gym.id}
-                    onChange={(e) => setSelectedGymId(e.target.value)}
+                    onChange={e => setSelectedGymId(e.target.value)}
                     className="sr-only"
                   />
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-medium text-gray-900 dark:text-white">
-                        {gym.name}
-                      </div>
+                      <div className="font-medium text-gray-900 dark:text-white">{gym.name}</div>
                       <div className="text-sm text-gray-500 dark:text-gray-400">
                         {gym.city}, {gym.state}
                       </div>
@@ -174,19 +173,13 @@ export function ConfigView({ session, onConfigComplete }: ConfigViewProps) {
               <div className="flex">
                 <Icons.AlertCircle className="h-5 w-5 text-red-400" />
                 <div className="ml-3">
-                  <p className="text-sm text-red-800 dark:text-red-200">
-                    {error}
-                  </p>
+                  <p className="text-sm text-red-800 dark:text-red-200">{error}</p>
                 </div>
               </div>
             </div>
           )}
 
-          <Button
-            type="submit"
-            className="w-full"
-            disabled={!selectedGymId}
-          >
+          <Button type="submit" className="w-full" disabled={!selectedGymId}>
             <Icons.ArrowRight className="h-4 w-4 mr-2" />
             Continue to Scan
           </Button>

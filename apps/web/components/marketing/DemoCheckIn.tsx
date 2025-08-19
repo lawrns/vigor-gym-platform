@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import { Icons } from '../../lib/icons/registry';
@@ -18,7 +18,7 @@ export function DemoCheckIn({
   qrMock,
   biometricMock,
   successCopy,
-  testId = 'demo-checkin'
+  testId = 'demo-checkin',
 }: DemoCheckInProps) {
   const [step, setStep] = useState<'choose' | 'qr' | 'biometric' | 'success'>('choose');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -50,7 +50,7 @@ export function DemoCheckIn({
   };
 
   return (
-    <section 
+    <section
       data-testid={testId}
       className="bg-white rounded-2xl border border-outline p-8 shadow-sm"
     >
@@ -58,9 +58,7 @@ export function DemoCheckIn({
         <h2 className="font-display text-2xl font-semibold text-heading mb-2">
           1. Entra al gimnasio
         </h2>
-        <p className="text-text/80">
-          Elige tu método de acceso preferido
-        </p>
+        <p className="text-text/80">Elige tu método de acceso preferido</p>
       </div>
 
       <div className="max-w-md mx-auto">
@@ -110,18 +108,11 @@ export function DemoCheckIn({
               className="text-center space-y-6"
             >
               <div className="relative w-48 h-48 mx-auto bg-white border border-outline rounded-lg p-4">
-                <Image
-                  src={qrMock}
-                  alt="Código QR de demo"
-                  fill
-                  className="object-contain"
-                />
+                <Image src={qrMock} alt="Código QR de demo" fill className="object-contain" />
               </div>
-              
+
               <div>
-                <p className="text-text/80 mb-4">
-                  Escanea este código con tu app
-                </p>
+                <p className="text-text/80 mb-4">Escanea este código con tu app</p>
                 <button
                   onClick={handleCheckIn}
                   disabled={isProcessing}
@@ -148,11 +139,9 @@ export function DemoCheckIn({
                   <Icons.Shield className="h-16 w-16 text-accent" />
                 </motion.div>
               </div>
-              
+
               <div>
-                <p className="text-text/80 mb-4">
-                  Coloca tu rostro frente al sensor
-                </p>
+                <p className="text-text/80 mb-4">Coloca tu rostro frente al sensor</p>
                 <button
                   onClick={handleCheckIn}
                   disabled={isProcessing}
@@ -179,11 +168,9 @@ export function DemoCheckIn({
               >
                 <Icons.Check className="h-10 w-10 text-green-600" />
               </motion.div>
-              
+
               <div>
-                <h3 className="font-semibold text-heading text-lg mb-2">
-                  {successCopy}
-                </h3>
+                <h3 className="font-semibold text-heading text-lg mb-2">{successCopy}</h3>
                 <p className="text-text/80 mb-4">
                   Bienvenido al gimnasio. ¡Que tengas un gran entrenamiento!
                 </p>

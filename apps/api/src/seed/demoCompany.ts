@@ -20,7 +20,7 @@ export interface DemoSeedResult {
 export async function seedDemoCompany(companyId: string): Promise<DemoSeedResult> {
   console.log(`🌱 Starting demo company seed for ${companyId}...`);
 
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(async tx => {
     // Clean existing data (in correct order to respect foreign keys)
     await tx.visit.deleteMany({ where: { membership: { companyId } } });
     await tx.payment.deleteMany({ where: { member: { companyId } } });
@@ -43,13 +43,38 @@ export async function seedDemoCompany(companyId: string): Promise<DemoSeedResult
 
     // Create staff with intentional gaps
     const staffData = [
-      { firstName: 'Roberto', lastName: 'Manager', email: 'roberto@demo.mx', role: 'MANAGER' as const },
-      { firstName: 'Carlos', lastName: 'Trainer', email: 'carlos@demo.mx', role: 'TRAINER' as const },
+      {
+        firstName: 'Roberto',
+        lastName: 'Manager',
+        email: 'roberto@demo.mx',
+        role: 'MANAGER' as const,
+      },
+      {
+        firstName: 'Carlos',
+        lastName: 'Trainer',
+        email: 'carlos@demo.mx',
+        role: 'TRAINER' as const,
+      },
       { firstName: 'Ana', lastName: 'Trainer', email: 'ana@demo.mx', role: 'TRAINER' as const },
       { firstName: 'Luis', lastName: 'Trainer', email: 'luis@demo.mx', role: 'TRAINER' as const },
-      { firstName: 'María', lastName: 'Recepción', email: 'maria@demo.mx', role: 'RECEPTIONIST' as const },
-      { firstName: 'José', lastName: 'Recepción', email: 'jose@demo.mx', role: 'RECEPTIONIST' as const },
-      { firstName: 'Pedro', lastName: 'Mantenimiento', email: 'pedro@demo.mx', role: 'MAINTENANCE' as const },
+      {
+        firstName: 'María',
+        lastName: 'Recepción',
+        email: 'maria@demo.mx',
+        role: 'RECEPTIONIST' as const,
+      },
+      {
+        firstName: 'José',
+        lastName: 'Recepción',
+        email: 'jose@demo.mx',
+        role: 'RECEPTIONIST' as const,
+      },
+      {
+        firstName: 'Pedro',
+        lastName: 'Mantenimiento',
+        email: 'pedro@demo.mx',
+        role: 'MAINTENANCE' as const,
+      },
     ];
 
     const staff = await Promise.all(
@@ -63,7 +88,7 @@ export async function seedDemoCompany(companyId: string): Promise<DemoSeedResult
     // Create 120 members with realistic status distribution
     const memberFactory = createMemberFactory();
     const members = [];
-    
+
     for (let i = 0; i < 120; i++) {
       const memberData = memberFactory.create(i);
       const member = await tx.member.create({
@@ -105,7 +130,7 @@ export async function seedDemoCompany(companyId: string): Promise<DemoSeedResult
     for (let day = 0; day < 30; day++) {
       const date = new Date(Date.now() - day * 24 * 60 * 60 * 1000);
       const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-      
+
       // Weekend uplift: 30% more visits on weekends
       const baseVisits = isWeekend ? 25 : 19;
       const dailyVisits = Math.floor(baseVisits + Math.random() * 10);
@@ -113,7 +138,7 @@ export async function seedDemoCompany(companyId: string): Promise<DemoSeedResult
       for (let v = 0; v < dailyVisits; v++) {
         const membership = memberships[Math.floor(Math.random() * memberships.length)];
         const gym = gyms[Math.floor(Math.random() * gyms.length)];
-        
+
         const visitData = visitFactory.create(date, membership.id, gym.id);
         await tx.visit.create({ data: visitData });
         visitsCreated++;
@@ -124,9 +149,10 @@ export async function seedDemoCompany(companyId: string): Promise<DemoSeedResult
     const paymentFactory = createPaymentFactory();
     let paymentsCreated = 0;
 
-    for (const member of members.slice(0, 100)) { // 100 members with payment history
+    for (const member of members.slice(0, 100)) {
+      // 100 members with payment history
       const paymentCount = Math.floor(Math.random() * 3) + 1; // 1-3 payments per member
-      
+
       for (let p = 0; p < paymentCount; p++) {
         const paymentData = paymentFactory.create(member.id);
         await tx.payment.create({ data: paymentData });
@@ -141,19 +167,21 @@ export async function seedDemoCompany(companyId: string): Promise<DemoSeedResult
 
     for (let day = 0; day < 7; day++) {
       const classesPerDay = 4; // 4 classes per day = 28 per week
-      
+
       for (let c = 0; c < classesPerDay; c++) {
         const gym = gyms[Math.floor(Math.random() * gyms.length)];
         const trainer = staff.filter(s => s.role === 'TRAINER')[Math.floor(Math.random() * 3)];
         const classType = classTypes[Math.floor(Math.random() * classTypes.length)];
-        
+
         const classData = classFactory.create(day, c, classType, gym.id, trainer.id);
         await tx.class.create({ data: classData });
         classesCreated++;
       }
     }
 
-    console.log(`✅ Demo seed completed: ${members.length} members, ${visitsCreated} visits, ${paymentsCreated} payments`);
+    console.log(
+      `✅ Demo seed completed: ${members.length} members, ${visitsCreated} visits, ${paymentsCreated} payments`
+    );
 
     return {
       membersCreated: members.length,

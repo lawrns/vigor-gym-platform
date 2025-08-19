@@ -13,7 +13,8 @@ const router = express.Router();
  * - orgId: Required UUID of the organization
  * - locationId: Optional UUID of specific gym location (null = all locations)
  */
-router.get('/',
+router.get(
+  '/',
   authRequired(['owner', 'manager', 'staff']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -65,7 +66,8 @@ router.get('/',
 /**
  * GET /v1/events/subscribe - Legacy endpoint for backward compatibility
  */
-router.get('/subscribe',
+router.get(
+  '/subscribe',
   authRequired(['owner', 'manager', 'staff']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -92,7 +94,7 @@ router.get('/subscribe',
 router.get('/health', async (req: Request, res: Response) => {
   try {
     const totalSubscribers = eventBroadcaster.getSubscriberCount();
-    
+
     res.json({
       status: 'ok',
       service: 'event-broadcaster',
@@ -114,7 +116,8 @@ router.get('/health', async (req: Request, res: Response) => {
  * POST /v1/events/test
  * Test endpoint to send a test event (development only)
  */
-router.post('/test',
+router.post(
+  '/test',
   authRequired(['owner', 'manager']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -134,7 +137,7 @@ router.post('/test',
           gymId: locationId || 'test-gym-789',
           gymName: 'Test Gym',
           checkinAt: new Date().toISOString(),
-        }
+        },
       } = req.body;
 
       eventBroadcaster.broadcast({

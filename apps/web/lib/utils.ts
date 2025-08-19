@@ -15,19 +15,17 @@ export function trackCtaClicks() {
         const key = process.env.NEXT_PUBLIC_POSTHOG_KEY || '';
         if (key) posthog.init(key, { api_host: 'https://app.posthog.com' });
       }
-      document.querySelectorAll('[data-cta]').forEach((el) => {
-        el.addEventListener('click', (e) => {
+      document.querySelectorAll('[data-cta]').forEach(el => {
+        el.addEventListener('click', e => {
           const target = e.currentTarget as HTMLElement;
           // @ts-ignore types liberal
           posthog.capture('cta.click', {
             placement: target.getAttribute('data-cta') || 'unknown',
             label: target.textContent?.trim() || '',
-            path: window.location.pathname
+            path: window.location.pathname,
           });
         });
       });
     } catch {}
   });
 }
-
-

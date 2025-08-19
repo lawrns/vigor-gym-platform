@@ -1,12 +1,13 @@
 import { NextRequest } from 'next/server';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4002';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
 
 export async function GET(request: NextRequest) {
   try {
     // Get auth token from cookies or headers
-    const authHeader = request.headers.get('authorization') || 
-                      request.headers.get('cookie')?.match(/auth-token=([^;]+)/)?.[1];
+    const authHeader =
+      request.headers.get('authorization') ||
+      request.headers.get('cookie')?.match(/auth-token=([^;]+)/)?.[1];
 
     if (!authHeader) {
       return new Response('Unauthorized', { status: 401 });
@@ -29,8 +30,8 @@ export async function GET(request: NextRequest) {
     });
 
     if (!response.ok) {
-      return new Response('Failed to connect to event stream', { 
-        status: response.status 
+      return new Response('Failed to connect to event stream', {
+        status: response.status,
       });
     }
 
@@ -38,25 +39,28 @@ export async function GET(request: NextRequest) {
     const stream = new ReadableStream({
       start(controller) {
         const reader = response.body?.getReader();
-        
+
         if (!reader) {
           controller.close();
           return;
         }
 
         function pump(): Promise<void> {
-          return reader.read().then(({ done, value }) => {
-            if (done) {
-              controller.close();
-              return;
-            }
-            
-            controller.enqueue(value);
-            return pump();
-          }).catch((error) => {
-            console.error('Stream error:', error);
-            controller.error(error);
-          });
+          return reader
+            .read()
+            .then(({ done, value }) => {
+              if (done) {
+                controller.close();
+                return;
+              }
+
+              controller.enqueue(value);
+              return pump();
+            })
+            .catch(error => {
+              console.error('Stream error:', error);
+              controller.error(error);
+            });
         }
 
         return pump();
@@ -68,7 +72,7 @@ export async function GET(request: NextRequest) {
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Headers': 'Cache-Control',
       },

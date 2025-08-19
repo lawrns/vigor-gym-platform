@@ -1,5 +1,5 @@
-"use client";
-import { useEffect, useState } from 'react';
+'use client';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 type Kpis = {
@@ -14,7 +14,7 @@ export function Kpis() {
 
   useEffect(() => {
     fetch('/api/kpis')
-      .then((r) => r.json())
+      .then(r => r.json())
       .then((d: Kpis) => setData(d))
       .catch(() => setData(null));
   }, []);
@@ -22,7 +22,18 @@ export function Kpis() {
   return (
     <section className="max-w-6xl mx-auto px-4 py-8">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <KpiCard label="MRR" value={data ? new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }).format(data.mrrMXN) : '—'} />
+        <KpiCard
+          label="MRR"
+          value={
+            data
+              ? new Intl.NumberFormat('es-MX', {
+                  style: 'currency',
+                  currency: 'MXN',
+                  maximumFractionDigits: 0,
+                }).format(data.mrrMXN)
+              : '—'
+          }
+        />
         <KpiCard label="Churn 30d" value={data ? `${data.churn30dPct}%` : '—'} />
         <KpiCard label="Asist./miembro" value={data ? `${data.attendancePerMember}` : '—'} />
         <KpiCard label="Escaneo completado" value={data ? `${data.scanCompletionPct}%` : '—'} />
@@ -45,7 +56,3 @@ function KpiCard({ label, value }: { label: string; value: string }) {
     </motion.div>
   );
 }
-
-
-
-

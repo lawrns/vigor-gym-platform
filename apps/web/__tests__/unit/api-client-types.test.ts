@@ -1,6 +1,6 @@
 /**
  * API Client Type Safety Tests
- * 
+ *
  * These tests ensure that the apiClient object has the correct structure
  * and prevents accidental usage of generic HTTP methods.
  */
@@ -30,13 +30,13 @@ describe('API Client Type Safety', () => {
   it('should have namespaced methods for other endpoints', () => {
     expect(apiClient.kpi).toBeDefined();
     expect(typeof apiClient.kpi.overview).toBe('function');
-    
+
     expect(apiClient.companies).toBeDefined();
     expect(typeof apiClient.companies.create).toBe('function');
-    
+
     expect(apiClient.plans).toBeDefined();
     expect(typeof apiClient.plans.list).toBe('function');
-    
+
     expect(apiClient.billing).toBeDefined();
     expect(typeof apiClient.billing.createCheckoutSession).toBe('function');
   });
@@ -74,16 +74,20 @@ describe('TypeScript Compile-Time Safety', () => {
       // ✅ Correct: Use namespaced methods
       await apiClient.members.list({ page: '1' });
       await apiClient.members.get('member-id');
-      await apiClient.members.create({ email: 'test@example.com', firstName: 'Test', lastName: 'User' });
+      await apiClient.members.create({
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+      });
       await apiClient.members.update('member-id', { firstName: 'Updated' });
       await apiClient.members.delete('member-id');
       await apiClient.members.import({ members: [] });
-      
+
       await apiClient.auth.login({ email: 'test@example.com', password: 'password' });
       await apiClient.auth.me();
-      
+
       await apiClient.kpi.overview();
-      
+
       // ✅ Correct: Use api object for one-off requests
       await api.get('/custom/endpoint');
       await api.post('/custom/endpoint', { data: 'value' });
@@ -93,19 +97,19 @@ describe('TypeScript Compile-Time Safety', () => {
   });
 
   // Note: The following would cause TypeScript compilation errors if uncommented:
-  // 
+  //
   // it('should prevent incorrect usage patterns', () => {
   //   const incorrectUsage = async () => {
   //     // ❌ These should cause TypeScript errors:
   //     // @ts-expect-error - apiClient.get does not exist by design
   //     await apiClient.get('/v1/members');
-  //     
-  //     // @ts-expect-error - apiClient.post does not exist by design  
+  //
+  //     // @ts-expect-error - apiClient.post does not exist by design
   //     await apiClient.post('/v1/members', {});
-  //     
+  //
   //     // @ts-expect-error - apiClient.patch does not exist by design
   //     await apiClient.patch('/v1/members/123', {});
-  //     
+  //
   //     // @ts-expect-error - apiClient.delete does not exist by design
   //     await apiClient.delete('/v1/members/123');
   //   };

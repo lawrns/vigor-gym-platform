@@ -1,6 +1,6 @@
 /**
  * Server-Sent Events Hook
- * 
+ *
  * Provides real-time event streaming with retry/backoff strategy and visibility pause
  */
 
@@ -12,7 +12,7 @@ export interface SSEEvent {
   at: string;
   orgId: string;
   locationId: string | null;
-  payload: any;
+  payload: Record<string, unknown>;
 }
 
 export interface SSEOptions {
@@ -65,12 +65,15 @@ export function useSSE(options: SSEOptions): SSEState {
     setState(prev => ({ ...prev, ...updates }));
   }, []);
 
-  const calculateRetryDelay = useCallback((retryCount: number): number => {
-    // Exponential backoff with jitter
-    const baseDelay = Math.min(retryDelay * Math.pow(2, retryCount), maxRetryDelay);
-    const jitter = Math.random() * 0.1 * baseDelay;
-    return baseDelay + jitter;
-  }, [retryDelay, maxRetryDelay]);
+  const calculateRetryDelay = useCallback(
+    (retryCount: number): number => {
+      // Exponential backoff with jitter
+      const baseDelay = Math.min(retryDelay * Math.pow(2, retryCount), maxRetryDelay);
+      const jitter = Math.random() * 0.1 * baseDelay;
+      return baseDelay + jitter;
+    },
+    [retryDelay, maxRetryDelay]
+  );
 
   const connect = useCallback(() => {
     if (!shouldConnectRef.current || (!isVisibleRef.current && pauseOnVisibilityChange)) {
@@ -100,18 +103,18 @@ export function useSSE(options: SSEOptions): SSEState {
 
       eventSource.onopen = () => {
         console.log('[SSE] Connection opened');
-        updateState({ 
-          status: 'connected', 
-          error: null, 
-          retryCount: 0 
+        updateState({
+          status: 'connected',
+          error: null,
+          retryCount: 0,
         });
         onConnectionChange?.('connected');
       };
 
-      eventSource.onmessage = (event) => {
+      eventSource.onmessage = event => {
         try {
           const data = JSON.parse(event.data) as SSEEvent;
-          updateState(prev => ({ 
+          updateState(prev => ({
             lastEventId: event.lastEventId || data.id,
             eventCount: prev.eventCount + 1,
           }));
@@ -122,16 +125,16 @@ export function useSSE(options: SSEOptions): SSEState {
       };
 
       // Handle specific event types
-      eventSource.addEventListener('connection.established', (event) => {
+      eventSource.addEventListener('connection.established', event => {
         console.log('[SSE] Connection established:', event.data);
       });
 
-      eventSource.addEventListener('heartbeat', (event) => {
+      eventSource.addEventListener('heartbeat', event => {
         // Heartbeat received - connection is alive
         console.debug('[SSE] Heartbeat received');
       });
 
-      eventSource.addEventListener('visit.checkin', (event) => {
+      eventSource.addEventListener('visit.checkin', event => {
         try {
           const data = JSON.parse(event.data) as SSEEvent;
           onEvent?.(data);
@@ -140,7 +143,7 @@ export function useSSE(options: SSEOptions): SSEState {
         }
       });
 
-      eventSource.addEventListener('visit.checkout', (event) => {
+      eventSource.addEventListener('visit.checkout', event => {
         try {
           const data = JSON.parse(event.data) as SSEEvent;
           onEvent?.(data);
@@ -149,7 +152,7 @@ export function useSSE(options: SSEOptions): SSEState {
         }
       });
 
-      eventSource.addEventListener('membership.expiring', (event) => {
+      eventSource.addEventListener('membership.expiring', event => {
         try {
           const data = JSON.parse(event.data) as SSEEvent;
           onEvent?.(data);
@@ -158,7 +161,7 @@ export function useSSE(options: SSEOptions): SSEState {
         }
       });
 
-      eventSource.addEventListener('payment.failed', (event) => {
+      eventSource.addEventListener('payment.failed', event => {
         try {
           const data = JSON.parse(event.data) as SSEEvent;
           onEvent?.(data);
@@ -167,9 +170,9 @@ export function useSSE(options: SSEOptions): SSEState {
         }
       });
 
-      eventSource.onerror = (event) => {
+      eventSource.onerror = event => {
         console.error('[SSE] Connection error:', event);
-        
+
         const error = new Error('SSE connection failed');
         updateState({ status: 'error', error });
         onError?.(error);
@@ -178,8 +181,10 @@ export function useSSE(options: SSEOptions): SSEState {
         // Retry logic
         if (state.retryCount < maxRetries) {
           const delay = calculateRetryDelay(state.retryCount);
-          console.log(`[SSE] Retrying in ${delay}ms (attempt ${state.retryCount + 1}/${maxRetries})`);
-          
+          console.log(
+            `[SSE] Retrying in ${delay}ms (attempt ${state.retryCount + 1}/${maxRetries})`
+          );
+
           retryTimeoutRef.current = setTimeout(() => {
             updateState(prev => ({ retryCount: prev.retryCount + 1 }));
             connect();
@@ -190,7 +195,6 @@ export function useSSE(options: SSEOptions): SSEState {
           onConnectionChange?.('disconnected');
         }
       };
-
     } catch (error) {
       console.error('[SSE] Failed to create EventSource:', error);
       const err = error instanceof Error ? error : new Error('Failed to create SSE connection');
@@ -199,21 +203,21 @@ export function useSSE(options: SSEOptions): SSEState {
       onConnectionChange?.('error');
     }
   }, [
-    orgId, 
-    locationId, 
-    onEvent, 
-    onError, 
-    onConnectionChange, 
-    maxRetries, 
-    calculateRetryDelay, 
+    orgId,
+    locationId,
+    onEvent,
+    onError,
+    onConnectionChange,
+    maxRetries,
+    calculateRetryDelay,
     state.retryCount,
     pauseOnVisibilityChange,
-    updateState
+    updateState,
   ]);
 
   const disconnect = useCallback(() => {
     shouldConnectRef.current = false;
-    
+
     if (retryTimeoutRef.current) {
       clearTimeout(retryTimeoutRef.current);
       retryTimeoutRef.current = null;
@@ -240,7 +244,7 @@ export function useSSE(options: SSEOptions): SSEState {
 
     const handleVisibilityChange = () => {
       isVisibleRef.current = !document.hidden;
-      
+
       if (document.hidden) {
         console.log('[SSE] Page hidden, pausing connection');
         if (eventSourceRef.current) {

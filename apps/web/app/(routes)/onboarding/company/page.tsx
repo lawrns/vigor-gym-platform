@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../lib/auth/context';
 import { apiClient, isAPIError } from '../../../../lib/api/client';
@@ -36,7 +36,7 @@ export default function CompanyOnboardingPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   const [formData, setFormData] = useState<CompanyFormData>({
     name: '',
     rfc: '',
@@ -55,7 +55,7 @@ export default function CompanyOnboardingPage() {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -148,17 +148,21 @@ export default function CompanyOnboardingPage() {
         {/* Progress Steps */}
         <div className="mb-8">
           <div className="flex items-center">
-            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
-            }`}>
+            <div
+              className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                currentStep >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
+              }`}
+            >
               {currentStep > 1 ? <Icons.Users className="w-4 h-4" /> : '1'}
             </div>
-            <div className={`flex-1 h-1 mx-2 ${
-              currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'
-            }`} />
-            <div className={`flex items-center justify-center w-8 h-8 rounded-full ${
-              currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
-            }`}>
+            <div
+              className={`flex-1 h-1 mx-2 ${currentStep >= 2 ? 'bg-blue-600' : 'bg-gray-300'}`}
+            />
+            <div
+              className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                currentStep >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
+              }`}
+            >
               {currentStep > 2 ? <Icons.Users className="w-4 h-4" /> : '2'}
             </div>
           </div>
@@ -172,7 +176,10 @@ export default function CompanyOnboardingPage() {
         {currentStep === 1 && (
           <div className="space-y-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Nombre de la Empresa *
               </label>
               <input
@@ -188,7 +195,10 @@ export default function CompanyOnboardingPage() {
             </div>
 
             <div>
-              <label htmlFor="rfc" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="rfc"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 RFC *
               </label>
               <input
@@ -208,7 +218,10 @@ export default function CompanyOnboardingPage() {
             </div>
 
             <div>
-              <label htmlFor="billingEmail" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="billingEmail"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Email de Facturación *
               </label>
               <input
@@ -242,7 +255,10 @@ export default function CompanyOnboardingPage() {
         {currentStep === 2 && (
           <div className="space-y-6">
             <div>
-              <label htmlFor="timezone" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="timezone"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Zona Horaria
               </label>
               <select
@@ -253,13 +269,18 @@ export default function CompanyOnboardingPage() {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 {timezones.map(tz => (
-                  <option key={tz.value} value={tz.value}>{tz.label}</option>
+                  <option key={tz.value} value={tz.value}>
+                    {tz.label}
+                  </option>
                 ))}
               </select>
             </div>
 
             <div>
-              <label htmlFor="industry" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="industry"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Industria
               </label>
               <select
@@ -270,7 +291,9 @@ export default function CompanyOnboardingPage() {
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
               >
                 {industries.map(ind => (
-                  <option key={ind.value} value={ind.value}>{ind.label}</option>
+                  <option key={ind.value} value={ind.value}>
+                    {ind.label}
+                  </option>
                 ))}
               </select>
             </div>

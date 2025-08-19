@@ -2,7 +2,7 @@
 
 /**
  * Test Database Reset Script
- * 
+ *
  * This script resets the database to a clean state and seeds it with deterministic test data.
  * Used by E2E tests to ensure consistent test environment.
  */
@@ -81,8 +81,8 @@ async function seedTestData() {
       stripePriceId: 'price_test_basic',
       featuresJson: {
         features: ['Basic gym access', 'Standard equipment'],
-        limits: { monthlyVisits: 30 }
-      }
+        limits: { monthlyVisits: 30 },
+      },
     },
     {
       code: 'TEST_PRO',
@@ -93,9 +93,9 @@ async function seedTestData() {
       stripePriceId: 'price_test_pro',
       featuresJson: {
         features: ['Premium gym access', 'All equipment', 'Group classes'],
-        limits: { monthlyVisits: -1 }
-      }
-    }
+        limits: { monthlyVisits: -1 },
+      },
+    },
   ];
 
   for (const planData of plans) {
@@ -120,7 +120,7 @@ async function seedTestData() {
       email: 'jane.doe@testgym.mx',
       companyId: testCompany.id,
       status: 'active' as const,
-    }
+    },
   ];
 
   for (const memberData of testMembers) {
@@ -137,7 +137,7 @@ async function seedTestData() {
       city: 'Test City',
       state: 'Test State',
       lat: 19.4326,
-      lng: -99.1332
+      lng: -99.1332,
     },
   });
 
@@ -145,7 +145,7 @@ async function seedTestData() {
 
   // Create test memberships (link members to plans)
   const createdMembers = await prisma.member.findMany({
-    where: { companyId: testCompany.id }
+    where: { companyId: testCompany.id },
   });
   const createdPlans = await prisma.plan.findMany();
 
@@ -172,10 +172,10 @@ async function seedTestData() {
 async function main() {
   try {
     console.log('🚀 Starting test database reset...');
-    
+
     await resetDatabase();
     await seedTestData();
-    
+
     console.log('✅ Test database reset completed successfully!');
     console.log('');
     console.log('Test credentials:');

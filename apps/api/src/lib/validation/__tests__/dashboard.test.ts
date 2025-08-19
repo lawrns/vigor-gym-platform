@@ -1,6 +1,6 @@
 /**
  * Dashboard Validation Tests
- * 
+ *
  * Unit tests for dashboard data validation functions
  */
 
@@ -57,7 +57,7 @@ describe('Dashboard Validation', () => {
 
     it('should throw INVALID_ORG_ID for missing orgId', () => {
       expect(() => validateDashboardQuery({})).toThrow(DashboardValidationError);
-      
+
       try {
         validateDashboardQuery({});
       } catch (error) {
@@ -67,10 +67,12 @@ describe('Dashboard Validation', () => {
     });
 
     it('should throw INVALID_ORG_ID for invalid UUID format', () => {
-      expect(() => validateDashboardQuery({
-        orgId: invalidUuid,
-      })).toThrow(DashboardValidationError);
-      
+      expect(() =>
+        validateDashboardQuery({
+          orgId: invalidUuid,
+        })
+      ).toThrow(DashboardValidationError);
+
       try {
         validateDashboardQuery({ orgId: invalidUuid });
       } catch (error) {
@@ -80,11 +82,13 @@ describe('Dashboard Validation', () => {
     });
 
     it('should throw INVALID_LOCATION_ID for invalid locationId', () => {
-      expect(() => validateDashboardQuery({
-        orgId: validUuid,
-        locationId: invalidUuid,
-      })).toThrow(DashboardValidationError);
-      
+      expect(() =>
+        validateDashboardQuery({
+          orgId: validUuid,
+          locationId: invalidUuid,
+        })
+      ).toThrow(DashboardValidationError);
+
       try {
         validateDashboardQuery({
           orgId: validUuid,
@@ -97,10 +101,12 @@ describe('Dashboard Validation', () => {
     });
 
     it('should throw INVALID_RANGE for invalid range', () => {
-      expect(() => validateDashboardQuery({
-        orgId: validUuid,
-        range: 'invalid',
-      })).toThrow(DashboardValidationError);
+      expect(() =>
+        validateDashboardQuery({
+          orgId: validUuid,
+          range: 'invalid',
+        })
+      ).toThrow(DashboardValidationError);
     });
   });
 
@@ -134,10 +140,12 @@ describe('Dashboard Validation', () => {
     });
 
     it('should throw INVALID_LOCATION_ID for invalid locationId', () => {
-      expect(() => validateSSEQuery({
-        orgId: validUuid,
-        locationId: invalidUuid,
-      })).toThrow(DashboardValidationError);
+      expect(() =>
+        validateSSEQuery({
+          orgId: validUuid,
+          locationId: invalidUuid,
+        })
+      ).toThrow(DashboardValidationError);
     });
   });
 
@@ -167,11 +175,13 @@ describe('Dashboard Validation', () => {
     });
 
     it('should throw INVALID_LIMIT for limit > 100', () => {
-      expect(() => validateActivityQuery({
-        orgId: validUuid,
-        limit: '150',
-      })).toThrow(DashboardValidationError);
-      
+      expect(() =>
+        validateActivityQuery({
+          orgId: validUuid,
+          limit: '150',
+        })
+      ).toThrow(DashboardValidationError);
+
       try {
         validateActivityQuery({
           orgId: validUuid,
@@ -184,18 +194,22 @@ describe('Dashboard Validation', () => {
     });
 
     it('should throw INVALID_LIMIT for limit < 1', () => {
-      expect(() => validateActivityQuery({
-        orgId: validUuid,
-        limit: '0',
-      })).toThrow(DashboardValidationError);
+      expect(() =>
+        validateActivityQuery({
+          orgId: validUuid,
+          limit: '0',
+        })
+      ).toThrow(DashboardValidationError);
     });
 
     it('should throw INVALID_SINCE for invalid date format', () => {
-      expect(() => validateActivityQuery({
-        orgId: validUuid,
-        since: 'invalid-date',
-      })).toThrow(DashboardValidationError);
-      
+      expect(() =>
+        validateActivityQuery({
+          orgId: validUuid,
+          since: 'invalid-date',
+        })
+      ).toThrow(DashboardValidationError);
+
       try {
         validateActivityQuery({
           orgId: validUuid,
@@ -215,9 +229,9 @@ describe('Dashboard Validation', () => {
 
     it('should throw FORBIDDEN for mismatched company IDs', () => {
       const otherUuid = '123e4567-e89b-12d3-a456-426614174000';
-      
+
       expect(() => validateTenantAccess(validUuid, otherUuid)).toThrow(DashboardValidationError);
-      
+
       try {
         validateTenantAccess(validUuid, otherUuid);
       } catch (error) {
@@ -230,21 +244,23 @@ describe('Dashboard Validation', () => {
   describe('validateDateRange', () => {
     it('should generate date range from range parameter', () => {
       const result = validateDateRange(undefined, undefined, '7d');
-      
+
       expect(result.from).toBeInstanceOf(Date);
       expect(result.to).toBeInstanceOf(Date);
       expect(result.from.getTime()).toBeLessThan(result.to.getTime());
-      
-      const diffDays = Math.ceil((result.to.getTime() - result.from.getTime()) / (1000 * 60 * 60 * 24));
+
+      const diffDays = Math.ceil(
+        (result.to.getTime() - result.from.getTime()) / (1000 * 60 * 60 * 24)
+      );
       expect(diffDays).toBe(7);
     });
 
     it('should use explicit dates when provided', () => {
       const from = '2025-08-10T00:00:00.000Z';
       const to = '2025-08-17T00:00:00.000Z';
-      
+
       const result = validateDateRange(from, to);
-      
+
       expect(result.from.toISOString()).toBe(from);
       expect(result.to.toISOString()).toBe(to);
     });
@@ -252,9 +268,9 @@ describe('Dashboard Validation', () => {
     it('should throw INVALID_RANGE for from > to', () => {
       const from = '2025-08-17T00:00:00.000Z';
       const to = '2025-08-10T00:00:00.000Z';
-      
+
       expect(() => validateDateRange(from, to)).toThrow(DashboardValidationError);
-      
+
       try {
         validateDateRange(from, to);
       } catch (error) {
@@ -267,9 +283,9 @@ describe('Dashboard Validation', () => {
     it('should throw INVALID_RANGE for range > 366 days', () => {
       const from = '2024-01-01T00:00:00.000Z';
       const to = '2025-01-02T00:00:00.000Z'; // 367 days
-      
+
       expect(() => validateDateRange(from, to)).toThrow(DashboardValidationError);
-      
+
       try {
         validateDateRange(from, to);
       } catch (error) {
@@ -280,7 +296,9 @@ describe('Dashboard Validation', () => {
     });
 
     it('should throw INVALID_RANGE for invalid date format', () => {
-      expect(() => validateDateRange('invalid-date', '2025-08-17T00:00:00.000Z')).toThrow(DashboardValidationError);
+      expect(() => validateDateRange('invalid-date', '2025-08-17T00:00:00.000Z')).toThrow(
+        DashboardValidationError
+      );
     });
   });
 });

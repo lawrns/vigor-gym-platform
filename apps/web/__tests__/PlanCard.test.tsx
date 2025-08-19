@@ -7,7 +7,7 @@ describe('PlanCard', () => {
       <PlanCard
         name="TP PRO"
         price="$$"
-        features={["Beneficios", "Control", "Reportes"]}
+        features={['Beneficios', 'Control', 'Reportes']}
         cta={{ label: 'Elegir PRO', href: '/registro' }}
       />
     );
@@ -17,7 +17,3 @@ describe('PlanCard', () => {
     expect(screen.getByRole('link', { name: 'Elegir PRO' })).toHaveAttribute('href', '/registro');
   });
 });
-
-
-
-

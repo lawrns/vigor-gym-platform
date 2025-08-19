@@ -29,7 +29,3 @@ export interface Member {
   createdAt: ISODate;
   updatedAt: ISODate;
 }
-
-
-
-

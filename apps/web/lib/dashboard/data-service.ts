@@ -1,6 +1,6 @@
 /**
  * Dashboard Data Service
- * 
+ *
  * Provides real-time dashboard metrics with smart caching and fallback.
  * Integrates with multiple data sources for comprehensive KPI tracking.
  */
@@ -78,24 +78,27 @@ class DashboardDataService {
       // Simulate real data - in production this would query visits table
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
+
       // Mock calculation based on time of day
       const hour = now.getHours();
       let current = 0;
-      
-      if (hour >= 6 && hour < 10) current = Math.floor(Math.random() * 15) + 10; // Morning rush
-      else if (hour >= 17 && hour < 21) current = Math.floor(Math.random() * 20) + 25; // Evening rush
-      else if (hour >= 10 && hour < 17) current = Math.floor(Math.random() * 10) + 5; // Midday
+
+      if (hour >= 6 && hour < 10)
+        current = Math.floor(Math.random() * 15) + 10; // Morning rush
+      else if (hour >= 17 && hour < 21)
+        current = Math.floor(Math.random() * 20) + 25; // Evening rush
+      else if (hour >= 10 && hour < 17)
+        current = Math.floor(Math.random() * 10) + 5; // Midday
       else current = Math.floor(Math.random() * 5); // Off hours
-      
+
       const capacity = 50;
       const percentage = Math.round((current / capacity) * 100);
-      
+
       return {
         current,
         capacity,
         percentage,
-        trend: percentage > 60 ? '+15%' : percentage > 30 ? '+8%' : '-2%'
+        trend: percentage > 60 ? '+15%' : percentage > 30 ? '+8%' : '-2%',
       };
     });
   }
@@ -108,13 +111,11 @@ class DashboardDataService {
 
       for (let i = 6; i >= 0; i--) {
         const dayOfWeek = (new Date().getDay() - i + 7) % 7;
-        const weekendMultiplier = (dayOfWeek === 0 || dayOfWeek === 6) ? 1.3 : 1.0;
-        const randomVariance = 0.8 + (Math.random() * 0.4);
-        const trendFactor = 1 + ((6 - i) * 0.02);
+        const weekendMultiplier = dayOfWeek === 0 || dayOfWeek === 6 ? 1.3 : 1.0;
+        const randomVariance = 0.8 + Math.random() * 0.4;
+        const trendFactor = 1 + (6 - i) * 0.02;
 
-        const revenue = Math.floor(
-          baseRevenue * weekendMultiplier * randomVariance * trendFactor
-        );
+        const revenue = Math.floor(baseRevenue * weekendMultiplier * randomVariance * trendFactor);
         sparklineData.push(revenue);
       }
 
@@ -131,7 +132,7 @@ class DashboardDataService {
         trend,
         percentage,
         sparklineData,
-        weekTotal
+        weekTotal,
       };
     });
   }
@@ -141,31 +142,31 @@ class DashboardDataService {
       // Simulate membership data
       const total = 150;
       const active = 142;
-      
+
       const expiring = [
         {
           id: '1',
           memberName: 'Ana García',
           expiresAt: '2024-08-25',
           planName: 'Premium',
-          daysLeft: 3
+          daysLeft: 3,
         },
         {
-          id: '2', 
+          id: '2',
           memberName: 'Carlos López',
           expiresAt: '2024-08-26',
           planName: 'Basic',
-          daysLeft: 4
+          daysLeft: 4,
         },
         {
           id: '3',
-          memberName: 'María Rodríguez', 
+          memberName: 'María Rodríguez',
           expiresAt: '2024-08-27',
           planName: 'Premium',
-          daysLeft: 5
-        }
+          daysLeft: 5,
+        },
       ];
-      
+
       return { total, active, expiring };
     });
   }
@@ -180,16 +181,16 @@ class DashboardDataService {
           instructor: 'Laura',
           capacity: 12,
           booked: 8,
-          spotsLeft: 4
+          spotsLeft: 4,
         },
         {
           id: '2',
-          time: '18:00', 
+          time: '18:00',
           name: 'CrossFit',
           instructor: 'Miguel',
           capacity: 15,
           booked: 15,
-          spotsLeft: 0
+          spotsLeft: 0,
         },
         {
           id: '3',
@@ -198,13 +199,13 @@ class DashboardDataService {
           instructor: 'Sofia',
           capacity: 10,
           booked: 6,
-          spotsLeft: 4
-        }
+          spotsLeft: 4,
+        },
       ];
-      
+
       return {
         today,
-        upcoming: 5
+        upcoming: 5,
       };
     });
   }
@@ -215,14 +216,14 @@ class DashboardDataService {
         this.getActiveVisits(),
         this.getRevenue(),
         this.getMemberships(),
-        this.getClasses()
+        this.getClasses(),
       ]);
 
       return {
         activeVisits,
         revenue,
         memberships,
-        classes
+        classes,
       };
     } catch (error) {
       console.error('Failed to fetch dashboard metrics:', error);

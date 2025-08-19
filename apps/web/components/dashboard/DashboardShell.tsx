@@ -1,7 +1,6 @@
-"use client";
+'use client';
 
-import { ReactNode } from 'react';
-import { HeaderBar } from './HeaderBar';
+import React, { ReactNode } from 'react';
 
 interface DashboardShellProps {
   children: ReactNode;
@@ -10,7 +9,7 @@ interface DashboardShellProps {
 
 /**
  * DashboardShell - Main layout container for Dashboard 2.0
- * 
+ *
  * Features:
  * - 2-column responsive grid (lg: 12 cols)
  * - Mobile-first stacking
@@ -19,19 +18,17 @@ interface DashboardShellProps {
  */
 export function DashboardShell({ children, className = '' }: DashboardShellProps) {
   return (
-    <div 
+    <div
       className={`min-h-screen bg-gray-50 dark:bg-gray-900 ${className}`}
       data-testid="dashboard-root"
     >
-      {/* Header Bar */}
-      <HeaderBar />
+      {/* Header Bar - Temporarily disabled due to icon issues */}
+      {/* <HeaderBar /> */}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {children}
-        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">{children}</div>
       </main>
     </div>
   );
@@ -52,31 +49,28 @@ interface WidgetProps {
   testId?: string;
 }
 
-export function Widget({ 
-  children, 
-  className = '', 
+export function Widget({
+  children,
+  className = '',
   size = 'md',
   title,
   description,
   actions,
   loading = false,
   error = null,
-  testId
+  testId,
 }: WidgetProps) {
   // Size mappings for responsive grid
   const sizeClasses = {
     sm: 'w-full lg:col-span-3',
-    md: 'w-full lg:col-span-4', 
+    md: 'w-full lg:col-span-4',
     lg: 'w-full lg:col-span-5',
     xl: 'w-full lg:col-span-7',
     full: 'w-full lg:col-span-12',
   };
 
   return (
-    <div 
-      className={`${sizeClasses[size]} ${className}`}
-      data-testid={testId}
-    >
+    <div className={`${sizeClasses[size]} ${className}`} data-testid={testId}>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full">
         {/* Widget Header */}
         {(title || actions) && (
@@ -84,34 +78,20 @@ export function Widget({
             <div className="flex items-center justify-between">
               <div>
                 {title && (
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {title}
-                  </h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
                 )}
                 {description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    {description}
-                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{description}</p>
                 )}
               </div>
-              {actions && (
-                <div className="flex items-center space-x-2">
-                  {actions}
-                </div>
-              )}
+              {actions && <div className="flex items-center space-x-2">{actions}</div>}
             </div>
           </div>
         )}
 
         {/* Widget Content */}
         <div className="p-6">
-          {loading ? (
-            <WidgetSkeleton />
-          ) : error ? (
-            <WidgetError error={error} />
-          ) : (
-            children
-          )}
+          {loading ? <WidgetSkeleton /> : error ? <WidgetError error={error} /> : children}
         </div>
       </div>
     </div>
@@ -147,16 +127,24 @@ function WidgetError({ error, onRetry }: WidgetErrorProps) {
   return (
     <div className="text-center py-8">
       <div className="w-12 h-12 bg-red-100 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg className="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        <svg
+          className="h-6 w-6 text-red-600 dark:text-red-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
+          />
         </svg>
       </div>
       <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
         Error al cargar datos
       </h4>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-        {error}
-      </p>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{error}</p>
       {onRetry && (
         <button
           onClick={onRetry}
@@ -188,19 +176,25 @@ export function WidgetEmpty({ title, description, action, icon }: WidgetEmptyPro
     <div className="text-center py-8">
       <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
         {icon || (
-          <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+          <svg
+            className="h-6 w-6 text-gray-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"
+            />
           </svg>
         )}
       </div>
-      <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
-        {title}
-      </h4>
-      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
-        {description}
-      </p>
-      {action && (
-        action.href ? (
+      <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">{title}</h4>
+      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">{description}</p>
+      {action &&
+        (action.href ? (
           <a
             href={action.href}
             className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-600 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -214,8 +208,7 @@ export function WidgetEmpty({ title, description, action, icon }: WidgetEmptyPro
           >
             {action.label}
           </button>
-        )
-      )}
+        ))}
     </div>
   );
 }

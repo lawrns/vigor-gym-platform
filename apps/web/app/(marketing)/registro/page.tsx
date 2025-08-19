@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { Icons } from '../../../lib/icons/registry';
 
-export const metadata = { 
+export const metadata = {
   title: 'Registro | Vigor',
-  description: 'Crea tu cuenta en Vigor y comienza a gestionar tu gimnasio'
+  description: 'Crea tu cuenta en Vigor y comienza a gestionar tu gimnasio',
 };
 
 export default function RegistroPage() {
@@ -13,9 +13,7 @@ export default function RegistroPage() {
         <div className="mx-auto h-16 w-16 flex items-center justify-center rounded-full bg-blue-100 dark:bg-blue-900 mb-4">
           <Icons.Building2 className="h-8 w-8 text-blue-600 dark:text-blue-400" />
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-          Crea tu cuenta
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Crea tu cuenta</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
           Completa tus datos para comenzar a gestionar tu gimnasio con Vigor
         </p>
@@ -42,9 +40,7 @@ export default function RegistroPage() {
               </li>
               <li className="flex items-start">
                 <Icons.CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
-                <span className="text-gray-700 dark:text-gray-300">
-                  Dashboard en tiempo real
-                </span>
+                <span className="text-gray-700 dark:text-gray-300">Dashboard en tiempo real</span>
               </li>
               <li className="flex items-start">
                 <Icons.CheckCircle className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
@@ -54,7 +50,7 @@ export default function RegistroPage() {
               </li>
             </ul>
           </div>
-          
+
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
               Planes disponibles
@@ -86,10 +82,13 @@ export default function RegistroPage() {
           <Icons.ArrowRight className="h-5 w-5 mr-2" />
           Comenzar registro
         </Link>
-        
+
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
           ¿Ya tienes cuenta?{' '}
-          <Link href="/login" className="text-blue-600 dark:text-blue-400 underline hover:no-underline font-medium">
+          <Link
+            href="/login"
+            className="text-blue-600 dark:text-blue-400 underline hover:no-underline font-medium"
+          >
             Iniciar sesión
           </Link>
         </p>

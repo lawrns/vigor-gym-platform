@@ -1,6 +1,6 @@
 /**
  * Staff Coverage API Routes
- * 
+ *
  * Handles staff shift management and coverage gap detection
  */
 
@@ -35,17 +35,18 @@ interface ShiftData {
 
 /**
  * GET /v1/staff-coverage/coverage - Get staff coverage for a specific date
- * 
+ *
  * Query Parameters:
  * - date: ISO date (defaults to today)
  * - locationId: Optional UUID of specific gym location
- * 
+ *
  * Returns shifts and gap analysis with:
  * - All shifts for the day
  * - Coverage gaps by role and time
  * - Severity assessment
  */
-router.get('/coverage',
+router.get(
+  '/coverage',
   authRequired(['owner', 'manager']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -85,17 +86,20 @@ router.get('/coverage',
       // Set date range for the target day
       const startOfDay = new Date(targetDate);
       startOfDay.setHours(0, 0, 0, 0);
-      
+
       const endOfDay = new Date(targetDate);
       endOfDay.setHours(23, 59, 59, 999);
 
       // For demo purposes, use mock data since there's corrupted data in the database
       // In production, this would query the actual staff shifts
-      logger.info({
-        companyId,
-        locationId,
-        date: targetDate.toISOString().split('T')[0],
-      }, 'Using mock staff coverage data for demo');
+      logger.info(
+        {
+          companyId,
+          locationId,
+          date: targetDate.toISOString().split('T')[0],
+        },
+        'Using mock staff coverage data for demo'
+      );
 
       const shifts = generateMockShifts(targetDate);
 
@@ -129,15 +133,17 @@ router.get('/coverage',
         locationId: locationId || null,
         requiredRoles: requiredRolesByHour,
       });
-
     } catch (error) {
-      logger.error({ 
-        error: error.message, 
-        companyId: req.tenant?.companyId,
-        locationId: req.query.locationId,
-        date: req.query.date,
-      }, 'Staff coverage error');
-      
+      logger.error(
+        {
+          error: error.message,
+          companyId: req.tenant?.companyId,
+          locationId: req.query.locationId,
+          date: req.query.date,
+        },
+        'Staff coverage error'
+      );
+
       res.status(500).json({
         message: 'Failed to fetch staff coverage',
       });
@@ -187,21 +193,21 @@ function detectCoverageGaps(
   shifts: ShiftData[],
   requiredRolesByHour: Record<number, string[]>,
   startOfDay: Date,
-  endOfDay: Date
+  _endOfDay: Date
 ): CoverageGap[] {
   const gaps: CoverageGap[] = [];
 
   // Check each hour of the day
   for (let hour = 0; hour < 24; hour++) {
     const requiredRoles = requiredRolesByHour[hour] || [];
-    
+
     if (requiredRoles.length === 0) {
       continue; // No requirements for this hour
     }
 
     const hourStart = new Date(startOfDay);
     hourStart.setHours(hour, 0, 0, 0);
-    
+
     const hourEnd = new Date(startOfDay);
     hourEnd.setHours(hour, 59, 59, 999);
 
@@ -209,7 +215,7 @@ function detectCoverageGaps(
     const coveringShifts = shifts.filter(shift => {
       const shiftStart = new Date(shift.startTime);
       const shiftEnd = new Date(shift.endTime);
-      
+
       return shiftStart <= hourEnd && shiftEnd >= hourStart;
     });
 
@@ -238,22 +244,25 @@ function detectCoverageGaps(
 /**
  * Calculate gap severity based on missing roles and time
  */
-function calculateGapSeverity(missingRoles: string[], hour: number): 'low' | 'medium' | 'high' | 'critical' {
+function calculateGapSeverity(
+  missingRoles: string[],
+  hour: number
+): 'low' | 'medium' | 'high' | 'critical' {
   const isPeakHour = hour >= 17 && hour < 21; // Evening peak
   const isBusyHour = hour >= 10 && hour < 17; // Day hours
-  
+
   if (missingRoles.includes('MANAGER') && isPeakHour) {
     return 'critical';
   }
-  
+
   if (missingRoles.includes('RECEPTIONIST')) {
     return isPeakHour ? 'critical' : isBusyHour ? 'high' : 'medium';
   }
-  
+
   if (missingRoles.includes('TRAINER') && (isPeakHour || isBusyHour)) {
     return 'high';
   }
-  
+
   return 'low';
 }
 
@@ -268,25 +277,32 @@ function mergeConsecutiveGaps(gaps: CoverageGap[]): CoverageGap[] {
 
   for (let i = 1; i < gaps.length; i++) {
     const next = gaps[i];
-    
+
     // Check if gaps are consecutive and have same missing roles
     const currentEnd = new Date(current.to);
     const nextStart = new Date(next.from);
     const timeDiff = nextStart.getTime() - currentEnd.getTime();
-    
-    if (timeDiff <= 60000 && // Within 1 minute
-        JSON.stringify(current.rolesMissing.sort()) === JSON.stringify(next.rolesMissing.sort())) {
+
+    if (
+      timeDiff <= 60000 && // Within 1 minute
+      JSON.stringify(current.rolesMissing.sort()) === JSON.stringify(next.rolesMissing.sort())
+    ) {
       // Merge gaps
       current.to = next.to;
-      current.severity = current.severity === 'critical' || next.severity === 'critical' ? 'critical' :
-                        current.severity === 'high' || next.severity === 'high' ? 'high' :
-                        current.severity === 'medium' || next.severity === 'medium' ? 'medium' : 'low';
+      current.severity =
+        current.severity === 'critical' || next.severity === 'critical'
+          ? 'critical'
+          : current.severity === 'high' || next.severity === 'high'
+            ? 'high'
+            : current.severity === 'medium' || next.severity === 'medium'
+              ? 'medium'
+              : 'low';
     } else {
       merged.push(current);
       current = next;
     }
   }
-  
+
   merged.push(current);
   return merged;
 }
@@ -294,12 +310,12 @@ function mergeConsecutiveGaps(gaps: CoverageGap[]): CoverageGap[] {
 /**
  * Calculate coverage summary statistics
  */
-function calculateCoverageSummary(shifts: ShiftData[], gaps: CoverageGap[], date: Date) {
+function calculateCoverageSummary(shifts: ShiftData[], gaps: CoverageGap[], _date: Date) {
   const totalStaff = new Set(shifts.map(s => s.staffId)).size;
   const totalShifts = shifts.length;
   const totalGaps = gaps.length;
   const criticalGaps = gaps.filter(g => g.severity === 'critical').length;
-  
+
   // Calculate total gap hours
   const totalGapMinutes = gaps.reduce((total, gap) => {
     const start = new Date(gap.from);
@@ -312,8 +328,8 @@ function calculateCoverageSummary(shifts: ShiftData[], gaps: CoverageGap[], date
     totalShifts,
     totalGaps,
     criticalGaps,
-    totalGapHours: Math.round(totalGapMinutes / 60 * 10) / 10,
-    coverageScore: Math.max(0, 100 - (totalGaps * 10) - (criticalGaps * 20)),
+    totalGapHours: Math.round((totalGapMinutes / 60) * 10) / 10,
+    coverageScore: Math.max(0, 100 - totalGaps * 10 - criticalGaps * 20),
   };
 }
 
@@ -397,24 +413,22 @@ function generateMockShifts(date: Date): any[] {
     );
   } else {
     // Weekend shifts (reduced coverage)
-    mockShifts.push(
-      {
-        id: 'mock-shift-weekend-1',
-        staff: {
-          id: 'mock-staff-1',
-          firstName: 'María',
-          lastName: 'González',
-          role: 'RECEPTIONIST',
-        },
-        gym: {
-          id: 'mock-gym-1',
-          name: 'Vigor Gym Centro',
-        },
-        startTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), 8, 0),
-        endTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), 20, 0),
-        notes: 'Turno completo fin de semana',
-      }
-    );
+    mockShifts.push({
+      id: 'mock-shift-weekend-1',
+      staff: {
+        id: 'mock-staff-1',
+        firstName: 'María',
+        lastName: 'González',
+        role: 'RECEPTIONIST',
+      },
+      gym: {
+        id: 'mock-gym-1',
+        name: 'Vigor Gym Centro',
+      },
+      startTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), 8, 0),
+      endTime: new Date(date.getFullYear(), date.getMonth(), date.getDate(), 20, 0),
+      notes: 'Turno completo fin de semana',
+    });
   }
 
   return mockShifts;

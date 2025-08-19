@@ -16,7 +16,9 @@ import argon2 from 'argon2';
 const args = process.argv.slice(2);
 const companyName = args.find(arg => arg.startsWith('--company'))?.split('=')[1] || 'DemoCo';
 const memberCount = parseInt(args.find(arg => arg.startsWith('--members'))?.split('=')[1] || '85');
-const periodDays = parseInt(args.find(arg => arg.startsWith('--periodDays'))?.split('=')[1] || '30');
+const periodDays = parseInt(
+  args.find(arg => arg.startsWith('--periodDays'))?.split('=')[1] || '30'
+);
 
 const prisma = new PrismaClient();
 
@@ -89,29 +91,29 @@ async function main() {
 
 // Helper functions for data generation
 
-async function createGyms(companyId: string) {
+async function createGyms(_companyId: string) {
   const gymData = [
     {
       name: 'Vigor Gym Centro',
       city: 'Ciudad de México',
       state: 'CDMX',
       lat: 19.4326,
-      lng: -99.1332
+      lng: -99.1332,
     },
     {
       name: 'Vigor Gym Polanco',
       city: 'Ciudad de México',
       state: 'CDMX',
       lat: 19.4326,
-      lng: -99.1332
-    }
+      lng: -99.1332,
+    },
   ];
 
   const gyms = [];
   for (const data of gymData) {
     // Check if gym already exists by name
     const existingGym = await prisma.gym.findFirst({
-      where: { name: data.name }
+      where: { name: data.name },
     });
 
     let gym;
@@ -140,8 +142,8 @@ async function createPlans() {
       stripePriceId: process.env.STRIPE_PRICE_TP_ON || 'price_test_tp_on',
       featuresJson: {
         features: ['Basic gym access', 'Standard equipment'],
-        limits: { monthlyVisits: 30 }
-      }
+        limits: { monthlyVisits: 30 },
+      },
     },
     {
       code: 'TP_PRO',
@@ -152,8 +154,8 @@ async function createPlans() {
       stripePriceId: process.env.STRIPE_PRICE_TP_PRO || 'price_test_tp_pro',
       featuresJson: {
         features: ['Premium gym access', 'All equipment', 'Group classes'],
-        limits: { monthlyVisits: -1 }
-      }
+        limits: { monthlyVisits: -1 },
+      },
     },
     {
       code: 'TP_PLUS',
@@ -164,9 +166,9 @@ async function createPlans() {
       stripePriceId: process.env.STRIPE_PRICE_TP_PLUS || 'price_test_tp_plus',
       featuresJson: {
         features: ['Custom plan', 'Personalized training', 'Nutrition consulting'],
-        limits: { monthlyVisits: -1 }
-      }
-    }
+        limits: { monthlyVisits: -1 },
+      },
+    },
   ];
 
   const plans = [];
@@ -182,15 +184,35 @@ async function createPlans() {
   return plans;
 }
 
-async function createStaff(companyId: string, gyms: any[]) {
+async function createStaff(companyId: string, _gyms: any[]) {
   const staffData = [
-    { firstName: 'Roberto', lastName: 'Manager', email: 'roberto.manager@demo.mx', role: 'MANAGER' },
+    {
+      firstName: 'Roberto',
+      lastName: 'Manager',
+      email: 'roberto.manager@demo.mx',
+      role: 'MANAGER',
+    },
     { firstName: 'Carlos', lastName: 'Trainer', email: 'carlos.trainer@demo.mx', role: 'TRAINER' },
     { firstName: 'Ana', lastName: 'Trainer', email: 'ana.trainer@demo.mx', role: 'TRAINER' },
     { firstName: 'Luis', lastName: 'Trainer', email: 'luis.trainer@demo.mx', role: 'TRAINER' },
-    { firstName: 'María', lastName: 'Recepción', email: 'maria.recepcion@demo.mx', role: 'RECEPTIONIST' },
-    { firstName: 'José', lastName: 'Recepción', email: 'jose.recepcion@demo.mx', role: 'RECEPTIONIST' },
-    { firstName: 'Pedro', lastName: 'Mantenimiento', email: 'pedro.mant@demo.mx', role: 'MAINTENANCE' }
+    {
+      firstName: 'María',
+      lastName: 'Recepción',
+      email: 'maria.recepcion@demo.mx',
+      role: 'RECEPTIONIST',
+    },
+    {
+      firstName: 'José',
+      lastName: 'Recepción',
+      email: 'jose.recepcion@demo.mx',
+      role: 'RECEPTIONIST',
+    },
+    {
+      firstName: 'Pedro',
+      lastName: 'Mantenimiento',
+      email: 'pedro.mant@demo.mx',
+      role: 'MAINTENANCE',
+    },
   ];
 
   const staff = [];
@@ -205,20 +227,67 @@ async function createStaff(companyId: string, gyms: any[]) {
       },
     });
     staff.push(staffMember);
-    console.log('✅ Created staff:', staffMember.firstName, staffMember.lastName, `(${staffMember.role})`);
+    console.log(
+      '✅ Created staff:',
+      staffMember.firstName,
+      staffMember.lastName,
+      `(${staffMember.role})`
+    );
   }
   return staff;
 }
 
 async function createMembers(companyId: string, count: number, plans: any[]) {
-  const firstNames = ['Ana', 'Carlos', 'María', 'José', 'Laura', 'Miguel', 'Carmen', 'Francisco', 'Isabel', 'Antonio', 'Rosa', 'Manuel', 'Pilar', 'Jesús', 'Dolores', 'Alejandro', 'Mercedes', 'Rafael', 'Lucía', 'Ángel'];
-  const lastNames = ['García', 'López', 'Martínez', 'González', 'Rodríguez', 'Fernández', 'Sánchez', 'Pérez', 'Gómez', 'Martín', 'Jiménez', 'Ruiz', 'Hernández', 'Díaz', 'Moreno', 'Muñoz', 'Álvarez', 'Romero', 'Alonso', 'Gutiérrez'];
+  const firstNames = [
+    'Ana',
+    'Carlos',
+    'María',
+    'José',
+    'Laura',
+    'Miguel',
+    'Carmen',
+    'Francisco',
+    'Isabel',
+    'Antonio',
+    'Rosa',
+    'Manuel',
+    'Pilar',
+    'Jesús',
+    'Dolores',
+    'Alejandro',
+    'Mercedes',
+    'Rafael',
+    'Lucía',
+    'Ángel',
+  ];
+  const lastNames = [
+    'García',
+    'López',
+    'Martínez',
+    'González',
+    'Rodríguez',
+    'Fernández',
+    'Sánchez',
+    'Pérez',
+    'Gómez',
+    'Martín',
+    'Jiménez',
+    'Ruiz',
+    'Hernández',
+    'Díaz',
+    'Moreno',
+    'Muñoz',
+    'Álvarez',
+    'Romero',
+    'Alonso',
+    'Gutiérrez',
+  ];
 
   const statusDistribution = {
     active: 0.74,
     invited: 0.06,
     paused: 0.08,
-    cancelled: 0.12
+    cancelled: 0.12,
   };
 
   const members = [];
@@ -265,8 +334,8 @@ async function createMembers(companyId: string, count: number, plans: any[]) {
         where: {
           memberId: member.id,
           planId: plan.id,
-          companyId
-        }
+          companyId,
+        },
       });
 
       if (!existingMembership) {
@@ -292,7 +361,7 @@ async function createMembers(companyId: string, count: number, plans: any[]) {
   return members;
 }
 
-async function createStaffShifts(staff: any[], gyms: any[], days: number) {
+async function createStaffShifts(staff: any[], gyms: any[], _days: number) {
   // Create shifts for the last week with intentional gaps
   const today = new Date();
   const startDate = new Date(today);
@@ -328,7 +397,14 @@ async function createStaffShifts(staff: any[], gyms: any[], days: number) {
           await createShift(receptionists[0], gym, currentDate, 6, 14, 'Turno mañana');
           // Intentional gap: 14:00-16:00 on Tuesday at Polanco
           if (dayOfWeek === 2 && gym.name.includes('Polanco')) {
-            await createShift(receptionists[1], gym, currentDate, 16, 22, 'Turno tarde (con hueco)');
+            await createShift(
+              receptionists[1],
+              gym,
+              currentDate,
+              16,
+              22,
+              'Turno tarde (con hueco)'
+            );
           } else {
             await createShift(receptionists[1], gym, currentDate, 14, 22, 'Turno tarde');
           }
@@ -339,7 +415,14 @@ async function createStaffShifts(staff: any[], gyms: any[], days: number) {
           await createShift(trainers[0], gym, currentDate, 8, 16, 'Clases matutinas');
           // Intentional gap: 18:00-20:00 on Thursday at Centro
           if (dayOfWeek === 4 && gym.name.includes('Centro')) {
-            await createShift(trainers[1], gym, currentDate, 20, 21, 'Clases nocturnas (con hueco)');
+            await createShift(
+              trainers[1],
+              gym,
+              currentDate,
+              20,
+              21,
+              'Clases nocturnas (con hueco)'
+            );
           } else {
             await createShift(trainers[1], gym, currentDate, 18, 21, 'Clases vespertinas');
           }
@@ -350,7 +433,14 @@ async function createStaffShifts(staff: any[], gyms: any[], days: number) {
   console.log('✅ Created staff shifts with intentional coverage gaps');
 }
 
-async function createShift(staff: any, gym: any, date: Date, startHour: number, endHour: number, notes?: string) {
+async function createShift(
+  staff: any,
+  gym: any,
+  date: Date,
+  startHour: number,
+  endHour: number,
+  notes?: string
+) {
   const startTime = new Date(date);
   startTime.setHours(startHour, 0, 0, 0);
 
@@ -362,8 +452,8 @@ async function createShift(staff: any, gym: any, date: Date, startHour: number, 
     where: {
       staffId: staff.id,
       startTime,
-      gymId: gym.id
-    }
+      gymId: gym.id,
+    },
   });
 
   if (!existingShift) {
@@ -379,13 +469,13 @@ async function createShift(staff: any, gym: any, date: Date, startHour: number, 
   }
 }
 
-async function createClasses(gyms: any[], staff: any[], days: number) {
+async function createClasses(gyms: any[], staff: any[], _days: number) {
   const classTemplates = [
     { name: 'HIIT 45', durationMin: 45, capacity: 22 },
     { name: 'Yoga Flow', durationMin: 60, capacity: 18 },
     { name: 'Powerlifting', durationMin: 60, capacity: 16 },
     { name: 'Spinning', durationMin: 50, capacity: 24 },
-    { name: 'Mobility', durationMin: 45, capacity: 16 }
+    { name: 'Mobility', durationMin: 45, capacity: 16 },
   ];
 
   const trainers = staff.filter(s => s.role === 'TRAINER');
@@ -413,8 +503,8 @@ async function createClasses(gyms: any[], staff: any[], days: number) {
           where: {
             gymId: gym.id,
             startsAt: startTime,
-            title: template.name
-          }
+            title: template.name,
+          },
         });
 
         if (!existingClass) {
@@ -455,8 +545,8 @@ async function createVisits(members: any[], gyms: any[], days: number) {
         const membership = await prisma.membership.findFirst({
           where: {
             memberId: member.id,
-            status: 'active'
-          }
+            status: 'active',
+          },
         });
 
         if (!membership) continue;
@@ -489,7 +579,10 @@ async function createVisits(members: any[], gyms: any[], days: number) {
 
 function generateVisitHour(): number {
   // Diurnal curve weights
-  const weights = [0, 0, 0, 0, 0, 0, 0.5, 0.8, 0.9, 0.7, 0.4, 0.4, 0.65, 0.7, 0.6, 0.5, 0.6, 0.9, 1.0, 0.95, 0.7, 0.4, 0.2, 0.1];
+  const weights = [
+    0, 0, 0, 0, 0, 0, 0.5, 0.8, 0.9, 0.7, 0.4, 0.4, 0.65, 0.7, 0.6, 0.5, 0.6, 0.9, 1.0, 0.95, 0.7,
+    0.4, 0.2, 0.1,
+  ];
 
   const totalWeight = weights.reduce((sum, w) => sum + w, 0);
   let random = Math.random() * totalWeight;
@@ -507,7 +600,8 @@ async function createPaymentsAndInvoices(members: any[], plans: any[], days: num
   const today = new Date();
   let totalPayments = 0;
 
-  for (let day = 0; day < days * 2; day++) { // 60 days of payment history
+  for (let day = 0; day < days * 2; day++) {
+    // 60 days of payment history
     const paymentDate = new Date(today);
     paymentDate.setDate(paymentDate.getDate() - day);
 
@@ -554,11 +648,13 @@ async function createPaymentsAndInvoices(members: any[], plans: any[], days: num
       totalPayments++;
     }
   }
-  console.log(`✅ Created ${totalPayments} payments and invoices with realistic success/failure rates`);
+  console.log(
+    `✅ Created ${totalPayments} payments and invoices with realistic success/failure rates`
+  );
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error('❌ Seed failed:', e);
     process.exit(1);
   })

@@ -5,10 +5,6 @@ export const metadata: Metadata = {
   description: 'Manage your gym staff, schedules, and certifications',
 };
 
-export default function StaffLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function StaffLayout({ children }: { children: React.ReactNode }) {
   return children;
 }

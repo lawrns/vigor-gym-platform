@@ -30,10 +30,10 @@ const nextConfig = {
     // Enable modern bundling optimizations
     optimizeCss: true,
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    
+
     // Server-side rendering optimizations
     serverComponentsExternalPackages: ['pino', 'pino-pretty'],
-    
+
     // Caching optimizations
     staleTimes: {
       dynamic: 30,
@@ -51,10 +51,7 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    domains: [
-      'staging.vigor-gym.com',
-      'api-staging.vigor-gym.com',
-    ],
+    domains: ['staging.vigor-gym.com', 'api-staging.vigor-gym.com'],
   },
 
   // =============================================================================
@@ -103,7 +100,7 @@ const nextConfig = {
               "base-uri 'self'",
               "form-action 'self'",
               "frame-ancestors 'none'",
-              "upgrade-insecure-requests",
+              'upgrade-insecure-requests',
             ].join('; '),
           },
         ],

@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4002';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
 
 export async function GET(request: NextRequest) {
   try {
     // Get auth token from cookies or headers
-    const authHeader = request.headers.get('authorization') || 
-                      request.headers.get('cookie')?.match(/auth-token=([^;]+)/)?.[1];
+    const authHeader =
+      request.headers.get('authorization') ||
+      request.headers.get('cookie')?.match(/auth-token=([^;]+)/)?.[1];
 
     if (!authHeader) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -47,16 +48,20 @@ export async function GET(request: NextRequest) {
     const data = await response.json();
 
     // Transform the data for the frontend
-    const visits = data.visits?.map((visit: any) => ({
-      id: visit.id,
-      memberName: `${visit.membership?.member?.firstName || ''} ${visit.membership?.member?.lastName || ''}`.trim(),
-      gymName: visit.gym?.name || '',
-      timestamp: visit.checkIn,
-      type: 'checkin',
-      durationMinutes: visit.checkOut ? 
-        Math.floor((new Date(visit.checkOut).getTime() - new Date(visit.checkIn).getTime()) / (1000 * 60)) : 
-        null,
-    })) || [];
+    const visits =
+      data.visits?.map((visit: any) => ({
+        id: visit.id,
+        memberName:
+          `${visit.membership?.member?.firstName || ''} ${visit.membership?.member?.lastName || ''}`.trim(),
+        gymName: visit.gym?.name || '',
+        timestamp: visit.checkIn,
+        type: 'checkin',
+        durationMinutes: visit.checkOut
+          ? Math.floor(
+              (new Date(visit.checkOut).getTime() - new Date(visit.checkIn).getTime()) / (1000 * 60)
+            )
+          : null,
+      })) || [];
 
     return NextResponse.json({
       count: data.total || visits.length,
@@ -64,9 +69,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Today visits proxy error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

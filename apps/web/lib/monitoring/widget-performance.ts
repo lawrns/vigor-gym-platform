@@ -1,6 +1,6 @@
 /**
  * UltimateWidget Performance Monitoring
- * 
+ *
  * Tracks widget-specific performance metrics and enforces SLO budgets.
  * Integrates with the main telemetry system.
  */
@@ -34,8 +34,8 @@ class WidgetPerformanceMonitor {
       enableTelemetry: true,
       sampleRate: 1.0,
       budgets: {
-        initTime: 400,      // SLO: widget init < 400ms
-        mountTime: 300,     // SLO: widget mount < 300ms
+        initTime: 400, // SLO: widget init < 400ms
+        mountTime: 300, // SLO: widget mount < 300ms
         postMessageLatency: 200, // SLO: postMessage < 200ms
       },
       ...config,
@@ -47,7 +47,7 @@ class WidgetPerformanceMonitor {
    */
   startTiming(operation: string): void {
     this.startTimes.set(operation, performance.now());
-    
+
     if (this.config.enableLogging) {
       console.debug(`[WIDGET-PERF] Started timing: ${operation}`);
     }
@@ -112,7 +112,7 @@ class WidgetPerformanceMonitor {
   private checkBudget(operation: string, value: number): void {
     const budgetKey = this.getBudgetKey(operation);
     const budget = this.config.budgets[budgetKey as keyof typeof this.config.budgets];
-    
+
     if (!budget) return;
 
     if (value > budget) {
@@ -142,11 +142,11 @@ class WidgetPerformanceMonitor {
    */
   private getBudgetKey(operation: string): string {
     const mapping: Record<string, string> = {
-      'widget_init': 'initTime',
-      'widget_mount': 'mountTime',
-      'postmessage_roundtrip': 'postMessageLatency',
+      widget_init: 'initTime',
+      widget_mount: 'mountTime',
+      postmessage_roundtrip: 'postMessageLatency',
     };
-    
+
     return mapping[operation] || operation;
   }
 
@@ -186,7 +186,7 @@ class WidgetPerformanceMonitor {
   private getRating(operation: string, value: number): 'good' | 'needs-improvement' | 'poor' {
     const budgetKey = this.getBudgetKey(operation);
     const budget = this.config.budgets[budgetKey as keyof typeof this.config.budgets];
-    
+
     if (!budget) return 'good';
 
     if (value <= budget) return 'good';
@@ -199,13 +199,16 @@ class WidgetPerformanceMonitor {
    */
   getSummary(): Record<string, any> {
     const summary: Record<string, any> = {};
-    
+
     // Group metrics by name
-    const grouped = this.metrics.reduce((acc, metric) => {
-      if (!acc[metric.name]) acc[metric.name] = [];
-      acc[metric.name].push(metric.value);
-      return acc;
-    }, {} as Record<string, number[]>);
+    const grouped = this.metrics.reduce(
+      (acc, metric) => {
+        if (!acc[metric.name]) acc[metric.name] = [];
+        acc[metric.name].push(metric.value);
+        return acc;
+      },
+      {} as Record<string, number[]>
+    );
 
     // Calculate statistics for each metric
     for (const [name, values] of Object.entries(grouped)) {
@@ -241,7 +244,9 @@ let widgetPerformanceMonitor: WidgetPerformanceMonitor | null = null;
 /**
  * Get or create the global widget performance monitor
  */
-export function getWidgetPerformanceMonitor(config?: Partial<WidgetPerformanceConfig>): WidgetPerformanceMonitor {
+export function getWidgetPerformanceMonitor(
+  config?: Partial<WidgetPerformanceConfig>
+): WidgetPerformanceMonitor {
   if (!widgetPerformanceMonitor) {
     widgetPerformanceMonitor = new WidgetPerformanceMonitor(config);
   }
@@ -253,11 +258,13 @@ export function getWidgetPerformanceMonitor(config?: Partial<WidgetPerformanceCo
  */
 export const widgetPerf = {
   startInit: () => getWidgetPerformanceMonitor().startTiming('widget_init'),
-  endInit: (context?: Record<string, any>) => getWidgetPerformanceMonitor().endTiming('widget_init', context),
-  
+  endInit: (context?: Record<string, any>) =>
+    getWidgetPerformanceMonitor().endTiming('widget_init', context),
+
   startMount: () => getWidgetPerformanceMonitor().startTiming('widget_mount'),
-  endMount: (context?: Record<string, any>) => getWidgetPerformanceMonitor().endTiming('widget_mount', context),
-  
+  endMount: (context?: Record<string, any>) =>
+    getWidgetPerformanceMonitor().endTiming('widget_mount', context),
+
   measurePostMessage: (startTime: number) => {
     const latency = performance.now() - startTime;
     getWidgetPerformanceMonitor().recordMetric({
@@ -267,7 +274,7 @@ export const widgetPerf = {
     });
     return latency;
   },
-  
+
   recordCustom: (name: string, value: number, context?: Record<string, any>) => {
     getWidgetPerformanceMonitor().recordMetric({
       name,
@@ -276,7 +283,7 @@ export const widgetPerf = {
       context,
     });
   },
-  
+
   getSummary: () => getWidgetPerformanceMonitor().getSummary(),
   clear: () => getWidgetPerformanceMonitor().clear(),
 };

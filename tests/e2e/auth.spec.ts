@@ -10,7 +10,7 @@ test.describe('Authentication Flow', () => {
     page,
     authSession,
     orgContext,
-    performanceMonitor
+    performanceMonitor,
   }) => {
     console.log('🔐 Testing authentication flow...');
 
@@ -59,9 +59,9 @@ test.describe('Authentication Flow', () => {
     expect(kpiResponse.status()).toBe(200);
 
     // Step 7: Verify no unexpected console errors (filter out expected 401s during auth flow)
-    const unexpectedErrors = consoleErrors.filter(error =>
-      !error.includes('401 (Unauthorized)') &&
-      !error.includes('Failed to fetch RSC payload')
+    const unexpectedErrors = consoleErrors.filter(
+      error =>
+        !error.includes('401 (Unauthorized)') && !error.includes('Failed to fetch RSC payload')
     );
     expect(unexpectedErrors).toHaveLength(0);
     console.log('✅ No unexpected console errors during authentication');
@@ -96,11 +96,7 @@ test.describe('Authentication Flow', () => {
   test('AUTH-03: Protected routes require authentication', async ({ page }) => {
     console.log('🔒 Testing protected route access...');
 
-    const protectedRoutes = [
-      '/dashboard',
-      '/admin/members',
-      '/admin/observability',
-    ];
+    const protectedRoutes = ['/dashboard', '/admin/members', '/admin/observability'];
 
     for (const route of protectedRoutes) {
       await page.goto(route);

@@ -1,12 +1,12 @@
 /**
  * Staff Coverage Timeline Widget
- * 
+ *
  * Displays today's staff shifts with gap detection and timeline visualization
  */
 
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Icons } from '../../lib/icons/registry';
 import { Widget, WidgetEmpty } from './DashboardShell';
 import { api } from '../../lib/api/client';
@@ -130,14 +130,9 @@ export function StaffCoverageTimeline({ locationId, className }: StaffCoverageTi
 
   if (loading) {
     return (
-      <Widget
-        title="Cobertura de Personal"
-        icon={Icons.Users}
-        className={className}
-        loading={true}
-      >
+      <Widget title="Cobertura de Personal" icon={Icons.Users} className={className} loading={true}>
         <div className="space-y-4">
-          {[1, 2, 3].map((i) => (
+          {[1, 2, 3].map(i => (
             <div key={i} className="animate-pulse">
               <div className="flex items-center space-x-3">
                 <div className="w-16 h-8 bg-gray-200 dark:bg-gray-700 rounded"></div>
@@ -174,8 +169,8 @@ export function StaffCoverageTimeline({ locationId, className }: StaffCoverageTi
         message="No hay turnos programados para hoy"
         description="Los turnos aparecerán aquí cuando estén programados"
         action={{
-          label: "Programar Turno",
-          href: "/staff/shifts/new",
+          label: 'Programar Turno',
+          href: '/staff/shifts/new',
         }}
       />
     );
@@ -187,8 +182,8 @@ export function StaffCoverageTimeline({ locationId, className }: StaffCoverageTi
       icon={Icons.Users}
       className={className}
       action={{
-        label: "Ver Horarios",
-        href: "/staff/shifts",
+        label: 'Ver Horarios',
+        href: '/staff/shifts',
       }}
     >
       <div className="space-y-4">
@@ -198,42 +193,34 @@ export function StaffCoverageTimeline({ locationId, className }: StaffCoverageTi
             <div className="text-lg font-semibold text-gray-900 dark:text-white">
               {data.summary.totalStaff}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Personal
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Personal</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900 dark:text-white">
               {data.summary.totalShifts}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Turnos
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Turnos</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-red-600 dark:text-red-400">
               {data.summary.totalGaps}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Huecos
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Huecos</div>
           </div>
           <div className="text-center">
-            <div className={`text-lg font-semibold ${getCoverageScoreColor(data.summary.coverageScore)}`}>
+            <div
+              className={`text-lg font-semibold ${getCoverageScoreColor(data.summary.coverageScore)}`}
+            >
               {data.summary.coverageScore}%
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">
-              Cobertura
-            </div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Cobertura</div>
           </div>
         </div>
 
         {/* Active Shifts */}
         <div className="space-y-3">
-          <h4 className="text-sm font-medium text-gray-900 dark:text-white">
-            Turnos Activos
-          </h4>
-          {data.shifts.map((shift) => (
+          <h4 className="text-sm font-medium text-gray-900 dark:text-white">Turnos Activos</h4>
+          {data.shifts.map(shift => (
             <div
               key={shift.id}
               className="flex items-center space-x-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg"
@@ -254,11 +241,13 @@ export function StaffCoverageTimeline({ locationId, className }: StaffCoverageTi
                   <h5 className="text-sm font-medium text-gray-900 dark:text-white truncate">
                     {shift.staffName}
                   </h5>
-                  <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(shift.role)}`}>
+                  <span
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getRoleColor(shift.role)}`}
+                  >
                     {shift.role}
                   </span>
                 </div>
-                
+
                 <div className="flex items-center justify-between mt-1">
                   <div className="text-xs text-gray-500 dark:text-gray-400">
                     {shift.gymName || 'Todas las ubicaciones'}
@@ -290,13 +279,9 @@ export function StaffCoverageTimeline({ locationId, className }: StaffCoverageTi
                   <div className="text-sm font-medium">
                     {formatTime(gap.from)} - {formatTime(gap.to)}
                   </div>
-                  <span className="text-xs font-medium uppercase">
-                    {gap.severity}
-                  </span>
+                  <span className="text-xs font-medium uppercase">{gap.severity}</span>
                 </div>
-                <div className="text-xs mt-1">
-                  Faltan: {gap.rolesMissing.join(', ')}
-                </div>
+                <div className="text-xs mt-1">Faltan: {gap.rolesMissing.join(', ')}</div>
               </div>
             ))}
           </div>

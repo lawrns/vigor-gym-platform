@@ -1,4 +1,4 @@
-import express, { Request, Response } from 'express';
+import express, { Response } from 'express';
 import { PrismaClient } from '../generated/prisma/index.js';
 import { authRequired } from '../middleware/auth.js';
 import { tenantRequired, TenantRequest } from '../middleware/tenant.js';
@@ -13,7 +13,8 @@ const prisma = new PrismaClient();
  * Reset demo company with fresh deterministic data
  * Guarded route - only available when ENABLE_DEMO_SEED=1
  */
-router.post('/demo/reset',
+router.post(
+  '/demo/reset',
   authRequired(['owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -27,7 +28,7 @@ router.post('/demo/reset',
       }
 
       const { companyId } = req.tenant!;
-      
+
       // Additional guard: Only allow for demo company
       const demoCompanyId = process.env.DEMO_COMPANY_ID;
       if (demoCompanyId && companyId !== demoCompanyId) {
@@ -42,12 +43,15 @@ router.post('/demo/reset',
       // Reset demo company data
       const result = await seedDemoCompany(companyId);
 
-      logger.info({
-        companyId,
-        membersCreated: result.membersCreated,
-        visitsCreated: result.visitsCreated,
-        paymentsCreated: result.paymentsCreated,
-      }, 'Demo company reset completed');
+      logger.info(
+        {
+          companyId,
+          membersCreated: result.membersCreated,
+          visitsCreated: result.visitsCreated,
+          paymentsCreated: result.paymentsCreated,
+        },
+        'Demo company reset completed'
+      );
 
       res.json({
         message: 'Demo company reset completed successfully',
@@ -62,11 +66,14 @@ router.post('/demo/reset',
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      logger.error({ 
-        error: error.message, 
-        companyId: req.tenant?.companyId 
-      }, 'Demo reset error');
-      
+      logger.error(
+        {
+          error: error.message,
+          companyId: req.tenant?.companyId,
+        },
+        'Demo reset error'
+      );
+
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to reset demo company',
@@ -80,13 +87,14 @@ router.post('/demo/reset',
  * GET /v1/admin/demo/status
  * Get demo company status and configuration
  */
-router.get('/demo/status',
+router.get(
+  '/demo/status',
   authRequired(['owner']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
     try {
       const { companyId } = req.tenant!;
-      
+
       const company = await prisma.company.findUnique({
         where: { id: companyId },
         include: {
@@ -110,7 +118,7 @@ router.get('/demo/status',
 
       // Get recent activity counts
       const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
-      
+
       const [visitsCount, paymentsCount] = await Promise.all([
         prisma.visit.count({
           where: {
@@ -159,11 +167,14 @@ router.get('/demo/status',
         timestamp: new Date().toISOString(),
       });
     } catch (error) {
-      logger.error({ 
-        error: error.message, 
-        companyId: req.tenant?.companyId 
-      }, 'Demo status error');
-      
+      logger.error(
+        {
+          error: error.message,
+          companyId: req.tenant?.companyId,
+        },
+        'Demo status error'
+      );
+
       res.status(500).json({
         error: 'INTERNAL_ERROR',
         message: 'Failed to fetch demo status',

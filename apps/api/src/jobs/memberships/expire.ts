@@ -53,7 +53,7 @@ export async function processMembershipExpirations(): Promise<ExpirationJobResul
     logger.info({ expiredCount: result.expiredCount }, 'Marked memberships as expired');
 
     // Step 2: Identify soon-to-expire memberships for notifications
-    const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+    const _sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
     const fourteenDaysFromNow = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
 
     const soonToExpire = await prisma.membership.findMany({
@@ -94,12 +94,15 @@ export async function processMembershipExpirations(): Promise<ExpirationJobResul
         );
 
         // Log for audit trail
-        logger.info({
-          membershipId: membership.id,
-          memberId: membership.member.id,
-          companyId: membership.companyId,
-          daysUntilExpiry,
-        }, 'Membership expiring soon');
+        logger.info(
+          {
+            membershipId: membership.id,
+            memberId: membership.member.id,
+            companyId: membership.companyId,
+            daysUntilExpiry,
+          },
+          'Membership expiring soon'
+        );
 
         // TODO: Queue email notification
         // await queueExpirationEmail(membership, daysUntilExpiry);
@@ -129,23 +132,29 @@ export async function processMembershipExpirations(): Promise<ExpirationJobResul
 
     result.executionTime = Date.now() - startTime;
 
-    logger.info({
-      processedCount: result.processedCount,
-      expiredCount: result.expiredCount,
-      soonToExpireCount: result.soonToExpireCount,
-      errorCount: result.errors.length,
-      executionTime: result.executionTime,
-    }, 'Membership expiration job completed');
+    logger.info(
+      {
+        processedCount: result.processedCount,
+        expiredCount: result.expiredCount,
+        soonToExpireCount: result.soonToExpireCount,
+        errorCount: result.errors.length,
+        executionTime: result.executionTime,
+      },
+      'Membership expiration job completed'
+    );
 
     return result;
   } catch (error) {
     result.executionTime = Date.now() - startTime;
     result.errors.push(`Job failed: ${error.message}`);
-    
-    logger.error({
-      error: error.message,
-      executionTime: result.executionTime,
-    }, 'Membership expiration job failed');
+
+    logger.error(
+      {
+        error: error.message,
+        executionTime: result.executionTime,
+      },
+      'Membership expiration job failed'
+    );
 
     throw error;
   }
@@ -159,12 +168,7 @@ async function updateCompanyExpirationMetrics(companyId: string, today: Date): P
   const fourteenDaysFromNow = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
 
   // Count memberships by expiration status
-  const [
-    expiring7Days,
-    expiring14Days,
-    pastDue,
-    expired,
-  ] = await Promise.all([
+  const [expiring7Days, expiring14Days, pastDue, expired] = await Promise.all([
     prisma.membership.count({
       where: {
         companyId,
@@ -194,13 +198,16 @@ async function updateCompanyExpirationMetrics(companyId: string, today: Date): P
   ]);
 
   // Store metrics (could be in a separate metrics table or cache)
-  logger.info({
-    companyId,
-    expiring7Days,
-    expiring14Days,
-    pastDue,
-    expired,
-  }, 'Updated company expiration metrics');
+  logger.info(
+    {
+      companyId,
+      expiring7Days,
+      expiring14Days,
+      pastDue,
+      expired,
+    },
+    'Updated company expiration metrics'
+  );
 }
 
 /**
@@ -216,12 +223,7 @@ export async function getExpirationSummary(companyId: string): Promise<{
   const sevenDaysFromNow = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
   const fourteenDaysFromNow = new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000);
 
-  const [
-    expiring7Days,
-    expiring14Days,
-    pastDue,
-    expired,
-  ] = await Promise.all([
+  const [expiring7Days, expiring14Days, pastDue, expired] = await Promise.all([
     prisma.membership.count({
       where: {
         companyId,

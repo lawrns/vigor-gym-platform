@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
@@ -41,7 +41,7 @@ export default function BodyScanPage() {
 
   useEffect(() => {
     if (authStatus === 'loading') return;
-    
+
     if (!user) {
       router.push('/login');
       return;
@@ -53,9 +53,9 @@ export default function BodyScanPage() {
   const loadMember = async () => {
     try {
       setState(prev => ({ ...prev, status: 'loading' }));
-      
+
       const response = await apiClient.members.get(memberId);
-      
+
       if (isAPIError(response)) {
         throw new Error(response.message);
       }
@@ -144,7 +144,7 @@ export default function BodyScanPage() {
   const handleSaveToProfile = async () => {
     // In a real implementation, this would save the scan results to the member's profile
     console.log('Saving scan results to profile...');
-    
+
     // For now, just show success and redirect
     router.push(`/admin/members/${memberId}`);
   };
@@ -174,13 +174,9 @@ export default function BodyScanPage() {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
             Error en el Escaneo
           </h2>
-          <p className="text-gray-600 dark:text-gray-400 mb-4">
-            {state.error}
-          </p>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">{state.error}</p>
           <div className="flex gap-2 justify-center">
-            <Button onClick={loadMember}>
-              Reintentar
-            </Button>
+            <Button onClick={loadMember}>Reintentar</Button>
             <Button onClick={() => router.back()} variant="outline">
               Volver
             </Button>
@@ -238,12 +234,7 @@ export default function BodyScanPage() {
       <div className="max-w-2xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => router.back()}
-            className="mb-4"
-          >
+          <Button variant="ghost" size="icon" onClick={() => router.back()} className="mb-4">
             <Icons.ArrowLeft className="h-4 w-4" />
           </Button>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
@@ -263,7 +254,8 @@ export default function BodyScanPage() {
                 Análisis Avanzado de Composición Corporal
               </h3>
               <p className="text-blue-800 dark:text-blue-200 mb-4">
-                Utiliza inteligencia artificial para analizar la composición corporal a través de la cámara del dispositivo.
+                Utiliza inteligencia artificial para analizar la composición corporal a través de la
+                cámara del dispositivo.
               </p>
               <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
                 <li>• Estimación de porcentaje de grasa corporal</li>
@@ -276,7 +268,10 @@ export default function BodyScanPage() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleFormSubmit} className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <form
+          onSubmit={handleFormSubmit}
+          className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6"
+        >
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-6">
             Información Básica
           </h2>
@@ -291,7 +286,9 @@ export default function BodyScanPage() {
                 min="100"
                 max="250"
                 value={formData.height}
-                onChange={(e) => setFormData(prev => ({ ...prev, height: parseInt(e.target.value) || 170 }))}
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, height: parseInt(e.target.value) || 170 }))
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 required
               />
@@ -306,7 +303,9 @@ export default function BodyScanPage() {
                 min="30"
                 max="300"
                 value={formData.weight}
-                onChange={(e) => setFormData(prev => ({ ...prev, weight: parseInt(e.target.value) || 70 }))}
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, weight: parseInt(e.target.value) || 70 }))
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 required
               />
@@ -321,7 +320,9 @@ export default function BodyScanPage() {
                 min="13"
                 max="100"
                 value={formData.age}
-                onChange={(e) => setFormData(prev => ({ ...prev, age: parseInt(e.target.value) || 30 }))}
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, age: parseInt(e.target.value) || 30 }))
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 required
               />
@@ -333,7 +334,9 @@ export default function BodyScanPage() {
               </label>
               <select
                 value={formData.gender}
-                onChange={(e) => setFormData(prev => ({ ...prev, gender: e.target.value as 'male' | 'female' }))}
+                onChange={e =>
+                  setFormData(prev => ({ ...prev, gender: e.target.value as 'male' | 'female' }))
+                }
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 required
               >

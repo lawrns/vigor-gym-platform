@@ -1,13 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
-import {
-  Elements,
-  CardElement,
-  useStripe,
-  useElements,
-} from '@stripe/react-stripe-js';
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { apiClient, isAPIError } from '../../lib/api/client';
 import { Button } from '../ui/Button';
 import { Icons } from '../../lib/icons/registry';
@@ -47,7 +42,7 @@ function AddCardForm({ onClose, onSuccess, memberId }: AddCardFormProps) {
     try {
       // Create SetupIntent
       const setupIntentResponse = await apiClient.billing.createSetupIntent(memberId);
-      
+
       if (isAPIError(setupIntentResponse)) {
         throw new Error(setupIntentResponse.message);
       }
@@ -140,19 +135,10 @@ function AddCardForm({ onClose, onSuccess, memberId }: AddCardFormProps) {
       )}
 
       <div className="flex justify-end gap-3">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={onClose}
-          disabled={loading}
-        >
+        <Button type="button" variant="outline" onClick={onClose} disabled={loading}>
           Cancelar
         </Button>
-        <Button
-          type="submit"
-          disabled={!stripe || loading}
-          className="flex items-center gap-2"
-        >
+        <Button type="submit" disabled={!stripe || loading} className="flex items-center gap-2">
           {loading && <Icons.Loader2 className="h-4 w-4 animate-spin" />}
           {loading ? 'Guardando...' : 'Guardar Tarjeta'}
         </Button>
@@ -167,32 +153,19 @@ export function AddCardDialog({ open, onClose, onSuccess, memberId }: AddCardDia
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
+      <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={onClose} />
+
       {/* Dialog */}
       <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl max-w-md w-full mx-4 p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-            Agregar Tarjeta
-          </h2>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onClose}
-          >
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Agregar Tarjeta</h2>
+          <Button variant="ghost" size="icon" onClick={onClose}>
             <Icons.X className="h-4 w-4" />
           </Button>
         </div>
 
         <Elements stripe={stripePromise}>
-          <AddCardForm
-            onClose={onClose}
-            onSuccess={onSuccess}
-            memberId={memberId}
-          />
+          <AddCardForm onClose={onClose} onSuccess={onSuccess} memberId={memberId} />
         </Elements>
 
         <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">

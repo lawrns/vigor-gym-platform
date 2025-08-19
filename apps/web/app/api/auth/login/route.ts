@@ -1,60 +1,56 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { authenticateUser } from '../../../../lib/auth/supabase-auth';
 
 /**
  * POST /api/auth/login
- * 
- * Proxy login requests to the backend API server.
- * This ensures cookies are set properly in the browser.
+ *
+ * Authenticate user directly with Supabase database.
  */
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    
-    // Forward the request to the backend API
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
-    const response = await fetch(`${apiUrl}/auth/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body),
-    });
+    const { email, password } = body;
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      return NextResponse.json(data, { status: response.status });
+    if (!email || !password) {
+      return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
+
+    // Authenticate user with Supabase
+    const authResult = await authenticateUser({ email, password });
 
     // Create response with user data
-    const nextResponse = NextResponse.json(data);
+    const responseData = {
+      user: authResult.user,
+      tokens: authResult.tokens,
+    };
 
-    // Forward cookies from backend to browser
-    const setCookieHeaders = response.headers.get('set-cookie');
-    if (setCookieHeaders) {
-      // Parse and set each cookie
-      const cookies = setCookieHeaders.split(', ');
-      cookies.forEach(cookie => {
-        const [nameValue, ...attributes] = cookie.split('; ');
-        const [name, value] = nameValue.split('=');
-        
-        // Set cookie with proper attributes
-        nextResponse.cookies.set(name, value, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
-          path: '/',
-          maxAge: name === 'accessToken' ? 15 * 60 : 7 * 24 * 60 * 60, // 15 min for access, 7 days for refresh
-        });
-      });
-    }
+    const nextResponse = NextResponse.json(responseData);
+
+    // Set HTTP-only cookies for tokens
+    nextResponse.cookies.set('accessToken', authResult.tokens.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 15 * 60, // 15 minutes
+      path: '/',
+    });
+
+    nextResponse.cookies.set('refreshToken', authResult.tokens.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: '/',
+    });
 
     return nextResponse;
   } catch (error) {
-    console.error('Login proxy error:', error);
-    return NextResponse.json(
-      { message: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('Login error:', error);
+
+    // Return appropriate error message
+    const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+    const statusCode = errorMessage === 'Invalid credentials' ? 401 : 500;
+
+    return NextResponse.json({ error: errorMessage }, { status: statusCode });
   }
 }

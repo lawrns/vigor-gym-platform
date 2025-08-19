@@ -1,25 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
 
 export async function POST(request: NextRequest) {
   try {
     // Validate content type
     const contentType = request.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
-      return NextResponse.json({
-        error: 'CONTENT_TYPE_JSON_REQUIRED',
-        message: 'Content-Type must be application/json'
-      }, { status: 415 });
+      return NextResponse.json(
+        {
+          error: 'CONTENT_TYPE_JSON_REQUIRED',
+          message: 'Content-Type must be application/json',
+        },
+        { status: 415 }
+      );
     }
 
     // Parse and validate request body
     const body = await request.json().catch(() => null);
     if (!body) {
-      return NextResponse.json({
-        error: 'INVALID_JSON',
-        message: 'Request body must be valid JSON'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'INVALID_JSON',
+          message: 'Request body must be valid JSON',
+        },
+        { status: 400 }
+      );
     }
 
     // Normalize field names - frontend sends deviceSecret, backend expects deviceSecret
@@ -27,10 +33,13 @@ export async function POST(request: NextRequest) {
     const deviceSecret = body.deviceSecret || body.secret;
 
     if (!deviceId || !deviceSecret) {
-      return NextResponse.json({
-        error: 'DEVICE_CREDENTIALS_REQUIRED',
-        message: 'deviceId and deviceSecret are required'
-      }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: 'DEVICE_CREDENTIALS_REQUIRED',
+          message: 'deviceId and deviceSecret are required',
+        },
+        { status: 400 }
+      );
     }
 
     // Forward request to API with normalized payload
@@ -38,8 +47,8 @@ export async function POST(request: NextRequest) {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': request.headers.get('Authorization') || '',
-        'Cookie': request.headers.get('Cookie') || '',
+        Authorization: request.headers.get('Authorization') || '',
+        Cookie: request.headers.get('Cookie') || '',
       },
       body: JSON.stringify({ deviceId, deviceSecret }),
     });
@@ -50,14 +59,14 @@ export async function POST(request: NextRequest) {
       console.error('Device auth API error:', {
         status: response.status,
         data,
-        deviceId: deviceId?.substring(0, 8) + '...' // Log partial ID for debugging
+        deviceId: deviceId?.substring(0, 8) + '...', // Log partial ID for debugging
       });
 
       // Normalize error response format
       const errorResponse = {
         error: data?.code || data?.error || 'DEVICE_AUTH_FAILED',
         message: data?.message || `Authentication failed (${response.status})`,
-        code: data?.code || data?.error || 'DEVICE_AUTH_FAILED'
+        code: data?.code || data?.error || 'DEVICE_AUTH_FAILED',
       };
 
       return NextResponse.json(errorResponse, { status: response.status });
@@ -65,7 +74,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Device auth success:', {
       deviceId: deviceId?.substring(0, 8) + '...',
-      hasToken: !!data.deviceToken
+      hasToken: !!data.deviceToken,
     });
 
     // Ensure response has the expected format
@@ -76,19 +85,22 @@ export async function POST(request: NextRequest) {
         name: data.device?.name,
         companyId: data.device?.companyId,
       },
-      expiresIn: data.expiresIn
+      expiresIn: data.expiresIn,
     };
 
     return NextResponse.json(successResponse, { status: 200 });
   } catch (error: any) {
     console.error('Device auth proxy internal error:', {
       error: error?.message,
-      stack: error?.stack
+      stack: error?.stack,
     });
 
-    return NextResponse.json({
-      error: 'PROXY_INTERNAL_ERROR',
-      message: 'Internal proxy error occurred'
-    }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: 'PROXY_INTERNAL_ERROR',
+        message: 'Internal proxy error occurred',
+      },
+      { status: 500 }
+    );
   }
 }

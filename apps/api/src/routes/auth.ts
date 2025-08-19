@@ -2,8 +2,13 @@ import { Router, Request, Response } from 'express';
 import argon2 from 'argon2';
 import { z } from 'zod';
 import rateLimit from 'express-rate-limit';
-import { generateTokens, verifyToken, authRequired, AuthenticatedRequest } from '../middleware/auth.js';
-import { logAuthEvent, logSecurityEvent } from '../utils/logger.js';
+import {
+  generateTokens,
+  verifyToken,
+  authRequired,
+  AuthenticatedRequest,
+} from '../middleware/auth.js';
+import { logAuthEvent } from '../utils/logger.js';
 
 const router = Router();
 
@@ -30,23 +35,27 @@ export function setPrismaInstance(prismaInstance: any) {
 // Rate limiting for auth endpoints (disabled in test mode)
 const isTestMode = process.env.NODE_ENV === 'test' || process.env.DISABLE_RATE_LIMITING === 'true';
 
-const loginLimiter = isTestMode ? (req: any, res: any, next: any) => next() : rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 5, // 5 attempts per minute
-  keyGenerator: (req: Request) => `login:${getClientIp(req)}`,
-  message: { message: 'Too many login attempts, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+const loginLimiter = isTestMode
+  ? (req: any, res: any, next: any) => next()
+  : rateLimit({
+      windowMs: 60 * 1000, // 1 minute
+      max: 5, // 5 attempts per minute
+      keyGenerator: (req: Request) => `login:${getClientIp(req)}`,
+      message: { message: 'Too many login attempts, please try again later' },
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
 
-const registerLimiter = isTestMode ? (req: any, res: any, next: any) => next() : rateLimit({
-  windowMs: 60 * 1000, // 1 minute
-  max: 3, // 3 registrations per minute
-  keyGenerator: (req: Request) => `register:${getClientIp(req)}`,
-  message: { message: 'Too many registration attempts, please try again later' },
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+const registerLimiter = isTestMode
+  ? (req: any, res: any, next: any) => next()
+  : rateLimit({
+      windowMs: 60 * 1000, // 1 minute
+      max: 3, // 3 registrations per minute
+      keyGenerator: (req: Request) => `register:${getClientIp(req)}`,
+      message: { message: 'Too many registration attempts, please try again later' },
+      standardHeaders: true,
+      legacyHeaders: false,
+    });
 
 // Validation schemas
 const loginSchema = z.object({
@@ -61,7 +70,7 @@ const registerCompanySchema = z.object({
   billingEmail: z.string().email('Invalid billing email format'),
   timezone: z.string().default('America/Mexico_City'),
   industry: z.string().optional(),
-  
+
   // Owner user info
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
@@ -113,7 +122,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     // Find user
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
-      include: { company: true }
+      include: { company: true },
     });
 
     if (!user) {
@@ -125,7 +134,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     if (!isTestMode && user.lockedUntil && user.lockedUntil > new Date()) {
       return res.status(423).json({
         message: 'Account temporarily locked due to failed login attempts',
-        lockedUntil: user.lockedUntil
+        lockedUntil: user.lockedUntil,
       });
     }
 
@@ -200,11 +209,13 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
-        company: user.company ? {
-          id: user.company.id,
-          name: user.company.name,
-          rfc: user.company.rfc,
-        } : null,
+        company: user.company
+          ? {
+              id: user.company.id,
+              name: user.company.name,
+              rfc: user.company.rfc,
+            }
+          : null,
       },
       accessToken, // Also return in response for client-side storage if needed
     });
@@ -217,7 +228,7 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     console.error('[AUTH]', {
       route: 'login',
       code: error instanceof Error ? error.name : 'UnknownError',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
 
     res.status(500).json({ message: 'Internal server error' });
@@ -231,7 +242,7 @@ router.post('/register-company', registerLimiter, async (req: Request, res: Resp
 
     // Check if email already exists
     const existingUser = await prisma.user.findUnique({
-      where: { email: data.email.toLowerCase() }
+      where: { email: data.email.toLowerCase() },
     });
 
     if (existingUser) {
@@ -240,7 +251,7 @@ router.post('/register-company', registerLimiter, async (req: Request, res: Resp
 
     // Check if RFC already exists
     const existingCompany = await prisma.company.findUnique({
-      where: { rfc: data.rfc.toUpperCase() }
+      where: { rfc: data.rfc.toUpperCase() },
     });
 
     if (existingCompany) {
@@ -326,7 +337,7 @@ router.post('/register-company', registerLimiter, async (req: Request, res: Resp
     console.error('[AUTH]', {
       route: 'register-company',
       code: error instanceof Error ? error.name : 'UnknownError',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown error',
     });
 
     res.status(500).json({ message: 'Internal server error' });
@@ -353,7 +364,7 @@ router.post('/refresh', async (req: Request, res: Response) => {
     // Get fresh user data
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      include: { company: true }
+      include: { company: true },
     });
 
     if (!user || !user.isActive) {
@@ -391,11 +402,13 @@ router.post('/refresh', async (req: Request, res: Response) => {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
-        company: user.company ? {
-          id: user.company.id,
-          name: user.company.name,
-          rfc: user.company.rfc,
-        } : null,
+        company: user.company
+          ? {
+              id: user.company.id,
+              name: user.company.name,
+              rfc: user.company.rfc,
+            }
+          : null,
       },
       accessToken,
     });
@@ -414,14 +427,14 @@ router.post('/logout', authRequired(), async (req: AuthenticatedRequest, res: Re
     httpOnly: true,
     secure: isProduction,
     sameSite: 'lax',
-    path: '/'
+    path: '/',
   });
 
   res.clearCookie('refreshToken', {
     httpOnly: true,
     secure: isProduction,
     sameSite: 'lax',
-    path: '/'
+    path: '/',
   });
 
   res.json({ message: 'Logged out successfully' });
@@ -432,7 +445,7 @@ router.get('/me', authRequired(), async (req: AuthenticatedRequest, res: Respons
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user!.id },
-      include: { company: true }
+      include: { company: true },
     });
 
     if (!user) {
@@ -446,11 +459,13 @@ router.get('/me', authRequired(), async (req: AuthenticatedRequest, res: Respons
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
-        company: user.company ? {
-          id: user.company.id,
-          name: user.company.name,
-          rfc: user.company.rfc,
-        } : null,
+        company: user.company
+          ? {
+              id: user.company.id,
+              name: user.company.name,
+              rfc: user.company.rfc,
+            }
+          : null,
       },
     });
   } catch (error) {

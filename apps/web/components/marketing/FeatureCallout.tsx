@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { motion } from 'framer-motion';
 import { Icons } from '../../lib/icons/registry';
@@ -22,13 +22,10 @@ export function FeatureCallout({
   title,
   bullets,
   cta,
-  testId = 'ai-banner'
+  testId = 'ai-banner',
 }: FeatureCalloutProps) {
   return (
-    <section 
-      data-testid={testId}
-      className="max-w-6xl mx-auto px-4 py-16"
-    >
+    <section data-testid={testId} className="max-w-6xl mx-auto px-4 py-16">
       <motion.div
         {...motionPresets['enter.fadeUp']}
         viewport={{ once: true }}
@@ -54,9 +51,7 @@ export function FeatureCallout({
             </div>
 
             {/* Title */}
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-heading">
-              {title}
-            </h2>
+            <h2 className="font-display text-2xl md:text-3xl font-bold text-heading">{title}</h2>
 
             {/* Bullets */}
             <ul className="space-y-3">
@@ -72,9 +67,7 @@ export function FeatureCallout({
                   <div className="flex-shrink-0 w-5 h-5 bg-accent rounded-full flex items-center justify-center mt-0.5">
                     <Icons.Check className="h-3 w-3 text-white" />
                   </div>
-                  <span className="text-text/80 leading-relaxed">
-                    {bullet}
-                  </span>
+                  <span className="text-text/80 leading-relaxed">{bullet}</span>
                 </motion.li>
               ))}
             </ul>

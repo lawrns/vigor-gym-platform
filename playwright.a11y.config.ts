@@ -11,10 +11,7 @@ export default defineConfig({
     timeout: 8000,
   },
 
-  reporter: [
-    ['list'],
-    ['html', { outputFolder: 'a11y-report', open: 'never' }],
-  ],
+  reporter: [['list'], ['html', { outputFolder: 'a11y-report', open: 'never' }]],
 
   use: {
     baseURL: 'http://localhost:3005',

@@ -1,5 +1,10 @@
 import { describe, it, expect } from '@jest/globals';
-import { isAPIClientError, APIClientError, isUnauthorizedError, isNetworkError } from '../../lib/http/errors';
+import {
+  isAPIClientError,
+  APIClientError,
+  isUnauthorizedError,
+  isNetworkError,
+} from '../../lib/http/errors';
 
 describe('Error Type Guards', () => {
   describe('isAPIClientError', () => {

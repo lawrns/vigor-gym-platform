@@ -39,7 +39,10 @@ export function middleware(request: NextRequest) {
 
   // Add CORS headers for API routes
   if (pathname.startsWith('/api/')) {
-    response.headers.set('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4002');
+    response.headers.set(
+      'Access-Control-Allow-Origin',
+      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001'
+    );
     response.headers.set('Access-Control-Allow-Credentials', 'true');
     response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
     response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Org-Id');
@@ -54,18 +57,22 @@ export function middleware(request: NextRequest) {
 
   // Content Security Policy (basic - should be customized for your needs)
   if (process.env.NODE_ENV === 'production') {
-    response.headers.set('Content-Security-Policy',
+    response.headers.set(
+      'Content-Security-Policy',
       "default-src 'self'; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-      "style-src 'self' 'unsafe-inline'; " +
-      "img-src 'self' data: https:; " +
-      "font-src 'self' data:; " +
-      "connect-src 'self'; " +
-      "frame-ancestors 'none';"
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+        "style-src 'self' 'unsafe-inline'; " +
+        "img-src 'self' data: https:; " +
+        "font-src 'self' data:; " +
+        "connect-src 'self'; " +
+        "frame-ancestors 'none';"
     );
 
     // HSTS header for production
-    response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+    response.headers.set(
+      'Strict-Transport-Security',
+      'max-age=31536000; includeSubDomains; preload'
+    );
   }
 
   return response;

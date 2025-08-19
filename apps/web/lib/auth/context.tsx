@@ -1,9 +1,16 @@
-"use client";
+'use client';
 
 import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { apiClient, isAPIError, setAuthToken } from '../api/client';
-import { authMetrics, trackLoginStart, trackLoginSuccess, trackLoginFailure, trackRedirectStart, trackRedirectEnd } from '../monitoring/auth-metrics';
+import {
+  authMetrics,
+  trackLoginStart,
+  trackLoginSuccess,
+  trackLoginFailure,
+  trackRedirectStart,
+  trackRedirectEnd,
+} from '../monitoring/auth-metrics';
 import { isAPIClientError, isUnauthorizedError, isNetworkError } from '../http/errors';
 
 /* Deduped error logger */
@@ -49,7 +56,14 @@ const roleHierarchy = {
   partner_admin: 2, // Same level as staff but different domain
 };
 
-import { AUTH_ROUTES, PROTECTED_PREFIXES, PUBLIC_ROUTES, isAuthRoute, isProtected, isPublic } from './types';
+import {
+  AUTH_ROUTES,
+  PROTECTED_PREFIXES,
+  PUBLIC_ROUTES,
+  isAuthRoute,
+  isProtected,
+  isPublic,
+} from './types';
 
 interface AuthProviderProps {
   children: ReactNode;
@@ -133,7 +147,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
       // Handle network errors with deduped logging
       if (isNetworkError(error)) {
         logOnce('initializeAuth-network', () => {
-          console.error('[AUTH] API server appears to be unreachable. Please check if the API server is running.');
+          console.error(
+            '[AUTH] API server appears to be unreachable. Please check if the API server is running.'
+          );
         });
         setStatus('error');
       } else {
@@ -152,7 +168,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const login = async (email: string, password: string): Promise<{ success: boolean; error?: string }> => {
+  const login = async (
+    email: string,
+    password: string
+  ): Promise<{ success: boolean; error?: string }> => {
     const startTime = trackLoginStart();
 
     try {
@@ -193,7 +212,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       trackLoginFailure(email, errorMessage, startTime);
       return {
         success: false,
-        error: errorMessage
+        error: errorMessage,
       };
     }
   };
@@ -238,7 +257,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const refreshAuth = async () => {
     try {
       const response = await apiClient.auth.refresh({});
-      
+
       if (!isAPIError(response)) {
         setUser(response.user);
         setAuthToken(response.accessToken);
@@ -302,11 +321,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     hasMinimumRole,
   };
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth(): AuthContextType {
@@ -320,7 +335,7 @@ export function useAuth(): AuthContextType {
 // Hook for checking permissions
 export function usePermissions() {
   const { user, hasRole, hasMinimumRole } = useAuth();
-  
+
   return {
     isOwner: hasRole(['owner']),
     isManager: hasRole(['owner', 'manager']),

@@ -30,7 +30,7 @@ router.get('/public', async (_req: Request, res: Response) => {
           'Acceso básico al gimnasio',
           'Equipos estándar',
           '30 visitas por mes',
-          'Horario extendido'
+          'Horario extendido',
         ],
         limits: { monthlyVisits: 30 },
       },
@@ -46,7 +46,7 @@ router.get('/public', async (_req: Request, res: Response) => {
           'Todos los equipos',
           'Clases grupales incluidas',
           'Visitas ilimitadas',
-          'Acceso 24/7'
+          'Acceso 24/7',
         ],
         limits: { monthlyVisits: -1 },
       },
@@ -62,10 +62,10 @@ router.get('/public', async (_req: Request, res: Response) => {
           'Entrenamiento personal',
           'Consultoría nutricional',
           'Acceso VIP',
-          'Seguimiento personalizado'
+          'Seguimiento personalizado',
         ],
         limits: { monthlyVisits: -1 },
-      }
+      },
     ];
 
     // Set cache headers for 5 minutes (plans don't change often)
@@ -82,47 +82,49 @@ router.get('/public', async (_req: Request, res: Response) => {
 });
 
 // GET /v1/plans - List all available plans (authenticated, tenant-aware)
-router.get('/', authRequired(['owner', 'manager']), tenantRequired(), async (req: TenantRequest, res: Response) => {
-  try {
-    const plans = await prisma.plan.findMany({
-      select: {
-        id: true,
-        code: true,
-        name: true,
-        priceType: true,
-        priceMxnCents: true,
-        billingCycle: true,
-        featuresJson: true,
-      },
-      orderBy: [
-        { priceMxnCents: 'asc' },
-        { code: 'asc' }
-      ]
-    });
+router.get(
+  '/',
+  authRequired(['owner', 'manager']),
+  tenantRequired(),
+  async (req: TenantRequest, res: Response) => {
+    try {
+      const plans = await prisma.plan.findMany({
+        select: {
+          id: true,
+          code: true,
+          name: true,
+          priceType: true,
+          priceMxnCents: true,
+          billingCycle: true,
+          featuresJson: true,
+        },
+        orderBy: [{ priceMxnCents: 'asc' }, { code: 'asc' }],
+      });
 
-    // Transform the data for frontend consumption
-    const transformedPlans = plans.map((plan: any) => ({
-      id: plan.id,
-      code: plan.code,
-      name: plan.name,
-      priceType: plan.priceType,
-      priceMXNFrom: plan.priceMxnCents ? Math.floor(plan.priceMxnCents / 100) : null,
-      billingCycle: plan.billingCycle,
-      features: plan.featuresJson?.highlights || [],
-      limits: plan.featuresJson?.limits || {},
-    }));
+      // Transform the data for frontend consumption
+      const transformedPlans = plans.map((plan: any) => ({
+        id: plan.id,
+        code: plan.code,
+        name: plan.name,
+        priceType: plan.priceType,
+        priceMXNFrom: plan.priceMxnCents ? Math.floor(plan.priceMxnCents / 100) : null,
+        billingCycle: plan.billingCycle,
+        features: plan.featuresJson?.highlights || [],
+        limits: plan.featuresJson?.limits || {},
+      }));
 
-    // Set cache headers for 5 minutes (plans don't change often)
-    res.set('Cache-Control', 'public, max-age=300');
-    
-    res.json({
-      plans: transformedPlans,
-      total: transformedPlans.length,
-    });
-  } catch (error) {
-    console.error('Error fetching plans:', error);
-    res.status(500).json({ message: 'Internal server error' });
+      // Set cache headers for 5 minutes (plans don't change often)
+      res.set('Cache-Control', 'public, max-age=300');
+
+      res.json({
+        plans: transformedPlans,
+        total: transformedPlans.length,
+      });
+    } catch (error) {
+      console.error('Error fetching plans:', error);
+      res.status(500).json({ message: 'Internal server error' });
+    }
   }
-});
+);
 
 export default router;

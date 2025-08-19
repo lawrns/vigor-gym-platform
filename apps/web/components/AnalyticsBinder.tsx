@@ -1,5 +1,5 @@
-"use client";
-import { useEffect } from 'react';
+'use client';
+import React, { useEffect } from 'react';
 import { initPostHog, bindCtaTracking, bindPlanTracking } from '../lib/analytics/posthog';
 
 export function AnalyticsBinder() {
@@ -10,6 +10,3 @@ export function AnalyticsBinder() {
   }, []);
   return null;
 }
-
-
-

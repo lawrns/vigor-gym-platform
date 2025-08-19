@@ -5,7 +5,7 @@ const prisma = new PrismaClient();
 async function getPlanId() {
   try {
     const plan = await prisma.plan.findFirst({
-      select: { id: true, code: true, name: true }
+      select: { id: true, code: true, name: true },
     });
     console.log('Plan ID:', plan?.id);
     console.log('Plan Code:', plan?.code);

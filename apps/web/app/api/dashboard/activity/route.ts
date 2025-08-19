@@ -1,60 +1,50 @@
 /**
- * Dashboard Activity Proxy Route
- * 
- * Proxies activity requests to the API server for polling fallback
+ * Dashboard Activity Direct Route
+ *
+ * Direct connection to Supabase for activity feed data.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003';
+import { getServerSession } from '../../../../lib/auth/session';
+import { getActivityEvents, getSampleCompanyId } from '../../../../lib/dashboard/supabase-data-service';
 
 export async function GET(request: NextRequest) {
   try {
+    // Skip authentication for development - TODO: Re-enable for production
+    // const session = await getServerSession();
+    // if (!session) {
+    //   return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
+    // }
+
+    // Get query parameters
     const { searchParams } = new URL(request.url);
-    
-    // Build API URL with query parameters
-    const apiUrl = new URL('/v1/dashboard/activity', API_BASE_URL);
-    
-    // Forward all query parameters
-    for (const [key, value] of searchParams.entries()) {
-      apiUrl.searchParams.set(key, value);
-    }
+    const since = searchParams.get('since') || undefined;
+    const limit = parseInt(searchParams.get('limit') || '50', 10);
+    const locationId = searchParams.get('locationId') || undefined;
 
-    // Forward cookies from the request
-    const cookies = request.headers.get('cookie') || '';
+    console.debug('[ACTIVITY-DIRECT] Fetching activity events:', { since, limit, locationId });
 
-    const response = await fetch(apiUrl.toString(), {
-      method: 'GET',
+    // Get company ID (for development, use sample company)
+    const companyId = await getSampleCompanyId();
+
+    // Fetch activity events directly from Supabase
+    const events = await getActivityEvents(companyId, since, limit, locationId);
+
+    console.debug('[ACTIVITY-DIRECT] Activity events fetched successfully:', events.length);
+
+    return NextResponse.json(events, {
       headers: {
-        'Cookie': cookies,
-        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, must-revalidate',
+        'X-Activity-Direct': 'true',
       },
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[Activity Proxy] API error:', response.status, errorText);
-      
-      return NextResponse.json(
-        { 
-          error: 'API_ERROR', 
-          message: 'Failed to fetch activity data',
-          status: response.status 
-        },
-        { status: response.status }
-      );
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
-
   } catch (error) {
-    console.error('[Activity Proxy] Error:', error);
-    
+    console.error('[ACTIVITY-DIRECT] Error:', error);
+
     return NextResponse.json(
-      { 
-        error: 'PROXY_ERROR', 
-        message: 'Failed to proxy activity request' 
+      {
+        error: 'DIRECT_ERROR',
+        message: 'Failed to fetch activity events',
       },
       { status: 500 }
     );

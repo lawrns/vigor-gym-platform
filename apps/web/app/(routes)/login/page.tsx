@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '../../../lib/auth/context';
@@ -45,7 +45,7 @@ export default function LoginPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData(prev => ({
       ...prev,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     }));
   };
 
@@ -67,7 +67,10 @@ export default function LoginPage() {
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Email
               </label>
               <input
@@ -85,7 +88,10 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
                 Contraseña
               </label>
               <input
@@ -126,7 +132,10 @@ export default function LoginPage() {
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
               ¿No tienes cuenta?{' '}
-              <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300">
+              <Link
+                href="/register"
+                className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+              >
                 Registra tu empresa
               </Link>
             </p>
@@ -139,7 +148,8 @@ export default function LoginPage() {
             Credenciales de prueba:
           </h4>
           <p className="text-xs text-yellow-700 dark:text-yellow-300">
-            Email: admin@testgym.mx<br />
+            Email: admin@testgym.mx
+            <br />
             Contraseña: TestPassword123!
           </p>
         </div>
@@ -147,7 +157,3 @@ export default function LoginPage() {
     </div>
   );
 }
-
-
-
-

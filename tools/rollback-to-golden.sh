@@ -7,7 +7,7 @@ echo "🔄 Rolling back to golden baseline..."
 git reset --hard web-golden-21a1944
 
 # Clean install
-pnpm install
+npm install
 
 # Test the rollback
 echo "🧪 Testing rollback..."

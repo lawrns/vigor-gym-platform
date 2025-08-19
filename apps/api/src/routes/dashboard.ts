@@ -8,7 +8,7 @@ import {
   validateActivityQuery,
   validateTenantAccess,
   validateDateRange,
-  DashboardValidationError
+  DashboardValidationError,
 } from '../lib/validation/dashboard.js';
 
 const router = express.Router();
@@ -18,7 +18,8 @@ const prisma = new PrismaClient();
  * GET /v1/dashboard/summary
  * Get aggregated dashboard metrics for the tenant
  */
-router.get('/summary',
+router.get(
+  '/summary',
   authRequired(['owner', 'manager', 'staff']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -56,8 +57,8 @@ router.get('/summary',
           error: {
             code: 'INVALID_RANGE',
             message: 'range must be between 1 and 366 days',
-            field: 'range'
-          }
+            field: 'range',
+          },
         });
       }
 
@@ -87,9 +88,8 @@ router.get('/summary',
 
       // Mock capacity calculation (would be configurable per gym)
       const totalCapacity = gyms.length * 60; // 60 per gym default
-      const utilizationPercent = totalCapacity > 0 
-        ? Math.round((activeVisitsCount / totalCapacity) * 100)
-        : 0;
+      const utilizationPercent =
+        totalCapacity > 0 ? Math.round((activeVisitsCount / totalCapacity) * 100) : 0;
 
       // Get expiring memberships counts
       const now = new Date();
@@ -167,11 +167,12 @@ router.get('/summary',
       const mrr = activeMemberships.reduce((total, membership) => {
         if (membership.plan?.price) {
           // Convert to monthly amount based on billing cycle
-          const monthlyAmount = membership.plan.billingCycle === 'MONTHLY' 
-            ? membership.plan.price
-            : membership.plan.billingCycle === 'YEARLY'
-            ? membership.plan.price / 12
-            : membership.plan.price; // Default to monthly
+          const monthlyAmount =
+            membership.plan.billingCycle === 'MONTHLY'
+              ? membership.plan.price
+              : membership.plan.billingCycle === 'YEARLY'
+                ? membership.plan.price / 12
+                : membership.plan.price; // Default to monthly
           return total + monthlyAmount;
         }
         return total;
@@ -222,22 +223,28 @@ router.get('/summary',
       };
 
       // Log the request for monitoring
-      logger.info({
-        companyId,
-        locationId: locationId || 'all',
-        range,
-        activeVisits: activeVisitsCount,
-        utilizationPercent,
-      }, 'Dashboard summary requested');
+      logger.info(
+        {
+          companyId,
+          locationId: locationId || 'all',
+          range,
+          activeVisits: activeVisitsCount,
+          utilizationPercent,
+        },
+        'Dashboard summary requested'
+      );
 
       res.json(summary);
     } catch (error) {
-      logger.error({ error: error.message, companyId: req.tenant?.companyId }, 'Dashboard summary error');
+      logger.error(
+        { error: error.message, companyId: req.tenant?.companyId },
+        'Dashboard summary error'
+      );
       res.status(500).json({
         error: {
           code: 'INTERNAL_ERROR',
-          message: 'Failed to fetch dashboard summary'
-        }
+          message: 'Failed to fetch dashboard summary',
+        },
       });
     }
   }
@@ -247,7 +254,8 @@ router.get('/summary',
  * GET /v1/dashboard/analytics/revenue
  * Get revenue analytics with time series data
  */
-router.get('/analytics/revenue',
+router.get(
+  '/analytics/revenue',
   authRequired(['owner', 'manager']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -265,7 +273,7 @@ router.get('/analytics/revenue',
       fromDate.setDate(fromDate.getDate() - days);
 
       // Get daily revenue data
-      const dailyRevenue = await prisma.$queryRaw`
+      const dailyRevenue = (await prisma.$queryRaw`
         SELECT 
           DATE(created_at) as date,
           SUM(amount) as revenue,
@@ -276,7 +284,7 @@ router.get('/analytics/revenue',
           AND created_at >= ${fromDate}
         GROUP BY DATE(created_at)
         ORDER BY date ASC
-      ` as Array<{ date: Date; revenue: bigint; transactions: bigint }>;
+      `) as Array<{ date: Date; revenue: bigint; transactions: bigint }>;
 
       // Format the data for sparkline
       const sparklineData = dailyRevenue.map(day => ({
@@ -291,13 +299,19 @@ router.get('/analytics/revenue',
         summary: {
           totalRevenue: sparklineData.reduce((sum, day) => sum + day.revenue, 0),
           totalTransactions: sparklineData.reduce((sum, day) => sum + day.transactions, 0),
-          avgDailyRevenue: sparklineData.length > 0 
-            ? Math.round(sparklineData.reduce((sum, day) => sum + day.revenue, 0) / sparklineData.length)
-            : 0,
+          avgDailyRevenue:
+            sparklineData.length > 0
+              ? Math.round(
+                  sparklineData.reduce((sum, day) => sum + day.revenue, 0) / sparklineData.length
+                )
+              : 0,
         },
       });
     } catch (error) {
-      logger.error({ error: error.message, companyId: req.tenant?.companyId }, 'Revenue analytics error');
+      logger.error(
+        { error: error.message, companyId: req.tenant?.companyId },
+        'Revenue analytics error'
+      );
       res.status(500).json({ message: 'Failed to fetch revenue analytics' });
     }
   }
@@ -312,7 +326,8 @@ router.get('/analytics/revenue',
  * - since: Optional ISO timestamp to get events after
  * - limit: Optional number of events to return (default: 25, max: 100)
  */
-router.get('/activity',
+router.get(
+  '/activity',
   authRequired(['owner', 'manager', 'staff']),
   tenantRequired(),
   async (req: TenantRequest, res: Response) => {
@@ -375,10 +390,7 @@ router.get('/activity',
           },
           gym: true,
         },
-        orderBy: [
-          { checkIn: 'desc' },
-          { checkOut: 'desc' },
-        ],
+        orderBy: [{ checkIn: 'desc' }, { checkOut: 'desc' }],
         take: limitNum,
       });
 
@@ -407,9 +419,10 @@ router.get('/activity',
 
         // Check-out event
         if (visit.checkOut && visit.checkOut >= sinceDate) {
-          const durationMinutes = visit.checkIn && visit.checkOut
-            ? Math.floor((visit.checkOut.getTime() - visit.checkIn.getTime()) / 60000)
-            : 0;
+          const durationMinutes =
+            visit.checkIn && visit.checkOut
+              ? Math.floor((visit.checkOut.getTime() - visit.checkIn.getTime()) / 60000)
+              : 0;
 
           events.push({
             id: `visit-checkout-${visit.id}`,
@@ -442,9 +455,11 @@ router.get('/activity',
         since: sinceDate.toISOString(),
         generatedAt: new Date().toISOString(),
       });
-
     } catch (error) {
-      logger.error({ error: error.message, companyId: req.tenant?.companyId }, 'Dashboard activity error');
+      logger.error(
+        { error: error.message, companyId: req.tenant?.companyId },
+        'Dashboard activity error'
+      );
       res.status(500).json({
         message: 'Failed to fetch dashboard activity',
       });

@@ -1,6 +1,6 @@
 /**
  * Auth Flow Performance Monitoring
- * 
+ *
  * Tracks key metrics for authentication flows including:
  * - Login success/failure rates
  * - Session duration
@@ -35,8 +35,8 @@ class AuthMetricsCollector {
 
   constructor() {
     // Only enable in production or when explicitly enabled
-    this.isEnabled = process.env.NODE_ENV === 'production' || 
-                     process.env.ENABLE_AUTH_METRICS === 'true';
+    this.isEnabled =
+      process.env.NODE_ENV === 'production' || process.env.ENABLE_AUTH_METRICS === 'true';
   }
 
   /**
@@ -55,11 +55,16 @@ class AuthMetricsCollector {
   /**
    * Track successful login
    */
-  trackLoginSuccess(email: string, sessionId: string, startTime: number, endTime: number = Date.now()) {
+  trackLoginSuccess(
+    email: string,
+    sessionId: string,
+    startTime: number,
+    endTime: number = Date.now()
+  ) {
     if (!this.isEnabled) return;
 
     const duration = endTime - startTime;
-    
+
     this.addMetric({
       timestamp: endTime,
       event: 'login_success',
@@ -84,7 +89,7 @@ class AuthMetricsCollector {
     if (!this.isEnabled) return;
 
     const duration = endTime - startTime;
-    
+
     this.addMetric({
       timestamp: endTime,
       event: 'login_failure',
@@ -104,7 +109,7 @@ class AuthMetricsCollector {
     if (!this.isEnabled) return;
 
     const duration = endTime - startTime;
-    
+
     this.addMetric({
       timestamp: endTime,
       event: 'redirect',
@@ -128,7 +133,7 @@ class AuthMetricsCollector {
     const startTime = this.sessionStartTimes.get(sessionId);
     if (startTime) {
       const duration = endTime - startTime;
-      
+
       this.addMetric({
         timestamp: endTime,
         event: 'session_end',
@@ -140,8 +145,11 @@ class AuthMetricsCollector {
       this.sessionStartTimes.delete(sessionId);
 
       // Log unusually short sessions
-      if (duration < 30000) { // Less than 30 seconds
-        console.warn(`[AUTH_METRICS] Short session detected: ${duration}ms for session ${sessionId}`);
+      if (duration < 30000) {
+        // Less than 30 seconds
+        console.warn(
+          `[AUTH_METRICS] Short session detected: ${duration}ms for session ${sessionId}`
+        );
       }
     }
   }
@@ -177,7 +185,7 @@ class AuthMetricsCollector {
     const loginTimes = this.metrics
       .filter(m => m.event === 'login_success' && m.duration)
       .map(m => m.duration!);
-    
+
     const sessionDurations = this.metrics
       .filter(m => m.event === 'session_end' && m.duration)
       .map(m => m.duration!);
@@ -208,15 +216,15 @@ class AuthMetricsCollector {
    * Get metrics for the last N minutes
    */
   getRecentMetrics(minutes: number = 60): AuthMetrics {
-    const cutoff = Date.now() - (minutes * 60 * 1000);
+    const cutoff = Date.now() - minutes * 60 * 1000;
     const recentMetrics = this.metrics.filter(m => m.timestamp > cutoff);
-    
+
     // Temporarily replace metrics array to calculate recent stats
     const originalMetrics = this.metrics;
     this.metrics = recentMetrics;
     const result = this.getMetrics();
     this.metrics = originalMetrics;
-    
+
     return result;
   }
 
@@ -224,9 +232,9 @@ class AuthMetricsCollector {
    * Clear old metrics (keep last 24 hours)
    */
   cleanup() {
-    const cutoff = Date.now() - (24 * 60 * 60 * 1000);
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
     this.metrics = this.metrics.filter(m => m.timestamp > cutoff);
-    
+
     // Clean up old session start times
     for (const [sessionId, startTime] of this.sessionStartTimes.entries()) {
       if (startTime < cutoff) {

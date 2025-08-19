@@ -8,14 +8,14 @@ describe('Next.js Proxy Configuration', () => {
   beforeAll(async () => {
     // Load the Next.js config
     const configPath = path.join(process.cwd(), 'next.config.mjs');
-    
+
     if (!fs.existsSync(configPath)) {
       throw new Error('next.config.mjs not found');
     }
 
     // Read and evaluate the config file
     const configContent = fs.readFileSync(configPath, 'utf-8');
-    
+
     // Extract the config object (simplified parsing)
     const configMatch = configContent.match(/const nextConfig = ({[\s\S]*?});/);
     if (!configMatch) {
@@ -47,22 +47,18 @@ describe('Next.js Proxy Configuration', () => {
 
     it('should include /v1/* API proxy rewrite', async () => {
       const rewrites = await nextConfig.rewrites();
-      
-      const v1Rewrite = rewrites.find((rewrite: any) => 
-        rewrite.source === '/v1/:path*'
-      );
-      
+
+      const v1Rewrite = rewrites.find((rewrite: any) => rewrite.source === '/v1/:path*');
+
       expect(v1Rewrite).toBeDefined();
       expect(v1Rewrite.destination).toMatch(/^http:\/\/localhost:4001\/v1\/:path\*$/);
     });
 
     it('should include /auth/* proxy rewrite', async () => {
       const rewrites = await nextConfig.rewrites();
-      
-      const authRewrite = rewrites.find((rewrite: any) => 
-        rewrite.source === '/auth/:path*'
-      );
-      
+
+      const authRewrite = rewrites.find((rewrite: any) => rewrite.source === '/auth/:path*');
+
       expect(authRewrite).toBeDefined();
       expect(authRewrite.destination).toMatch(/^http:\/\/localhost:4001\/auth\/:path\*$/);
     });
@@ -74,11 +70,9 @@ describe('Next.js Proxy Configuration', () => {
 
       try {
         const rewrites = await nextConfig.rewrites();
-        
-        const v1Rewrite = rewrites.find((rewrite: any) => 
-          rewrite.source === '/v1/:path*'
-        );
-        
+
+        const v1Rewrite = rewrites.find((rewrite: any) => rewrite.source === '/v1/:path*');
+
         expect(v1Rewrite.destination).toMatch(/^http:\/\/custom-api:8080\/v1\/:path\*$/);
       } finally {
         // Restore original env
@@ -96,11 +90,9 @@ describe('Next.js Proxy Configuration', () => {
 
       try {
         const rewrites = await nextConfig.rewrites();
-        
-        const v1Rewrite = rewrites.find((rewrite: any) => 
-          rewrite.source === '/v1/:path*'
-        );
-        
+
+        const v1Rewrite = rewrites.find((rewrite: any) => rewrite.source === '/v1/:path*');
+
         expect(v1Rewrite.destination).toMatch(/^http:\/\/localhost:4001\/v1\/:path\*$/);
       } finally {
         // Restore original env
@@ -114,10 +106,10 @@ describe('Next.js Proxy Configuration', () => {
   describe('Origin Drift Prevention', () => {
     it('should prevent cross-origin API calls by having proxy rewrites', async () => {
       const rewrites = await nextConfig.rewrites();
-      
+
       // Ensure we have at least the critical API routes proxied
       const criticalRoutes = ['/v1/:path*', '/auth/:path*'];
-      
+
       criticalRoutes.forEach(route => {
         const rewrite = rewrites.find((r: any) => r.source === route);
         expect(rewrite).toBeDefined();
@@ -128,13 +120,13 @@ describe('Next.js Proxy Configuration', () => {
     it('should not have any hardcoded cross-origin URLs in client code', () => {
       // Check that API client uses same-origin requests in browser
       const clientPath = path.join(process.cwd(), 'lib/api/client.ts');
-      
+
       if (fs.existsSync(clientPath)) {
         const clientContent = fs.readFileSync(clientPath, 'utf-8');
-        
+
         // Should use conditional API_BASE_URL for browser vs server
-        expect(clientContent).toContain('typeof window !== \'undefined\'');
-        expect(clientContent).toContain('\'\''); // Empty string for same-origin
+        expect(clientContent).toContain("typeof window !== 'undefined'");
+        expect(clientContent).toContain("''"); // Empty string for same-origin
       }
     });
   });
@@ -156,28 +148,39 @@ describe('Next.js Proxy Configuration', () => {
 describe('Environment Configuration', () => {
   it('should have required environment variables documented', () => {
     const envExamplePath = path.join(process.cwd(), '.env.local');
-    
-    if (fs.existsSync(envExamplePath)) {
-      const envContent = fs.readFileSync(envExamplePath, 'utf-8');
-      
-      // Check for critical environment variables
-      expect(envContent).toContain('NEXT_PUBLIC_API_URL');
-      expect(envContent).toContain('JWT_SECRET');
+
+    // Skip test if env file doesn't exist
+    if (!fs.existsSync(envExamplePath)) {
+      console.warn('Skipping env test: .env.local not found');
+      return;
     }
+
+    const envContent = fs.readFileSync(envExamplePath, 'utf-8');
+
+    // Check for critical environment variables
+    expect(envContent).toContain('NEXT_PUBLIC_API_URL');
+    expect(envContent).toContain('JWT_SECRET');
   });
 
   it('should have consistent API URL configuration', () => {
     const envPath = path.join(process.cwd(), '.env.local');
-    
-    if (fs.existsSync(envPath)) {
-      const envContent = fs.readFileSync(envPath, 'utf-8');
-      
-      // Extract API URL from env file
-      const apiUrlMatch = envContent.match(/NEXT_PUBLIC_API_URL=(.+)/);
-      if (apiUrlMatch) {
-        const apiUrl = apiUrlMatch[1].trim();
-        expect(apiUrl).toMatch(/^http:\/\/localhost:4001$/);
-      }
+
+    // Skip test if env file doesn't exist
+    if (!fs.existsSync(envPath)) {
+      console.warn('Skipping API URL test: .env.local not found');
+      return;
     }
+
+    const envContent = fs.readFileSync(envPath, 'utf-8');
+
+    // Extract API URL from env file
+    const apiUrlMatch = envContent.match(/NEXT_PUBLIC_API_URL=(.+)/);
+    if (!apiUrlMatch) {
+      console.warn('NEXT_PUBLIC_API_URL not found in .env.local');
+      return;
+    }
+
+    const apiUrl = apiUrlMatch[1].trim();
+    expect(apiUrl).toMatch(/^http:\/\/localhost:4001$/);
   });
 });

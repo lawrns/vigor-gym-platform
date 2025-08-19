@@ -1,14 +1,8 @@
-export default function SimpleLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function SimpleLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <div style={{ padding: '20px' }}>
-          {children}
-        </div>
+        <div style={{ padding: '20px' }}>{children}</div>
       </body>
     </html>
   );

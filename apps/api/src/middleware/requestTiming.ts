@@ -5,7 +5,7 @@ import { logRequestMetrics, createChildLogger } from '../utils/logger.js';
 export interface TimedRequest extends Request {
   startTime?: number;
   requestId?: string;
-  logger?: any; // Pino logger instance
+  logger?: Record<string, unknown>; // Pino logger instance
 }
 
 /**
@@ -33,12 +33,13 @@ export function requestTiming(req: TimedRequest, res: Response, next: NextFuncti
 
   // Override res.end to capture timing
   const originalEnd = res.end.bind(res);
-  res.end = function(chunk?: any, encoding?: any, cb?: any) {
+  res.end = function (chunk?: unknown, encoding?: unknown, cb?: unknown) {
     const duration = req.startTime ? Date.now() - req.startTime : 0;
 
     // Extract user context if available
-    const userId = (req as any).user?.id;
-    const tenantId = (req as any).tenant?.companyId;
+    const extendedReq = req as TimedRequest & { user?: { id: string }; tenant?: { companyId: string } };
+    const userId = extendedReq.user?.id;
+    const tenantId = extendedReq.tenant?.companyId;
 
     // Log structured request metrics
     logRequestMetrics({

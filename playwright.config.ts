@@ -2,15 +2,20 @@ import { defineConfig, devices } from '@playwright/test';
 
 // Environment-based configuration
 const isStaging = process.env.E2E_ENV === 'staging';
-const baseURL = process.env.STAGING_BASE_URL || process.env.PW_BASE_URL || (isStaging ? 'https://staging.vigor-gym.com' : 'http://localhost:7777');
-const apiURL = process.env.PW_API_URL || (isStaging ? 'https://api-staging.vigor-gym.com' : 'http://localhost:4001');
+const baseURL =
+  process.env.STAGING_BASE_URL ||
+  process.env.PW_BASE_URL ||
+  (isStaging ? 'https://staging.vigor-gym.com' : 'http://localhost:7777');
+const apiURL =
+  process.env.PW_API_URL ||
+  (isStaging ? 'https://api-staging.vigor-gym.com' : 'http://localhost:4001');
 
 export default defineConfig({
   testDir: './tests/e2e',
   fullyParallel: !isStaging, // Sequential for staging to avoid conflicts
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 1,
-  workers: isStaging ? 1 : (process.env.CI ? 1 : 3),
+  workers: isStaging ? 1 : process.env.CI ? 1 : 3,
   timeout: 30000,
   expect: {
     timeout: 8000,
@@ -62,18 +67,20 @@ export default defineConfig({
   ],
 
   // Only start local servers for local testing
-  webServer: isStaging ? undefined : [
-    {
-      command: 'npm run dev -w @vigor/api',
-      port: 4001,
-      reuseExistingServer: !process.env.CI,
-      timeout: 120 * 1000,
-    },
-    {
-      command: 'npm run dev -w @vigor/web',
-      port: 7777,
-      reuseExistingServer: !process.env.CI,
-      timeout: 120 * 1000,
-    },
-  ],
+  webServer: isStaging
+    ? undefined
+    : [
+        {
+          command: 'npm run dev -w @vigor/api',
+          port: 4001,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120 * 1000,
+        },
+        {
+          command: 'npm run dev -w @vigor/web',
+          port: 7777,
+          reuseExistingServer: !process.env.CI,
+          timeout: 120 * 1000,
+        },
+      ],
 });

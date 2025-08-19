@@ -1,4 +1,4 @@
-"use client";
+'use client';
 import { motion } from 'framer-motion';
 import { motionPresets } from '../../lib/motion/presets';
 import { Icons } from '../../lib/icons/registry';
@@ -33,5 +33,3 @@ export function FeatureCard({ iconName, title, desc, cta }: Props) {
     </motion.div>
   );
 }
-
-

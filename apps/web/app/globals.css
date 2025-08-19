@@ -4,24 +4,24 @@
 
 :root {
   /* Light luminous theme */
-  --bg: #FFFFFF;
-  --surface: #F8F9FB;
-  --surface-alt: #F2F4F8;
-  --card: #FFFFFF;
-  --muted: #4B5563;
-  --text: #0B0F19;
-  --heading: #0B0F19;
-  --primary: #1E5BFF;
-  --primary-emph: #174BCC;
-  --secondary: #3B82F6;
-  --secondary-hover: #C7D2FE;
-  --accent: #00C6A2;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-  --outline: rgba(17,24,39,0.12);
+  --bg: #ffffff;
+  --surface: #f8f9fb;
+  --surface-alt: #f2f4f8;
+  --card: #ffffff;
+  --muted: #4b5563;
+  --text: #0b0f19;
+  --heading: #0b0f19;
+  --primary: #1e5bff;
+  --primary-emph: #174bcc;
+  --secondary: #3b82f6;
+  --secondary-hover: #c7d2fe;
+  --accent: #00c6a2;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --outline: rgba(17, 24, 39, 0.12);
 
-  --shadow-card: 0 4px 14px rgba(0,0,0,0.06);
-  --shadow-elevated: 0 8px 24px rgba(0,0,0,0.10);
+  --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.06);
+  --shadow-elevated: 0 8px 24px rgba(0, 0, 0, 0.1);
 
   /* Semantic text aliases */
   --text-primary: var(--text);
@@ -30,41 +30,62 @@
 
 .dark {
   /* Dark theme */
-  --bg: #0A0F0D;
-  --surface: #0F1513;
-  --surface-alt: #0F1513;
+  --bg: #0a0f0d;
+  --surface: #0f1513;
+  --surface-alt: #0f1513;
   --card: #101915;
-  --muted: #94A3A7;
-  --text: #E7F3EE;
-  --heading: #E7F3EE;
-  --primary: #1E5BFF;
-  --primary-emph: #174BCC;
+  --muted: #94a3a7;
+  --text: #e7f3ee;
+  --heading: #e7f3ee;
+  --primary: #1e5bff;
+  --primary-emph: #174bcc;
   --secondary: #223b7d;
   --secondary-hover: #1b2f64;
-  --accent: #00C6A2;
-  --warning: #F59E0B;
-  --danger: #EF4444;
-  --outline: rgba(231,243,238,0.16);
+  --accent: #00c6a2;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --outline: rgba(231, 243, 238, 0.16);
 
-  --shadow-card: 0 6px 20px rgba(0,0,0,0.35);
-  --shadow-elevated: 0 12px 36px rgba(0,0,0,0.50);
+  --shadow-card: 0 6px 20px rgba(0, 0, 0, 0.35);
+  --shadow-elevated: 0 12px 36px rgba(0, 0, 0, 0.5);
 
   --text-primary: var(--text);
   --text-secondary: var(--muted);
 }
 
-html, body { height: 100%; }
-body { background: var(--bg); color: var(--text); }
+html,
+body {
+  height: 100%;
+}
+body {
+  background: var(--bg);
+  color: var(--text);
+}
 
 @layer base {
   :root {
     --font-sans: var(--font-sans);
     --font-display: var(--font-display);
   }
-  .font-sans { font-family: var(--font-sans); }
-  .font-display { font-family: var(--font-display); letter-spacing: 0; }
-  h1, h2 { font-family: var(--font-display); font-weight: 800; letter-spacing: 0; line-height: 1.2; }
-  p.lead { color: var(--text-secondary); font-size: clamp(16px, 2vw, 20px); line-height: 1.5; }
+  .font-sans {
+    font-family: var(--font-sans);
+  }
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: 0;
+  }
+  h1,
+  h2 {
+    font-family: var(--font-display);
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1.2;
+  }
+  p.lead {
+    color: var(--text-secondary);
+    font-size: clamp(16px, 2vw, 20px);
+    line-height: 1.5;
+  }
 }
 
 @layer components {
@@ -78,29 +99,32 @@ body { background: var(--bg); color: var(--text); }
     border-radius: 12px;
     font-size: 0.875rem;
     font-weight: 600;
-    transition: background-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+    transition:
+      background-color 0.2s ease,
+      box-shadow 0.2s ease,
+      color 0.2s ease;
   }
-  [data-cta][data-variant="primary"] {
+  [data-cta][data-variant='primary'] {
     background: var(--primary);
     color: var(--bg);
     box-shadow: var(--shadow-card);
   }
-  [data-cta][data-variant="primary"]:hover {
+  [data-cta][data-variant='primary']:hover {
     background: var(--primary-emph);
   }
-  [data-cta][data-variant="secondary"] {
-    background: #E0E7FF;
+  [data-cta][data-variant='secondary'] {
+    background: #e0e7ff;
     color: var(--primary);
   }
-  [data-cta][data-variant="secondary"]:hover {
-    background: #C7D2FE;
+  [data-cta][data-variant='secondary']:hover {
+    background: #c7d2fe;
   }
-  [data-cta][data-variant="ghost"] {
+  [data-cta][data-variant='ghost'] {
     border: 1px solid var(--outline);
     background: transparent;
     color: var(--text);
   }
-  [data-cta][data-variant="ghost"]:hover {
+  [data-cta][data-variant='ghost']:hover {
     background: var(--surface-alt);
   }
   [data-cta]:focus-visible {
@@ -109,4 +133,3 @@ body { background: var(--bg); color: var(--text); }
     box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 20%, transparent);
   }
 }
-

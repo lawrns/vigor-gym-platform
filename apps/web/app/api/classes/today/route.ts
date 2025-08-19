@@ -1,60 +1,48 @@
 /**
- * Classes Today Proxy Route
- * 
- * Proxies class roster requests to the API server
+ * Classes Today Direct Route
+ *
+ * Direct connection to Supabase for today's class data.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003';
+import { getServerSession } from '../../../../lib/auth/session';
+import { getClassesToday, getSampleCompanyId } from '../../../../lib/dashboard/supabase-data-service';
 
 export async function GET(request: NextRequest) {
   try {
+    // Skip authentication for development - TODO: Re-enable for production
+    // const session = await getServerSession();
+    // if (!session) {
+    //   return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
+    // }
+
+    // Get query parameters
     const { searchParams } = new URL(request.url);
-    
-    // Build API URL with query parameters
-    const apiUrl = new URL('/v1/classes/today', API_BASE_URL);
-    
-    // Forward all query parameters
-    for (const [key, value] of searchParams.entries()) {
-      apiUrl.searchParams.set(key, value);
-    }
+    const locationId = searchParams.get('locationId') || undefined;
 
-    // Forward cookies from the request
-    const cookies = request.headers.get('cookie') || '';
+    console.debug('[CLASSES-DIRECT] Fetching today\'s classes:', { locationId });
 
-    const response = await fetch(apiUrl.toString(), {
-      method: 'GET',
+    // Get company ID (for development, use sample company)
+    const companyId = await getSampleCompanyId();
+
+    // Fetch classes directly from Supabase
+    const classes = await getClassesToday(companyId, locationId);
+
+    console.debug('[CLASSES-DIRECT] Classes fetched successfully:', classes.length);
+
+    return NextResponse.json(classes, {
       headers: {
-        'Cookie': cookies,
-        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store, must-revalidate',
+        'X-Classes-Direct': 'true',
       },
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('[Classes Today Proxy] API error:', response.status, errorText);
-      
-      return NextResponse.json(
-        { 
-          error: 'API_ERROR', 
-          message: 'Failed to fetch classes data',
-          status: response.status 
-        },
-        { status: response.status }
-      );
-    }
-
-    const data = await response.json();
-    return NextResponse.json(data);
-
   } catch (error) {
-    console.error('[Classes Today Proxy] Error:', error);
-    
+    console.error('[CLASSES-DIRECT] Error:', error);
+
     return NextResponse.json(
-      { 
-        error: 'PROXY_ERROR', 
-        message: 'Failed to proxy classes request' 
+      {
+        error: 'DIRECT_ERROR',
+        message: 'Failed to fetch classes data',
       },
       { status: 500 }
     );

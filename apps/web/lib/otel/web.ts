@@ -1,6 +1,6 @@
 /**
  * Web Vitals & OpenTelemetry Registration for Browser
- * 
+ *
  * Collects Core Web Vitals and sends them to our telemetry endpoint.
  * Only runs in browser environment.
  */
@@ -15,7 +15,7 @@ export async function registerOTel() {
   try {
     // Dynamic import to avoid SSR issues
     const { onCLS, onINP, onLCP, onTTFB, onFCP } = await import('web-vitals');
-    
+
     console.debug('[OTEL] Registering Web Vitals monitoring...');
 
     // Send metrics to our telemetry endpoint
@@ -35,7 +35,7 @@ export async function registerOTel() {
 
       // Use sendBeacon for reliability, fallback to fetch
       const data = JSON.stringify(payload);
-      
+
       if (navigator.sendBeacon) {
         navigator.sendBeacon('/api/telemetry/vitals', data);
       } else {
@@ -51,11 +51,11 @@ export async function registerOTel() {
     };
 
     // Register Core Web Vitals
-    onTTFB(sendMetric);  // Time to First Byte
-    onFCP(sendMetric);   // First Contentful Paint  
-    onLCP(sendMetric);   // Largest Contentful Paint
-    onCLS(sendMetric);   // Cumulative Layout Shift
-    onINP(sendMetric);   // Interaction to Next Paint
+    onTTFB(sendMetric); // Time to First Byte
+    onFCP(sendMetric); // First Contentful Paint
+    onLCP(sendMetric); // Largest Contentful Paint
+    onCLS(sendMetric); // Cumulative Layout Shift
+    onINP(sendMetric); // Interaction to Next Paint
 
     console.debug('[OTEL] Web Vitals monitoring registered');
 
@@ -69,7 +69,7 @@ export async function registerOTel() {
       // Mark widget ready
       window.addEventListener('widget-ready', () => {
         performance.mark('widget-ready');
-        
+
         // Measure widget init time
         try {
           performance.measure('widget-init', 'navigationStart', 'widget-ready');
@@ -78,7 +78,12 @@ export async function registerOTel() {
             sendMetric({
               name: 'widget-init',
               value: measure.duration,
-              rating: measure.duration < 400 ? 'good' : measure.duration < 800 ? 'needs-improvement' : 'poor',
+              rating:
+                measure.duration < 400
+                  ? 'good'
+                  : measure.duration < 800
+                    ? 'needs-improvement'
+                    : 'poor',
               delta: measure.duration,
               id: `widget-init-${Date.now()}`,
             });
@@ -88,7 +93,6 @@ export async function registerOTel() {
         }
       });
     }
-
   } catch (error) {
     console.error('[OTEL] Failed to register Web Vitals:', error);
   }

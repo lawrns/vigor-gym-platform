@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
 import Link from 'next/link';
 import { useAuth } from '../lib/auth/context';
 import { Icons } from '../lib/icons/registry';
-import { useState } from 'react';
+import React, { useState } from 'react';
 
 type NavLink = { href: string; label: string; roles?: string[] };
 
@@ -18,7 +18,7 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
   const [showUserMenu, setShowUserMenu] = useState(false);
 
   // Filter links based on user role
-  const visibleLinks = links.filter((l) => !l.roles || (user && l.roles.includes(user.role)));
+  const visibleLinks = links.filter(l => !l.roles || (user && l.roles.includes(user.role)));
 
   const handleLogout = async () => {
     await logout();
@@ -31,13 +31,13 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
         <Link href="/" className="font-display text-xl font-bold text-gray-900 dark:text-white">
           {logo}
         </Link>
-        
+
         <div className="flex items-center gap-6">
           {/* Navigation Links */}
           <div className="hidden md:flex gap-6 text-sm">
             {user ? (
               // Authenticated user links
-              visibleLinks.map((l) => (
+              visibleLinks.map(l => (
                 <Link
                   key={l.href}
                   href={l.href}
@@ -79,7 +79,8 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
                 className="flex items-center space-x-2 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-full px-3 py-2 transition-colors"
               >
                 <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center text-white text-xs font-medium">
-                  {user.firstName?.[0] || user.fullName?.[0] || 'U'}{user.lastName?.[0] || user.fullName?.split(' ')[1]?.[0] || ''}
+                  {user.firstName?.[0] || user.fullName?.[0] || 'U'}
+                  {user.lastName?.[0] || user.fullName?.split(' ')[1]?.[0] || ''}
                 </div>
                 <span className="hidden sm:block text-gray-700 dark:text-gray-300">
                   {user.firstName || user.fullName?.split(' ')[0] || 'User'}
@@ -93,16 +94,14 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       {user.firstName} {user.lastName}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
-                      {user.email}
-                    </p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
                     {user.company && (
                       <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         {user.company.name} • {user.role}
                       </p>
                     )}
                   </div>
-                  
+
                   <div className="py-1">
                     <Link
                       href="/dashboard"
@@ -114,8 +113,10 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
                         Dashboard
                       </div>
                     </Link>
-                    
-                    {(user.role === 'owner' || user.role === 'manager' || user.role === 'staff') && (
+
+                    {(user.role === 'owner' ||
+                      user.role === 'manager' ||
+                      user.role === 'staff') && (
                       <Link
                         href="/admin/members"
                         className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
@@ -127,7 +128,7 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
                         </div>
                       </Link>
                     )}
-                    
+
                     {user.role === 'partner_admin' && (
                       <Link
                         href="/partner"
@@ -141,7 +142,7 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
                       </Link>
                     )}
                   </div>
-                  
+
                   <div className="border-t border-gray-200 dark:border-gray-700 py-1">
                     <button
                       onClick={handleLogout}
@@ -169,10 +170,7 @@ export function AuthNavbar({ logo = 'Vigor', links = [], cta }: AuthNavbarProps)
 
       {/* Mobile menu overlay */}
       {showUserMenu && (
-        <div 
-          className="fixed inset-0 z-30 md:hidden" 
-          onClick={() => setShowUserMenu(false)}
-        />
+        <div className="fixed inset-0 z-30 md:hidden" onClick={() => setShowUserMenu(false)} />
       )}
     </nav>
   );

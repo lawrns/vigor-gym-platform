@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
@@ -29,26 +29,21 @@ export function HeroSplit({
   primaryCta,
   secondaryCta,
   visual,
-  testId = 'hero'
+  testId = 'hero',
 }: HeroSplitProps) {
   return (
-    <section 
+    <section
       data-testid={testId}
       className="relative overflow-hidden bg-gradient-to-br from-primary-50 to-white"
     >
       <div className="max-w-6xl mx-auto px-4 py-16 grid md:grid-cols-2 gap-10 items-center">
         {/* Left Content */}
-        <motion.div
-          {...motionPresets['enter.fadeUp']}
-          className="space-y-6"
-        >
+        <motion.div {...motionPresets['enter.fadeUp']} className="space-y-6">
           <h1 className="font-display text-[clamp(34px,4vw,48px)] leading-[1.2] tracking-[0] text-heading">
             {headline}
           </h1>
-          
-          <p className="text-[clamp(16px,2vw,20px)] leading-[1.5] text-text/80">
-            {subtitle}
-          </p>
+
+          <p className="text-[clamp(16px,2vw,20px)] leading-[1.5] text-text/80">{subtitle}</p>
 
           <div className="flex flex-col sm:flex-row gap-4">
             <a
@@ -59,7 +54,7 @@ export function HeroSplit({
             >
               {primaryCta.label_es}
             </a>
-            
+
             <a
               href={secondaryCta.href}
               data-cta="secondary"
@@ -104,18 +99,12 @@ export function HeroSplit({
             </div>
           ) : (
             <div className="relative h-[400px] md:h-[500px] rounded-2xl overflow-hidden shadow-elevated">
-              <video
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="w-full h-full object-cover"
-              >
+              <video autoPlay muted loop playsInline className="w-full h-full object-cover">
                 <source src={visual.assets[0]} type="video/mp4" />
               </video>
             </div>
           )}
-          
+
           {/* Floating elements for visual interest */}
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
@@ -125,7 +114,7 @@ export function HeroSplit({
           >
             ¡Nuevo!
           </motion.div>
-          
+
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}

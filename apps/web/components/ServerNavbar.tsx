@@ -14,7 +14,7 @@ export async function ServerNavbar({ logo = 'Vigor', links = [], cta }: ServerNa
   const session = await getServerSession();
 
   // Filter links based on user role
-  const visibleLinks = links.filter((l) => !l.roles || (session && l.roles.includes(session.role)));
+  const visibleLinks = links.filter(l => !l.roles || (session && l.roles.includes(session.role)));
 
   return (
     <nav className="sticky top-0 z-40 bg-white/80 dark:bg-gray-900/80 supports-[backdrop-filter]:bg-white/70 dark:supports-[backdrop-filter]:bg-gray-900/70 backdrop-blur-md border-b border-gray-200 dark:border-gray-700 shadow-sm">
@@ -22,13 +22,13 @@ export async function ServerNavbar({ logo = 'Vigor', links = [], cta }: ServerNa
         <Link href="/" className="font-display text-xl font-bold text-gray-900 dark:text-white">
           {logo}
         </Link>
-        
+
         <div className="flex items-center gap-6">
           {/* Navigation Links */}
           <div className="hidden md:flex gap-6 text-sm">
             {session ? (
               // Authenticated user links
-              visibleLinks.map((l) => (
+              visibleLinks.map(l => (
                 <Link
                   key={l.href}
                   href={l.href}
