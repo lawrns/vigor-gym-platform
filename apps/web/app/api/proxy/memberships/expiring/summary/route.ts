@@ -1,26 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
 
 export async function GET(request: NextRequest) {
   try {
-    // Get auth token from cookies or headers
-    const authHeader =
-      request.headers.get('authorization') ||
-      request.headers.get('cookie')?.match(/auth-token=([^;]+)/)?.[1];
+    // Get auth token from cookies (prefer accessToken) or headers
+    const authHeader = request.headers.get('authorization');
+    const cookieStore = cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+    // Soft fallback for legacy cookie name during transition
+    const legacyToken = !accessToken ? cookieStore.get('auth-token')?.value : '';
+    const token = accessToken || legacyToken;
 
-    if (!authHeader) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (!authHeader && !token) {
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
     }
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
     };
 
-    if (authHeader.startsWith('Bearer ')) {
+    if (authHeader) {
       headers['Authorization'] = authHeader;
-    } else {
-      headers['Authorization'] = `Bearer ${authHeader}`;
+    } else if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
     }
 
     const response = await fetch(`${API_BASE_URL}/v1/memberships/expiring/summary`, {

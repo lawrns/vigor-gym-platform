@@ -10,15 +10,15 @@
 import { AUTH_ROUTES, PROTECTED_PREFIXES, PUBLIC_ROUTES } from './types';
 
 /**
- * Supabase JWT token validation for Edge Runtime
- * Validates Supabase access tokens (format and expiration)
+ * JWT token validation for Edge Runtime
+ * Validates both Supabase and dev tokens (format and expiration)
  */
-export function isValidSupabaseToken(token: string): boolean {
+export function isValidToken(token: string): boolean {
   try {
     const parts = token.split('.');
     if (parts.length !== 3) return false;
 
-    // Decode payload to check expiration and Supabase-specific fields
+    // Decode payload to check expiration and issuer
     const payload = JSON.parse(atob(parts[1]));
     const now = Math.floor(Date.now() / 1000);
 
@@ -27,13 +27,17 @@ export function isValidSupabaseToken(token: string): boolean {
       return false;
     }
 
-    // Verify it's a Supabase token by checking for expected fields
-    if (!payload.iss || !payload.iss.includes('supabase')) {
+    // Check for user ID (Supabase uses 'sub', dev tokens use 'userId')
+    const hasUserId = payload.sub || payload.userId;
+    if (!hasUserId) {
       return false;
     }
 
-    // Check for user ID (Supabase tokens should have 'sub' field)
-    if (!payload.sub) {
+    // Accept both Supabase tokens and dev tokens
+    const isSupabaseToken = payload.iss && payload.iss.includes('supabase');
+    const isDevToken = payload.iss === 'gogym-web' && payload.aud === 'gogym-api';
+
+    if (!isSupabaseToken && !isDevToken) {
       return false;
     }
 
@@ -44,17 +48,25 @@ export function isValidSupabaseToken(token: string): boolean {
 }
 
 /**
- * Check if user has valid Supabase session based on cookies
- * Edge Runtime compatible version
+ * Legacy function for backward compatibility
+ * @deprecated Use isValidToken instead
+ */
+export function isValidSupabaseToken(token: string): boolean {
+  return isValidToken(token);
+}
+
+/**
+ * Check if user has valid session based on cookies
+ * Edge Runtime compatible version - supports both Supabase and dev tokens
  */
 export function hasValidSession(accessToken?: string, refreshToken?: string): boolean {
-  // For Supabase, we primarily rely on the access token
-  if (accessToken && isValidSupabaseToken(accessToken)) {
+  // Primarily rely on the access token (works for both Supabase and dev tokens)
+  if (accessToken && isValidToken(accessToken)) {
     return true;
   }
 
   // Fallback to refresh token if access token is invalid/expired
-  if (refreshToken && isValidSupabaseToken(refreshToken)) {
+  if (refreshToken && isValidToken(refreshToken)) {
     return true;
   }
 
@@ -81,11 +93,17 @@ export function isPublic(path: string): boolean {
  */
 export function getRedirectAction(
   pathname: string,
-  hasSession: boolean
+  hasSession: boolean,
+  req?: Request
 ): { shouldRedirect: boolean; destination?: string } {
   // If protected and no session → login
   if (isProtected(pathname) && !hasSession) {
-    const loginUrl = new URL('/login', 'http://localhost:3000');
+    // Use request origin if available, fallback to localhost:3005 for dev
+    const origin =
+      (req as any)?.headers?.get?.('origin') ||
+      (globalThis as any)?.location?.origin ||
+      'http://localhost:3005';
+    const loginUrl = new URL('/login', origin);
     loginUrl.searchParams.set('next', pathname);
     return { shouldRedirect: true, destination: loginUrl.pathname + loginUrl.search };
   }

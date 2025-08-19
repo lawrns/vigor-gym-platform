@@ -11,8 +11,8 @@
   },
   "packageManager": "npm@10.0.0",
   "scripts": {
-    "build": "npm run build -w @gogym/api && npm run build -w @gogym/web && npm run build -w @gogym/mobile",
-    "dev": "PORT=4001 npm run dev -w @gogym/api & npm run dev -w @gogym/web",
+    "build": "npm run build -w @gogym/api && npm run build -w @vigor/web && npm run build -w @gogym/mobile",
+    "dev": "PORT=4001 npm run dev -w @gogym/api & npm run dev -w @vigor/web",
     "typecheck": "npm -ws run typecheck",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
@@ -33,6 +33,9 @@
     "prettier": "^3.3.3"
   },
   "dependencies": {
-    "next-auth": "^4.24.11"
+    "@supabase/auth-helpers-nextjs": "^0.10.0",
+    "@supabase/ssr": "^0.6.1",
+    "next-auth": "^4.24.11",
+    "zod": "^4.0.17"
   }
 }

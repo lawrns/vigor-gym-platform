@@ -21,7 +21,7 @@ export function middleware(request: NextRequest) {
   // });
 
   // Determine if redirect is needed using Edge-safe logic
-  const redirectAction = getRedirectAction(pathname, hasSession);
+  const redirectAction = getRedirectAction(pathname, hasSession, request);
 
   const duration = Date.now() - startTime;
 
@@ -37,15 +37,22 @@ export function middleware(request: NextRequest) {
   // Public and everything else → pass through
   const response = NextResponse.next();
 
-  // Add CORS headers for API routes
+  // Add CORS headers for API routes - only for cross-origin requests
   if (pathname.startsWith('/api/')) {
-    response.headers.set(
-      'Access-Control-Allow-Origin',
-      process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001'
-    );
-    response.headers.set('Access-Control-Allow-Credentials', 'true');
-    response.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
-    response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Org-Id');
+    const reqOrigin = request.headers.get('origin');
+    const selfOrigin = request.nextUrl.origin;
+
+    // Only add CORS headers for actual cross-origin requests
+    if (reqOrigin && reqOrigin !== selfOrigin) {
+      response.headers.set('Access-Control-Allow-Origin', reqOrigin);
+      response.headers.set('Access-Control-Allow-Credentials', 'true');
+      response.headers.set(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+      );
+      response.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Org-Id');
+      response.headers.append('Vary', 'Origin');
+    }
   }
 
   // Add comprehensive security headers

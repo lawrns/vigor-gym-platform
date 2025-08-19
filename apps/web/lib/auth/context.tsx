@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useState, useRef, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { apiClient, isAPIError, setAuthToken } from '../api/client';
 import {
@@ -12,6 +12,7 @@ import {
   trackRedirectEnd,
 } from '../monitoring/auth-metrics';
 import { isAPIClientError, isUnauthorizedError, isNetworkError } from '../http/errors';
+import { telemetry } from '../telemetry/client';
 
 /* Deduped error logger */
 const __authLogOnce = new Set<string>();
@@ -40,6 +41,7 @@ interface AuthContextType {
   loading: boolean;
   status: 'loading' | 'authenticated' | 'guest' | 'error';
   login: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
+  devLogin: (payload: any) => Promise<void>;
   logout: () => Promise<void>;
   refreshAuth: () => Promise<void>;
   hasRole: (roles: string[]) => boolean;
@@ -76,18 +78,91 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
 
-  // Prevent duplicate initialization in React StrictMode
-  const didInitializeRef = useRef(false);
-
-  // Initialize auth state (prevent duplicate calls in StrictMode)
+  // Initialize auth state
   useEffect(() => {
-    if (didInitializeRef.current) {
-      console.debug('[AUTH] Skipping duplicate initialization (StrictMode)');
-      return;
-    }
-    didInitializeRef.current = true;
     console.debug('[AUTH] Initializing auth state...');
-    initializeAuth();
+
+    let cancelled = false;
+    const run = async () => {
+      // Small microtask delay allows Set-Cookie to flush after dev login redirect
+      await Promise.resolve();
+
+      try {
+        const res = await fetch('/api/auth/me', {
+          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (cancelled) return;
+
+        if (res.status === 401) {
+          setUser(null);
+          setAuthToken(null);
+          setStatus('guest');
+          setLoading(false);
+          return;
+        }
+
+        if (res.ok) {
+          const data = await res.json();
+          if (cancelled) return;
+
+          setUser(data.user || data);
+          setStatus('authenticated');
+
+          // Set token for API client if provided
+          if (data.accessToken) {
+            setAuthToken(data.accessToken);
+          }
+          console.debug('[AUTH] Authentication initialized successfully');
+
+          // Track successful auth
+          if (data.user?.company?.id) {
+            telemetry.org.contextSet(data.user.company.id);
+          }
+        } else {
+          // Handle other HTTP errors
+          const errorData = await res.json().catch(() => ({ message: 'Unknown error' }));
+          console.debug('[AUTH] Authentication failed:', errorData.message);
+          setUser(null);
+          setAuthToken(null);
+          setStatus('guest');
+        }
+      } catch (error) {
+        if (cancelled) return;
+
+        // Handle network errors with deduped logging
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+          logOnce('initializeAuth-network', () => {
+            console.error(
+              '[AUTH] Network error during authentication. Please check your connection.'
+            );
+          });
+          setStatus('error');
+        } else {
+          // Log other errors once to avoid spam
+          logOnce('initializeAuth-non401', () => {
+            console.error('[AUTH] Authentication initialization failed:', error);
+          });
+          setStatus('error');
+        }
+
+        // Clear any stale auth state
+        setUser(null);
+        setAuthToken(null);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    };
+
+    run();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   // Handle route protection - be conservative and only redirect when necessary
@@ -113,60 +188,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // IMPORTANT: Do NOT redirect authenticated users from public routes like /planes
     // This was the source of the bug - authenticated users should be able to access /planes
   }, [user, loading, pathname, router]);
-
-  const initializeAuth = async () => {
-    try {
-      // Try to get user info from server (will use httpOnly cookies)
-      const response = await apiClient.auth.me();
-
-      if (!isAPIError(response)) {
-        setUser(response.user);
-        setStatus('authenticated');
-        // Set token for API client if provided
-        if (response.accessToken) {
-          setAuthToken(response.accessToken);
-        }
-        console.debug('[AUTH] Authentication initialized successfully');
-      } else {
-        // API returned an error response
-        console.debug('[AUTH] Authentication failed:', response.message);
-        setUser(null);
-        setAuthToken(null);
-        setStatus('guest');
-      }
-    } catch (error) {
-      // Handle 401 silently (expected for guests)
-      if (isUnauthorizedError(error)) {
-        console.debug('[AUTH] No valid authentication found (expected for anonymous users)');
-        setUser(null);
-        setAuthToken(null);
-        setStatus('guest');
-        return;
-      }
-
-      // Handle network errors with deduped logging
-      if (isNetworkError(error)) {
-        logOnce('initializeAuth-network', () => {
-          console.error(
-            '[AUTH] API server appears to be unreachable. Please check if the API server is running.'
-          );
-        });
-        setStatus('error');
-      } else {
-        // Log other errors once to avoid spam
-        logOnce('initializeAuth-non401', () => {
-          console.error('[AUTH] Authentication initialization failed:', error);
-        });
-        setStatus('error');
-      }
-
-      // Clear any stale auth state
-      setUser(null);
-      setAuthToken(null);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const login = async (
     email: string,
@@ -214,6 +235,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
         success: false,
         error: errorMessage,
       };
+    }
+  };
+
+  const devLogin = async (payload: any) => {
+    try {
+      const response = await fetch('/api/dev/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      });
+
+      if (response.ok) {
+        // Auto-reload to ensure proper cookie handling and auth state refresh
+        window.location.reload();
+      } else {
+        console.error('[AUTH] Dev login failed:', response.status);
+      }
+    } catch (error) {
+      console.error('[AUTH] Dev login error:', error);
     }
   };
 
@@ -315,6 +357,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading,
     status,
     login,
+    devLogin,
     logout,
     refreshAuth,
     hasRole,
@@ -347,4 +390,13 @@ export function usePermissions() {
     hasMinimumRole,
     user,
   };
+}
+
+// Hook for org/tenant context readiness
+export function useOrgContext() {
+  const { user, status } = useAuth();
+  const orgId = user?.company?.id ?? null;
+  const ready = status === 'authenticated' && !!orgId;
+
+  return { orgId, ready, status };
 }

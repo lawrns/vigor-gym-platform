@@ -12,11 +12,13 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
     }
 
-    // Get auth token from cookies
-    const authToken = request.cookies.get('auth-token')?.value;
+    // Get auth token from cookies (prefer accessToken)
+    const accessToken = request.cookies.get('accessToken')?.value;
+    const legacyToken = request.cookies.get('auth-token')?.value;
+    const authToken = accessToken || legacyToken;
 
     if (!authToken) {
-      return NextResponse.json({ message: 'Authentication token not found' }, { status: 401 });
+      return NextResponse.json({ error: 'UNAUTHORIZED' }, { status: 401 });
     }
 
     // Forward request to API server
