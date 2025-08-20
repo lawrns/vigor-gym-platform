@@ -2,7 +2,7 @@ import './globals.css';
 import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { defaultSEO } from './next-seo.config';
-import { ServerNavbar } from '../components/ServerNavbar';
+import { EnhancedNavbar } from '../components/navigation/EnhancedNavbar';
 import contentV2 from '../lib/content/home.v2.json';
 import { ThemeProvider } from 'next-themes';
 import { AnalyticsBinder } from '../components/AnalyticsBinder';
@@ -52,15 +52,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           <AuthProvider>
             <Spotlight />
-            <ServerNavbar
-              logo="Vigor"
-              links={[
-                { href: '/dashboard', label: 'Dashboard', roles: ['owner', 'manager', 'staff'] },
-                { href: '/admin/members', label: 'Miembros', roles: ['owner', 'manager', 'staff'] },
-                { href: '/partner', label: 'Portal Gimnasio', roles: ['partner_admin'] },
-              ]}
-              cta={{ label: 'Iniciar Sesión', href: '/login' }}
-            />
+            <EnhancedNavbar logo="Vigor" />
             <AnalyticsBinder />
             <div className="fixed bottom-4 right-4">
               <ThemeToggle />

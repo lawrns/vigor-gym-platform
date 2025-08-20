@@ -50,7 +50,14 @@ export type IconName =
   | 'UserPlus'
   | 'Calendar'
   | 'Play'
-  | 'CheckSquare';
+  | 'CheckSquare'
+  | 'BarChart3'
+  | 'Monitor'
+  | 'Megaphone'
+  | 'GitBranch'
+  | 'Settings'
+  | 'FileText'
+  | 'Scan';
 
 type SvgProps = React.SVGProps<SVGSVGElement> & { title?: string };
 
@@ -400,6 +407,59 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
     <Svg {...props}>
       <polyline points="9,11 12,14 22,4" />
       <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+    </Svg>
+  ),
+  BarChart3: props => (
+    <Svg {...props}>
+      <path d="M3 3v18h18" />
+      <path d="M18 17V9" />
+      <path d="M13 17V5" />
+      <path d="M8 17v-3" />
+    </Svg>
+  ),
+  Monitor: props => (
+    <Svg {...props}>
+      <rect x="2" y="3" width="20" height="14" rx="2" />
+      <line x1="8" x2="16" y1="21" y2="21" />
+      <line x1="12" x2="12" y1="17" y2="21" />
+    </Svg>
+  ),
+  Megaphone: props => (
+    <Svg {...props}>
+      <path d="m3 11 18-5v12L3 14v-3z" />
+      <path d="M11.6 16.8a3 3 0 1 1-5.8-1.6" />
+    </Svg>
+  ),
+  GitBranch: props => (
+    <Svg {...props}>
+      <line x1="6" x2="6" y1="3" y2="15" />
+      <circle cx="18" cy="6" r="3" />
+      <circle cx="6" cy="18" r="3" />
+      <path d="m18 9a9 9 0 0 1-9 9" />
+    </Svg>
+  ),
+  Settings: props => (
+    <Svg {...props}>
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
+    </Svg>
+  ),
+  FileText: props => (
+    <Svg {...props}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14,2 14,8 20,8" />
+      <line x1="16" x2="8" y1="13" y2="13" />
+      <line x1="16" x2="8" y1="17" y2="17" />
+      <polyline points="10,9 9,9 8,9" />
+    </Svg>
+  ),
+  Scan: props => (
+    <Svg {...props}>
+      <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+      <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+      <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+      <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+      <path d="M7 12h10" />
     </Svg>
   ),
 };
