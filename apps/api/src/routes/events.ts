@@ -34,6 +34,10 @@ router.get(
             error: error.code,
             message: error.message,
             field: error.field,
+            hint:
+              error.code === 'INVALID_ORG_ID'
+                ? 'Pass ?orgId identical to user.company.id'
+                : undefined,
           });
         }
         throw error;

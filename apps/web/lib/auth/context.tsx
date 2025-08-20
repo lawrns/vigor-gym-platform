@@ -398,5 +398,13 @@ export function useOrgContext() {
   const orgId = user?.company?.id ?? null;
   const ready = status === 'authenticated' && !!orgId;
 
+  console.log('[useOrgContext] Debug:', {
+    status,
+    hasUser: !!user,
+    userCompany: user?.company,
+    orgId,
+    ready
+  });
+
   return { orgId, ready, status };
 }

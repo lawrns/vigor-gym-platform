@@ -5,6 +5,7 @@ module.exports = {
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
     '^@/(.*)$': '<rootDir>/$1',
+    '^@vigor/shared$': '<rootDir>/../../packages/shared/src/index.ts',
   },
   transform: {
     '^.+\\.(ts|tsx)$': [

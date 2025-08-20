@@ -5,6 +5,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { telemetry } from '../telemetry/client';
 
 export interface SSEEvent {
   id: string;
@@ -80,6 +81,25 @@ export function useSSE(options: SSEOptions): SSEState {
       return;
     }
 
+    // HOTFIX: Guard - never connect without orgId
+    if (!orgId) {
+      console.debug('[SSE] Blocked: missing orgId');
+      telemetry.sse.blocked('missing_org');
+      updateState({ status: 'disconnected', error: new Error('missing_org') });
+      onConnectionChange?.('error');
+      return;
+    }
+
+    // Client-side UUID format guard (cheap validation)
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(orgId)) {
+      console.debug('[SSE] Blocked: invalid orgId format:', orgId);
+      telemetry.sse.blocked('invalid_format');
+      updateState({ status: 'disconnected', error: new Error('invalid_org_format') });
+      onConnectionChange?.('error');
+      return;
+    }
+
     // Close existing connection
     if (eventSourceRef.current) {
       eventSourceRef.current.close();
@@ -103,6 +123,7 @@ export function useSSE(options: SSEOptions): SSEState {
 
       eventSource.onopen = () => {
         console.log('[SSE] Connection opened');
+        telemetry.sse.opened(orgId);
         updateState({
           status: 'connected',
           error: null,
@@ -173,14 +194,29 @@ export function useSSE(options: SSEOptions): SSEState {
       eventSource.onerror = event => {
         console.error('[SSE] Connection error:', event);
 
+        // Check if this is an HTTP error by examining the readyState
+        const isHttpError = eventSource.readyState === EventSource.CLOSED;
+
         const error = new Error('SSE connection failed');
         updateState({ status: 'error', error });
         onError?.(error);
         onConnectionChange?.('error');
 
-        // Retry logic
+        // Stop retry on 4xx errors (client mistakes)
+        // Note: EventSource doesn't expose HTTP status directly, but 4xx errors
+        // typically result in immediate CLOSED state
+        if (isHttpError && state.retryCount === 0) {
+          // Likely a 4xx error on first attempt - don't retry
+          console.debug('[SSE] Stopped: likely 4xx error, not retrying');
+          telemetry.sse.stopped('4xx');
+          updateState({ status: 'disconnected' });
+          onConnectionChange?.('disconnected');
+          return;
+        }
+
+        // Retry logic with bounded exponential backoff
         if (state.retryCount < maxRetries) {
-          const delay = calculateRetryDelay(state.retryCount);
+          const delay = Math.min(calculateRetryDelay(state.retryCount), 10000); // Cap at 10s
           console.log(
             `[SSE] Retrying in ${delay}ms (attempt ${state.retryCount + 1}/${maxRetries})`
           );

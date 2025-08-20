@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { API_ORIGIN } from '../../../lib/api/origin';
 
 /**
  * POST /api/auth/logout
@@ -8,10 +9,9 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(request: NextRequest) {
   try {
     // Forward the request to the backend API if needed
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
 
     try {
-      const backendResponse = await fetch(`${apiUrl}/auth/logout`, {
+      const backendResponse = await fetch(`${API_ORIGIN}/auth/logout`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -41,31 +41,25 @@ export async function POST(request: NextRequest) {
       path: '/',
     };
 
-    // Method 1: Set with maxAge 0
-    response.cookies.set('accessToken', '', {
-      ...cookieOptions,
-      maxAge: 0,
-    });
+    // Clear all possible cookie names
+    const cookieNames = ['accessToken', 'refreshToken', 'access_token', 'auth-token'];
 
-    response.cookies.set('refreshToken', '', {
-      ...cookieOptions,
-      maxAge: 0,
-    });
+    for (const name of cookieNames) {
+      // Method 1: Set with maxAge 0
+      response.cookies.set(name, '', {
+        ...cookieOptions,
+        maxAge: 0,
+      });
 
-    // Method 2: Set with past expiration date
-    response.cookies.set('accessToken', '', {
-      ...cookieOptions,
-      expires: new Date(0),
-    });
+      // Method 2: Set with past expiration date
+      response.cookies.set(name, '', {
+        ...cookieOptions,
+        expires: new Date(0),
+      });
 
-    response.cookies.set('refreshToken', '', {
-      ...cookieOptions,
-      expires: new Date(0),
-    });
-
-    // Method 3: Delete cookies explicitly
-    response.cookies.delete('accessToken');
-    response.cookies.delete('refreshToken');
+      // Method 3: Delete cookies explicitly
+      response.cookies.delete(name);
+    }
 
     console.log('[LOGOUT] Cookies cleared successfully');
     return response;
@@ -78,9 +72,11 @@ export async function POST(request: NextRequest) {
       { status: 200 } // Return 200 so client-side logout continues
     );
 
-    // Still attempt to clear cookies
-    response.cookies.delete('accessToken');
-    response.cookies.delete('refreshToken');
+    // Still attempt to clear all cookies
+    const cookieNames = ['accessToken', 'refreshToken', 'access_token', 'auth-token'];
+    for (const name of cookieNames) {
+      response.cookies.delete(name);
+    }
 
     return response;
   }

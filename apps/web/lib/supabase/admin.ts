@@ -12,6 +12,12 @@ if (!supabaseServiceKey) {
   throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable');
 }
 
+console.debug('Supabase admin client config:', {
+  url: supabaseUrl,
+  hasServiceKey: !!supabaseServiceKey,
+  serviceKeyPrefix: supabaseServiceKey.substring(0, 10) + '...',
+});
+
 // Server-side Supabase client with service role key
 // This client has admin privileges and should ONLY be used in server-side code
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {

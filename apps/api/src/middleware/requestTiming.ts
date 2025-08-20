@@ -37,7 +37,10 @@ export function requestTiming(req: TimedRequest, res: Response, next: NextFuncti
     const duration = req.startTime ? Date.now() - req.startTime : 0;
 
     // Extract user context if available
-    const extendedReq = req as TimedRequest & { user?: { id: string }; tenant?: { companyId: string } };
+    const extendedReq = req as TimedRequest & {
+      user?: { id: string };
+      tenant?: { companyId: string };
+    };
     const userId = extendedReq.user?.id;
     const tenantId = extendedReq.tenant?.companyId;
 

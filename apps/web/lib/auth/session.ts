@@ -1,34 +1,62 @@
 import { cookies } from 'next/headers';
 import { SessionUser, SessionPayload } from './types';
 import { verifyToken } from './supabase-auth';
+import jwt from 'jsonwebtoken';
 
 // Re-export types for convenience
 export type { SessionUser, SessionPayload } from './types';
 
 /**
- * Get session from cookies (server-side only) using Supabase tokens
+ * Get session from cookies (server-side only) using Supabase tokens or dev tokens
  */
 export async function getServerSession(): Promise<SessionUser | null> {
   try {
     const cookieStore = cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
-    // Try access token with Supabase verification
-    if (accessToken) {
+    if (!accessToken) {
+      return null;
+    }
+
+    // In development, try to verify as a regular JWT first (for dev login)
+    if (process.env.NODE_ENV === 'development') {
       try {
-        const user = await verifyToken(accessToken);
-        if (user) {
+        const jwtSecret = process.env.JWT_SECRET || 'dev-shared-secret';
+        const payload = jwt.verify(accessToken, jwtSecret, {
+          algorithms: ['HS256'],
+          issuer: process.env.JWT_ISSUER || 'gogym-web',
+          audience: process.env.JWT_AUDIENCE || 'gogym-api',
+        }) as any;
+
+        if (payload.userId && payload.email && payload.companyId) {
           return {
-            userId: user.id,
-            email: user.email,
-            role: user.role as SessionUser['role'],
-            companyId: null, // Supabase doesn't have companyId in the token
+            userId: payload.userId,
+            email: payload.email,
+            role: payload.role as SessionUser['role'],
+            companyId: payload.companyId,
           };
         }
       } catch (error) {
-        // Token verification failed, continue to return null
+        console.warn('[Session] Dev JWT verification failed:', error);
+        // Not a dev JWT, try Supabase verification
       }
     }
+
+    // Try access token with Supabase verification
+    try {
+      const user = await verifyToken(accessToken);
+      if (user) {
+        return {
+          userId: user.id,
+          email: user.email,
+          role: user.role as SessionUser['role'],
+          companyId: null, // Supabase doesn't have companyId in the token
+        };
+      }
+    } catch (error) {
+      // Token verification failed
+    }
+
     return null;
   } catch (error) {
     console.error('Session verification error:', error);

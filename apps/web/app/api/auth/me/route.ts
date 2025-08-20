@@ -18,7 +18,25 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
     }
 
-    // Get full user data from database
+    // In development, if we have a session with companyId, return it directly (dev login)
+    if (process.env.NODE_ENV === 'development' && session.companyId) {
+      return NextResponse.json({
+        user: {
+          id: session.userId,
+          email: session.email,
+          firstName: 'Dev',
+          lastName: 'User',
+          role: session.role,
+          company: {
+            id: session.companyId,
+            name: 'Vigor Demo Co',
+            rfc: 'DEMO010101XXX',
+          },
+        },
+      });
+    }
+
+    // Get full user data from database (for Supabase auth)
     const user = await getUserById(session.userId);
 
     if (!user) {

@@ -1,13 +1,14 @@
 'use client';
 
 import React from 'react';
-import { DashboardShell } from '../../../components/dashboard/DashboardShell';
+import { DashboardShell, Widget } from '../../../components/dashboard/DashboardShell';
 import { ActiveVisitsWidget } from '../../../components/dashboard/widgets/ActiveVisitsWidget';
 import { ExpiringMembershipsWidget } from '../../../components/dashboard/widgets/ExpiringMembershipsWidget';
 import { RevenueSparkline } from '../../../components/dashboard/RevenueSparkline';
 import { ClassRosterToday } from '../../../components/dashboard/ClassRosterToday';
 import { StaffCoverageTimeline } from '../../../components/dashboard/StaffCoverageTimeline';
 import { LiveActivityFeed } from '../../../components/dashboard/LiveActivityFeed';
+import { useOrgContext } from '../../../lib/auth/context';
 
 interface DashboardV2ClientProps {
   locationId?: string;
@@ -25,6 +26,24 @@ interface DashboardV2ClientProps {
  * - LiveActivityFeed - SSE-powered activity stream
  */
 export function DashboardV2Client({ locationId }: DashboardV2ClientProps = {}) {
+  const { ready, orgId, status } = useOrgContext();
+
+  console.log('[DashboardV2Client] Auth state:', { ready, orgId, status });
+
+  if (!ready) {
+    return (
+      <DashboardShell>
+        {/* Loading skeleton while auth/tenant context loads */}
+        <Widget size="sm" loading={true} title="En el gimnasio ahora" />
+        <Widget size="md" loading={true} title="Membresías por vencer" />
+        <Widget size="md" loading={true} title="Ingresos" />
+        <Widget size="lg" loading={true} title="Clases de hoy" />
+        <Widget size="lg" loading={true} title="Cobertura de personal" />
+        <Widget size="md" loading={true} title="Actividad en vivo" />
+      </DashboardShell>
+    );
+  }
+
   return (
     <DashboardShell>
       {/* Top Row - KPI Widgets */}

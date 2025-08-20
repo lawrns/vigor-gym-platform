@@ -5,35 +5,40 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from '../../../../lib/auth/session';
-import { getClassesToday, getSampleCompanyId } from '../../../../lib/dashboard/supabase-data-service';
+import { getSessionWithDevBypass, createSessionHeaders } from '../../../../lib/auth/session.server';
+import { getClassesToday } from '../../../../lib/dashboard/supabase-data-service';
 
 export async function GET(request: NextRequest) {
   try {
-    // Skip authentication for development - TODO: Re-enable for production
-    // const session = await getServerSession();
-    // if (!session) {
-    //   return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
-    // }
+    // Get session with development bypass support
+    const sessionContext = await getSessionWithDevBypass();
+    if (!sessionContext) {
+      return NextResponse.json({ message: 'Authentication required' }, { status: 401 });
+    }
 
     // Get query parameters
     const { searchParams } = new URL(request.url);
     const locationId = searchParams.get('locationId') || undefined;
 
-    console.debug('[CLASSES-DIRECT] Fetching today\'s classes:', { locationId });
+    console.debug("[CLASSES-DIRECT] Fetching today's classes:", {
+      locationId,
+      companyId: sessionContext.tenant.companyId,
+    });
 
-    // Get company ID (for development, use sample company)
-    const companyId = await getSampleCompanyId();
+    // Use company ID from session context
+    const companyId = sessionContext.tenant.companyId;
 
     // Fetch classes directly from Supabase
     const classes = await getClassesToday(companyId, locationId);
 
     console.debug('[CLASSES-DIRECT] Classes fetched successfully:', classes.length);
 
+    const sessionHeaders = createSessionHeaders(sessionContext);
     return NextResponse.json(classes, {
       headers: {
         'Cache-Control': 'no-store, must-revalidate',
         'X-Classes-Direct': 'true',
+        ...sessionHeaders,
       },
     });
   } catch (error) {

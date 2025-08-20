@@ -17,12 +17,18 @@ import type {
   APIError,
   APIResponse,
 } from './types';
+import type {
+  DashboardSummary,
+  RevenueAnalytics,
+  ClassesToday,
+  StaffCoverage,
+} from '@vigor/shared';
 
 // Configuration - Use same-origin proxy in browser, direct API in server
 const API_BASE_URL =
   typeof window !== 'undefined'
     ? '' // Use same-origin proxy for browser requests
-    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001'; // Direct API for server requests
+    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003'; // Direct API for server requests
 
 // Error classes
 export class APIClientError extends Error {
@@ -98,21 +104,22 @@ async function apiRequest<T>(endpoint: string, options: RequestInit = {}): Promi
           const isExpectedGuestEndpoint =
             (endpoint.endsWith('/auth/me') ||
               endpoint.includes('/kpi/overview') ||
-              endpoint.includes('/api/kpi/overview')) &&
+              endpoint.includes('/api/kpi/overview') ||
+              endpoint.includes('/v1/dashboard/activity')) &&
             response.status === 401;
 
           if (!isExpectedGuestEndpoint) {
             console.warn(`[API] Authentication failed for ${endpoint}:`, errorData.message);
+
+            // Emit custom event for auth context to handle
+            window.dispatchEvent(
+              new CustomEvent('auth-error', {
+                detail: { status: response.status, endpoint, message: errorData.message },
+              })
+            );
           } else {
             console.debug(`[API] Expected 401 for guest endpoint:`, endpoint);
           }
-
-          // Emit custom event for auth context to handle
-          window.dispatchEvent(
-            new CustomEvent('auth-error', {
-              detail: { status: response.status, endpoint, message: errorData.message },
-            })
-          );
         }
       } else if (response.status === 429) {
         // Rate limiting - show toast
@@ -216,7 +223,9 @@ type MembersAPI = {
     data: Partial<{ email: string; firstName: string; lastName: string; status: string }>
   ) => Promise<{ member: Member }>;
   delete: (id: string) => Promise<{ message: string }>;
-  import: (data: { members: Member[] }) => Promise<{ message: string; members: Member[]; count: number }>;
+  import: (data: {
+    members: Member[];
+  }) => Promise<{ message: string; members: Member[]; count: number }>;
 };
 
 type AuthAPI = {
@@ -227,7 +236,10 @@ type AuthAPI = {
 };
 
 type DashboardAPI = {
-  summary: (opts?: { locationId?: string; range?: string }) => Promise<any>;
+  summary: (opts?: { locationId?: string; range?: string }) => Promise<DashboardSummary>;
+  revenue: (opts?: { period?: string; locationId?: string }) => Promise<RevenueAnalytics>;
+  classesToday: (opts?: { locationId?: string }) => Promise<ClassesToday>;
+  staffCoverage: (opts?: { date?: string; locationId?: string }) => Promise<StaffCoverage>;
 };
 
 type KPIAPI = {
@@ -271,7 +283,12 @@ type BillingAPI = {
   getInvoices: (params?: {
     limit?: number;
     offset?: number;
-  }) => Promise<{ invoices: Record<string, unknown>[]; total: number; limit: number; offset: number }>;
+  }) => Promise<{
+    invoices: Record<string, unknown>[];
+    total: number;
+    limit: number;
+    offset: number;
+  }>;
 };
 
 // Strict API client type - intentionally excludes generic HTTP methods
@@ -361,7 +378,8 @@ export const apiClient: ApiClient = {
     deletePaymentMethod: (paymentMethodId: string) =>
       api.delete<{ success: boolean }>(`/v1/billing/payment-methods/${paymentMethodId}`),
     createPortalSession: () => api.post<{ url: string }>('/v1/billing/stripe/portal', {}),
-    getSubscription: () => api.get<{ subscription: Record<string, unknown> }>('/v1/billing/subscription'),
+    getSubscription: () =>
+      api.get<{ subscription: Record<string, unknown> }>('/v1/billing/subscription'),
     cancelSubscription: () => api.post<{ message: string }>('/v1/billing/subscription/cancel', {}),
     getInvoices: (params?: { limit?: number; offset?: number }) => {
       const stringParams = params
@@ -370,10 +388,12 @@ export const apiClient: ApiClient = {
             ...(params.offset !== undefined && { offset: params.offset.toString() }),
           }
         : undefined;
-      return api.get<{ invoices: Record<string, unknown>[]; total: number; limit: number; offset: number }>(
-        '/v1/billing/invoices',
-        stringParams
-      );
+      return api.get<{
+        invoices: Record<string, unknown>[];
+        total: number;
+        limit: number;
+        offset: number;
+      }>('/v1/billing/invoices', stringParams);
     },
   },
 
@@ -449,7 +469,37 @@ export const apiClient: ApiClient = {
       if (opts?.range) params.set('range', opts.range);
       const queryString = params.toString();
 
-      return api.get<any>(`/api/dashboard/summary${queryString ? `?${queryString}` : ''}`);
+      return api.get<DashboardSummary>(
+        `/api/dashboard/summary${queryString ? `?${queryString}` : ''}`
+      );
+    },
+
+    revenue: (opts?: { period?: string; locationId?: string }) => {
+      const params = new URLSearchParams();
+      if (opts?.period) params.set('period', opts.period);
+      if (opts?.locationId) params.set('locationId', opts.locationId);
+      const queryString = params.toString();
+
+      return api.get<RevenueAnalytics>(
+        `/api/revenue/trends${queryString ? `?${queryString}` : ''}`
+      );
+    },
+
+    classesToday: (opts?: { locationId?: string }) => {
+      const params = new URLSearchParams();
+      if (opts?.locationId) params.set('locationId', opts.locationId);
+      const queryString = params.toString();
+
+      return api.get<ClassesToday>(`/api/classes/today${queryString ? `?${queryString}` : ''}`);
+    },
+
+    staffCoverage: (opts?: { date?: string; locationId?: string }) => {
+      const params = new URLSearchParams();
+      if (opts?.date) params.set('date', opts.date);
+      if (opts?.locationId) params.set('locationId', opts.locationId);
+      const queryString = params.toString();
+
+      return api.get<StaffCoverage>(`/api/staff-coverage${queryString ? `?${queryString}` : ''}`);
     },
   },
 };

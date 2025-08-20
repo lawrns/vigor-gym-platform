@@ -4,29 +4,53 @@
  * Proxies SSE requests to the API server with proper auth forwarding
  */
 
-import { NextRequest } from 'next/server';
-const API_BASE = process.env.API_BASE_URL || 'http://localhost:4002';
+import { NextRequest, NextResponse } from 'next/server';
+import { cookies } from 'next/headers';
+import { API_ORIGIN } from '../../../lib/api/origin';
+
+function decodeJwtOrgId(jwt: string): string | null {
+  try {
+    const segments = jwt.split('.');
+    if (segments.length !== 3) return null;
+
+    const base64 = segments[1].replace(/-/g, '+').replace(/_/g, '/');
+    const payload = JSON.parse(atob(base64));
+    return payload.companyId || payload.orgId || null;
+  } catch {
+    return null;
+  }
+}
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const orgId = searchParams.get('orgId') || '';
   const locationId = searchParams.get('locationId') || '';
 
+  // Get orgId from query, header, or JWT token
+  let orgId = searchParams.get('orgId') || req.headers.get('x-org-id') || '';
+
+  // If no orgId provided, try to extract from cookie JWT
   if (!orgId) {
-    return new Response(JSON.stringify({ code: 'ORG_REQUIRED', hint: 'Pass ?orgId' }), {
-      status: 422,
-      headers: { 'content-type': 'application/json' },
-    });
+    const cookieStore = cookies();
+    const cookieAuth = cookieStore.get('accessToken')?.value || cookieStore.get('auth-token')?.value;
+    if (cookieAuth) {
+      orgId = decodeJwtOrgId(cookieAuth) || '';
+    }
+  }
+
+  // Validate orgId is a proper UUID
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(orgId);
+  if (!isUuid) {
+    return NextResponse.json({ error: 'INVALID_ORG_ID', hint: 'orgId must be a valid UUID' }, { status: 422 });
   }
 
   const qs = new URLSearchParams({ orgId });
   if (locationId) qs.set('locationId', locationId);
 
-  const upstream = `${API_BASE}/v1/events?${qs.toString()}`;
+  const upstream = `${API_ORIGIN}/v1/events?${qs.toString()}`;
 
   const headerAuth = req.headers.get('authorization');
-  const cookieToken =
-    req.cookies.get('accessToken')?.value || req.cookies.get('auth-token')?.value || '';
+  const cookieStore = cookies();
+  const cookieToken = cookieStore.get('accessToken')?.value || cookieStore.get('auth-token')?.value || '';
   const auth = headerAuth || (cookieToken ? `Bearer ${cookieToken}` : '');
 
   const res = await fetch(upstream, {

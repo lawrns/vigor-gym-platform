@@ -179,7 +179,9 @@ export async function getPartnerGymIds(prisma: unknown, userId: string): Promise
       select: { gymId: true },
     });
 
-    return partnerAssignments.map((assignment: Record<string, unknown>) => assignment.gymId as string);
+    return partnerAssignments.map(
+      (assignment: Record<string, unknown>) => assignment.gymId as string
+    );
   } catch (error) {
     console.error('Error getting partner gym IDs:', error);
     return [];

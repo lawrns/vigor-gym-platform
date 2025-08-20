@@ -130,7 +130,12 @@ export function StaffCoverageTimeline({ locationId, className }: StaffCoverageTi
 
   if (loading) {
     return (
-      <Widget title="Cobertura de Personal" icon={Icons.Users} className={className} loading={true}>
+      <Widget
+        title="Cobertura de Personal"
+        icon={<Icons.Users className="h-5 w-5 text-gray-600 dark:text-gray-400" />}
+        className={className}
+        loading={true}
+      >
         <div className="space-y-4">
           {[1, 2, 3].map(i => (
             <div key={i} className="animate-pulse">
@@ -152,7 +157,7 @@ export function StaffCoverageTimeline({ locationId, className }: StaffCoverageTi
     return (
       <Widget
         title="Cobertura de Personal"
-        icon={Icons.Users}
+        icon={<Icons.Users className="h-5 w-5 text-gray-600 dark:text-gray-400" />}
         className={className}
         error={error}
         onRetry={fetchData}
@@ -164,10 +169,9 @@ export function StaffCoverageTimeline({ locationId, className }: StaffCoverageTi
     return (
       <WidgetEmpty
         title="Cobertura de Personal"
-        icon={Icons.Users}
+        icon={<Icons.Users className="h-6 w-6 text-gray-400" />}
         className={className}
-        message="No hay turnos programados para hoy"
-        description="Los turnos aparecerán aquí cuando estén programados"
+        description="No hay turnos programados para hoy"
         action={{
           label: 'Programar Turno',
           href: '/staff/shifts/new',
@@ -179,7 +183,7 @@ export function StaffCoverageTimeline({ locationId, className }: StaffCoverageTi
   return (
     <Widget
       title="Cobertura de Personal"
-      icon={Icons.Users}
+      icon={<Icons.Users className="h-5 w-5 text-gray-600 dark:text-gray-400" />}
       className={className}
       action={{
         label: 'Ver Horarios',

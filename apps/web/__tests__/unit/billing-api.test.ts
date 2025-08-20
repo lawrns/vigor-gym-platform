@@ -199,7 +199,9 @@ describe('Billing API Client', () => {
         headers: new Headers(),
       });
 
-      await expect(apiClient.billing.setDefaultPaymentMethod(paymentMethodId)).rejects.toMatchObject({
+      await expect(
+        apiClient.billing.setDefaultPaymentMethod(paymentMethodId)
+      ).rejects.toMatchObject({
         message: 'Payment method not found',
         status: 404,
       });

@@ -5,7 +5,7 @@ import { useSearchParams } from 'next/navigation';
 import { apiClient, isAPIError } from '../../lib/api/client';
 import type { KPIOverview } from '../../lib/api/types';
 import { Icons } from '../../lib/icons/registry';
-import { useAuth } from '../../lib/auth/context';
+import { useAuth, useOrgContext } from '../../lib/auth/context';
 
 interface KpiCardProps {
   title: string;

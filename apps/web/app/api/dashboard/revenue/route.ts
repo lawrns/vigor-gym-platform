@@ -7,8 +7,7 @@
 import { cookies, headers } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '../../../../lib/auth/session';
-
-const API_ORIGIN = process.env.API_ORIGIN || 'http://localhost:4001';
+import { API_ORIGIN } from '../../../lib/api/origin';
 
 export async function GET(request: NextRequest) {
   try {

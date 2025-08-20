@@ -140,7 +140,7 @@ export const hasProperty = <T extends Record<string, unknown>>(
 export const setupTestEnvironment = () => {
   // Mock console methods to reduce noise in tests
   const originalConsole = { ...console };
-  
+
   beforeEach(() => {
     jest.spyOn(console, 'warn').mockImplementation(() => {});
     jest.spyOn(console, 'error').mockImplementation(() => {});
@@ -166,11 +166,11 @@ export const waitForCondition = async (
   interval = 100
 ): Promise<void> => {
   const start = Date.now();
-  
+
   while (!condition() && Date.now() - start < timeout) {
     await waitFor(interval);
   }
-  
+
   if (!condition()) {
     throw new Error(`Condition not met within ${timeout}ms`);
   }

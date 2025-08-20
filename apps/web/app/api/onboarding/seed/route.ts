@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
+import { API_ORIGIN } from '../../../lib/api/origin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,7 +22,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Forward request to API server
-    const response = await fetch(`${API_BASE_URL}/v1/onboarding/seed`, {
+    const response = await fetch(`${API_ORIGIN}/v1/onboarding/seed`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${authToken}`,

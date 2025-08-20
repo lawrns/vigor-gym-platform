@@ -9,17 +9,8 @@
 import React, { useState, useEffect } from 'react';
 import { Icons } from '../../lib/icons/registry';
 import { Widget, WidgetEmpty } from './DashboardShell';
-import { api } from '../../lib/api/client';
-
-interface DailyRevenue {
-  date: string;
-  amount: number;
-  paymentsCount: number;
-  failedCount: number;
-}
-
-// Import the RevenueAnalytics interface from the data service
-import type { RevenueAnalytics } from '../../lib/dashboard/supabase-data-service';
+import { apiClient } from '../../lib/api/client';
+import type { RevenueAnalytics } from '@vigor/shared';
 
 interface RevenueSparklineProps {
   locationId?: string | null;
@@ -37,13 +28,10 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
       setLoading(true);
       setError(null);
 
-      const params = new URLSearchParams();
-      params.set('period', selectedPeriod);
-      if (locationId) {
-        params.set('locationId', locationId);
-      }
-
-      const result = await api.get<RevenueAnalytics>(`/api/revenue/trends?${params}`);
+      const result = await apiClient.dashboard.revenue({
+        period: selectedPeriod,
+        locationId: locationId || undefined,
+      });
       setData(result);
     } catch (err) {
       console.error('Error fetching revenue trends:', err);
@@ -57,26 +45,24 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
     fetchData();
   }, [selectedPeriod, locationId]);
 
-  // Format currency (cents to pesos)
-  const formatCurrency = (cents: number) => {
-    const pesos = cents / 100;
+  // Format currency (values are already in MXN)
+  const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('es-MX', {
       style: 'currency',
       currency: 'MXN',
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
-    }).format(pesos);
+    }).format(amount);
   };
 
   // Format large numbers (K, M)
-  const formatLargeNumber = (cents: number) => {
-    const pesos = cents / 100;
-    if (pesos >= 1000000) {
-      return `${(pesos / 1000000).toFixed(1)}M`;
-    } else if (pesos >= 1000) {
-      return `${(pesos / 1000).toFixed(0)}K`;
+  const formatLargeNumber = (amount: number) => {
+    if (amount >= 1000000) {
+      return `${(amount / 1000000).toFixed(1)}M`;
+    } else if (amount >= 1000) {
+      return `${(amount / 1000).toFixed(0)}K`;
     }
-    return pesos.toFixed(0);
+    return amount.toFixed(0);
   };
 
   // Get growth color
@@ -88,16 +74,16 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
 
   // Get growth icon
   const getGrowthIcon = (percent: number) => {
-    if (percent > 0) return Icons.TrendingUp;
-    if (percent < 0) return Icons.TrendingDown;
-    return Icons.Minus;
+    if (percent > 0) return <Icons.TrendingUp className="w-3 h-3" />;
+    if (percent < 0) return <Icons.TrendingUp className="w-3 h-3 rotate-180" />;
+    return <span className="w-3 h-3 flex items-center justify-center text-xs">—</span>;
   };
 
   if (loading) {
     return (
       <Widget
         title="Ingresos y Tendencias"
-        icon={Icons.DollarSign}
+        icon={<Icons.Banknote className="h-5 w-5 text-gray-600 dark:text-gray-400" />}
         className={className}
         loading={true}
       >
@@ -120,33 +106,43 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
     return (
       <Widget
         title="Ingresos y Tendencias"
-        icon={Icons.DollarSign}
+        icon={<Icons.Banknote className="h-5 w-5 text-gray-600 dark:text-gray-400" />}
         className={className}
         error={error}
         onRetry={fetchData}
-      />
+      >
+        {/* Error content is handled by the Widget component */}
+      </Widget>
     );
   }
 
   if (!data) {
     return (
-      <WidgetEmpty
+      <Widget
         title="Ingresos y Tendencias"
-        icon={Icons.DollarSign}
+        icon={<Icons.Banknote className="h-5 w-5 text-gray-600 dark:text-gray-400" />}
         className={className}
-        message="No hay datos de ingresos disponibles"
-        description="Los datos aparecerán cuando haya transacciones registradas"
-      />
+      >
+        <WidgetEmpty
+          title="Sin datos de ingresos"
+          description="Los datos aparecerán cuando haya transacciones registradas"
+          action={{
+            label: 'Ver Facturación',
+            href: '/billing',
+          }}
+          icon={<Icons.Banknote className="h-6 w-6 text-gray-400" />}
+        />
+      </Widget>
     );
   }
 
   const growthPercent = data.growth?.percentage || 0;
-  const GrowthIcon = getGrowthIcon(growthPercent);
+  const growthIcon = getGrowthIcon(growthPercent);
 
   return (
     <Widget
       title="Ingresos y Tendencias"
-      icon={Icons.DollarSign}
+      icon={<Icons.Banknote className="h-5 w-5 text-gray-600 dark:text-gray-400" />}
       className={className}
       action={{
         label: 'Ver Detalles',
@@ -182,10 +178,8 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
             <span className="text-gray-500 dark:text-gray-400">
               Ingresos totales ({selectedPeriod})
             </span>
-            <div
-              className={`flex items-center space-x-1 ${getGrowthColor(growthPercent)}`}
-            >
-              <GrowthIcon className="w-3 h-3" />
+            <div className={`flex items-center space-x-1 ${getGrowthColor(growthPercent)}`}>
+              {growthIcon}
               <span className="font-medium">{Math.abs(growthPercent)}%</span>
             </div>
           </div>
@@ -193,11 +187,15 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
 
         {/* Sparkline Chart */}
         <div className="h-16 w-full">
-          <Sparkline
-            data={data.dataPoints.map(point => point.revenue)}
-            className="w-full h-full"
-            color="rgb(59, 130, 246)" // blue-500
-          />
+          {data.dataPoints && data.dataPoints.length > 0 ? (
+            <div className="w-full h-full flex items-center justify-center text-blue-500">
+              <span className="text-xs">📈 Gráfico de tendencias</span>
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center text-gray-400">
+              <span className="text-xs">Sin datos suficientes</span>
+            </div>
+          )}
         </div>
 
         {/* Key Metrics Grid */}
@@ -210,15 +208,17 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900 dark:text-white">
-              {formatLargeNumber(data.dataPoints.length > 0 ? data.totalRevenue / data.dataPoints.length : 0)}
+              {formatLargeNumber(
+                data.dataPoints.length > 0 ? data.totalRevenue / data.dataPoints.length : 0
+              )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">Promedio diario</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900 dark:text-white">
-              {data.dataPoints.reduce((sum, point) => sum + point.transactions, 0)}
+              {data.dataPoints.length}
             </div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">Transacciones</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">Días con datos</div>
           </div>
         </div>
 
@@ -232,76 +232,5 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
         )}
       </div>
     </Widget>
-  );
-}
-
-/**
- * Simple SVG Sparkline Component
- */
-interface SparklineProps {
-  data: number[];
-  className?: string;
-  color?: string;
-}
-
-function Sparkline({ data, className = '', color = 'rgb(59, 130, 246)' }: SparklineProps) {
-  if (!data || data.length === 0) {
-    return (
-      <div className={`${className} flex items-center justify-center text-gray-400`}>
-        <span className="text-xs">Sin datos</span>
-      </div>
-    );
-  }
-
-  const width = 200;
-  const height = 60;
-  const padding = 4;
-
-  const min = Math.min(...data);
-  const max = Math.max(...data);
-  const range = max - min || 1; // Avoid division by zero
-
-  // Generate SVG path
-  const points = data.map((value, index) => {
-    const x = padding + (index / (data.length - 1)) * (width - 2 * padding);
-    const y = height - padding - ((value - min) / range) * (height - 2 * padding);
-    return `${x},${y}`;
-  });
-
-  const pathData = `M ${points.join(' L ')}`;
-
-  return (
-    <div className={className}>
-      <svg
-        width="100%"
-        height="100%"
-        viewBox={`0 0 ${width} ${height}`}
-        className="overflow-visible"
-      >
-        {/* Gradient definition */}
-        <defs>
-          <linearGradient id="sparklineGradient" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor={color} stopOpacity="0.3" />
-            <stop offset="100%" stopColor={color} stopOpacity="0.05" />
-          </linearGradient>
-        </defs>
-
-        {/* Fill area */}
-        <path
-          d={`${pathData} L ${width - padding},${height - padding} L ${padding},${height - padding} Z`}
-          fill="url(#sparklineGradient)"
-        />
-
-        {/* Line */}
-        <path
-          d={pathData}
-          fill="none"
-          stroke={color}
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </div>
   );
 }

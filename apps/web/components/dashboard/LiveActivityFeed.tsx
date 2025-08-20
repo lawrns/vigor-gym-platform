@@ -9,9 +9,10 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useSSE, SSEEvent } from '../../lib/hooks/useSSE';
-import { useAuth } from '../../lib/auth/context';
+import { useOrgContext } from '../../lib/auth/context';
 import { Icons } from '../../lib/icons/registry';
 import { api } from '../../lib/api/client';
+import { Widget, WidgetEmpty } from './DashboardShell';
 
 interface ActivityEvent {
   id: string;
@@ -36,12 +37,25 @@ export function LiveActivityFeed({
   maxEvents = 25,
   className = '',
 }: LiveActivityFeedProps) {
-  const { user } = useAuth();
+  const { orgId, ready } = useOrgContext();
   const [events, setEvents] = useState<ActivityEvent[]>([]);
   const [isPolling, setIsPolling] = useState(false);
   const [lastPolledAt, setLastPolledAt] = useState<string | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const announcementRef = useRef<HTMLDivElement>(null);
+
+  // Auth gate: Don't render real-time features without tenant context
+  if (!ready || !orgId) {
+    return (
+      <Widget size="md" title="Actividad en vivo" className={className}>
+        <WidgetEmpty
+          title="Autenticación requerida"
+          description="Conéctate para ver actividad en vivo"
+          icon={<Icons.Bell className="h-6 w-6 text-gray-400" />}
+        />
+      </Widget>
+    );
+  }
 
   // Convert SSE event to activity event
   const convertSSEEvent = useCallback((sseEvent: SSEEvent): ActivityEvent => {
@@ -124,35 +138,13 @@ export function LiveActivityFeed({
     [convertSSEEvent, maxEvents]
   );
 
-  // SSE connection
-  const sseState = useSSE({
-    orgId: user?.company?.id || '',
-    locationId,
-    onEvent: handleSSEEvent,
-    onConnectionChange: status => {
-      console.log('[LiveActivityFeed] SSE status:', status);
-
-      // Start polling if SSE fails
-      if (status === 'error' || status === 'disconnected') {
-        setIsPolling(true);
-        startPolling();
-      } else if (status === 'connected') {
-        setIsPolling(false);
-        stopPolling();
-      }
-    },
-    maxRetries: 3,
-    retryDelay: 2000,
-    maxRetryDelay: 10000,
-  });
-
-  // Polling fallback
+  // Polling fallback function
   const fetchRecentActivity = useCallback(async () => {
-    if (!user?.company?.id) return;
+    if (!orgId) return;
 
     try {
       const params = new URLSearchParams({
-        orgId: user.company.id,
+        orgId: orgId,
         limit: maxEvents.toString(),
       });
 
@@ -168,21 +160,16 @@ export function LiveActivityFeed({
       const newEvents = data.events?.map(convertSSEEvent) || [];
 
       if (newEvents.length > 0) {
-        setEvents(prev => {
-          const combined = [...newEvents, ...prev];
-          const unique = combined.filter(
-            (event, index, arr) => arr.findIndex(e => e.id === event.id) === index
-          );
-          return unique.slice(0, maxEvents);
-        });
+        setEvents(prev => [...newEvents, ...prev].slice(0, maxEvents));
       }
 
       setLastPolledAt(new Date().toISOString());
     } catch (error) {
       console.error('[LiveActivityFeed] Polling failed:', error);
     }
-  }, [user?.company?.id, locationId, maxEvents, lastPolledAt, convertSSEEvent]);
+  }, [orgId, locationId, maxEvents, lastPolledAt, convertSSEEvent]);
 
+  // Define polling control functions
   const startPolling = useCallback(() => {
     if (pollingIntervalRef.current) return;
 
@@ -198,6 +185,34 @@ export function LiveActivityFeed({
       console.log('[LiveActivityFeed] Stopped polling fallback');
     }
   }, []);
+
+  // Memoized connection change handler
+  const handleConnectionChange = useCallback(
+    (status: string) => {
+      console.log('[LiveActivityFeed] SSE status:', status);
+
+      // Start polling if SSE fails
+      if (status === 'error' || status === 'disconnected') {
+        setIsPolling(true);
+        startPolling();
+      } else if (status === 'connected') {
+        setIsPolling(false);
+        stopPolling();
+      }
+    },
+    [startPolling, stopPolling]
+  );
+
+  // SSE connection - now guaranteed to have valid orgId
+  const sseState = useSSE({
+    orgId: orgId, // Guaranteed to be valid UUID from auth gate
+    locationId,
+    onEvent: handleSSEEvent,
+    onConnectionChange: handleConnectionChange,
+    maxRetries: 3,
+    retryDelay: 2000,
+    maxRetryDelay: 10000,
+  });
 
   // Cleanup
   useEffect(() => {

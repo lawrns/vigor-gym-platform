@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
+import { API_ORIGIN } from '../../../../lib/api/origin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,7 +42,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward request to API with normalized payload
-    const response = await fetch(`${API_BASE_URL}/v1/devices/auth`, {
+    const response = await fetch(`${API_ORIGIN}/v1/devices/auth`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -33,7 +33,11 @@ export class AppError extends Error {
  * Common error factory functions
  */
 
-export function badRequest(message: string, code: string = 'BAD_REQUEST', details?: Record<string, unknown>): AppError {
+export function badRequest(
+  message: string,
+  code: string = 'BAD_REQUEST',
+  details?: Record<string, unknown>
+): AppError {
   return new AppError(code, message, 400, details);
 }
 
@@ -55,7 +59,11 @@ export function notFound(
   return new AppError(code, message, 404);
 }
 
-export function conflict(message: string, code: string = 'CONFLICT', details?: Record<string, unknown>): AppError {
+export function conflict(
+  message: string,
+  code: string = 'CONFLICT',
+  details?: Record<string, unknown>
+): AppError {
   return new AppError(code, message, 409, details);
 }
 
@@ -67,7 +75,10 @@ export function unprocessableEntity(
   return new AppError(code, message, 422, details);
 }
 
-export function invalidRange(message: string = 'Invalid date range', details?: Record<string, unknown>): AppError {
+export function invalidRange(
+  message: string = 'Invalid date range',
+  details?: Record<string, unknown>
+): AppError {
   return new AppError('INVALID_RANGE', message, 422, details);
 }
 

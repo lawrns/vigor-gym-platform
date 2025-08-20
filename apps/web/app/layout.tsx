@@ -43,6 +43,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
       </head>
       <body className="bg-bg text-text font-sans antialiased">
+        {/* {process.env.NODE_ENV === 'development' && process.env.NEXT_PUBLIC_FILTER_EXTENSION_NOISE === 'true' && <DevConsoleFilter />} */}
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

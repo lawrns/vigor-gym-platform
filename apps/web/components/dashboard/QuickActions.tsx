@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Icons } from '../../lib/icons/registry';
-import { useAuth } from '../../lib/auth/context';
+import { useAuth, useOrgContext } from '../../lib/auth/context';
 
 interface QuickAction {
   id: string;

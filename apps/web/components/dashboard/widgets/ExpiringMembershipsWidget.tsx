@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Icons } from '../../../lib/icons/registry';
 import { Widget, WidgetEmpty } from '../DashboardShell';
 import { apiClient } from '../../../lib/api/client';
-import type { DashboardSummary } from '../../../lib/dashboard/supabase-data-service';
+import type { DashboardSummary } from '@vigor/shared';
 
 interface ExpiringMember {
   id: string;

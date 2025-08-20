@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
+import { API_ORIGIN } from '../../../../../lib/api/origin';
 
 export async function GET(request: NextRequest) {
   try {
@@ -27,7 +26,7 @@ export async function GET(request: NextRequest) {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const response = await fetch(`${API_BASE_URL}/v1/memberships/expiring/summary`, {
+    const response = await fetch(`${API_ORIGIN}/v1/memberships/expiring/summary`, {
       method: 'GET',
       headers,
     });

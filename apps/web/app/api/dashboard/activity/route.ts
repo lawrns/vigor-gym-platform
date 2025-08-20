@@ -6,7 +6,10 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '../../../../lib/auth/session';
-import { getActivityEvents, getSampleCompanyId } from '../../../../lib/dashboard/supabase-data-service';
+import {
+  getActivityEvents,
+  getSampleCompanyId,
+} from '../../../../lib/dashboard/supabase-data-service';
 
 export async function GET(request: NextRequest) {
   try {

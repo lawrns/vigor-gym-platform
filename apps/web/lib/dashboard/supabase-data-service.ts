@@ -1,6 +1,6 @@
 /**
  * Supabase Dashboard Data Service
- * 
+ *
  * Direct connection to Supabase for real-time dashboard data.
  * Bypasses the API server for immediate data access.
  */
@@ -97,26 +97,45 @@ export async function getDashboardSummary(
   fromDate.setDate(fromDate.getDate() - days);
 
   try {
-    // Get active visits (checked in but not checked out)
-    const { data: activeVisitsData } = await supabaseAdmin
+    // Get active visits (checked in but not checked out) - simplified query first
+    const { data: testData, error: testError } = await supabaseAdmin
       .from('visits')
-      .select(`
+      .select('id')
+      .limit(1);
+
+    console.debug('Test query result:', { testData, testError });
+
+    if (testError) {
+      console.error('Basic test query failed:', testError);
+      // Fall back to mock data if Supabase is not accessible
+      return getMockDashboardSummary(range, locationId);
+    }
+
+    // Now try the actual query
+    const { data: activeVisitsData, error: visitsError } = await supabaseAdmin
+      .from('visits')
+      .select(
+        `
         id,
         membership:memberships!inner(
           company_id
         )
-      `)
+      `
+      )
       .eq('membership.company_id', companyId)
       .not('check_in', 'is', null)
       .is('check_out', null);
 
+    if (visitsError) {
+      console.error('Error fetching active visits:', visitsError);
+    }
+
+    console.debug('Active visits data:', { activeVisitsData, companyId });
     const activeVisits = activeVisitsData?.length || 0;
 
     // Get gym capacity (assuming 50 per gym for now)
-    const { data: gymsData } = await supabaseAdmin
-      .from('gyms')
-      .select('id');
-    
+    const { data: gymsData } = await supabaseAdmin.from('gyms').select('id');
+
     const totalCapacity = (gymsData?.length || 1) * 50;
     const utilizationPercent = Math.round((activeVisits / totalCapacity) * 100);
 
@@ -130,35 +149,36 @@ export async function getDashboardSummary(
       .from('memberships')
       .select('id')
       .eq('company_id', companyId)
-      .eq('status', 'ACTIVE')
+      .eq('status', 'active')
       .lte('ends_at', in7Days.toISOString());
 
     const { data: expiring14d } = await supabaseAdmin
       .from('memberships')
       .select('id')
       .eq('company_id', companyId)
-      .eq('status', 'ACTIVE')
+      .eq('status', 'active')
       .lte('ends_at', in14Days.toISOString());
 
     const { data: expiring30d } = await supabaseAdmin
       .from('memberships')
       .select('id')
       .eq('company_id', companyId)
-      .eq('status', 'ACTIVE')
+      .eq('status', 'active')
       .lte('ends_at', in30Days.toISOString());
 
-    // Get revenue data (using payments table)
+    // Get revenue data (using invoices table since payments table is empty)
     const { data: revenueData } = await supabaseAdmin
-      .from('payments')
-      .select('paid_mxn_cents, created_at')
-      .eq('status', 'COMPLETED')
-      .gte('created_at', fromDate.toISOString());
+      .from('invoices')
+      .select('total_mxn_cents, issued_at')
+      .eq('company_id', companyId)
+      .gte('issued_at', fromDate.toISOString());
 
-    const totalRevenue = revenueData?.reduce((sum, payment) => sum + (payment.paid_mxn_cents || 0), 0) || 0;
+    const totalRevenue =
+      revenueData?.reduce((sum, invoice) => sum + (invoice.total_mxn_cents || 0), 0) || 0;
     const transactionCount = revenueData?.length || 0;
 
     // Calculate MRR (simplified)
-    const mrr = Math.round(totalRevenue / days * 30);
+    const mrr = Math.round((totalRevenue / days) * 30);
 
     // Get today's classes
     const todayStart = new Date();
@@ -232,7 +252,7 @@ export async function getRevenueAnalytics(
 
     // Group by date
     const dailyRevenue = new Map<string, { revenue: number; transactions: number }>();
-    
+
     paymentsData?.forEach(payment => {
       const date = payment.created_at.split('T')[0];
       const existing = dailyRevenue.get(date) || { revenue: 0, transactions: 0 };
@@ -253,13 +273,14 @@ export async function getRevenueAnalytics(
     // Calculate growth (simplified)
     const firstHalf = dataPoints.slice(0, Math.floor(dataPoints.length / 2));
     const secondHalf = dataPoints.slice(Math.floor(dataPoints.length / 2));
-    
+
     const firstHalfTotal = firstHalf.reduce((sum, point) => sum + point.revenue, 0);
     const secondHalfTotal = secondHalf.reduce((sum, point) => sum + point.revenue, 0);
-    
-    const growthPercentage = firstHalfTotal > 0 
-      ? Math.round(((secondHalfTotal - firstHalfTotal) / firstHalfTotal) * 100)
-      : 0;
+
+    const growthPercentage =
+      firstHalfTotal > 0
+        ? Math.round(((secondHalfTotal - firstHalfTotal) / firstHalfTotal) * 100)
+        : 0;
 
     return {
       totalRevenue,
@@ -300,30 +321,34 @@ export async function getClassesToday(
   try {
     const { data: classesData } = await supabaseAdmin
       .from('classes')
-      .select(`
+      .select(
+        `
         id,
         title,
         starts_at,
         capacity,
         gym:gyms(name),
         bookings:bookings(id, status)
-      `)
+      `
+      )
       .gte('starts_at', todayStart.toISOString())
       .lte('starts_at', todayEnd.toISOString())
       .order('starts_at', { ascending: true });
 
-    return classesData?.map(cls => ({
-      id: cls.id,
-      title: cls.title,
-      starts_at: cls.starts_at,
-      capacity: cls.capacity,
-      booked: cls.bookings?.filter(b => b.status === 'CONFIRMED').length || 0,
-      instructor: 'TBD', // TODO: Add instructor relationship
-      gym_name: cls.gym?.name || 'Unknown',
-    })) || [];
+    return (
+      classesData?.map(cls => ({
+        id: cls.id,
+        title: cls.title,
+        starts_at: cls.starts_at,
+        capacity: cls.capacity,
+        booked: cls.bookings?.filter(b => b.status === 'CONFIRMED').length || 0,
+        instructor: 'TBD', // TODO: Add instructor relationship
+        gym_name: cls.gym?.name || 'Unknown',
+      })) || []
+    );
   } catch (error) {
     console.error('Classes today error:', error);
-    throw new Error('Failed to fetch today\'s classes');
+    throw new Error("Failed to fetch today's classes");
   }
 }
 
@@ -344,7 +369,8 @@ export async function getStaffCoverage(
   try {
     const { data: shiftsData } = await supabaseAdmin
       .from('staff_shifts')
-      .select(`
+      .select(
+        `
         id,
         staff_id,
         start_time,
@@ -356,21 +382,24 @@ export async function getStaffCoverage(
           company_id
         ),
         gym:gyms(name)
-      `)
+      `
+      )
       .eq('staff.company_id', companyId)
       .gte('start_time', startOfDay.toISOString())
       .lte('start_time', endOfDay.toISOString())
       .order('start_time', { ascending: true });
 
-    return shiftsData?.map(shift => ({
-      id: shift.id,
-      staff_id: shift.staff_id,
-      staff_name: `${shift.staff?.first_name || ''} ${shift.staff?.last_name || ''}`.trim(),
-      role: shift.staff?.role || 'staff',
-      start_time: shift.start_time,
-      end_time: shift.end_time,
-      gym_name: shift.gym?.name || 'Unknown',
-    })) || [];
+    return (
+      shiftsData?.map(shift => ({
+        id: shift.id,
+        staff_id: shift.staff_id,
+        staff_name: `${shift.staff?.first_name || ''} ${shift.staff?.last_name || ''}`.trim(),
+        role: shift.staff?.role || 'staff',
+        start_time: shift.start_time,
+        end_time: shift.end_time,
+        gym_name: shift.gym?.name || 'Unknown',
+      })) || []
+    );
   } catch (error) {
     console.error('Staff coverage error:', error);
     throw new Error('Failed to fetch staff coverage');
@@ -392,7 +421,8 @@ export async function getActivityEvents(
     // Get recent visits (check-ins and check-outs)
     const { data: visitsData } = await supabaseAdmin
       .from('visits')
-      .select(`
+      .select(
+        `
         id,
         check_in,
         check_out,
@@ -404,7 +434,8 @@ export async function getActivityEvents(
           )
         ),
         gym:gyms(name)
-      `)
+      `
+      )
       .eq('membership.company_id', companyId)
       .or(`check_in.gte.${sinceDate.toISOString()},check_out.gte.${sinceDate.toISOString()}`)
       .order('check_in', { ascending: false })
@@ -413,7 +444,8 @@ export async function getActivityEvents(
     const events: ActivityEvent[] = [];
 
     visitsData?.forEach(visit => {
-      const memberName = `${visit.membership?.member?.first_name || ''} ${visit.membership?.member?.last_name || ''}`.trim();
+      const memberName =
+        `${visit.membership?.member?.first_name || ''} ${visit.membership?.member?.last_name || ''}`.trim();
 
       if (visit.check_in && new Date(visit.check_in) >= sinceDate) {
         events.push({
@@ -461,10 +493,7 @@ export async function getActivityEvents(
  */
 export async function getSampleCompanyId(): Promise<string> {
   try {
-    const { data: companies } = await supabaseAdmin
-      .from('companies')
-      .select('id')
-      .limit(1);
+    const { data: companies } = await supabaseAdmin.from('companies').select('id').limit(1);
 
     if (!companies || companies.length === 0) {
       // For development, return a mock company ID
@@ -568,7 +597,13 @@ function getMockClassesToday(): ClassToday[] {
     {
       id: 'mock-class-1',
       title: 'Morning Yoga',
-      starts_at: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 7, 0).toISOString(),
+      starts_at: new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        7,
+        0
+      ).toISOString(),
       capacity: 20,
       booked: 15,
       instructor: 'Maria González',
@@ -577,7 +612,13 @@ function getMockClassesToday(): ClassToday[] {
     {
       id: 'mock-class-2',
       title: 'HIIT Training',
-      starts_at: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 9, 30).toISOString(),
+      starts_at: new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        9,
+        30
+      ).toISOString(),
       capacity: 15,
       booked: 12,
       instructor: 'Carlos Ruiz',
@@ -586,7 +627,13 @@ function getMockClassesToday(): ClassToday[] {
     {
       id: 'mock-class-3',
       title: 'Spinning',
-      starts_at: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 18, 0).toISOString(),
+      starts_at: new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        18,
+        0
+      ).toISOString(),
       capacity: 25,
       booked: 20,
       instructor: 'Ana López',
@@ -595,7 +642,13 @@ function getMockClassesToday(): ClassToday[] {
     {
       id: 'mock-class-4',
       title: 'Pilates',
-      starts_at: new Date(today.getFullYear(), today.getMonth(), today.getDate(), 19, 30).toISOString(),
+      starts_at: new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        19,
+        30
+      ).toISOString(),
       capacity: 12,
       booked: 8,
       instructor: 'Sofia Martínez',

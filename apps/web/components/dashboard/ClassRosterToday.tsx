@@ -9,7 +9,8 @@
 import React, { useState, useEffect } from 'react';
 import { Icons } from '../../lib/icons/registry';
 import { Widget, WidgetEmpty } from './DashboardShell';
-import { api } from '../../lib/api/client';
+import { apiClient } from '../../lib/api/client';
+import type { ClassesToday } from '@vigor/shared';
 
 interface ClassItem {
   id: string;
@@ -62,22 +63,75 @@ interface ClassRosterTodayProps {
 }
 
 export function ClassRosterToday({ locationId, className }: ClassRosterTodayProps) {
-  const [data, setData] = useState<ClassRosterData | null>(null);
+  const [data, setData] = useState<ClassesToday | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Adapter function to convert new API structure to expected format
+  const adaptClassData = (classes: ClassesToday): ClassItem[] => {
+    return classes.map(cls => {
+      const now = new Date();
+      const startsAt = new Date(cls.starts_at);
+      const endsAt = new Date(startsAt.getTime() + 60 * 60 * 1000); // Assume 1 hour duration
+
+      let status: 'upcoming' | 'in-progress' | 'completed' = 'upcoming';
+      if (now > endsAt) {
+        status = 'completed';
+      } else if (now >= startsAt) {
+        status = 'in-progress';
+      }
+
+      return {
+        id: cls.id,
+        name: cls.title,
+        description: null,
+        startsAt: cls.starts_at,
+        endsAt: endsAt.toISOString(),
+        capacity: cls.capacity,
+        booked: cls.booked,
+        attended: 0, // Not available in new API
+        noShows: 0, // Not available in new API
+        pending: cls.booked, // Assume all booked are pending
+        utilizationPercent: Math.round((cls.booked / cls.capacity) * 100),
+        gym: {
+          id: 'gym-1', // Not available in new API
+          name: cls.gym_name,
+        },
+        trainer: {
+          id: 'trainer-1', // Not available in new API
+          name: cls.instructor,
+        },
+        bookings: [], // Not available in new API
+        status,
+      };
+    });
+  };
 
   const fetchData = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const params = new URLSearchParams();
-      if (locationId) {
-        params.set('locationId', locationId);
-      }
+      const result = await apiClient.dashboard.classesToday({
+        locationId: locationId || undefined,
+      });
 
-      const result = await api.get<ClassRosterData>(`/api/classes/today?${params}`);
-      setData(result);
+      // Calculate summary from the classes array
+      const totalBooked = result.reduce((sum, cls) => sum + cls.booked, 0);
+      const totalCapacity = result.reduce((sum, cls) => sum + cls.capacity, 0);
+      const averageUtilization = totalCapacity > 0 ? Math.round((totalBooked / totalCapacity) * 100) : 0;
+
+      // Add summary to the data
+      const dataWithSummary = {
+        classes: result,
+        summary: {
+          totalBooked,
+          totalCapacity,
+          averageUtilization
+        }
+      };
+
+      setData(dataWithSummary);
     } catch (err) {
       console.error('Error fetching class roster:', err);
       setError(err instanceof Error ? err.message : 'Failed to load class roster');
@@ -107,21 +161,21 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
         return {
           color: 'text-blue-600 dark:text-blue-400',
           bgColor: 'bg-blue-100 dark:bg-blue-900',
-          icon: Icons.Clock3,
+          icon: <Icons.Clock3 className="w-3 h-3" />,
           label: 'Próxima',
         };
       case 'in-progress':
         return {
           color: 'text-green-600 dark:text-green-400',
           bgColor: 'bg-green-100 dark:bg-green-900',
-          icon: Icons.Play,
+          icon: <Icons.Play className="w-3 h-3" />,
           label: 'En curso',
         };
       case 'completed':
         return {
           color: 'text-gray-600 dark:text-gray-400',
           bgColor: 'bg-gray-100 dark:bg-gray-900',
-          icon: Icons.Check,
+          icon: <Icons.CheckSquare className="w-3 h-3" />,
           label: 'Completada',
         };
     }
@@ -137,7 +191,7 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
 
   if (loading) {
     return (
-      <Widget title="Clases de Hoy" icon={Icons.Calendar} className={className} loading={true}>
+      <Widget title="Clases de Hoy" icon={<Icons.Activity className="h-5 w-5 text-gray-600 dark:text-gray-400" />} className={className} loading={true}>
         <div className="space-y-4">
           {[1, 2, 3].map(i => (
             <div key={i} className="animate-pulse">
@@ -159,7 +213,7 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
     return (
       <Widget
         title="Clases de Hoy"
-        icon={Icons.Calendar}
+        icon={<Icons.Activity className="h-5 w-5 text-gray-600 dark:text-gray-400" />}
         className={className}
         error={error}
         onRetry={fetchData}
@@ -167,26 +221,33 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
     );
   }
 
-  if (!data || data.classes.length === 0) {
+  if (!data || !data.classes || data.classes.length === 0) {
     return (
-      <WidgetEmpty
+      <Widget
         title="Clases de Hoy"
-        icon={Icons.Calendar}
+        icon={<Icons.Activity className="h-5 w-5 text-gray-600 dark:text-gray-400" />}
         className={className}
-        message="No hay clases programadas para hoy"
-        description="Las clases aparecerán aquí cuando estén programadas"
-        action={{
-          label: 'Programar Clase',
-          href: '/classes/new',
-        }}
-      />
+      >
+        <WidgetEmpty
+          title="No hay clases programadas"
+          description="Las clases aparecerán aquí cuando estén programadas"
+          icon={<Icons.Activity className="h-6 w-6 text-gray-400" />}
+          action={{
+            label: 'Programar Clase',
+            href: '/classes/new',
+          }}
+        />
+      </Widget>
     );
   }
+
+  // Adapt the data to the expected format
+  const adaptedClasses = adaptClassData(data.classes);
 
   return (
     <Widget
       title="Clases de Hoy"
-      icon={Icons.Calendar}
+      icon={<Icons.Activity className="h-5 w-5 text-gray-600 dark:text-gray-400" />}
       className={className}
       action={{
         label: 'Ver Todas',
@@ -220,9 +281,8 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
 
         {/* Classes Timeline */}
         <div className="space-y-3">
-          {data.classes.map(classItem => {
+          {adaptedClasses.map(classItem => {
             const statusDisplay = getStatusDisplay(classItem.status);
-            const StatusIcon = statusDisplay.icon;
 
             return (
               <div
@@ -237,7 +297,7 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
                   <div
                     className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${statusDisplay.bgColor} ${statusDisplay.color} mt-1`}
                   >
-                    <StatusIcon className="w-3 h-3 mr-1" />
+                    <span className="mr-1">{statusDisplay.icon}</span>
                     {statusDisplay.label}
                   </div>
                 </div>

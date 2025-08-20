@@ -17,15 +17,8 @@ import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import { z } from 'zod';
 import { PrismaClient } from './generated/prisma/index.js';
-import {
-  authRequired,
-  setPrismaInstance as setAuthPrismaInstance,
-} from './middleware/auth.js';
-import {
-  tenantRequired,
-  withTenantFilter,
-  TenantRequest,
-} from './middleware/tenant.js';
+import { authRequired, setPrismaInstance as setAuthPrismaInstance } from './middleware/auth.js';
+import { tenantRequired, withTenantFilter, TenantRequest } from './middleware/tenant.js';
 import { requestTiming } from './middleware/requestTiming.js';
 
 /**

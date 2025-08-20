@@ -45,7 +45,12 @@ export type IconName =
   | 'HelpCircle'
   | 'Bell'
   | 'Menu'
-  | 'Mail';
+  | 'Mail'
+  | 'UserCheck'
+  | 'UserPlus'
+  | 'Calendar'
+  | 'Play'
+  | 'CheckSquare';
 
 type SvgProps = React.SVGProps<SVGSVGElement> & { title?: string };
 
@@ -361,6 +366,40 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
     <Svg {...props}>
       <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
       <polyline points="22,6 12,13 2,6" />
+    </Svg>
+  ),
+  UserCheck: props => (
+    <Svg {...props}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <polyline points="16,11 18,13 22,9" />
+    </Svg>
+  ),
+  UserPlus: props => (
+    <Svg {...props}>
+      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+      <circle cx="9" cy="7" r="4" />
+      <line x1="19" x2="19" y1="8" y2="14" />
+      <line x1="22" x2="16" y1="11" y2="11" />
+    </Svg>
+  ),
+  Calendar: props => (
+    <Svg {...props}>
+      <rect x="3" y="4" width="18" height="18" rx="2" />
+      <path d="M16 2v4" />
+      <path d="M8 2v4" />
+      <path d="M3 10h18" />
+    </Svg>
+  ),
+  Play: props => (
+    <Svg {...props}>
+      <polygon points="5,3 19,12 5,21" />
+    </Svg>
+  ),
+  CheckSquare: props => (
+    <Svg {...props}>
+      <polyline points="9,11 12,14 22,4" />
+      <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
     </Svg>
   ),
 };

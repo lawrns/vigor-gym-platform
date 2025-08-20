@@ -6,8 +6,8 @@ import { Icons } from '../../../lib/icons/registry';
 import { Widget, WidgetEmpty } from '../DashboardShell';
 import { apiClient } from '../../../lib/api/client';
 import { useSSE, SSEEvent } from '../../../lib/hooks/useSSE';
-import { useAuth } from '../../../lib/auth/context';
-import type { DashboardSummary } from '../../../lib/dashboard/supabase-data-service';
+import { useOrgContext } from '../../../lib/auth/context';
+import type { DashboardSummary } from '@vigor/shared';
 
 interface ActiveVisitsWidgetProps {
   locationId?: string;
@@ -25,7 +25,7 @@ interface ActiveVisitsWidgetProps {
  * - SSE updates for real-time data
  */
 export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidgetProps) {
-  const { user } = useAuth();
+  const { orgId, ready } = useOrgContext();
   const [data, setData] = useState<DashboardSummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -54,31 +54,50 @@ export function ActiveVisitsWidget({ locationId, className }: ActiveVisitsWidget
   }, [fetchData]);
 
   // Handle SSE events for real-time updates
-  const handleSSEEvent = useCallback((event: SSEEvent) => {
-    if (event.type === 'visit.checkin' || event.type === 'visit.checkout') {
-      // Refresh data when visits change
-      fetchData();
-      setLastUpdate(new Date());
+  const handleSSEEvent = useCallback(
+    (event: SSEEvent) => {
+      if (event.type === 'visit.checkin' || event.type === 'visit.checkout') {
+        // Refresh data when visits change
+        fetchData();
+        setLastUpdate(new Date());
 
-      // Announce to screen readers
-      if (announcementRef.current) {
-        const action = event.type === 'visit.checkin' ? 'checked in' : 'checked out';
-        announcementRef.current.textContent = `Member ${action}. Active visits updated.`;
+        // Announce to screen readers
+        if (announcementRef.current) {
+          const action = event.type === 'visit.checkin' ? 'checked in' : 'checked out';
+          announcementRef.current.textContent = `Member ${action}. Active visits updated.`;
+        }
       }
-    }
-  }, [fetchData]);
-
-  // SSE connection for real-time updates
-  const sseState = useSSE({
-    orgId: user?.company?.id || '',
-    locationId,
-    onEvent: handleSSEEvent,
-    onConnectionChange: status => {
-      console.log('[ActiveVisitsWidget] SSE status:', status);
     },
-    maxRetries: 3,
-    retryDelay: 2000,
-  });
+    [fetchData]
+  );
+
+  // Auth gate: Don't render real-time features without tenant context
+  if (!ready || !orgId) {
+    return (
+      <Widget size="sm" className={className} testId="kpi-active-now">
+        <WidgetEmpty
+          title="Autenticación requerida"
+          description="Conéctate para ver visitas activas"
+          icon={<Icons.Users className="h-6 w-6 text-gray-400" />}
+        />
+      </Widget>
+    );
+  }
+
+  // SSE connection for real-time updates (temporarily disabled to fix infinite loop)
+  // const sseState = useSSE({
+  //   orgId: orgId,
+  //   locationId,
+  //   onEvent: handleSSEEvent,
+  //   onConnectionChange: status => {
+  //     console.log('[ActiveVisitsWidget] SSE status:', status);
+  //   },
+  //   maxRetries: 3,
+  //   retryDelay: 2000,
+  // });
+
+  // Mock SSE state while disabled
+  const sseState = { status: 'disconnected' as const };
 
   if (!data && !loading) {
     return (

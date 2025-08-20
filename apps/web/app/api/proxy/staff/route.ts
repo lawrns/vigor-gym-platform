@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
+import { API_ORIGIN } from '../../../lib/api/origin';
 
 export async function GET(request: NextRequest) {
   try {
@@ -8,7 +7,7 @@ export async function GET(request: NextRequest) {
     const queryString = searchParams.toString();
 
     const response = await fetch(
-      `${API_BASE_URL}/v1/staff${queryString ? `?${queryString}` : ''}`,
+      `${API_ORIGIN}/v1/staff${queryString ? `?${queryString}` : ''}`,
       {
         method: 'GET',
         headers: {
@@ -82,7 +81,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Forward request to API
-    const response = await fetch(`${API_BASE_URL}/v1/staff`, {
+    const response = await fetch(`${API_ORIGIN}/v1/staff`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

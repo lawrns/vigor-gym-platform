@@ -82,6 +82,28 @@ const refreshSchema = z.object({
   refreshToken: z.string().min(1, 'Refresh token is required'),
 });
 
+// GET /auth/me - Get current user info from token
+router.get('/me', authRequired(), async (req: AuthenticatedRequest, res: Response) => {
+  try {
+    const user = req.user;
+    if (!user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    res.json({
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        company: user.companyId ? { id: user.companyId } : null,
+      },
+    });
+  } catch (error) {
+    console.error('[AUTH] /me error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
 // Helper function to handle failed login attempts
 async function handleFailedLogin(email: string) {
   // Skip failed login tracking in test mode

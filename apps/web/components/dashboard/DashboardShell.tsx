@@ -28,7 +28,9 @@ export function DashboardShell({ children, className = '' }: DashboardShellProps
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">{children}</div>
+        <div className="grid grid-cols-1 md:grid-cols-6 lg:grid-cols-12 gap-4 lg:gap-6">
+          {children}
+        </div>
       </main>
     </div>
   );
@@ -47,6 +49,13 @@ interface WidgetProps {
   loading?: boolean;
   error?: string | null;
   testId?: string;
+  icon?: ReactNode;
+  action?: {
+    label: string;
+    href?: string;
+    onClick?: () => void;
+  };
+  onRetry?: () => void;
 }
 
 export function Widget({
@@ -59,39 +68,69 @@ export function Widget({
   loading = false,
   error = null,
   testId,
+  icon,
+  action,
+  onRetry,
 }: WidgetProps) {
   // Size mappings for responsive grid
   const sizeClasses = {
-    sm: 'w-full lg:col-span-3',
-    md: 'w-full lg:col-span-4',
-    lg: 'w-full lg:col-span-5',
-    xl: 'w-full lg:col-span-7',
-    full: 'w-full lg:col-span-12',
+    sm: 'col-span-1 md:col-span-3 lg:col-span-3',
+    md: 'col-span-1 md:col-span-3 lg:col-span-4',
+    lg: 'col-span-1 md:col-span-6 lg:col-span-5',
+    xl: 'col-span-1 md:col-span-6 lg:col-span-7',
+    full: 'col-span-1 md:col-span-6 lg:col-span-12',
   };
 
   return (
     <div className={`${sizeClasses[size]} ${className}`} data-testid={testId}>
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 h-full">
         {/* Widget Header */}
-        {(title || actions) && (
+        {(title || actions || action) && (
           <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <div>
-                {title && (
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
-                )}
-                {description && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{description}</p>
-                )}
+              <div className="flex items-center space-x-3">
+                {icon && <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded-lg">{icon}</div>}
+                <div>
+                  {title && (
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{title}</h3>
+                  )}
+                  {description && (
+                    <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{description}</p>
+                  )}
+                </div>
               </div>
-              {actions && <div className="flex items-center space-x-2">{actions}</div>}
+              <div className="flex items-center space-x-2">
+                {actions}
+                {action &&
+                  (action.href ? (
+                    <a
+                      href={action.href}
+                      className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                    >
+                      {action.label}
+                    </a>
+                  ) : (
+                    <button
+                      onClick={action.onClick}
+                      className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-medium"
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+              </div>
             </div>
           </div>
         )}
 
         {/* Widget Content */}
         <div className="p-6">
-          {loading ? <WidgetSkeleton /> : error ? <WidgetError error={error} /> : children}
+          {loading ? (
+            <WidgetSkeleton />
+          ) : error ? (
+            <WidgetError error={error} onRetry={onRetry} />
+          ) : (
+            children
+          )}
         </div>
       </div>
     </div>

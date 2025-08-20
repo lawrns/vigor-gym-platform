@@ -17,11 +17,11 @@ const nextConfig = {
     return [
       {
         source: '/v1/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001'}/v1/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003'}/v1/:path*`,
       },
       {
         source: '/auth/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001'}/auth/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003'}/auth/:path*`,
       },
     ];
   },

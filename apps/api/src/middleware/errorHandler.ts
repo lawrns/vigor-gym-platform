@@ -142,10 +142,12 @@ export function asyncHandler<T extends Request, U extends Response>(
 export function handleValidationError(error: Record<string, unknown>): AppError {
   if (error.name === 'ValidationError') {
     // Mongoose validation error
-    const errors = Object.values(error.errors as Record<string, unknown>).map((err: Record<string, unknown>) => ({
-      field: err.path,
-      message: err.message,
-    }));
+    const errors = Object.values(error.errors as Record<string, unknown>).map(
+      (err: Record<string, unknown>) => ({
+        field: err.path,
+        message: err.message,
+      })
+    );
 
     return new AppError('VALIDATION_ERROR', 'Validation failed', 422, { errors });
   }

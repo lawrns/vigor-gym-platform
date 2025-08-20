@@ -1,6 +1,5 @@
 import { NextRequest } from 'next/server';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
+import { API_ORIGIN } from '../../../../lib/api/origin';
 
 export async function GET(request: NextRequest) {
   try {
@@ -14,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Create a new request to the API
-    const apiUrl = `${API_BASE_URL}/v1/events/subscribe`;
+    const apiUrl = `${API_ORIGIN}/v1/events/subscribe`;
     const headers: Record<string, string> = {};
 
     if (authHeader.startsWith('Bearer ')) {

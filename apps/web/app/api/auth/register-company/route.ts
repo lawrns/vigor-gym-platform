@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { API_ORIGIN } from '../../../lib/api/origin';
 
 /**
  * POST /api/auth/register-company
@@ -11,8 +12,7 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     // Forward the request to the backend API
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
-    const response = await fetch(`${apiUrl}/auth/register-company`, {
+    const response = await fetch(`${API_ORIGIN}/auth/register-company`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

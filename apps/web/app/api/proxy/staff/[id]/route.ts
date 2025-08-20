@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
+import { API_ORIGIN } from '../../../../lib/api/origin';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
 
-    const response = await fetch(`${API_BASE_URL}/v1/staff/${id}`, {
+    const response = await fetch(`${API_ORIGIN}/v1/staff/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -81,7 +80,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     // Forward request to API
-    const response = await fetch(`${API_BASE_URL}/v1/staff/${id}`, {
+    const response = await fetch(`${API_ORIGIN}/v1/staff/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -137,7 +136,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { id } = params;
 
     // Forward request to API
-    const response = await fetch(`${API_BASE_URL}/v1/staff/${id}`, {
+    const response = await fetch(`${API_ORIGIN}/v1/staff/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
