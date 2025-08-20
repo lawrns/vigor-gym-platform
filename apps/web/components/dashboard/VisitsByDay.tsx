@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { apiClient, isAPIError } from '../../lib/api/client';
 import { Icons } from '../../lib/icons/registry';
 
@@ -121,6 +122,19 @@ export function VisitsByDay() {
     );
   }
 
+  // Prepare chart data with formatted dates
+  const chartData = state.data.map(item => {
+    const date = new Date(item.date);
+    return {
+      ...item,
+      formattedDate: date.toLocaleDateString('es-MX', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'short'
+      })
+    };
+  });
+
   return (
     <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
       <div className="flex items-center justify-between mb-6">
@@ -137,37 +151,33 @@ export function VisitsByDay() {
         </div>
       ) : (
         <div className="space-y-4">
-          {/* Simple bar chart */}
-          <div className="flex items-end justify-between h-48 gap-1">
-            {state.data.map((item, index) => {
-              const height = (item.visits / maxVisits) * 100;
-              const date = new Date(item.date);
-              const dayName = date.toLocaleDateString('es-MX', { weekday: 'short' });
-              const dayNumber = date.getDate();
-
-              return (
-                <div key={item.date} className="flex flex-col items-center flex-1 max-w-12">
-                  <div className="flex-1 flex items-end w-full">
-                    <div
-                      className="w-full bg-blue-500 rounded-t-sm transition-all duration-300 hover:bg-blue-600 relative group"
-                      style={{ height: `${height}%`, minHeight: '4px' }}
-                    >
-                      {/* Tooltip */}
-                      <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                        {item.visits} visitas
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-l-2 border-r-2 border-t-2 border-transparent border-t-gray-900"></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-2 text-center">
-                    <div className="text-xs font-medium text-gray-900 dark:text-white">
-                      {dayNumber}
-                    </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">{dayName}</div>
-                  </div>
-                </div>
-              );
-            })}
+          {/* Recharts Bar Chart */}
+          <div className="h-64 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <XAxis
+                  dataKey="formattedDate"
+                  tick={{ fontSize: 12 }}
+                  interval={0}
+                  angle={-45}
+                  textAnchor="end"
+                  height={60}
+                />
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                  tickFormatter={(value) => `${value}`}
+                />
+                <Tooltip
+                  formatter={(value: number) => [`${value} visitas`, 'Visitas']}
+                  labelFormatter={(label) => `${label}`}
+                />
+                <Bar
+                  dataKey="visits"
+                  fill="#3b82f6"
+                  radius={[4, 4, 0, 0]}
+                />
+              </BarChart>
+            </ResponsiveContainer>
           </div>
 
           {/* Summary stats */}

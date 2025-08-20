@@ -168,6 +168,12 @@ export function getVisibleNavigation(userRole?: UserRole): NavigationItem[] {
         icon: 'BarChart3',
       },
       {
+        id: 'referrals',
+        label: 'Referidos',
+        href: '/referrals',
+        icon: 'UserPlus',
+      },
+      {
         id: 'settings',
         label: 'Configuración',
         href: '/settings',

@@ -57,7 +57,10 @@ export type IconName =
   | 'GitBranch'
   | 'Settings'
   | 'FileText'
-  | 'Scan';
+  | 'Scan'
+  | 'Plus'
+  | 'Copy'
+  | 'TrendingUp';
 
 type SvgProps = React.SVGProps<SVGSVGElement> & { title?: string };
 
@@ -460,6 +463,24 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
       <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
       <path d="M7 12h10" />
+    </Svg>
+  ),
+  Plus: props => (
+    <Svg {...props}>
+      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+    </Svg>
+  ),
+  Copy: props => (
+    <Svg {...props}>
+      <rect x="9" y="9" width="13" height="13" rx="2" />
+      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+    </Svg>
+  ),
+  TrendingUp: props => (
+    <Svg {...props}>
+      <polyline points="22,7 13.5,15.5 8.5,10.5 2,17" />
+      <polyline points="16,7 22,7 22,13" />
     </Svg>
   ),
 };
