@@ -15,3 +15,4 @@ export function FeatureGridLight({ intro, cards }: { intro: string; cards: Card[
     </section>
   );
 }
+

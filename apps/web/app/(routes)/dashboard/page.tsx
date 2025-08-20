@@ -1,148 +1,23 @@
-import { KpiCards } from '../../../components/dashboard/KpiCards';
-import { DashboardFilterBar } from '../../../components/dashboard/DashboardFilterBar';
-import { VisitsByDay } from '../../../components/dashboard/VisitsByDay';
-import { requireSession } from '../../../lib/auth/session';
-import { KPIOverview } from '../../../lib/api/types';
-import { cookies } from 'next/headers';
+import { Metadata } from 'next';
+import { DashboardV2Client } from '../dashboard-v2/DashboardV2Client';
 
-async function fetchInitialKPIs(searchParams: URLSearchParams): Promise<KPIOverview | null> {
-  try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:7777';
+export const metadata: Metadata = {
+  title: 'Dashboard - GoGym',
+  description: 'Gym operations cockpit with real-time insights and actionable data',
+};
 
-    // Build KPI query parameters from search params
-    const kpiParams = new URLSearchParams();
-
-    // Add date range parameters if present
-    const from = searchParams.get('from');
-    const to = searchParams.get('to');
-    const compareFrom = searchParams.get('compareFrom');
-    const compareTo = searchParams.get('compareTo');
-
-    if (from) kpiParams.set('from', from);
-    if (to) kpiParams.set('to', to);
-    if (compareFrom) kpiParams.set('compareFrom', compareFrom);
-    if (compareTo) kpiParams.set('compareTo', compareTo);
-
-    // If no date range is specified, default to 30 days
-    if (!from && !to) {
-      const defaultTo = new Date();
-      const defaultFrom = new Date();
-      defaultFrom.setDate(defaultTo.getDate() - 30 + 1);
-
-      defaultTo.setHours(23, 59, 59, 999);
-      defaultFrom.setHours(0, 0, 0, 0);
-
-      kpiParams.set('from', defaultFrom.toISOString());
-      kpiParams.set('to', defaultTo.toISOString());
-    }
-
-    const queryString = kpiParams.toString();
-    const url = `${baseUrl}/api/kpi/overview${queryString ? `?${queryString}` : ''}`;
-
-    // Get cookies from the request to forward authentication
-    const cookieStore = cookies();
-    const cookieHeader = cookieStore.toString();
-
-    console.debug('[DASHBOARD-SSR] Fetching initial KPIs:', url);
-    console.debug('[DASHBOARD-SSR] Has cookies:', !!cookieHeader);
-    console.debug('[DASHBOARD-SSR] Query params:', Object.fromEntries(kpiParams));
-
-    const response = await fetch(url, {
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-        // Forward cookies for authentication
-        ...(cookieHeader && { Cookie: cookieHeader }),
-      },
-    });
-
-    console.debug('[DASHBOARD-SSR] KPI response status:', response.status);
-
-    if (!response.ok) {
-      // Don't log 401 as error - it's expected for guests or expired sessions
-      if (response.status === 401) {
-        console.debug('[DASHBOARD-SSR] KPI fetch returned 401 (expected for auth issues)');
-        return null;
-      }
-      console.error(
-        '[DASHBOARD-SSR] Failed to fetch initial KPIs:',
-        response.status,
-        response.statusText
-      );
-      return null;
-    }
-
-    const data = await response.json();
-    console.debug('[DASHBOARD-SSR] Successfully fetched initial KPIs');
-    return data;
-  } catch (error) {
-    console.error('[DASHBOARD-SSR] Error fetching initial KPIs:', error);
-    return null;
-  }
+/**
+ * Dashboard - Server Component
+ *
+ * This is the main dashboard that provides:
+ * - Real-time active visits and capacity monitoring
+ * - Expiring memberships with renewal actions
+ * - Live activity feed
+ * - Today's class schedule
+ * - Revenue insights
+ * - Staff coverage overview
+ */
+export default function DashboardPage() {
+  return <DashboardV2Client />;
 }
 
-interface DashboardPageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
-}
-
-export default async function DashboardPage({ searchParams }: DashboardPageProps) {
-  const session = await requireSession();
-
-  // Convert searchParams to URLSearchParams for KPI fetching
-  const urlSearchParams = new URLSearchParams();
-  Object.entries(searchParams).forEach(([key, value]) => {
-    if (typeof value === 'string') {
-      urlSearchParams.set(key, value);
-    } else if (Array.isArray(value)) {
-      urlSearchParams.set(key, value[0]);
-    }
-  });
-
-  // Fetch initial KPI data on the server
-  const initialKPIs = await fetchInitialKPIs(urlSearchParams);
-
-  return (
-    <main className="max-w-7xl mx-auto py-8 px-4">
-      <div className="mb-8">
-        <h1 className="text-3xl font-display font-bold text-gray-900 dark:text-white">Dashboard</h1>
-        <p className="text-gray-600 dark:text-gray-400 mt-2">
-          Bienvenido, {session.email}. Aquí tienes un resumen de tu plataforma.
-        </p>
-        {process.env.NEXT_PUBLIC_DEBUG === '1' && (
-          <div className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Email: {session.email} • Rol: {session.role} • ID: {session.userId}
-          </div>
-        )}
-      </div>
-
-      <div className="space-y-8">
-        {/* Dashboard Filters */}
-        <DashboardFilterBar />
-
-        {/* KPI Cards */}
-        <section>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-            Métricas Principales
-          </h2>
-          <KpiCards initialData={initialKPIs} />
-        </section>
-
-        {/* Charts Section */}
-        <section>
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Actividad</h2>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <VisitsByDay />
-
-            {/* Placeholder for future charts */}
-            <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Próximo Gráfico
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">Más visualizaciones próximamente.</p>
-            </div>
-          </div>
-        </section>
-      </div>
-    </main>
-  );
-}

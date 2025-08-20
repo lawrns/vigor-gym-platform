@@ -8,3 +8,4 @@ global.TextDecoder = TextDecoder;
 
 // Mock fetch for API tests
 global.fetch = jest.fn();
+

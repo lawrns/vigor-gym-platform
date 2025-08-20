@@ -56,3 +56,4 @@ function KpiCard({ label, value }: { label: string; value: string }) {
     </motion.div>
   );
 }
+

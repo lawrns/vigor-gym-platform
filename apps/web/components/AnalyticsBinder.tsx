@@ -10,3 +10,4 @@ export function AnalyticsBinder() {
   }, []);
   return null;
 }
+

@@ -8,3 +8,4 @@ describe('FeatureCard', () => {
     expect(screen.getByText(/4,500/)).toBeInTheDocument();
   });
 });
+

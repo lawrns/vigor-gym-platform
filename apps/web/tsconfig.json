@@ -10,6 +10,7 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
+      "@/*": ["./*"],
       "@vigor/shared/*": [
         "../../packages/shared/src/*"
       ]
@@ -42,5 +43,6 @@
     "node_modules"
   ]
 }
+
 
 

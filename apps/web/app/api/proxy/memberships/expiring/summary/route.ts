@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
-import { API_ORIGIN } from '../../../../../lib/api/origin';
+import { API_ORIGIN } from '@/lib/api/origin';
 
 export async function GET(request: NextRequest) {
   try {

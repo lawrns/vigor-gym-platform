@@ -4,3 +4,4 @@ export const defaultSEO = {
     'Una sola membresía para acceder a la mejor red de gimnasios, clases y bienestar. CFDI 4.0, pagos integrados, app móvil y analítica.',
   openGraph: { type: 'website', locale: 'es_MX' },
 };
+

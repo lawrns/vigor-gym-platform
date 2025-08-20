@@ -34,3 +34,4 @@ export function bindPlanTracking(root: HTMLElement | Document = document) {
     posthog?.capture?.('plan.select', { plan });
   });
 }
+

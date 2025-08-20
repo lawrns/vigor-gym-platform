@@ -17,3 +17,4 @@ describe('PlanCard', () => {
     expect(screen.getByRole('link', { name: 'Elegir PRO' })).toHaveAttribute('href', '/registro');
   });
 });
+

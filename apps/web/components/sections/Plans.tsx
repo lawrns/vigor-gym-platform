@@ -22,3 +22,4 @@ export function PlansSection({ title, tiers }: { title: string; tiers: Tier[] })
     </section>
   );
 }
+

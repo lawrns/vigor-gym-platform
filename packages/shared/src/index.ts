@@ -37,3 +37,4 @@ export type {
   ScanMethod,
   CheckInMethod,
 } from './types';
+
