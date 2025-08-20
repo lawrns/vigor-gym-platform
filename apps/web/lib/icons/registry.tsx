@@ -60,7 +60,15 @@ export type IconName =
   | 'Scan'
   | 'Plus'
   | 'Copy'
-  | 'TrendingUp';
+  | 'TrendingUp'
+  | 'Search'
+  | 'MessageSquare'
+  | 'Download'
+  | 'AlertTriangle'
+  | 'Eye'
+  | 'DollarSign'
+  | 'FileText'
+  | 'BarChart3';
 
 type SvgProps = React.SVGProps<SVGSVGElement> & { title?: string };
 
@@ -481,6 +489,60 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
     <Svg {...props}>
       <polyline points="22,7 13.5,15.5 8.5,10.5 2,17" />
       <polyline points="16,7 22,7 22,13" />
+    </Svg>
+  ),
+  Search: props => (
+    <Svg {...props}>
+      <circle cx="11" cy="11" r="8" />
+      <path d="m21 21-4.35-4.35" />
+    </Svg>
+  ),
+  MessageSquare: props => (
+    <Svg {...props}>
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+    </Svg>
+  ),
+  Download: props => (
+    <Svg {...props}>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7,10 12,15 17,10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </Svg>
+  ),
+  AlertTriangle: props => (
+    <Svg {...props}>
+      <path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z" />
+      <path d="M12 9v4" />
+      <path d="m12 17 .01 0" />
+    </Svg>
+  ),
+  Eye: props => (
+    <Svg {...props}>
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </Svg>
+  ),
+  DollarSign: props => (
+    <Svg {...props}>
+      <line x1="12" y1="1" x2="12" y2="23" />
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </Svg>
+  ),
+  FileText: props => (
+    <Svg {...props}>
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14,2 14,8 20,8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <polyline points="10,9 9,9 8,9" />
+    </Svg>
+  ),
+  BarChart3: props => (
+    <Svg {...props}>
+      <path d="M3 3v18h18" />
+      <path d="M18 17V9" />
+      <path d="M13 17V5" />
+      <path d="M8 17v-3" />
     </Svg>
   ),
 };

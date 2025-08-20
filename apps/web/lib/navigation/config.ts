@@ -162,6 +162,12 @@ export function getVisibleNavigation(userRole?: UserRole): NavigationItem[] {
         icon: 'Calendar',
       },
       {
+        id: 'members',
+        label: 'Miembros',
+        href: '/members',
+        icon: 'Users',
+      },
+      {
         id: 'reports',
         label: 'Reportes',
         href: '/reports',
