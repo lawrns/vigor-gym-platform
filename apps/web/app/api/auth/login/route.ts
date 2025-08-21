@@ -18,27 +18,31 @@ export async function POST(request: NextRequest) {
     // Authenticate user with Supabase
     const authResult = await authenticateUser({ email, password });
 
-    // Create response with user data
-    const responseData = {
-      user: authResult.user,
-      tokens: authResult.tokens,
-    };
+    // Determine secure flag based on environment and proxy headers
+    const isSecure =
+      request.headers.get('x-forwarded-proto') === 'https' ||
+      process.env.NODE_ENV === 'production';
 
-    const nextResponse = NextResponse.json(responseData);
+    // Return shape expected by apiClient (top-level tokens)
+    const nextResponse = NextResponse.json({
+      user: authResult.user,
+      accessToken: authResult.tokens.accessToken,
+      refreshToken: authResult.tokens.refreshToken,
+    });
 
     // Set HTTP-only cookies for tokens
     nextResponse.cookies.set('accessToken', authResult.tokens.accessToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isSecure,
+      sameSite: isSecure ? 'none' : 'lax',
       maxAge: 15 * 60, // 15 minutes
       path: '/',
     });
 
     nextResponse.cookies.set('refreshToken', authResult.tokens.refreshToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: isSecure,
+      sameSite: isSecure ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60, // 7 days
       path: '/',
     });

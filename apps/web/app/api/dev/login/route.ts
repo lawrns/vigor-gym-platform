@@ -25,15 +25,16 @@ export async function POST(req: Request) {
   // Ensure companyId is a valid UUID for SSE compatibility
   const companyId = (requestedCompanyId && UUID_RX.test(requestedCompanyId)) ? requestedCompanyId : DEFAULT_COMPANY_ID;
   const company = body.company ?? { id: companyId, name: 'Vigor Demo Co', rfc: 'DEMO010101XXX' };
+  const role = body.role ?? 'owner';
 
-  const token = jwt.sign({ userId, email, companyId, company }, SECRET, {
+  const token = jwt.sign({ userId, email, companyId, company, role }, SECRET, {
     algorithm: 'HS256',
     issuer: ISSUER,
     audience: AUDIENCE,
     expiresIn: '7d',
   });
 
-  const res = NextResponse.json({ ok: true, userId, companyId });
+  const res = NextResponse.json({ ok: true, userId, companyId, role });
 
   // Set accessToken with consistent flags
   res.cookies.set('accessToken', token, {

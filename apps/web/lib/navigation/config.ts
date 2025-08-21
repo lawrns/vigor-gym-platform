@@ -142,54 +142,67 @@ export const navigationConfig: NavigationItem[] = [
   },
 ];
 
-export function getVisibleNavigation(userRole?: UserRole): NavigationItem[] {
-  console.log('[getVisibleNavigation] Called with role:', userRole);
+export function getVisibleNavigation(userRole?: UserRole, isAuthenticated?: boolean): NavigationItem[] {
+  console.log('[getVisibleNavigation] Called with role:', userRole, 'authenticated:', isAuthenticated);
 
   if (!userRole) {
-    console.log('[getVisibleNavigation] No role provided, returning basic navigation');
-    // Return basic navigation for authenticated users without specific roles
-    return [
-      {
-        id: 'dashboard',
-        label: 'Dashboard',
-        href: '/dashboard',
-        icon: 'Activity',
-      },
-      {
-        id: 'classes',
-        label: 'Clases',
-        href: '/classes',
-        icon: 'Calendar',
-      },
-      {
-        id: 'members',
-        label: 'Miembros',
-        href: '/members',
-        icon: 'Users',
-      },
-      {
-        id: 'reports',
-        label: 'Reportes',
-        href: '/reports',
-        icon: 'BarChart3',
-      },
-      {
-        id: 'referrals',
-        label: 'Referidos',
-        href: '/referrals',
-        icon: 'UserPlus',
-      },
-      {
-        id: 'settings',
-        label: 'Configuración',
-        href: '/settings',
-        icon: 'Settings',
-      },
-    ];
+    // Defensive guard: if authenticated but no role, default to 'owner' and log once
+    if (isAuthenticated) {
+      console.warn('[getVisibleNavigation] Authenticated user with no role, defaulting to owner');
+      userRole = 'owner';
+    } else {
+      console.log('[getVisibleNavigation] No role provided, returning basic navigation');
+      // Return basic navigation for authenticated users without specific roles
+      return [
+        {
+          id: 'dashboard',
+          label: 'Dashboard',
+          href: '/dashboard',
+          icon: 'Activity',
+        },
+        {
+          id: 'classes',
+          label: 'Clases',
+          href: '/classes',
+          icon: 'Calendar',
+        },
+        {
+          id: 'members',
+          label: 'Miembros',
+          href: '/members',
+          icon: 'Users',
+        },
+        {
+          id: 'reports',
+          label: 'Reportes',
+          href: '/reports',
+          icon: 'BarChart3',
+        },
+        {
+          id: 'referrals',
+          label: 'Referidos',
+          href: '/referrals',
+          icon: 'UserPlus',
+        },
+        {
+          id: 'settings',
+          label: 'Configuración',
+          href: '/settings',
+          icon: 'Settings',
+        },
+      ];
+    }
   }
 
   const filteredItems = navigationConfig
-    .filter(item => !item.roles || item.roles.includes(userRole))
+    .filter(item => {
+      const pass = !item.roles || item.roles.includes(userRole);
+      console.log('[getVisibleNavigation] item', item.id, {
+        requiresRole: item.roles || 'any',
+        pass,
+      });
+      return pass;
+    })
     .map(item => ({
       ...item,
       children: item.children?.filter(child => !child.roles || child.roles.includes(userRole)),

@@ -22,6 +22,11 @@ const sans = Inter({
 export const metadata: Metadata = {
   title: defaultSEO.title,
   description: defaultSEO.description,
+  icons: {
+    icon: '/icons/icon-64x64.png',
+    shortcut: '/icons/icon-64x64.png',
+    apple: '/icons/icon-192x192.png',
+  },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -52,7 +57,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         >
           <AuthProvider>
             <Spotlight />
-            <EnhancedNavbar logo="Vigor" />
+            <EnhancedNavbar />
             <AnalyticsBinder />
             <div className="fixed bottom-4 right-4">
               <ThemeToggle />
@@ -62,7 +67,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               columns={(contentV2 as any)?.FooterMega?.columns || []}
               bottom={
                 (contentV2 as any)?.FooterMega?.bottom ||
-                '© Vigor — Plataforma de gestión de gimnasios para México'
+                '© GoGym — Plataforma de gestión de gimnasios para México'
               }
             />
           </AuthProvider>

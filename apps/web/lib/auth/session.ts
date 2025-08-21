@@ -15,6 +15,7 @@ export async function getServerSession(): Promise<SessionUser | null> {
     const accessToken = cookieStore.get('accessToken')?.value;
 
     if (!accessToken) {
+      console.debug('[Session] No accessToken cookie present');
       return null;
     }
 
@@ -29,10 +30,11 @@ export async function getServerSession(): Promise<SessionUser | null> {
         }) as any;
 
         if (payload.userId && payload.email && payload.companyId) {
+          console.debug('[Session] Using dev JWT session');
           return {
             userId: payload.userId,
             email: payload.email,
-            role: payload.role as SessionUser['role'],
+            role: (payload.role || 'owner') as SessionUser['role'],
             companyId: payload.companyId,
           };
         }
@@ -44,12 +46,13 @@ export async function getServerSession(): Promise<SessionUser | null> {
 
     // Try access token with Supabase verification
     try {
+      console.debug('[Session] Verifying with Supabase');
       const user = await verifyToken(accessToken);
       if (user) {
         return {
           userId: user.id,
           email: user.email,
-          role: user.role as SessionUser['role'],
+          role: (user.role || 'owner') as SessionUser['role'],
           companyId: null, // Supabase doesn't have companyId in the token
         };
       }

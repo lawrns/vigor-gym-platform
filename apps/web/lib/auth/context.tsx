@@ -88,6 +88,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       await Promise.resolve();
 
       try {
+        console.debug('[AUTH] Checking authentication with server');
         const res = await fetch('/api/auth/me', {
           credentials: 'include',
           headers: {
@@ -98,6 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (cancelled) return;
 
         if (res.status === 401) {
+          console.debug('[AUTH] Server returned 401, clearing auth state');
           setUser(null);
           setAuthToken(null);
           setStatus('guest');

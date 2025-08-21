@@ -1,13 +1,14 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getServerSession } from '../../lib/auth/session';
 import { UserMenu } from '../UserMenu';
 import { ClientNavigation } from './ClientNavigation';
 
 interface EnhancedNavbarProps {
-  logo?: string;
+  // No logo prop needed - we'll use the GoGym logo directly
 }
 
-export async function EnhancedNavbar({ logo = 'Vigor' }: EnhancedNavbarProps) {
+export async function EnhancedNavbar({}: EnhancedNavbarProps) {
   let session = null;
 
   try {
@@ -22,8 +23,15 @@ export async function EnhancedNavbar({ logo = 'Vigor' }: EnhancedNavbarProps) {
       <div className="max-w-7xl mx-auto px-4">
         {/* Top bar with logo and user menu */}
         <div className="h-16 flex items-center justify-between">
-          <Link href="/" className="font-display text-xl font-bold text-gray-900 dark:text-white">
-            {logo}
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/images/gogym.png"
+              alt="GoGym"
+              width={120}
+              height={40}
+              className="h-8 w-auto"
+              priority
+            />
           </Link>
 
           <div className="flex items-center gap-6">

@@ -3,10 +3,10 @@ import { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: {
-    template: '%s | Vigor',
-    default: 'Vigor',
+    template: '%s | GoGym',
+    default: 'GoGym',
   },
-  description: 'Vigor Gym Management Platform',
+  description: 'GoGym - Plataforma de gestión de gimnasios para México',
 };
 
 export default function RoutesLayout({ children }: { children: React.ReactNode }) {

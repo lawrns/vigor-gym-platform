@@ -26,6 +26,16 @@ module.exports = {
               'Supabase admin client should only be imported in server-side code. Use the regular client for browser code.',
           },
         ],
+        paths: [
+          {
+            name: '@/components/ui/button',
+            message: 'Use @/components/ui/Button (capitalized) to avoid case-sensitive import issues.',
+          },
+          {
+            name: 'components/ui/button',
+            message: 'Use components/ui/Button (capitalized) to avoid case-sensitive import issues.',
+          },
+        ],
       },
     ],
     // Code quality

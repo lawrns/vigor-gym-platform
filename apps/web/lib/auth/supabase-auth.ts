@@ -24,6 +24,13 @@ export interface AuthResult {
   tokens: AuthTokens;
 }
 
+// Normalize external roles to app roles
+function normalizeRole(r?: string): string {
+  if (!r) return 'owner';
+  if (r === 'admin') return 'owner';
+  return r;
+}
+
 /**
  * Authenticate user with email and password using Supabase Auth
  */
@@ -58,7 +65,7 @@ export async function authenticateUser(credentials: LoginCredentials): Promise<A
     email: data.user.email!,
     firstName: userMetadata.first_name || '',
     lastName: userMetadata.last_name || '',
-    role: userMetadata.role || 'admin', // Default role for now
+    role: normalizeRole(userMetadata.role),
   };
 
   const tokens: AuthTokens = {
@@ -90,7 +97,7 @@ export async function verifyToken(token: string): Promise<User | null> {
       email: data.user.email!,
       firstName: userMetadata.first_name || '',
       lastName: userMetadata.last_name || '',
-      role: userMetadata.role || 'admin',
+      role: normalizeRole(userMetadata.role),
     };
   } catch (error) {
     console.error('Token verification error:', error);
@@ -116,7 +123,7 @@ export async function getUserById(userId: string): Promise<User | null> {
       email: data.user.email!,
       firstName: userMetadata.first_name || '',
       lastName: userMetadata.last_name || '',
-      role: userMetadata.role || 'admin',
+      role: normalizeRole(userMetadata.role),
     };
   } catch (error) {
     console.error('Get user by ID error:', error);

@@ -85,6 +85,27 @@ export function verifyToken(token: string): JWTPayload {
       exp: payload.exp,
     };
   } catch (error) {
+    // Structured debug for verification failures (no secrets)
+    try {
+      const parts = token.split('.');
+      const raw = parts[1] ? Buffer.from(parts[1], 'base64').toString('utf8') : '{}';
+      const decoded = JSON.parse(raw || '{}');
+      const now = Math.floor(Date.now() / 1000);
+      console.warn('[AUTH][verifyToken] failed', {
+        name: (error as any)?.name,
+        message: (error as any)?.message,
+        issuer: process.env.JWT_ISSUER || 'gogym-web',
+        audience: process.env.JWT_AUDIENCE || 'gogym-api',
+        iat: decoded?.iat,
+        exp: decoded?.exp,
+        now,
+        sub: decoded?.sub || decoded?.userId,
+        hasCompanyId: !!(decoded?.companyId || decoded?.company?.id),
+      });
+    } catch {
+      // ignore decode errors
+    }
+
     // In test mode, be more lenient with token validation
     if (process.env.DISABLE_REFRESH_IN_TEST === 'true') {
       try {
