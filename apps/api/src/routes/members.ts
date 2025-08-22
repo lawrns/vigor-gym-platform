@@ -236,6 +236,10 @@ router.patch(
         where: { id },
       });
 
+      if (!currentMember) {
+        return res.status(404).json({ message: 'Member not found' });
+      }
+
       // Validate tenant access
       validateTenantAccess(req, currentMember);
 
@@ -320,6 +324,10 @@ router.delete(
         where: { id },
       });
 
+      if (!member) {
+        return res.status(404).json({ message: 'Member not found' });
+      }
+
       // Validate tenant access
       validateTenantAccess(req, member);
 
@@ -354,7 +362,7 @@ router.delete(
           lastName: member.lastName,
           status: member.status,
         },
-        null,
+        undefined,
         {
           memberName: `${member.firstName} ${member.lastName}`,
           memberEmail: member.email,
@@ -436,7 +444,7 @@ router.post(
         'members.imported',
         'member',
         'bulk',
-        null,
+        undefined,
         {
           count: result.length,
           emails: result.map(m => m.email),

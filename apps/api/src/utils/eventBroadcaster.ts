@@ -175,7 +175,7 @@ class EventBroadcaster {
       response.write(`data: ${JSON.stringify(event)}\n`);
       response.write('\n');
     } catch (error) {
-      logger.error({ error: error.message }, 'Failed to send event to subscriber');
+      logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to send event to subscriber');
     }
   }
 

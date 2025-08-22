@@ -134,7 +134,7 @@ router.post(
         draft ? 'membership.draft.created' : 'membership.created',
         'membership',
         membership.id,
-        null,
+        undefined,
         {
           planId,
           planName: plan.name,

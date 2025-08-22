@@ -112,7 +112,7 @@ export async function logAuditEvent(event: AuditEvent): Promise<void> {
     }
   } catch (error) {
     // Never fail the main operation due to audit logging issues
-    logger.error({ error: error.message }, 'Failed to log audit event');
+    logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to log audit event');
   }
 }
 
@@ -294,7 +294,7 @@ export async function updateActiveDevicesCount(): Promise<void> {
 
     metrics.devicesActive24h = activeDevices;
   } catch (error) {
-    logger.error({ error: error.message }, 'Failed to update active devices count');
+    logger.error({ error: error instanceof Error ? error.message : String(error) }, 'Failed to update active devices count');
   }
 }
 
