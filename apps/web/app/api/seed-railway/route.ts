@@ -3,11 +3,11 @@ import { NextRequest, NextResponse } from 'next/server';
 export const dynamic = 'force-dynamic';
 
 /**
- * POST /api/seed-railway
+ * GET /api/seed-railway
  *
  * Seed the Railway database with test data
  */
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://vigor-gym-platform-production.up.railway.app';
     
