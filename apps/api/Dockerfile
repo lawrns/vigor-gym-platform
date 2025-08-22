@@ -23,8 +23,11 @@ COPY . ./
 # Generate Prisma client
 RUN npx prisma generate
 
-# Build the application
+# Build the application (includes copying Prisma client)
 RUN npm run build
+
+# Ensure Prisma client is available in dist
+RUN ls -la dist/generated/ || echo "Prisma client not found in dist"
 
 # Remove dev dependencies to reduce image size
 RUN npm prune --omit=dev
