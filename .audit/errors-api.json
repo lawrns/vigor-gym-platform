@@ -1,0 +1,73 @@
+{
+  "summary": {
+    "total_errors": 206,
+    "categories": {
+      "enum_issues": 15,
+      "field_renames": 45,
+      "import_issues": 2,
+      "null_safety": 35,
+      "prisma_relations": 25,
+      "error_typing": 84
+    }
+  },
+  "critical_patterns": [
+    {
+      "pattern": "past_due",
+      "replacement": "expired",
+      "count": 12,
+      "files": ["src/jobs/memberships/expire.ts"]
+    },
+    {
+      "pattern": "checkedInAt|checkedOutAt",
+      "replacement": "checkIn|checkOut",
+      "count": 25,
+      "files": ["src/routes/dashboard-activity.ts"]
+    },
+    {
+      "pattern": "plan.price",
+      "replacement": "plan.priceMxnCents",
+      "count": 8,
+      "files": ["src/routes/dashboard.ts"]
+    },
+    {
+      "pattern": "amount",
+      "replacement": "paidMxnCents",
+      "count": 3,
+      "files": ["src/routes/dashboard.ts"]
+    },
+    {
+      "pattern": "requireAuth",
+      "replacement": "authRequired",
+      "count": 1,
+      "files": ["src/routes/dashboard-activity.ts"]
+    },
+    {
+      "pattern": "error is of type 'unknown'",
+      "replacement": "const err = e as Error",
+      "count": 84,
+      "files": ["multiple"]
+    }
+  ],
+  "prisma_schema_mismatches": [
+    {
+      "model": "Visit",
+      "old_fields": ["checkedInAt", "checkedOutAt"],
+      "new_fields": ["checkIn", "checkOut"]
+    },
+    {
+      "model": "Plan",
+      "old_fields": ["price"],
+      "new_fields": ["priceMxnCents"]
+    },
+    {
+      "model": "Payment",
+      "old_fields": ["amount"],
+      "new_fields": ["paidMxnCents"]
+    },
+    {
+      "enum": "MembershipStatus",
+      "invalid_values": ["past_due"],
+      "valid_values": ["active", "paused", "canceled", "expired"]
+    }
+  ]
+}

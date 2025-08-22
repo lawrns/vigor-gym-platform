@@ -1,0 +1,49 @@
+{
+  "summary": {
+    "total_errors": 8,
+    "categories": {
+      "missing_dependency": 0,
+      "dynamic_server_usage": 6,
+      "undefined_components": 2,
+      "missing_suspense": 1
+    }
+  },
+  "resolved_issues": [
+    {
+      "type": "missing_dependency",
+      "package": "@next/bundle-analyzer",
+      "status": "FIXED - dependency installed"
+    },
+    {
+      "type": "button_imports",
+      "status": "FIXED - all Button imports updated to use @/ alias"
+    }
+  ],
+  "remaining_issues": [
+    {
+      "type": "dynamic_server_usage",
+      "description": "Routes using cookies/headers during static generation",
+      "affected_routes": [
+        "/api/proxy/memberships/expiring/summary",
+        "/api/proxy/visits/today",
+        "/api/onboarding/status",
+        "/api/proxy/events/subscribe",
+        "/api/dashboard/summary",
+        "/api/auth/me"
+      ],
+      "fix": "Add 'export const dynamic = \"force-dynamic\"' to route handlers"
+    },
+    {
+      "type": "undefined_components",
+      "description": "Element type is invalid - undefined components",
+      "affected_pages": ["/beneficios", "/beneficios/demo"],
+      "fix": "Check component imports and exports"
+    },
+    {
+      "type": "missing_suspense",
+      "description": "useSearchParams() needs Suspense boundary",
+      "affected_pages": ["/checkout"],
+      "fix": "Wrap component in <Suspense> boundary"
+    }
+  ]
+}

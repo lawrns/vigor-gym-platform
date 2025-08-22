@@ -1,0 +1,55 @@
+{
+  "schema_version": "current",
+  "enums": {
+    "MembershipStatus": {
+      "valid_values": ["draft", "active", "trial", "paused", "cancelled", "expired"],
+      "deprecated_mappings": {
+        "past_due": "expired",
+        "PastDue": "expired",
+        "overdue": "expired"
+      }
+    },
+    "BillingCycle": {
+      "valid_values": ["monthly", "annual", "custom"],
+      "deprecated_mappings": {
+        "Monthly": "monthly",
+        "MONTHLY": "monthly",
+        "quarterly": "annual",
+        "yearly": "annual"
+      }
+    }
+  },
+  "field_renames": [
+    {
+      "model": "Visit",
+      "old_field": "checkedInAt",
+      "new_field": "checkIn",
+      "type": "DateTime"
+    },
+    {
+      "model": "Visit", 
+      "old_field": "checkedOutAt",
+      "new_field": "checkOut",
+      "type": "DateTime?"
+    },
+    {
+      "model": "Plan",
+      "old_field": "price",
+      "new_field": "priceMxnCents",
+      "type": "Int?"
+    },
+    {
+      "model": "Payment",
+      "old_field": "amount",
+      "new_field": "paidMxnCents", 
+      "type": "Int"
+    }
+  ],
+  "import_fixes": [
+    {
+      "old_import": "requireAuth",
+      "new_import": "authRequired",
+      "module": "../middleware/auth"
+    }
+  ]
+}

@@ -1,0 +1,202 @@
+src/index.ts(299,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'MemberWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: MemberWhereInput | MemberWhereInput[] | undefined; ... 9 more ...; paymentMethods?: PaymentMethodListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/index.ts(333,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'MemberWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: MemberWhereInput | MemberWhereInput[] | undefined; ... 9 more ...; paymentMethods?: PaymentMethodListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/jobs/memberships/expire.ts(40,26): error TS2322: Type '"past_due"' is not assignable to type 'MembershipStatus'.
+src/jobs/memberships/expire.ts(48,9): error TS2353: Object literal may only specify known properties, and 'updatedAt' does not exist in type '(Without<MembershipUpdateManyMutationInput, MembershipUncheckedUpdateManyInput> & MembershipUncheckedUpdateManyInput) | (Without<...> & MembershipUpdateManyMutationInput)'.
+src/jobs/memberships/expire.ts(62,26): error TS2322: Type '"past_due"' is not assignable to type 'MembershipStatus'.
+src/jobs/memberships/expire.ts(100,34): error TS2551: Property 'member' does not exist on type '{ id: string; status: MembershipStatus; startsAt: Date | null; endsAt: Date | null; createdAt: Date; memberId: string | null; companyId: string; planId: string; }'. Did you mean 'memberId'?
+src/jobs/memberships/expire.ts(112,76): error TS18046: 'error' is of type 'unknown'.
+src/jobs/memberships/expire.ts(114,60): error TS18046: 'error' is of type 'unknown'.
+src/jobs/memberships/expire.ts(127,81): error TS18046: 'error' is of type 'unknown'.
+src/jobs/memberships/expire.ts(129,54): error TS18046: 'error' is of type 'unknown'.
+src/jobs/memberships/expire.ts(149,39): error TS18046: 'error' is of type 'unknown'.
+src/jobs/memberships/expire.ts(153,16): error TS18046: 'error' is of type 'unknown'.
+src/jobs/memberships/expire.ts(175,34): error TS2322: Type '"past_due"' is not assignable to type 'MembershipStatus'.
+src/jobs/memberships/expire.ts(182,34): error TS2322: Type '"past_due"' is not assignable to type 'MembershipStatus'.
+src/jobs/memberships/expire.ts(189,9): error TS2322: Type '"past_due"' is not assignable to type 'EnumMembershipStatusFilter<"Membership"> | MembershipStatus | undefined'.
+src/jobs/memberships/expire.ts(230,34): error TS2322: Type '"past_due"' is not assignable to type 'MembershipStatus'.
+src/jobs/memberships/expire.ts(237,34): error TS2322: Type '"past_due"' is not assignable to type 'MembershipStatus'.
+src/jobs/memberships/expire.ts(244,9): error TS2322: Type '"past_due"' is not assignable to type 'EnumMembershipStatusFilter<"Membership"> | MembershipStatus | undefined'.
+src/jobs/scheduler.ts(41,20): error TS18046: 'error' is of type 'unknown'.
+src/jobs/scheduler.ts(42,20): error TS18046: 'error' is of type 'unknown'.
+src/jobs/scheduler.ts(49,7): error TS2353: Object literal may only specify known properties, and 'scheduled' does not exist in type 'TaskOptions'.
+src/jobs/scheduler.ts(61,7): error TS2353: Object literal may only specify known properties, and 'scheduled' does not exist in type 'TaskOptions'.
+src/lib/errors.ts(217,7): error TS2554: Expected 0-2 arguments, but got 3.
+src/lib/events/broadcaster.ts(43,9): error TS18046: 'connection.response.end' is of type 'unknown'.
+src/lib/events/broadcaster.ts(151,7): error TS18046: 'response.write' is of type 'unknown'.
+src/lib/events/broadcaster.ts(154,7): error TS18046: 'response.write' is of type 'unknown'.
+src/lib/events/broadcaster.ts(157,7): error TS18046: 'response.write' is of type 'unknown'.
+src/lib/events/broadcaster.ts(159,5): error TS18046: 'response.write' is of type 'unknown'.
+src/middleware/auth.ts(178,26): error TS18046: 'prisma' is of type 'unknown'.
+src/middleware/errorHandler.ts(146,7): error TS2345: Argument of type '(err: Record<string, unknown>) => { field: unknown; message: unknown; }' is not assignable to parameter of type '(value: unknown, index: number, array: unknown[]) => { field: unknown; message: unknown; }'.
+  Types of parameters 'err' and 'value' are incompatible.
+    Type 'unknown' is not assignable to type 'Record<string, unknown>'.
+src/middleware/errorHandler.ts(157,31): error TS2339: Property 'target' does not exist on type '{}'.
+src/middleware/errorHandler.ts(168,31): error TS2339: Property 'field_name' does not exist on type '{}'.
+src/middleware/errorHandler.ts(173,3): error TS2739: Type 'Record<string, unknown>' is missing the following properties from type 'AppError': code, statusCode, isOperational, name, message
+src/middleware/requestTiming.ts(23,3): error TS2322: Type 'Logger<never, boolean>' is not assignable to type 'Record<string, unknown> | undefined'.
+  Type 'Logger<never, boolean>' is not assignable to type 'Record<string, unknown>'.
+    Index signature for type 'string' is missing in type 'BaseLogger & LoggerExtras<never, boolean> & { customLevels: {}; useOnlyCustomLevels: boolean; } & { info: LogFn; warn: LogFn; error: LogFn; fatal: LogFn; debug: LogFn; trace: LogFn; } & {}'.
+src/middleware/requestTiming.ts(32,3): error TS18048: 'req.logger' is possibly 'undefined'.
+src/middleware/requestTiming.ts(32,3): error TS18046: 'req.logger.debug' is of type 'unknown'.
+src/middleware/requestTiming.ts(61,31): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'BufferEncoding'.
+src/middleware/tenant.ts(91,26): error TS18046: 'prisma' is of type 'unknown'.
+src/middleware/tenant.ts(98,26): error TS18046: 'prisma' is of type 'unknown'.
+src/middleware/tenant.ts(105,26): error TS18046: 'prisma' is of type 'unknown'.
+src/middleware/tenant.ts(112,26): error TS18046: 'prisma' is of type 'unknown'.
+src/middleware/tenant.ts(119,26): error TS18046: 'prisma' is of type 'unknown'.
+src/middleware/tenant.ts(177,38): error TS18046: 'prisma' is of type 'unknown'.
+src/middleware/tenant.ts(205,11): error TS18046: 'prisma' is of type 'unknown'.
+src/routes/admin.ts(71,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/admin.ts(80,59): error TS18046: 'error' is of type 'unknown'.
+src/routes/admin.ts(104,15): error TS2353: Object literal may only specify known properties, and 'gyms' does not exist in type 'CompanyCountOutputTypeSelect<DefaultArgs>'.
+src/routes/admin.ts(135,13): error TS2353: Object literal may only specify known properties, and 'member' does not exist in type 'PaymentWhereInput'.
+src/routes/admin.ts(154,30): error TS2339: Property '_count' does not exist on type '{ id: string; planId: string | null; createdAt: Date; name: string; rfc: string; billingEmail: string; timezone: string; industry: string | null; updatedAt: Date | null; }'.
+src/routes/admin.ts(155,27): error TS2339: Property '_count' does not exist on type '{ id: string; planId: string | null; createdAt: Date; name: string; rfc: string; billingEmail: string; timezone: string; industry: string | null; updatedAt: Date | null; }'.
+src/routes/admin.ts(156,28): error TS2339: Property '_count' does not exist on type '{ id: string; planId: string | null; createdAt: Date; name: string; rfc: string; billingEmail: string; timezone: string; industry: string | null; updatedAt: Date | null; }'.
+src/routes/admin.ts(157,28): error TS2339: Property '_count' does not exist on type '{ id: string; planId: string | null; createdAt: Date; name: string; rfc: string; billingEmail: string; timezone: string; industry: string | null; updatedAt: Date | null; }'.
+src/routes/admin.ts(172,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/billing.ts(94,26): error TS2339: Property 'id' does not exist on type 'CheckoutSessionResponse'.
+src/routes/classes.ts(84,11): error TS7034: Variable 'classes' implicitly has type 'any[]' in some locations where its type cannot be determined.
+src/routes/classes.ts(124,20): error TS18046: 'error' is of type 'unknown'.
+src/routes/classes.ts(137,32): error TS7005: Variable 'classes' implicitly has an 'any[]' type.
+src/routes/classes.ts(140,11): error TS7006: Parameter 'b' implicitly has an 'any' type.
+src/routes/classes.ts(164,43): error TS7006: Parameter 'booking' implicitly has an 'any' type.
+src/routes/classes.ts(198,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/classes.ts(607,17): error TS18047: 'booking.membership.member' is possibly 'null'.
+src/routes/classes.ts(608,22): error TS18047: 'booking.membership.member' is possibly 'null'.
+src/routes/classes.ts(608,61): error TS18047: 'booking.membership.member' is possibly 'null'.
+src/routes/classes.ts(616,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/companies.ts(74,7): error TS2345: Argument of type 'null' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/routes/dashboard-activity.ts(8,10): error TS2305: Module '"../middleware/auth"' has no exported member 'requireAuth'.
+src/routes/dashboard-activity.ts(63,13): error TS2353: Object literal may only specify known properties, and 'checkedInAt' does not exist in type 'VisitWhereInput'.
+src/routes/dashboard-activity.ts(68,13): error TS2561: Object literal may only specify known properties, but 'checkedOutAt' does not exist in type 'VisitWhereInput'. Did you mean to write 'checkOut'?
+src/routes/dashboard-activity.ts(82,19): error TS2353: Object literal may only specify known properties, and 'checkedInAt' does not exist in type 'VisitOrderByWithRelationInput'.
+src/routes/dashboard-activity.ts(82,44): error TS2561: Object literal may only specify known properties, but 'checkedOutAt' does not exist in type 'VisitOrderByWithRelationInput'. Did you mean to write 'checkOut'?
+src/routes/dashboard-activity.ts(91,17): error TS2339: Property 'checkedInAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'.
+src/routes/dashboard-activity.ts(91,38): error TS2339: Property 'checkedInAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'.
+src/routes/dashboard-activity.ts(95,21): error TS2339: Property 'checkedInAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'.
+src/routes/dashboard-activity.ts(100,29): error TS2551: Property 'membership' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'membershipId'?
+src/routes/dashboard-activity.ts(101,34): error TS2551: Property 'membership' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'membershipId'?
+src/routes/dashboard-activity.ts(101,71): error TS2551: Property 'membership' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'membershipId'?
+src/routes/dashboard-activity.ts(103,28): error TS2339: Property 'gym' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'.
+src/routes/dashboard-activity.ts(104,30): error TS2339: Property 'checkedInAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'.
+src/routes/dashboard-activity.ts(110,17): error TS2551: Property 'checkedOutAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'checkOut'?
+src/routes/dashboard-activity.ts(110,39): error TS2551: Property 'checkedOutAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'checkOut'?
+src/routes/dashboard-activity.ts(112,17): error TS2339: Property 'checkedInAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'.
+src/routes/dashboard-activity.ts(112,38): error TS2551: Property 'checkedOutAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'checkOut'?
+src/routes/dashboard-activity.ts(113,33): error TS2551: Property 'checkedOutAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'checkOut'?
+src/routes/dashboard-activity.ts(113,64): error TS2339: Property 'checkedInAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'.
+src/routes/dashboard-activity.ts(119,21): error TS2551: Property 'checkedOutAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'checkOut'?
+src/routes/dashboard-activity.ts(124,29): error TS2551: Property 'membership' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'membershipId'?
+src/routes/dashboard-activity.ts(125,34): error TS2551: Property 'membership' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'membershipId'?
+src/routes/dashboard-activity.ts(125,71): error TS2551: Property 'membership' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'membershipId'?
+src/routes/dashboard-activity.ts(127,28): error TS2339: Property 'gym' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'.
+src/routes/dashboard-activity.ts(128,31): error TS2551: Property 'checkedOutAt' does not exist on type '{ id: string; membershipId: string; checkIn: Date; gymId: string; deviceId: string | null; checkOut: Date | null; }'. Did you mean 'checkOut'?
+src/routes/dashboard-activity.ts(160,10): error TS18047: 'membership.endsAt' is possibly 'null'.
+src/routes/dashboard-activity.ts(174,28): error TS18047: 'membership.member' is possibly 'null'.
+src/routes/dashboard-activity.ts(174,59): error TS18047: 'membership.member' is possibly 'null'.
+src/routes/dashboard-activity.ts(176,24): error TS18047: 'membership.endsAt' is possibly 'null'.
+src/routes/dashboard-activity.ts(197,13): error TS2353: Object literal may only specify known properties, and 'membership' does not exist in type 'InvoiceInclude<DefaultArgs>'.
+src/routes/dashboard-activity.ts(212,19): error TS2551: Property 'invoice' does not exist on type '{ id: string; status: PaymentStatus; createdAt: Date; paidMxnCents: number; invoiceId: string; provider: PaymentProvider; providerRef: string; }'. Did you mean 'invoiceId'?
+src/routes/dashboard-activity.ts(222,31): error TS2551: Property 'invoice' does not exist on type '{ id: string; status: PaymentStatus; createdAt: Date; paidMxnCents: number; invoiceId: string; provider: PaymentProvider; providerRef: string; }'. Did you mean 'invoiceId'?
+src/routes/dashboard-activity.ts(223,36): error TS2551: Property 'invoice' does not exist on type '{ id: string; status: PaymentStatus; createdAt: Date; paidMxnCents: number; invoiceId: string; provider: PaymentProvider; providerRef: string; }'. Did you mean 'invoiceId'?
+src/routes/dashboard-activity.ts(223,83): error TS2551: Property 'invoice' does not exist on type '{ id: string; status: PaymentStatus; createdAt: Date; paidMxnCents: number; invoiceId: string; provider: PaymentProvider; providerRef: string; }'. Did you mean 'invoiceId'?
+src/routes/dashboard-activity.ts(225,29): error TS2339: Property 'failureReason' does not exist on type '{ id: string; status: PaymentStatus; createdAt: Date; paidMxnCents: number; invoiceId: string; provider: PaymentProvider; providerRef: string; }'.
+src/routes/dashboard-activity.ts(248,55): error TS18046: 'error' is of type 'unknown'.
+src/routes/dashboard.ts(168,30): error TS2339: Property 'price' does not exist on type '{ id: string; name: string; code: string; priceType: PriceType; priceMxnCents: number | null; billingCycle: BillingCycle; featuresJson: JsonValue; stripePriceId: string | null; mpPriceId: string | null; }'.
+src/routes/dashboard.ts(171,13): error TS2367: This comparison appears to be unintentional because the types 'BillingCycle' and '"MONTHLY"' have no overlap.
+src/routes/dashboard.ts(172,33): error TS2339: Property 'price' does not exist on type '{ id: string; name: string; code: string; priceType: PriceType; priceMxnCents: number | null; billingCycle: BillingCycle; featuresJson: JsonValue; stripePriceId: string | null; mpPriceId: string | null; }'.
+src/routes/dashboard.ts(173,17): error TS2367: This comparison appears to be unintentional because the types 'BillingCycle' and '"YEARLY"' have no overlap.
+src/routes/dashboard.ts(174,35): error TS2339: Property 'price' does not exist on type '{ id: string; name: string; code: string; priceType: PriceType; priceMxnCents: number | null; billingCycle: BillingCycle; featuresJson: JsonValue; stripePriceId: string | null; mpPriceId: string | null; }'.
+src/routes/dashboard.ts(175,35): error TS2339: Property 'price' does not exist on type '{ id: string; name: string; code: string; priceType: PriceType; priceMxnCents: number | null; billingCycle: BillingCycle; featuresJson: JsonValue; stripePriceId: string | null; mpPriceId: string | null; }'.
+src/routes/dashboard.ts(210,35): error TS2339: Property 'amount' does not exist on type '{ paidMxnCents: number | null; }'.
+src/routes/dashboard.ts(240,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/dashboard.ts(312,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/dashboard.ts(412,30): error TS18047: 'visit.membership.member' is possibly 'null'.
+src/routes/dashboard.ts(412,67): error TS18047: 'visit.membership.member' is possibly 'null'.
+src/routes/dashboard.ts(436,30): error TS18047: 'visit.membership.member' is possibly 'null'.
+src/routes/dashboard.ts(436,67): error TS18047: 'visit.membership.member' is possibly 'null'.
+src/routes/dashboard.ts(460,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/devices.ts(34,46): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+src/routes/devices.ts(87,13): error TS2554: Expected 4-8 arguments, but got 3.
+src/routes/members.ts(155,9): error TS2345: Argument of type 'null' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/routes/members.ts(189,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'MemberWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: MemberWhereInput | MemberWhereInput[] | undefined; ... 9 more ...; paymentMethods?: PaymentMethodListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/members.ts(236,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'MemberWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: MemberWhereInput | MemberWhereInput[] | undefined; ... 9 more ...; paymentMethods?: PaymentMethodListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/members.ts(259,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'MemberWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: MemberWhereInput | MemberWhereInput[] | undefined; ... 9 more ...; paymentMethods?: PaymentMethodListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/members.ts(321,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'MemberWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: MemberWhereInput | MemberWhereInput[] | undefined; ... 9 more ...; paymentMethods?: PaymentMethodListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/members.ts(343,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'MemberWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: MemberWhereInput | MemberWhereInput[] | undefined; ... 9 more ...; paymentMethods?: PaymentMethodListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/members.ts(359,9): error TS2345: Argument of type 'null' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/routes/members.ts(441,9): error TS2345: Argument of type 'null' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/routes/memberships.ts(137,9): error TS2345: Argument of type 'null' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/routes/onboarding.ts(146,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/onboarding.ts(275,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/revenue-analytics.ts(133,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/revenue-analytics.ts(235,3): error TS2739: Type '{ dailyRevenue: DailyRevenue[]; summary: RevenueSummary; sparklineData: number[]; }' is missing the following properties from type 'RevenueAnalytics': period, dateRange
+src/routes/revenue-analytics.ts(275,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/staff-coverage.ts(139,18): error TS18046: 'error' is of type 'unknown'.
+src/routes/staff.ts(163,78): error TS2345: Argument of type 'null' is not assignable to parameter of type 'Record<string, unknown> | undefined'.
+src/routes/staff.ts(191,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'StaffWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: StaffWhereInput | StaffWhereInput[] | undefined; OR?: StaffWhereInput[] | undefined; ... 12 more ...; certifications?: StaffCertificationListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/staff.ts(246,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'StaffWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: StaffWhereInput | StaffWhereInput[] | undefined; OR?: StaffWhereInput[] | undefined; ... 12 more ...; certifications?: StaffCertificationListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/staff.ts(286,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'StaffWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: StaffWhereInput | StaffWhereInput[] | undefined; OR?: StaffWhereInput[] | undefined; ... 12 more ...; certifications?: StaffCertificationListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/staff.ts(336,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'StaffWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: StaffWhereInput | StaffWhereInput[] | undefined; OR?: StaffWhereInput[] | undefined; ... 12 more ...; certifications?: StaffCertificationListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/staff.ts(345,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'StaffWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: StaffWhereInput | StaffWhereInput[] | undefined; OR?: StaffWhereInput[] | undefined; ... 12 more ...; certifications?: StaffCertificationListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/staff.ts(380,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'StaffWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: StaffWhereInput | StaffWhereInput[] | undefined; OR?: StaffWhereInput[] | undefined; ... 12 more ...; certifications?: StaffCertificationListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/staff.ts(439,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'StaffWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: StaffWhereInput | StaffWhereInput[] | undefined; OR?: StaffWhereInput[] | undefined; ... 12 more ...; certifications?: StaffCertificationListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/routes/staff.ts(521,9): error TS2322: Type '{ companyId: string; }' is not assignable to type 'StaffWhereUniqueInput'.
+  Type '{ companyId: string; }' is not assignable to type '{ id: string; email: string; } & { id?: string | undefined; email?: string | undefined; AND?: StaffWhereInput | StaffWhereInput[] | undefined; OR?: StaffWhereInput[] | undefined; ... 12 more ...; certifications?: StaffCertificationListRelationFilter | undefined; }'.
+    Type '{ companyId: string; }' is missing the following properties from type '{ id: string; email: string; }': id, email
+src/seed.ts(223,7): error TS2322: Type '{ companyId: string; active: true; firstName: string; lastName: string; email: string; role: string; }' is not assignable to type '(Without<StaffCreateInput, StaffUncheckedCreateInput> & StaffUncheckedCreateInput) | (Without<...> & StaffCreateInput)'.
+  Type '{ companyId: string; active: true; firstName: string; lastName: string; email: string; role: string; }' is not assignable to type 'Without<StaffCreateInput, StaffUncheckedCreateInput> & StaffUncheckedCreateInput'.
+    Type '{ companyId: string; active: true; firstName: string; lastName: string; email: string; role: string; }' is not assignable to type 'StaffUncheckedCreateInput'.
+      Types of property 'role' are incompatible.
+        Type 'string' is not assignable to type 'StaffRole'.
+src/seed.ts(630,11): error TS2322: Type 'string' is not assignable to type 'PaymentStatus | undefined'.
+src/seed.ts(642,11): error TS2322: Type '"refunded" | "paid" | "pending"' is not assignable to type 'InvoiceStatus | undefined'.
+  Type '"refunded"' is not assignable to type 'InvoiceStatus | undefined'.
+src/seed/demoCompany.ts(26,44): error TS2353: Object literal may only specify known properties, and 'member' does not exist in type 'PaymentWhereInput'.
+src/seed/demoCompany.ts(29,14): error TS2339: Property 'classBooking' does not exist on type 'Omit<PrismaClient<PrismaClientOptions, never, DefaultArgs>, "$connect" | "$disconnect" | "$on" | "$transaction" | "$extends">'.
+src/seed/demoCompany.ts(30,49): error TS2353: Object literal may only specify known properties, and 'companyId' does not exist in type '(Without<GymScalarRelationFilter, GymWhereInput> & GymWhereInput) | (Without<GymWhereInput, GymScalarRelationFilter> & GymScalarRelationFilter)'.
+src/seed/demoCompany.ts(34,51): error TS2353: Object literal may only specify known properties, and 'companyId' does not exist in type 'GymWhereInput'.
+src/seed/demoCompany.ts(39,53): error TS2353: Object literal may only specify known properties, and 'companyId' does not exist in type 'PlanWhereInput'.
+src/seed/demoCompany.ts(158,35): error TS2322: Type 'PaymentData' is not assignable to type '(Without<PaymentCreateInput, PaymentUncheckedCreateInput> & PaymentUncheckedCreateInput) | (Without<...> & PaymentCreateInput)'.
+  Type 'PaymentData' is not assignable to type 'Without<PaymentUncheckedCreateInput, PaymentCreateInput> & PaymentCreateInput'.
+    Property 'invoice' is missing in type 'PaymentData' but required in type 'PaymentCreateInput'.
+src/seed/demoCompany.ts(177,33): error TS2322: Type 'ClassData' is not assignable to type '(Without<ClassCreateInput, ClassUncheckedCreateInput> & ClassUncheckedCreateInput) | (Without<...> & ClassCreateInput)'.
+  Type 'ClassData' is not assignable to type 'Without<ClassCreateInput, ClassUncheckedCreateInput> & ClassUncheckedCreateInput'.
+    Type 'ClassData' is missing the following properties from type 'ClassUncheckedCreateInput': title, startsAt
+src/utils/auditLogger.ts(115,27): error TS18046: 'error' is of type 'unknown'.
+src/utils/auditLogger.ts(297,27): error TS18046: 'error' is of type 'unknown'.
+src/utils/auditLogger.ts(345,3): error TS2322: Type '{ type: string; message: string; severity: string; }[]' is not assignable to type '{ type: string; message: string; severity: "low" | "medium" | "high"; }[]'.
+  Type '{ type: string; message: string; severity: string; }' is not assignable to type '{ type: string; message: string; severity: "low" | "medium" | "high"; }'.
+    Types of property 'severity' are incompatible.
+      Type 'string' is not assignable to type '"low" | "medium" | "high"'.
+src/utils/eventBroadcaster.ts(178,29): error TS18046: 'error' is of type 'unknown'.
