@@ -1,33 +1,25 @@
 import 'server-only';
-import { createClient } from '@supabase/supabase-js';
+// Supabase admin client disabled - using Railway API instead
+// import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
-if (!supabaseUrl) {
-  throw new Error('Missing NEXT_PUBLIC_SUPABASE_URL environment variable');
-}
-
-if (!supabaseServiceKey) {
-  throw new Error('Missing SUPABASE_SERVICE_ROLE_KEY environment variable');
-}
-
-console.debug('Supabase admin client config:', {
-  url: supabaseUrl,
-  hasServiceKey: !!supabaseServiceKey,
-  serviceKeyPrefix: supabaseServiceKey.substring(0, 10) + '...',
-});
-
-// Server-side Supabase client with service role key
-// This client has admin privileges and should ONLY be used in server-side code
-export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
+// Mock Supabase admin client for compatibility
+export const supabaseAdmin = {
   auth: {
-    autoRefreshToken: false,
-    persistSession: false,
+    admin: {
+      getUserById: () => Promise.resolve({ data: { user: null }, error: null }),
+      createUser: () => Promise.resolve({ data: { user: null }, error: null }),
+      updateUserById: () => Promise.resolve({ data: { user: null }, error: null }),
+    },
   },
-  db: {
-    schema: 'public',
-  },
-});
+  from: () => ({
+    select: () => Promise.resolve({ data: [], error: null }),
+    insert: () => Promise.resolve({ data: [], error: null }),
+    update: () => Promise.resolve({ data: [], error: null }),
+    delete: () => Promise.resolve({ data: [], error: null }),
+  }),
+};
 
 export default supabaseAdmin;
