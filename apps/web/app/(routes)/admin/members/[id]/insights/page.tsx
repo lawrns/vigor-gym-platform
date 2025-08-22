@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../../../lib/auth/context';
 import { MemberInsights } from '../../../../../../lib/api/types';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '../../../../../../components/ui/card';
 import { Icons } from '../../../../../../lib/icons/registry';
 

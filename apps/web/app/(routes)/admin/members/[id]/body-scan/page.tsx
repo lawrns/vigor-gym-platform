@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../../../lib/auth/context';
 import { apiClient, isAPIError } from '../../../../../../lib/api/client';
 import { Member } from '../../../../../../lib/api/types';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 import { Icons } from '../../../../../../lib/icons/registry';
 import { BodyScanCamera } from '../../../../../../components/ai/BodyScanCamera';
 import { BodyScanResults } from '../../../../../../components/ai/BodyScanResults';

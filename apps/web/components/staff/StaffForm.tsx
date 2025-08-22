@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Icons } from '../../lib/icons/registry';
-import { Button } from '@/components/ui/Button';
+import { Button } from '@/components/ui/button';
 
 interface Staff {
   id: string;
