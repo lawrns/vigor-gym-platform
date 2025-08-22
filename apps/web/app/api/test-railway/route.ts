@@ -35,16 +35,33 @@ export async function GET(request: NextRequest) {
         password: 'TestPassword123!'
       }),
     });
-    
+
     const loginText = await loginResponse.text();
     console.log('[test-railway] Login response status:', loginResponse.status);
     console.log('[test-railway] Login response body:', loginText);
-    
+    console.log('[test-railway] Login response headers:', Object.fromEntries(loginResponse.headers.entries()));
+
     let loginData;
     try {
       loginData = JSON.parse(loginText);
     } catch (e) {
       loginData = { error: 'Invalid JSON response', body: loginText };
+    }
+
+    // Test if we can access any other endpoints
+    const companiesResponse = await fetch(`${apiUrl}/v1/companies`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const companiesText = await companiesResponse.text();
+    let companiesData;
+    try {
+      companiesData = JSON.parse(companiesText);
+    } catch (e) {
+      companiesData = { error: 'Invalid JSON response', body: companiesText };
     }
     
     return NextResponse.json({
@@ -55,12 +72,23 @@ export async function GET(request: NextRequest) {
       },
       login: {
         status: loginResponse.status,
-        data: loginData
+        data: loginData,
+        headers: Object.fromEntries(loginResponse.headers.entries())
+      },
+      companies: {
+        status: companiesResponse.status,
+        data: companiesData
       },
       environment: {
         NODE_ENV: process.env.NODE_ENV,
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
-      }
+      },
+      suggestions: loginResponse.status === 500 ? [
+        'Database may not be seeded with test user',
+        'Try calling /api/seed-railway to create test data',
+        'Check Railway database connection',
+        'Verify environment variables in Railway'
+      ] : []
     });
     
   } catch (error) {

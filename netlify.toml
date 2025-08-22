@@ -20,12 +20,11 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Handle Next.js image optimization
-[[redirects]]
-  from = "/_next/image*"
-  to = "/.netlify/images?url=:url&w=:width&q=:quality"
-  status = 200
-  query = {url = ":url", w = ":width", q = ":quality"}
+# Static assets served directly (no image optimization)
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
 
 # Redirect rules for SPA routing (catch-all for Next.js client-side routing)
 [[redirects]]
