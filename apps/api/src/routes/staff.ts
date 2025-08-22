@@ -161,7 +161,7 @@ router.post(
       });
 
       // Log audit trail
-      await logTenantAction(prisma, req, 'staff.created', 'staff', staff.id, null, {
+      await logTenantAction(prisma, req, 'staff.created', 'staff', staff.id, undefined, {
         email: staff.email,
         firstName: staff.firstName,
         lastName: staff.lastName,
@@ -214,6 +214,10 @@ router.get(
           },
         },
       });
+
+      if (!staff) {
+        return res.status(404).json({ message: 'Staff member not found' });
+      }
 
       // Validate tenant access
       validateTenantAccess(req, staff);
