@@ -1,4 +1,6 @@
+'use client';
 import { Icons } from '../../lib/icons/registry';
+import { useState } from 'react';
 
 type Plan = {
   name: string;
@@ -27,13 +29,17 @@ type ComparisonTableProps = {
 };
 
 export function ComparisonTable({ title, subtitle, plans, features }: ComparisonTableProps) {
+  const [showAllFeatures, setShowAllFeatures] = useState(false);
+
+  // Show first 6 features by default, rest are expandable
+  const visibleFeatures = showAllFeatures ? features : features.slice(0, 6);
+  const hiddenFeaturesCount = Math.max(0, features.length - 6);
+
   return (
-    <section 
-      className="bg-white dark:bg-gray-900 py-16"
+    <div
       data-evt="section.view"
       data-section="comparison-table"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -48,11 +54,11 @@ export function ComparisonTable({ title, subtitle, plans, features }: Comparison
 
         {/* Comparison Table */}
         <div className="overflow-x-auto">
-          <table className="w-full border-collapse bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+          <table className="w-full border-collapse bg-card rounded-lg shadow-card">
             {/* Table Header */}
             <thead>
-              <tr className="border-b border-gray-200 dark:border-gray-700">
-                <th className="text-left p-6 font-medium text-gray-900 dark:text-white">
+              <tr className="border-b border-[var(--outline)]">
+                <th className="text-left p-6 font-medium text-heading">
                   Características
                 </th>
                 {plans.map((plan) => (
@@ -65,10 +71,10 @@ export function ComparisonTable({ title, subtitle, plans, features }: Comparison
                     }`}
                   >
                     <div className="space-y-2">
-                      <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+                      <h3 className="font-bold text-lg text-heading">
                         {plan.name}
                       </h3>
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                      <div className="text-2xl font-bold text-primary">
                         {plan.price}
                       </div>
                       <a
@@ -91,14 +97,14 @@ export function ComparisonTable({ title, subtitle, plans, features }: Comparison
 
             {/* Table Body */}
             <tbody>
-              {features.map((feature, index) => (
-                <tr 
+              {visibleFeatures.map((feature, index) => (
+                <tr
                   key={feature.name}
-                  className={`border-b border-gray-200 dark:border-gray-700 ${
-                    index % 2 === 0 ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-white dark:bg-gray-800'
+                  className={`border-b border-[var(--outline)] ${
+                    index % 2 === 0 ? 'bg-surface' : 'bg-card'
                   }`}
                 >
-                  <td className="p-6 font-medium text-gray-900 dark:text-white">
+                  <td className="p-6 font-medium text-heading">
                     {feature.name}
                   </td>
                   <td className={`text-center p-6 ${plans[0]?.highlight ? 'bg-blue-50 dark:bg-blue-900/20' : ''}`}>
@@ -128,22 +134,44 @@ export function ComparisonTable({ title, subtitle, plans, features }: Comparison
           </table>
         </div>
 
+        {/* Expand/Collapse Button */}
+        {hiddenFeaturesCount > 0 && (
+          <div className="text-center mt-6">
+            <button
+              onClick={() => setShowAllFeatures(!showAllFeatures)}
+              className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors"
+            >
+              {showAllFeatures ? (
+                <>
+                  <Icons.ChevronUp className="w-4 h-4" />
+                  Ver menos características
+                </>
+              ) : (
+                <>
+                  <Icons.ChevronDown className="w-4 h-4" />
+                  Ver {hiddenFeaturesCount} características más
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
         {/* Mobile-friendly cards for smaller screens */}
         <div className="lg:hidden mt-8 space-y-6">
           {plans.map((plan) => (
             <div 
               key={plan.name}
               className={`border rounded-lg p-6 ${
-                plan.highlight 
-                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20' 
-                  : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800'
+                plan.highlight
+                  ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20'
+                  : 'border-[var(--outline)] bg-card'
               }`}
             >
               <div className="text-center mb-4">
-                <h3 className="font-bold text-lg text-gray-900 dark:text-white">
+                <h3 className="font-bold text-lg text-heading">
                   {plan.name}
                 </h3>
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400 mt-2">
+                <div className="text-2xl font-bold text-primary mt-2">
                   {plan.price}
                 </div>
               </div>
@@ -184,7 +212,6 @@ export function ComparisonTable({ title, subtitle, plans, features }: Comparison
             </div>
           ))}
         </div>
-      </div>
-    </section>
+    </div>
   );
 }

@@ -24,8 +24,8 @@
     "perf:otel:smoke": "node scripts/otel-smoke.mjs",
     "perf:all": "npm run perf:lighthouse && npm run perf:k6:smoke && npm run perf:otel:smoke",
     "analyze": "ANALYZE=true next build",
-    "lh:desktop": "lighthouse http://localhost:7777 --preset=desktop --output=json --output-path=./.audit/lh-desktop.json",
-    "lh:mobile": "lighthouse http://localhost:7777 --preset=mobile --output=json --output-path=./.audit/lh-mobile.json",
+    "lh:desktop": "npx lighthouse http://localhost:7777 --preset=desktop --output=json --output-path=./.audit/lh-desktop.json",
+    "lh:mobile": "npx lighthouse http://localhost:7777 --form-factor=mobile --throttling-method=devtools --output=json --output-path=./.audit/lh-mobile.json",
     "selftest:auth": "node scripts/selftest-auth.mjs"
   },
   "dependencies": {

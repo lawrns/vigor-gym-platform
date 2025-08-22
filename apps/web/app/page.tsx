@@ -1,99 +1,141 @@
 import contentV2 from '../lib/content/home.v2.json';
-import { LogoMarquee as LogoMarqueeSection } from '../components/sections/LogoMarquee';
-import { PlansSection } from '../components/sections/Plans';
 import { FAQAccordion } from '../components/sections/FAQAccordion';
 import { HowItWorks } from '../components/sections/HowItWorks';
-import { CTA_Banner } from '../components/sections/CTA_Banner';
 import { HeroCinematic } from '../components/sections/HeroCinematic';
-import { KPI_Counters } from '../components/sections/KPI_Counters';
-import { FeatureGridLight } from '../components/sections/FeatureGridLight';
-import { ActivityCarousel } from '../components/sections/ActivityCarousel';
+import { KPIStatsWithLogos } from '../components/sections/KPIStatsWithLogos';
+import { FeaturesAndActivitiesShowcase } from '../components/sections/FeaturesAndActivitiesShowcase';
 import { AppPromo } from '../components/sections/AppPromo';
-import { ComparisonTable } from '../components/sections/ComparisonTable';
+import { PlansAndComparison } from '../components/sections/PlansAndComparison';
 import { IntegrationsWall } from '../components/sections/IntegrationsWall';
-import { ComplianceRibbon } from '../components/sections/ComplianceRibbon';
-import { ROIProofWithScroller } from '../components/sections/ROIProofWithScroller';
-import dynamic from 'next/dynamic';
-const TestimonialsCarousel = dynamic(() => import('../components/sections/TestimonialsCarousel').then(m => m.TestimonialsCarousel), { ssr: false, loading: () => null });
+import { TrustAndResults } from '../components/sections/TrustAndResults';
+import { SocialProofAndCTA } from '../components/sections/SocialProofAndCTA';
+
+// Layout primitives
+import { Section } from '../components/primitives/Section';
+import { Container } from '../components/primitives/Container';
+import { Stack } from '../components/primitives/Stack';
 
 export const revalidate = 86400;
 
 export default function HomePage() {
   return (
-    <main>
-      {/* Render new cinematic hero from v2 content */}
+    <Stack as="main" gap="0" className="min-h-screen">
+      {/* Hero Section - No wrapper needed, component handles its own layout */}
       <HeroCinematic config={contentV2.HeroCinematic as any} />
-      <KPI_Counters items={(contentV2 as any).KPI_Counters?.items || []} />
-      <FeatureGridLight
-        intro={(contentV2 as any).FeatureGridLight?.intro}
-        cards={(contentV2 as any).FeatureGridLight?.cards || []}
-      />
-      {/* Switch LogoMarquee to v2 content (light variant) */}
-      <LogoMarqueeSection
-        title={(contentV2 as any).LogoMarquee?.title}
-        logos={(contentV2 as any).LogoMarquee?.logos || []}
-      />
-      <ActivityCarousel
-        title={(contentV2 as any).ActivityCarousel?.title || 'Más de 250 actividades'}
-        items={(contentV2 as any).ActivityCarousel?.items || []}
-      />
-      <AppPromo
-        title={(contentV2 as any).AppPromo?.title || 'Todo en la palma de tu mano'}
-        subtitle={
-          (contentV2 as any).AppPromo?.subtitle ||
-          'Reserva, accede y gestiona tu membresía desde la app.'
-        }
-        appBadges={(contentV2 as any).AppPromo?.appBadges !== false}
-      />
-      <PlansSection
-        title={(contentV2 as any).PlansV2?.title || 'Planes para colaboradores'}
-        tiers={((contentV2 as any).PlansV2?.tiers as any) || []}
-      />
-      <ComparisonTable
-        title={(contentV2 as any).ComparisonTable?.title || 'Compara nuestros planes'}
-        subtitle={(contentV2 as any).ComparisonTable?.subtitle}
-        plans={((contentV2 as any).ComparisonTable?.plans as any) || []}
-        features={((contentV2 as any).ComparisonTable?.features as any) || []}
-      />
-      <HowItWorks
-        title={(contentV2 as any).HowItWorks?.title || '¿Cómo funciona Vigor?'}
-        steps={((contentV2 as any).HowItWorks?.steps as any) || []}
-        cta={(contentV2 as any).HowItWorks?.cta}
-      />
-      <IntegrationsWall
-        title={(contentV2 as any).IntegrationsWall?.title || 'Integraciones que potencian tu gimnasio'}
-        subtitle={(contentV2 as any).IntegrationsWall?.subtitle}
-        integrations={((contentV2 as any).IntegrationsWall?.integrations as any) || []}
-      />
-      <ComplianceRibbon
-        title={(contentV2 as any).ComplianceRibbon?.title || 'Seguridad y cumplimiento de clase mundial'}
-        points={((contentV2 as any).ComplianceRibbon?.points as any) || []}
-      />
-      <ROIProofWithScroller
-        title={(contentV2 as any).ROIProofWithScroller?.title || 'Resultados reales que puedes medir'}
-        subtitle={(contentV2 as any).ROIProofWithScroller?.subtitle}
-        metrics={((contentV2 as any).ROIProofWithScroller?.metrics as any) || []}
-      />
-      <TestimonialsCarousel
-        title={(contentV2 as any).TestimonialsCarousel?.title || 'Lo que dicen nuestros clientes'}
-        subtitle={(contentV2 as any).TestimonialsCarousel?.subtitle}
-        testimonials={((contentV2 as any).TestimonialsCarousel?.testimonials as any) || []}
-      />
-      <CTA_Banner
-        title={(contentV2 as any).FinalCTA?.title || 'Comienza hoy'}
-        desc={
-          (contentV2 as any).FinalCTA?.desc ||
-          'Activa tu prueba y configura membresías, clases y facturación en minutos.'
-        }
-        cta={(contentV2 as any).FinalCTA?.cta || { label: 'Crear cuenta', href: '/registro' }}
-        secondary={
-          (contentV2 as any).FinalCTA?.secondary || { label: 'Ver planes', href: '/planes' }
-        }
-      />
-      <FAQAccordion
-        title={(contentV2 as any).FAQAccordion?.title || 'Preguntas frecuentes'}
-        items={(contentV2 as any).FAQAccordion?.items || []}
-      />
-    </main>
+
+      {/* KPI Stats + Logo Marquee Combined Section */}
+      <Section tone="alt" size="lg">
+        <Container>
+          <KPIStatsWithLogos
+            kpiItems={(contentV2 as any).KPI_Counters?.items || []}
+            logoTitle={(contentV2 as any).LogoMarquee?.title}
+            logos={(contentV2 as any).LogoMarquee?.logos || []}
+          />
+        </Container>
+      </Section>
+
+      {/* Features & Activities Showcase Section */}
+      <Section tone="default" size="lg">
+        <Container>
+          <FeaturesAndActivitiesShowcase
+            featuresIntro={(contentV2 as any).FeatureGridLight?.intro}
+            featureCards={(contentV2 as any).FeatureGridLight?.cards || []}
+            activitiesTitle={(contentV2 as any).ActivityCarousel?.title || 'Más de 250 actividades'}
+            activityItems={(contentV2 as any).ActivityCarousel?.items || []}
+          />
+        </Container>
+      </Section>
+
+      {/* App Promo Section */}
+      <Section tone="alt" size="lg">
+        <Container>
+          <AppPromo
+            title={(contentV2 as any).AppPromo?.title || 'Todo en la palma de tu mano'}
+            subtitle={
+              (contentV2 as any).AppPromo?.subtitle ||
+              'Reserva, accede y gestiona tu membresía desde la app.'
+            }
+            appBadges={(contentV2 as any).AppPromo?.appBadges !== false}
+          />
+        </Container>
+      </Section>
+
+      {/* Plans & Comparison Combined Section */}
+      <Section tone="default" size="lg">
+        <Container>
+          <PlansAndComparison
+            plansTitle={(contentV2 as any).PlansV2?.title || 'Planes para colaboradores'}
+            plans={((contentV2 as any).PlansV2?.tiers as any) || []}
+            comparisonTitle={(contentV2 as any).ComparisonTable?.title || 'Compara nuestros planes'}
+            comparisonSubtitle={(contentV2 as any).ComparisonTable?.subtitle}
+            comparisonPlans={((contentV2 as any).ComparisonTable?.plans as any) || []}
+            comparisonFeatures={((contentV2 as any).ComparisonTable?.features as any) || []}
+          />
+        </Container>
+      </Section>
+
+      {/* How It Works Section */}
+      <Section tone="default" size="lg">
+        <Container>
+          <HowItWorks
+            title={(contentV2 as any).HowItWorks?.title || '¿Cómo funciona Vigor?'}
+            steps={((contentV2 as any).HowItWorks?.steps as any) || []}
+            cta={(contentV2 as any).HowItWorks?.cta}
+          />
+        </Container>
+      </Section>
+
+      {/* Integrations Wall Section */}
+      <Section tone="alt" size="lg">
+        <Container>
+          <IntegrationsWall
+            title={(contentV2 as any).IntegrationsWall?.title || 'Integraciones que potencian tu gimnasio'}
+            subtitle={(contentV2 as any).IntegrationsWall?.subtitle}
+            integrations={((contentV2 as any).IntegrationsWall?.integrations as any) || []}
+          />
+        </Container>
+      </Section>
+
+      {/* Trust & Results Combined Section */}
+      <Section tone="default" size="lg">
+        <Container>
+          <TrustAndResults
+            complianceTitle={(contentV2 as any).ComplianceRibbon?.title || 'Seguridad y cumplimiento de clase mundial'}
+            compliancePoints={((contentV2 as any).ComplianceRibbon?.points as any) || []}
+            resultsTitle={(contentV2 as any).ROIProofWithScroller?.title || 'Resultados reales que puedes medir'}
+            resultsSubtitle={(contentV2 as any).ROIProofWithScroller?.subtitle}
+            metrics={((contentV2 as any).ROIProofWithScroller?.metrics as any) || []}
+          />
+        </Container>
+      </Section>
+
+      {/* Social Proof & CTA Combined Section */}
+      <Section tone="default" size="lg">
+        <Container>
+          <SocialProofAndCTA
+            testimonialsTitle={(contentV2 as any).TestimonialsCarousel?.title || 'Lo que dicen nuestros clientes'}
+            testimonialsSubtitle={(contentV2 as any).TestimonialsCarousel?.subtitle}
+            testimonials={((contentV2 as any).TestimonialsCarousel?.testimonials as any) || []}
+            ctaTitle={(contentV2 as any).FinalCTA?.title || 'Comienza hoy'}
+            ctaDescription={
+              (contentV2 as any).FinalCTA?.desc ||
+              'Activa tu prueba y configura membresías, clases y facturación en minutos.'
+            }
+            primaryCTA={(contentV2 as any).FinalCTA?.cta || { label: 'Crear cuenta', href: '/registro' }}
+            secondaryCTA={(contentV2 as any).FinalCTA?.secondary || { label: 'Ver planes', href: '/planes' }}
+          />
+        </Container>
+      </Section>
+
+      {/* FAQ Section */}
+      <Section tone="default" size="md">
+        <Container>
+          <FAQAccordion
+            title={(contentV2 as any).FAQAccordion?.title || 'Preguntas frecuentes'}
+            items={(contentV2 as any).FAQAccordion?.items || []}
+          />
+        </Container>
+      </Section>
+    </Stack>
   );
 }

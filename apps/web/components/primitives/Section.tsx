@@ -6,7 +6,7 @@ type Size = 'sm' | 'md' | 'lg';
 const toneToBg: Record<Tone, string> = {
   default: 'bg-bg',
   alt: 'bg-surface',
-  emphasis: 'bg-card',
+  emphasis: 'bg-blue-50 dark:bg-blue-900/20',
 };
 
 const sizeToPy: Record<Size, string> = {

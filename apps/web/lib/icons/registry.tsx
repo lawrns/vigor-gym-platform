@@ -29,6 +29,7 @@ export type IconName =
   | 'ChevronLeft'
   | 'ChevronRight'
   | 'ChevronDown'
+  | 'ChevronUp'
   | 'Plus'
   | 'Search'
   | 'Upload'
@@ -293,6 +294,11 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
   ChevronDown: props => (
     <Svg {...props}>
       <path d="m6 9 6 6 6-6" />
+    </Svg>
+  ),
+  ChevronUp: props => (
+    <Svg {...props}>
+      <path d="m18 15-6-6-6 6" />
     </Svg>
   ),
   Plus: props => (
