@@ -91,6 +91,7 @@ export function HeroSplit({
                     sizes="(max-width: 768px) 100vw, 25vw"
                     className="object-cover"
                     priority={index === 0}
+                    unoptimized
                     placeholder="blur"
                     blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJz48cmVjdCB3aWR0aD0nNDAwJyBoZWlnaHQ9JzUwMCcgZmlsbD0nI2YyZjRmOCcvPjwvc3ZnPg=="
                   />

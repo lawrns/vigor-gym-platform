@@ -1,0 +1,150 @@
+{
+  "timestamp": "2025-08-22T23:16:00Z",
+  "environments": {
+    "frontend": {
+      "platform": "Netlify",
+      "primary_url": "https://gogymx.netlify.app",
+      "custom_domain_url": "https://gogym.mx",
+      "status": "deployed",
+      "symptoms": [
+        "Next.js images returning 404 via /_next/image",
+        "Auth init calls /api/auth/me -> 401",
+        "Login POST /api/auth/login -> 500 on custom domain"
+      ]
+    },
+    "backend": {
+      "platform": "Railway",
+      "api_url": "https://vigor-gym-platform-production.up.railway.app",
+      "health": { "GET /health": 200 },
+      "auth": {
+        "POST /auth/login": 500,
+        "POST /auth/register-company": 500,
+        "GET /auth/me": "requires Bearer token"
+      },
+      "db_connection": {
+        "DATABASE_URL_present": true,
+        "note": "User added password; still 500 on auth endpoints"
+      }
+    }
+  },
+  "latest_observations": {
+    "from_test_railway_endpoint": {
+      "health": { "status": 200, "data": { "status": "ok" } },
+      "login": { "status": 500, "message": "Internal server error" },
+      "companies": { "status": 404 },
+      "headers": {
+        "csp": "default-src 'self'; ...",
+        "ratelimit-remaining": "4"
+      }
+    },
+    "browser_console": [
+      "/_next/image?url=%2Fimages%2Fgogym.png&w=256&q=75 -> 404",
+      "Multiple /_next/image 404s for hero-* and activity-* assets",
+      "/api/auth/me -> 401",
+      "POST https://gogym.mx/api/auth/login -> 500"
+    ]
+  },
+  "repo_config_state": {
+    "next_config": {
+      "path": "apps/web/next.config.mjs",
+      "images": {
+        "unoptimized": true,
+        "formats": ["image/webp", "image/avif"]
+      }
+    },
+    "netlify_toml": {
+      "path": "netlify.toml",
+      "build": {
+        "publish": "apps/web/.next",
+        "command": "npm --workspace @vigor/web run build"
+      },
+      "plugin": "@netlify/plugin-nextjs",
+      "headers": [
+        { "for": "/images/*", "Cache-Control": "public, max-age=31536000, immutable" }
+      ],
+      "redirects": {
+        "catch_all_spa": { "from": "/*", "to": "/index.html", "status": 200 }
+      }
+    },
+    "api_client": {
+      "path": "apps/web/lib/api/client.ts",
+      "browser_base_url": "",
+      "server_base_url": "process.env.NEXT_PUBLIC_API_URL"
+    },
+    "auth_routes": {
+      "login_proxy": "apps/web/app/api/auth/login/route.ts (proxies to /auth/login)",
+      "me_proxy": "apps/web/app/api/auth/me/route.ts (proxies to /auth/me with Bearer from cookie)"
+    }
+  },
+  "working_hypotheses": [
+    {
+      "id": "IMG-001",
+      "summary": "Netlify Next.js plugin routing /_next/image but Next build disabled optimization (unoptimized=true) -> 404s",
+      "evidence": [
+        "Browser requests /_next/image",
+        "next.config.mjs sets unoptimized: true (should render <img> and not hit /_next/image)",
+        "Therefore deployed build likely didn't pick up config or plugin is forcing image endpoint"
+      ],
+      "tests": [
+        "Hard clear Netlify build cache + redeploy",
+        "Force unoptimized at component level with <Image unoptimized /> to bypass plugin",
+        "Alternatively re-enable plugin-style optimization and restore redirect to /.netlify/images"
+      ]
+    },
+    {
+      "id": "AUTH-500",
+      "summary": "Railway API auth endpoints error due to DB mismatch or migrations not applied (Prisma).",
+      "evidence": [
+        "Health endpoint works (app boots)",
+        "DB credential added but auth queries 500",
+        "/v1/companies 404 indicates route exists in code but may not be mounted if build differs or request path wrong"
+      ],
+      "likely_causes": [
+        "Prisma migrations not deployed on Railway",
+        "Supabase requires SSL; need sslmode=require in DATABASE_URL",
+        "Using pgbouncer; may require ?pgbouncer=true&connection_limit=1&sslmode=require"
+      ]
+    }
+  ],
+  "actions_taken": [
+    "Added /api/test-railway diagnostic endpoint",
+    "Added /api/seed-railway endpoint (now GET) to seed demo user",
+    "Changed next.config.mjs images.unoptimized=true",
+    "Adjusted netlify.toml headers and redirects; removed image optimization redirects"
+  ],
+  "proposed_next_actions": [
+    {
+      "priority": "P0",
+      "title": "Fix Railway DB connectivity/migrations",
+      "steps": [
+        "In Railway > Variables: set DATABASE_URL to Supabase string with '?sslmode=require'",
+        "If using pgbouncer: append '?pgbouncer=true&connection_limit=1&sslmode=require'",
+        "In Railway shell: run 'pnpm --filter @vigor/api prisma migrate deploy'",
+        "Optionally run seed: 'pnpm --filter @vigor/api ts-node src/seed-minimal.ts' (or run built JS)"
+      ]
+    },
+    {
+      "priority": "P0",
+      "title": "Resolve image 404s",
+      "steps": [
+        "Trigger a Netlify deploy with 'Clear cache and deploy site'",
+        "If 404 persists, add 'unoptimized' prop to all <Image> usages or wrap Next/Image with default unoptimized=true",
+        "Alternative: remove unoptimized=true and restore Netlify image redirect to /.netlify/images",
+        "Verify next.config.mjs is the one used by Netlify build (workspace @vigor/web)"
+      ]
+    },
+    {
+      "priority": "P1",
+      "title": "Verify custom domain setup",
+      "steps": [
+        "Ensure gogym.mx is correctly aliased to Netlify site",
+        "Confirm CSP and CORS allow connect-src to Netlify origin only (we now proxy server-side)"
+      ]
+    }
+  ],
+  "open_questions": [
+    "Can you run 'Clear cache and deploy site' on Netlify?",
+    "Can you open Railway logs for the API during a POST /auth/login to capture stack traces?",
+    "Do you want us to force images to be unoptimized at component level (<Image unoptimized />) as a hotfix?"
+  ]
+}

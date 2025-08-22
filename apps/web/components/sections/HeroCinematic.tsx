@@ -88,6 +88,7 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
               priority
+              unoptimized
               placeholder="blur"
               blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAyNCcgaGVpZ2h0PSc1NzYnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzEwMjQnIGhlaWdodD0nNTc2JyBmaWxsPScjZjJmNGY4Jy8+PC9zdmc+"
             />
@@ -98,6 +99,7 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
               alt={'App móvil de Vigor'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
+              unoptimized
               className="object-cover"
               priority={false}
               placeholder="blur"
