@@ -1,10 +1,10 @@
 [build]
   # Build command for the web app
   command = "npm --workspace @vigor/web run build"
-  
-  # Publish directory (Next.js output)
+
+  # Publish directory (Next.js output with Netlify plugin)
   publish = "apps/web/.next"
-  
+
   # Base directory for the build
   base = "."
 
@@ -20,19 +20,11 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Next.js Image Optimization
+# Static image assets
 [[redirects]]
-  from = "/_next/image*"
-  to = "/.netlify/images?url=:url&w=:width&q=:quality"
+  from = "/images/*"
+  to = "/images/:splat"
   status = 200
-  query = {url = ":url", w = ":width", q = ":quality"}
-
-# Handle _ipx image optimization (alternative)
-[[redirects]]
-  from = "/_ipx/*"
-  to = "/.netlify/images?url=:url&w=:width&q=:quality"
-  status = 200
-  query = {url = ":url", w = ":width", q = ":quality"}
 
 # Redirect rules for SPA routing (catch-all for Next.js client-side routing)
 [[redirects]]
