@@ -116,7 +116,8 @@ router.get(
         endDate,
         prevStartDate,
         prevEndDate,
-        locationId as string | undefined
+        locationId as string | undefined,
+        period as string
       );
 
       res.json({
@@ -130,7 +131,7 @@ router.get(
     } catch (error) {
       logger.error(
         {
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
           companyId: req.tenant?.companyId,
           locationId: req.query.locationId,
           period: req.query.period,
@@ -154,7 +155,8 @@ async function generateRevenueAnalytics(
   endDate: Date,
   _prevStartDate: Date,
   _prevEndDate: Date,
-  _locationId?: string
+  _locationId?: string,
+  period: string = '7d'
 ): Promise<RevenueAnalytics> {
   // For demo purposes, generate realistic mock data
   // In production, this would query actual payment and membership data
@@ -236,6 +238,11 @@ async function generateRevenueAnalytics(
     dailyRevenue,
     summary,
     sparklineData,
+    period,
+    dateRange: {
+      from: startDate.toISOString().split('T')[0],
+      to: endDate.toISOString().split('T')[0],
+    },
   };
 }
 
@@ -272,7 +279,7 @@ router.get(
     } catch (error) {
       logger.error(
         {
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
           companyId: req.tenant?.companyId,
         },
         'MRR analytics error'

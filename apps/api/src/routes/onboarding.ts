@@ -143,7 +143,7 @@ router.get(
       });
     } catch (error) {
       logger.error(
-        { error: error.message, companyId: req.tenant?.companyId },
+        { error: error instanceof Error ? error.message : String(error), companyId: req.tenant?.companyId },
         'Onboarding status error'
       );
       res.status(500).json({
@@ -272,7 +272,7 @@ router.post(
       }
 
       logger.error(
-        { error: error.message, companyId: req.tenant?.companyId },
+        { error: error instanceof Error ? error.message : String(error), companyId: req.tenant?.companyId },
         'Onboarding seed error'
       );
       res.status(500).json({

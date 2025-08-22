@@ -136,7 +136,7 @@ router.get(
     } catch (error) {
       logger.error(
         {
-          error: error.message,
+          error: error instanceof Error ? error.message : String(error),
           companyId: req.tenant?.companyId,
           locationId: req.query.locationId,
           date: req.query.date,
