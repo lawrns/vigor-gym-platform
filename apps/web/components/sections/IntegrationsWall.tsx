@@ -68,7 +68,7 @@ export function IntegrationsWall({ title, subtitle, integrations }: Integrations
                   >
                     {/* Integration Logo */}
                     <div className="flex items-center justify-center h-12 mb-3">
-                      {integration.logo.startsWith('http') ? (
+                      {integration.logo.startsWith('/') ? (
                         <Image
                           src={integration.logo}
                           alt={`${integration.name} logo`}
@@ -78,9 +78,11 @@ export function IntegrationsWall({ title, subtitle, integrations }: Integrations
                           className="object-contain"
                         />
                       ) : (
-                        <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">
-                          <Icons.Building2 className="w-6 h-6 text-gray-400" />
-                        </div>
+                        <img
+                          src={integration.logo}
+                          alt={`${integration.name} logo`}
+                          className="max-h-full max-w-full object-contain"
+                        />
                       )}
                     </div>
 
