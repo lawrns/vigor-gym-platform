@@ -51,10 +51,10 @@ export function ActivityCarousel({ title, items }: { title: string; items: Item[
                 src={
                   it.image ||
                   (i % 3 === 0
-                    ? '/images/activity-a.png'
+                    ? '/images/activity-a.webp'
                     : i % 3 === 1
-                      ? '/images/activity-b.png'
-                      : '/images/activity-c.png')
+                      ? '/images/activity-b.webp'
+                      : '/images/activity-c.webp')
                 }
                 alt={it.label}
                 fill

@@ -13,9 +13,9 @@
     "visual": {
       "type": "deviceStack",
       "assets": [
-        "/images/hero-app.png",
-        "/images/hero-dashboard.png",
-        "/images/activity-a.png"
+        "/images/hero-app.webp",
+        "/images/hero-dashboard.webp",
+        "/images/activity-a.webp"
       ]
     }
   },

@@ -39,6 +39,14 @@ jobs:
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
 
+      - name: Upload Lighthouse results
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-results
+          path: apps/web/.lighthouseci/
+          retention-days: 1
+        if: always()
+
   k6-smoke:
     name: k6 Smoke Tests
     runs-on: ubuntu-latest
@@ -179,30 +187,78 @@ jobs:
         env:
           WEB_ORIGIN: ${{ env.WEB_ORIGIN }}
 
+  asset-audit:
+    name: Asset Size Audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run asset size audit
+        run: node scripts/optimize-images.mjs --ci
+        working-directory: apps/web
+
+      - name: Check for oversized assets
+        run: |
+          echo "Checking for assets > 400KB..."
+
+          # Find files larger than 400KB in public directory
+          oversized=$(find apps/web/public -type f \( -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" -o -name "*.webp" -o -name "*.avif" \) -size +400k)
+
+          if [ -n "$oversized" ]; then
+            echo "❌ Found oversized assets (>400KB):"
+            echo "$oversized" | while read file; do
+              size=$(du -h "$file" | cut -f1)
+              echo "  - $file ($size)"
+            done
+            echo ""
+            echo "Please optimize these assets or add them to the whitelist."
+            exit 1
+          else
+            echo "✅ All assets are within size limits"
+          fi
+
   performance-budget:
     name: Performance Budget Check
     runs-on: ubuntu-latest
-    needs: [lighthouse-ci, k6-smoke]
+    needs: [lighthouse-ci, k6-smoke, asset-audit]
     steps:
-      - name: Check performance gates
-        run: |
-          echo "Checking performance gates..."
-          
-          # These would typically check against stored metrics
-          # For now, we'll simulate the checks
-          
-          echo "✅ LCP p75 < 2500ms"
-          echo "✅ API p95 < 600ms" 
-          echo "✅ Widget init p95 < 400ms"
-          echo "✅ No console errors during E2E"
-          echo "✅ Trace ID coverage > 98%"
-          
-          echo "All performance gates passed!"
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Download Lighthouse artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-results
+          path: apps/web/.lighthouseci/
+        continue-on-error: true
+
+      - name: Run performance budget validation
+        run: node scripts/validate-performance-budget.mjs
+        working-directory: apps/web
+        env:
+          CI: true
 
   notify-slack:
     name: Notify Slack
     runs-on: ubuntu-latest
-    needs: [lighthouse-ci, k6-smoke, k6-load, playwright-e2e, otel-validate]
+    needs: [lighthouse-ci, k6-smoke, k6-load, playwright-e2e, otel-validate, asset-audit]
     if: always() && github.ref == 'refs/heads/main'
     steps:
       - name: Notify Slack
@@ -219,5 +275,6 @@ jobs:
             - k6 Load: ${{ needs.k6-load.result }}
             - Playwright E2E: ${{ needs.playwright-e2e.result }}
             - OTEL Validation: ${{ needs.otel-validate.result }}
+            - Asset Audit: ${{ needs.asset-audit.result }}
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}

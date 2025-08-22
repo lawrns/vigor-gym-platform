@@ -203,6 +203,31 @@ router.post('/auth', deviceAuthRateLimit, async (req: Request, res: Response) =>
 });
 
 /**
+ * POST /v1/devices/validate
+ * Validate device token and return device session info
+ */
+router.post('/validate', deviceAuthRequired(), async (req: DeviceAuthenticatedRequest, res: Response) => {
+  try {
+    // If we reach here, the device token is valid (middleware validated it)
+    const device = req.device!;
+
+    // Return device session info
+    res.json({
+      device: {
+        id: device.id,
+        name: device.name,
+        companyId: device.companyId,
+      },
+      valid: true,
+      // Note: We don't return a new token here, the existing one is still valid
+    });
+  } catch (error) {
+    console.error('Device validation error:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+/**
  * GET /v1/devices/me
  * Get current device information (requires device authentication)
  */

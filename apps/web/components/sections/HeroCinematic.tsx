@@ -82,7 +82,7 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
         <div className="grid gap-4">
           <div className="relative h-[340px] md:h-[440px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
             <Image
-              src={config.image?.src || '/images/hero-dashboard.png'}
+              src={config.image?.src || '/images/hero-dashboard.webp'}
               alt={config.image?.alt || 'Vista del dashboard de Vigor'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
@@ -94,7 +94,7 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
           </div>
           <div className="hidden md:block relative h-[180px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
             <Image
-              src={'/images/hero-app.png'}
+              src={'/images/hero-app.webp'}
               alt={'App móvil de Vigor'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"

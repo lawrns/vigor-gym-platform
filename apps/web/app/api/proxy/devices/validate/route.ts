@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+
 const API_ORIGIN = process.env.API_ORIGIN || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
 
+/**
+ * POST /api/proxy/devices/validate
+ * Validate device token and return device session info
+ */
 export async function POST(request: NextRequest) {
   try {
     // Validate content type
@@ -17,79 +22,64 @@ export async function POST(request: NextRequest) {
 
     // Parse and validate request body
     const body = await request.json().catch(() => null);
-    if (!body) {
+    if (!body || !body.deviceToken) {
       return NextResponse.json(
         {
-          error: 'INVALID_JSON',
-          message: 'Request body must be valid JSON',
+          error: 'DEVICE_TOKEN_REQUIRED',
+          message: 'deviceToken is required',
         },
         { status: 400 }
       );
     }
 
-    // Normalize field names - frontend sends deviceSecret, backend expects deviceSecret
-    const deviceId = body.deviceId || body.id;
-    const deviceSecret = body.deviceSecret || body.secret;
-
-    if (!deviceId || !deviceSecret) {
-      return NextResponse.json(
-        {
-          error: 'DEVICE_CREDENTIALS_REQUIRED',
-          message: 'deviceId and deviceSecret are required',
-        },
-        { status: 400 }
-      );
-    }
-
-    // Forward request to API with normalized payload
-    const response = await fetch(`${API_ORIGIN}/v1/devices/auth`, {
+    // Forward request to API with device token in Authorization header
+    const response = await fetch(`${API_ORIGIN}/v1/devices/validate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: request.headers.get('Authorization') || '',
+        Authorization: `Bearer ${body.deviceToken}`,
         Cookie: request.headers.get('Cookie') || '',
       },
-      body: JSON.stringify({ deviceId, deviceSecret }),
     });
 
     const data = await response.json().catch(() => ({}));
 
     if (!response.ok) {
-      console.error('Device auth API error:', {
+      console.error('Device token validation API error:', {
         status: response.status,
         data,
-        deviceId: deviceId?.substring(0, 8) + '...', // Log partial ID for debugging
       });
 
       // Normalize error response format
       const errorResponse = {
-        error: data?.code || data?.error || 'DEVICE_AUTH_FAILED',
-        message: data?.message || `Authentication failed (${response.status})`,
-        code: data?.code || data?.error || 'DEVICE_AUTH_FAILED',
+        error: data?.code || data?.error || 'DEVICE_TOKEN_INVALID',
+        message: data?.message || `Token validation failed (${response.status})`,
+        code: data?.code || data?.error || 'DEVICE_TOKEN_INVALID',
       };
 
       return NextResponse.json(errorResponse, { status: response.status });
     }
 
-    console.log('Device auth success:', {
-      deviceId: deviceId?.substring(0, 8) + '...',
+    console.log('Device token validation success:', {
+      deviceId: data.device?.id?.substring(0, 8) + '...',
       hasToken: !!data.deviceToken,
     });
 
     // Ensure response has the expected format
     const successResponse = {
-      deviceToken: data.deviceToken,
+      deviceToken: data.deviceToken || body.deviceToken, // Return original token if not refreshed
       device: {
         id: data.device?.id,
         name: data.device?.name,
         companyId: data.device?.companyId,
       },
       expiresIn: data.expiresIn,
+      valid: true,
     };
 
     return NextResponse.json(successResponse, { status: 200 });
   } catch (error: any) {
-    console.error('Device auth proxy internal error:', {
+    console.error('Device token validation proxy internal error:', {
       error: error?.message,
       stack: error?.stack,
     });

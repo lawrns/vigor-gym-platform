@@ -1,0 +1,315 @@
+{
+  "schema": "vigor.tasks.v1",
+  "generatedAt": "2025-08-21T12:55:00-06:00",
+  "owner": "engineering",
+  "status": "draft",
+  "notes": [
+    "Auto-derived from vigor.plan-review.v1 and repository assessment.",
+    "Use 'checked' to mark completion. Keep IDs stable for CI references."
+  ],
+  "epics": [
+    {
+      "id": "S0-REPO-HYGIENE",
+      "title": "Repo hygiene and consistency",
+      "status": "pending",
+      "items": [
+        {
+          "label": "Add .env.local.example (API_ORIGIN=http://localhost:4001, NEXT_PUBLIC_APP_ENV, NEXT_PUBLIC_POSTHOG_KEY, POSTHOG_API_KEY, JWT_*)",
+          "checked": false,
+          "files": ["/.env.local.example (new)"],
+          "acceptance": [
+            "Fresh clone can run web/api without editing code",
+            "Docs indicate web=7777, api=4001"
+          ]
+        },
+        {
+          "label": "Standardize API origin defaults to 4001 (remove 4003 fallback)",
+          "checked": false,
+          "files": [
+            "/apps/web/next.config.mjs",
+            "/apps/web/lib/api/origin.ts"
+          ],
+          "acceptance": [
+            "Local dev proxies and rewrites target :4001 by default",
+            "CI uses API_ORIGIN=4001"
+          ]
+        },
+        {
+          "label": "Fix invalid/corrupted images and optimize heavy PNGs (→ WebP/AVIF)",
+          "checked": false,
+          "files": ["/apps/web/public/images/*"],
+          "acceptance": [
+            "No Next.js 'invalid image' errors at runtime",
+            "Largest homepage image ≤ 300KB"
+          ]
+        },
+        {
+          "label": "Add case-sensitive import guard (ESLint rule + CI script)",
+          "checked": false,
+          "files": [
+            "/.github/workflows/ci.yml",
+            "/apps/web/.eslintrc.cjs"
+          ],
+          "acceptance": [
+            "CI fails on duplicate-casing imports",
+            "No HMR casing warnings locally"
+          ]
+        },
+        {
+          "label": "Add CI asset audit (fail if public image > 400KB unless whitelisted)",
+          "checked": false,
+          "files": ["/.github/workflows/performance.yml"],
+          "acceptance": [
+            "CI step outputs list of oversize assets",
+            "Build fails when thresholds exceeded"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "S1-AUTH-BASELINE",
+      "title": "Auth baseline parity (DEV vs API)",
+      "status": "pending",
+      "items": [
+        {
+          "label": "Single source JWT_* (ISSUER/AUDIENCE/SECRET) in web + api",
+          "checked": false,
+          "files": ["/apps/web", "/apps/api"],
+          "acceptance": ["Shared values in env; docs updated"]
+        },
+        {
+          "label": "Fetch wrapper with credentials:'include' default + 401 handling",
+          "checked": false,
+          "files": ["/apps/web/lib/api/*"],
+          "acceptance": ["All SSR/CSR API calls route through wrapper"]
+        },
+        {
+          "label": "Contract tests for /api/auth/me (SSR + CSR smoke)",
+          "checked": false,
+          "files": ["/apps/web/app/api/auth/me/route.ts", "/apps/web/tests/*"],
+          "acceptance": ["200 on first render post-login; no guest flicker; ≥1 nav item visible"]
+        }
+      ]
+    },
+    {
+      "id": "S2-KIOSK-COMPOSITION",
+      "title": "Kiosk composition and dashboard integration",
+      "status": "pending",
+      "items": [
+        {
+          "label": "Enable HeaderBar or embed QuickActions so '/kiosk' is visually discoverable",
+          "checked": false,
+          "files": ["/apps/web/components/dashboard/DashboardShell.tsx", "/apps/web/components/dashboard/HeaderBar.tsx"],
+          "acceptance": ["QuickActions visible on dashboard"]
+        },
+        {
+          "label": "Refactor /kiosk to compose DeviceLogin → ConfigView → ScanPanel",
+          "checked": false,
+          "files": ["/apps/web/app/kiosk/page.tsx", "/apps/web/components/kiosk/*"],
+          "acceptance": ["Authenticated device flows directly into ScanPanel with selected gym"]
+        },
+        {
+          "label": "Implement device token restore/validation on mount (localStorage → validate)",
+          "checked": false,
+          "files": ["/apps/web/app/kiosk/page.tsx"],
+          "acceptance": ["Cold load with valid token lands in ScanPanel"]
+        },
+        {
+          "label": "Route-scoped minimal layout for kiosk (no DOM style hacking)",
+          "checked": false,
+          "files": ["/apps/web/app/kiosk/layout.tsx (new)", "/apps/web/app/kiosk/page.tsx"],
+          "acceptance": ["Navbar/Footer excluded by layout, not JS"]
+        },
+        {
+          "label": "Add Icons.QrCode and Icons.Keyboard to inline icon registry",
+          "checked": false,
+          "files": ["/apps/web/lib/icons/registry.tsx"],
+          "acceptance": ["No missing icons in kiosk ScanPanel"]
+        }
+      ]
+    },
+    {
+      "id": "S3-E2E-KIOSK",
+      "title": "E2E: Login → Kiosk → Scan → Visit created (CI)",
+      "status": "pending",
+      "items": [
+        {
+          "label": "Seed member + device fixtures for tests",
+          "checked": false,
+          "files": ["/apps/api/src/seed.ts", "/apps/api/src/seed-minimal.ts"],
+          "acceptance": ["Test DB has device+member"]
+        },
+        {
+          "label": "Playwright flow with mocked scan (POST /v1/checkins → 201)",
+          "checked": false,
+          "files": ["/apps/web/tests/e2e/*"],
+          "acceptance": ["Green in CI, < 90s runtime"]
+        },
+        {
+          "label": "Assert dashboard LiveActivity reflects visit within 2s",
+          "checked": false,
+          "files": ["/apps/web/components/dashboard/LiveActivityFeed.tsx", "/apps/web/tests/e2e/*"],
+          "acceptance": ["LiveActivity visually updates"]
+        }
+      ]
+    },
+    {
+      "id": "S4-HOMEPAGE-SECTIONS",
+      "title": "Homepage: implement missing sections with schema guard + analytics",
+      "status": "pending",
+      "items": [
+        { "label": "Implement ComparisonTable (server component)", "checked": false },
+        { "label": "Implement IntegrationsWall (server component)", "checked": false },
+        { "label": "Implement ComplianceRibbon (server component)", "checked": false },
+        { "label": "Implement ROIProofWithScroller (client island)", "checked": false },
+        { "label": "Implement TestimonialsCarousel (client island, aria-live polite)", "checked": false },
+        {
+          "label": "Add data-evt attributes (section.view, cta.click) and wire PostHog",
+          "checked": false
+        }
+      ],
+      "acceptance": [
+        "All 5 sections render without console errors",
+        "axe: no critical issues",
+        "Events captured on CTAs"
+      ]
+    },
+    {
+      "id": "S5-PERFORMANCE-BUDGETS",
+      "title": "Performance budgets wired and passing",
+      "status": "pending",
+      "items": [
+        {
+          "label": "Wire apps/web/scripts/validate-performance-budget.mjs into CI",
+          "checked": false,
+          "files": ["/.github/workflows/performance.yml"],
+          "acceptance": ["CI fails on budget violations"]
+        },
+        {
+          "label": "Optimize images (priority, sizes, WebP) to meet LCP < 2.5s",
+          "checked": false,
+          "files": ["/apps/web/components/sections/HeroCinematic.tsx", "/apps/web/public/images/*"],
+          "acceptance": ["LHCI report: LCP < 2.5s, CLS < 0.05"]
+        }
+      ]
+    },
+    {
+      "id": "P1-SCHEMA-GUARD",
+      "title": "Content schema contract for home.v2.json",
+      "status": "pending",
+      "items": [
+        {
+          "label": "Define zod schema and validate at build",
+          "checked": false,
+          "files": ["/apps/web/lib/content/home.v2.json", "/apps/web/scripts/content-validate.mjs (new)"]
+        },
+        {
+          "label": "Mapping layer for legacy keys (PlanComparison→ComparisonTable, IntegrationsGrid→IntegrationsWall, ComplianceStrip→ComplianceRibbon, ROIProof→ROIProofWithScroller)",
+          "checked": false,
+          "files": ["/apps/web/app/page.tsx", "/apps/web/lib/content/*"]
+        }
+      ],
+      "acceptance": [
+        "Build fails on schema drift",
+        "No runtime undefined sections"
+      ]
+    },
+    {
+      "id": "P1-CASING-GUARD",
+      "title": "Case-sensitive import guard",
+      "status": "pending",
+      "items": [
+        {
+          "label": "ESLint rule (no-restricted-imports) for casing duplicates",
+          "checked": false
+        },
+        {
+          "label": "CI script scanning for same-name different-casing files",
+          "checked": false
+        }
+      ],
+      "acceptance": ["CI fails on duplicate casing; HMR warnings eliminated"]
+    },
+    {
+      "id": "P1-DEVICE-TOKEN-LIFECYCLE",
+      "title": "Device session lifecycle (kiosk)",
+      "status": "pending",
+      "items": [
+        { "label": "Document TTL, refresh policy, revocation flow", "checked": false },
+        { "label": "Add /v1/devices/refresh endpoint + tests", "checked": false },
+        { "label": "Web: auto-refresh on 401, fallback to DeviceLogin", "checked": false }
+      ],
+      "acceptance": [
+        "Expired token auto-refreshes",
+        "Revoked token → 401 → UX fallback shows login"
+      ]
+    },
+    {
+      "id": "P1-OBSERVABILITY-MVP",
+      "title": "Operational telemetry",
+      "status": "pending",
+      "items": [
+        {
+          "label": "Structured logs for auth/checkins/devices (requestId, orgId, userId/deviceId)",
+          "checked": false,
+          "files": ["/apps/api/src/utils/auditLogger.ts", "/apps/api/src/routes/*"]
+        },
+        {
+          "label": "Metrics: checkins.count, auth.failures, device.refreshes",
+          "checked": false,
+          "files": ["/apps/api/src/routes/metrics.ts"]
+        },
+        {
+          "label": "Kiosk error boundary + toast handling",
+          "checked": false,
+          "files": ["/apps/web/app/kiosk/page.tsx"]
+        }
+      ],
+      "acceptance": ["Local dashboard shows live check-ins; logs/metrics visible in dev"]
+    }
+  ],
+  "checklists": {
+    "tight_acceptance_suite": [
+      { "label": "GET /api/auth/me returns normalized user + companyId", "checked": false },
+      { "label": "SSR receives authenticated user when cookie present", "checked": false },
+      { "label": "Cold load /kiosk with device token → shows ScanPanel", "checked": false },
+      { "label": "Scan mock → POST /checkins 201; LiveActivity updates ≤ 2s", "checked": false },
+      { "label": "All 5 homepage sections render; no axe critical issues", "checked": false },
+      { "label": "Largest image ≤ 300KB; LCP < 2.5s on CI budget run", "checked": false },
+      { "label": "Every /checkins request logs trace context and orgId", "checked": false },
+      { "label": "Metrics endpoint exposes counters in dev", "checked": false }
+    ],
+    "go_no_go": [
+      { "label": "No HMR casing warnings", "checked": false },
+      { "label": "/api/auth/me 200 on first paint post-login", "checked": false },
+      { "label": "Kiosk end-to-end passes in CI", "checked": false },
+      { "label": "Homepage sections rendered + schema validated", "checked": false },
+      { "label": "Performance budgets green; favicon 200", "checked": false }
+    ]
+  },
+  "references": {
+    "files": [
+      "/apps/web/app/page.tsx",
+      "/apps/web/lib/content/home.v2.json",
+      "/apps/web/app/kiosk/page.tsx",
+      "/apps/web/components/kiosk/*",
+      "/apps/web/lib/icons/registry.tsx",
+      "/apps/web/next.config.mjs",
+      "/apps/web/lib/api/origin.ts",
+      "/apps/web/components/dashboard/*",
+      "/apps/api/src/routes/devices.ts",
+      "/apps/api/src/routes/checkins.ts",
+      "/apps/api/prisma/schema.prisma",
+      "/.github/workflows/performance.yml"
+    ],
+    "endpoints": [
+      "GET /api/auth/me",
+      "POST /api/proxy/devices/auth → API /v1/devices/auth",
+      "POST /api/proxy/checkins/scan → API /v1/checkins/scan",
+      "(new) POST /v1/devices/refresh"
+    ]
+  }
+}
+
+
+

@@ -9,6 +9,11 @@ import { KPI_Counters } from '../components/sections/KPI_Counters';
 import { FeatureGridLight } from '../components/sections/FeatureGridLight';
 import { ActivityCarousel } from '../components/sections/ActivityCarousel';
 import { AppPromo } from '../components/sections/AppPromo';
+import { ComparisonTable } from '../components/sections/ComparisonTable';
+import { IntegrationsWall } from '../components/sections/IntegrationsWall';
+import { ComplianceRibbon } from '../components/sections/ComplianceRibbon';
+import { ROIProofWithScroller } from '../components/sections/ROIProofWithScroller';
+import { TestimonialsCarousel } from '../components/sections/TestimonialsCarousel';
 
 export default function HomePage() {
   return (
@@ -41,10 +46,35 @@ export default function HomePage() {
         title={(contentV2 as any).PlansV2?.title || 'Planes para colaboradores'}
         tiers={((contentV2 as any).PlansV2?.tiers as any) || []}
       />
+      <ComparisonTable
+        title={(contentV2 as any).ComparisonTable?.title || 'Compara nuestros planes'}
+        subtitle={(contentV2 as any).ComparisonTable?.subtitle}
+        plans={((contentV2 as any).ComparisonTable?.plans as any) || []}
+        features={((contentV2 as any).ComparisonTable?.features as any) || []}
+      />
       <HowItWorks
         title={(contentV2 as any).HowItWorks?.title || '¿Cómo funciona Vigor?'}
         steps={((contentV2 as any).HowItWorks?.steps as any) || []}
         cta={(contentV2 as any).HowItWorks?.cta}
+      />
+      <IntegrationsWall
+        title={(contentV2 as any).IntegrationsWall?.title || 'Integraciones que potencian tu gimnasio'}
+        subtitle={(contentV2 as any).IntegrationsWall?.subtitle}
+        integrations={((contentV2 as any).IntegrationsWall?.integrations as any) || []}
+      />
+      <ComplianceRibbon
+        title={(contentV2 as any).ComplianceRibbon?.title || 'Seguridad y cumplimiento de clase mundial'}
+        points={((contentV2 as any).ComplianceRibbon?.points as any) || []}
+      />
+      <ROIProofWithScroller
+        title={(contentV2 as any).ROIProofWithScroller?.title || 'Resultados reales que puedes medir'}
+        subtitle={(contentV2 as any).ROIProofWithScroller?.subtitle}
+        metrics={((contentV2 as any).ROIProofWithScroller?.metrics as any) || []}
+      />
+      <TestimonialsCarousel
+        title={(contentV2 as any).TestimonialsCarousel?.title || 'Lo que dicen nuestros clientes'}
+        subtitle={(contentV2 as any).TestimonialsCarousel?.subtitle}
+        testimonials={((contentV2 as any).TestimonialsCarousel?.testimonials as any) || []}
       />
       <CTA_Banner
         title={(contentV2 as any).FinalCTA?.title || 'Comienza hoy'}

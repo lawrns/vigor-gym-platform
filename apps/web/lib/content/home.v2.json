@@ -29,7 +29,7 @@
   },
   "HeroCinematic": {
     "bg": "@gradient.hero",
-    "image": { "src": "/images/hero-dashboard.png", "alt": "Vista del dashboard de Vigor" },
+    "image": { "src": "/images/hero-dashboard.webp", "alt": "Vista del dashboard de Vigor" },
     "left": {
       "eyebrow": "Plataforma corporativa de fitness y bienestar",
       "title": "La forma más fácil de ofrecer gimnasios y salud mental a tu equipo",
@@ -127,6 +127,179 @@
       { "icon": "TimerReset", "label": "−6 h/semana en tareas" }
     ],
     "footnote": "Resultados reales; pueden variar según el caso."
+  },
+  "HowItWorks": {
+    "title": "¿Cómo funciona Vigor?",
+    "steps": [
+      { "icon": "Building2", "title": "Activa tu empresa", "desc": "Configura membresías y políticas para tu equipo." },
+      { "icon": "Users", "title": "Invita a tu equipo", "desc": "Asignación y control por colaborador." },
+      { "icon": "Activity", "title": "Empieza a entrenar", "desc": "Reserva y entra con la app móvil." }
+    ],
+    "cta": { "label": "Agendar demo", "href": "/demo", "data-cta": "how-it-works" }
+  },
+  "FinalCTA": {
+    "title": "Comienza hoy",
+    "desc": "Activa tu prueba y configura membresías, clases y facturación en minutos.",
+    "cta": { "label": "Crear cuenta", "href": "/registro", "data-cta": "final-cta-primary" },
+    "secondary": { "label": "Ver planes", "href": "/planes", "data-cta": "final-cta-secondary" }
+  },
+  "ComparisonTable": {
+    "title": "Compara nuestros planes",
+    "subtitle": "Encuentra el plan perfecto para tu empresa con todas las características incluidas",
+    "plans": [
+      {
+        "name": "Básico",
+        "price": "$299/mes",
+        "cta": { "label": "Empezar gratis", "href": "/registro", "data-cta": "comparison-basic" }
+      },
+      {
+        "name": "Profesional",
+        "price": "$599/mes",
+        "highlight": true,
+        "cta": { "label": "Solicitar demo", "href": "/demo", "data-cta": "comparison-pro" }
+      },
+      {
+        "name": "Enterprise",
+        "price": "Personalizado",
+        "cta": { "label": "Contactar ventas", "href": "/contacto", "data-cta": "comparison-enterprise" }
+      }
+    ],
+    "features": [
+      { "name": "Hasta 50 colaboradores", "basic": true, "pro": false, "enterprise": false },
+      { "name": "Hasta 200 colaboradores", "basic": false, "pro": true, "enterprise": false },
+      { "name": "Colaboradores ilimitados", "basic": false, "pro": false, "enterprise": true },
+      { "name": "Acceso a +4,500 gimnasios", "basic": true, "pro": true, "enterprise": true },
+      { "name": "App móvil", "basic": true, "pro": true, "enterprise": true },
+      { "name": "Facturación CFDI 4.0", "basic": true, "pro": true, "enterprise": true },
+      { "name": "Reportes básicos", "basic": true, "pro": true, "enterprise": true },
+      { "name": "Reportes avanzados", "basic": false, "pro": true, "enterprise": true },
+      { "name": "API personalizada", "basic": false, "pro": false, "enterprise": true },
+      { "name": "Soporte 24/7", "basic": false, "pro": true, "enterprise": true },
+      { "name": "Gerente de cuenta dedicado", "basic": false, "pro": false, "enterprise": true }
+    ]
+  },
+  "IntegrationsWall": {
+    "title": "Integraciones que potencian tu gimnasio",
+    "subtitle": "Conecta con las herramientas que ya usas para crear un ecosistema completo de gestión",
+    "integrations": [
+      { "name": "Stripe", "logo": "/images/integrations/stripe.png", "category": "Pagos", "status": "available" },
+      { "name": "Mercado Pago", "logo": "/images/integrations/mercadopago.png", "category": "Pagos", "status": "available" },
+      { "name": "OXXO Pay", "logo": "/images/integrations/oxxo.png", "category": "Pagos", "status": "available" },
+      { "name": "SPEI", "logo": "/images/integrations/spei.png", "category": "Pagos", "status": "available" },
+      { "name": "WhatsApp Business", "logo": "/images/integrations/whatsapp.png", "category": "Comunicación", "status": "available" },
+      { "name": "Twilio SMS", "logo": "/images/integrations/twilio.png", "category": "Comunicación", "status": "available" },
+      { "name": "SendGrid", "logo": "/images/integrations/sendgrid.png", "category": "Comunicación", "status": "available" },
+      { "name": "Mailchimp", "logo": "/images/integrations/mailchimp.png", "category": "Comunicación", "status": "coming_soon" },
+      { "name": "QuickBooks", "logo": "/images/integrations/quickbooks.png", "category": "Contabilidad", "status": "available" },
+      { "name": "SAT CFDI", "logo": "/images/integrations/sat.png", "category": "Contabilidad", "status": "available" },
+      { "name": "Aspel", "logo": "/images/integrations/aspel.png", "category": "Contabilidad", "status": "coming_soon" },
+      { "name": "ContPAQi", "logo": "/images/integrations/contpaqi.png", "category": "Contabilidad", "status": "coming_soon" },
+      { "name": "Google Analytics", "logo": "/images/integrations/analytics.png", "category": "Analytics", "status": "available" },
+      { "name": "Facebook Pixel", "logo": "/images/integrations/facebook.png", "category": "Analytics", "status": "available" },
+      { "name": "PostHog", "logo": "/images/integrations/posthog.png", "category": "Analytics", "status": "available" },
+      { "name": "Mixpanel", "logo": "/images/integrations/mixpanel.png", "category": "Analytics", "status": "coming_soon" },
+      { "name": "Zapier", "logo": "/images/integrations/zapier.png", "category": "Automatización", "status": "available" },
+      { "name": "Make (Integromat)", "logo": "/images/integrations/make.png", "category": "Automatización", "status": "available" },
+      { "name": "Power Automate", "logo": "/images/integrations/powerautomate.png", "category": "Automatización", "status": "coming_soon" },
+      { "name": "Slack", "logo": "/images/integrations/slack.png", "category": "Productividad", "status": "available" },
+      { "name": "Microsoft Teams", "logo": "/images/integrations/teams.png", "category": "Productividad", "status": "coming_soon" },
+      { "name": "Notion", "logo": "/images/integrations/notion.png", "category": "Productividad", "status": "coming_soon" }
+    ]
+  },
+  "ComplianceRibbon": {
+    "title": "Seguridad y cumplimiento de clase mundial",
+    "points": [
+      "Facturación CFDI 4.0 automática",
+      "Cifrado end-to-end de datos",
+      "Auditorías SOC 2 Type II anuales",
+      "Respaldos automáticos diarios"
+    ]
+  },
+  "ROIProofWithScroller": {
+    "title": "Resultados reales que puedes medir",
+    "subtitle": "Nuestros clientes ven mejoras significativas en retención, asistencia y eficiencia operativa",
+    "metrics": [
+      {
+        "value": "−25%",
+        "label": "Reducción en churn de miembros",
+        "description": "Los gimnasios que usan Vigor retienen más miembros gracias a mejor experiencia y engagement"
+      },
+      {
+        "value": "+38%",
+        "label": "Aumento en asistencia promedio",
+        "description": "La app móvil y notificaciones inteligentes motivan a los miembros a entrenar más seguido"
+      },
+      {
+        "value": "−6h",
+        "label": "Menos tiempo en tareas administrativas",
+        "description": "Automatización de check-ins, facturación y reportes libera tiempo para enfocarse en miembros"
+      },
+      {
+        "value": "+15%",
+        "label": "Incremento en ingresos por miembro",
+        "description": "Upselling inteligente y mejor retención aumentan el valor de vida del cliente"
+      },
+      {
+        "value": "99.9%",
+        "label": "Disponibilidad del sistema",
+        "description": "Infraestructura confiable que nunca deja a tus miembros sin acceso al gimnasio"
+      },
+      {
+        "value": "24h",
+        "label": "Tiempo de implementación",
+        "description": "Desde la contratación hasta el primer check-in, tu gimnasio está operando en menos de un día"
+      }
+    ]
+  },
+  "TestimonialsCarousel": {
+    "title": "Lo que dicen nuestros clientes",
+    "subtitle": "Gimnasios de todo México confían en Vigor para transformar su operación",
+    "testimonials": [
+      {
+        "name": "Carlos Mendoza",
+        "role": "Director General",
+        "company": "FitZone México",
+        "content": "Desde que implementamos Vigor, nuestro churn se redujo 30% y la satisfacción de miembros aumentó significativamente. La app es intuitiva y el soporte técnico excepcional.",
+        "rating": 5
+      },
+      {
+        "name": "Ana Rodríguez",
+        "role": "Gerente de Operaciones",
+        "company": "PowerGym Guadalajara",
+        "content": "La automatización de check-ins y la facturación CFDI nos ahorra 8 horas semanales. Ahora podemos enfocarnos en lo que realmente importa: nuestros miembros.",
+        "rating": 5
+      },
+      {
+        "name": "Miguel Torres",
+        "role": "Propietario",
+        "company": "Elite Fitness Monterrey",
+        "content": "Los reportes en tiempo real nos permiten tomar decisiones basadas en datos. Hemos optimizado horarios de clases y aumentado ingresos por miembro 20%.",
+        "rating": 5
+      },
+      {
+        "name": "Laura Jiménez",
+        "role": "Coordinadora de Membresías",
+        "company": "Wellness Center CDMX",
+        "content": "La integración con nuestros sistemas existentes fue perfecta. En menos de 24 horas estábamos operando completamente con Vigor.",
+        "rating": 5
+      },
+      {
+        "name": "Roberto Sánchez",
+        "role": "CEO",
+        "company": "SportLife Puebla",
+        "content": "Vigor no solo mejoró nuestra operación, sino que elevó la experiencia completa de nuestros miembros. La inversión se pagó sola en 3 meses.",
+        "rating": 5
+      }
+    ]
+  },
+  "FAQAccordion": {
+    "title": "Preguntas frecuentes",
+    "items": [
+      { "q": "¿Cómo facturan mensualmente?", "a": "Emitimos CFDI 4.0 con almacenamiento seguro por 5 años." },
+      { "q": "¿Qué métodos de pago aceptan?", "a": "Stripe, Mercado Pago, OXXO y SPEI para máxima flexibilidad." },
+      { "q": "¿Cómo funciona el control por colaborador?", "a": "Asignación individual, límites personalizados y reportes detallados por empleado." },
+      { "q": "¿Cumplen con privacidad y datos?", "a": "Consentimiento biométrico, cifrado end-to-end y retención mínima. Residencia de datos preferente en México." }
+    ]
   }
 }
 

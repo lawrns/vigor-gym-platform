@@ -43,6 +43,7 @@ export type IconName =
   | 'CameraIcon'
   | 'Upload'
   | 'HelpCircle'
+  | 'Keyboard'
   | 'Bell'
   | 'Menu'
   | 'Mail'
@@ -59,6 +60,7 @@ export type IconName =
   | 'FileText'
   | 'Scan'
   | 'Plus'
+  | 'QrCode'
   | 'Copy'
   | 'TrendingUp'
   | 'Search'
@@ -68,7 +70,14 @@ export type IconName =
   | 'Eye'
   | 'DollarSign'
   | 'FileText'
-  | 'BarChart3';
+  | 'BarChart3'
+  | 'Quote'
+  | 'Lock'
+  | 'Award'
+  | 'Database'
+  | 'Globe'
+  | 'Star'
+  | 'Pause';
 
 type SvgProps = React.SVGProps<SVGSVGElement> & { title?: string };
 
@@ -292,6 +301,22 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <path d="m12 5v14" />
     </Svg>
   ),
+  QrCode: props => (
+    <Svg {...props}>
+      <rect x="3" y="3" width="5" height="5" />
+      <rect x="16" y="3" width="5" height="5" />
+      <rect x="3" y="16" width="5" height="5" />
+      <path d="M21 16h-3a2 2 0 0 0-2 2v3" />
+      <path d="M21 21v.01" />
+      <path d="M12 7v3a2 2 0 0 1-2 2H7" />
+      <path d="M3 12h.01" />
+      <path d="M12 3h.01" />
+      <path d="M12 16v.01" />
+      <path d="M16 12h1" />
+      <path d="M21 12v.01" />
+      <path d="M12 21v-1" />
+    </Svg>
+  ),
   Search: props => (
     <Svg {...props}>
       <circle cx="11" cy="11" r="8" />
@@ -365,6 +390,19 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <circle cx="12" cy="12" r="10" />
       <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
       <line x1="12" x2="12.01" y1="17" y2="17" />
+    </Svg>
+  ),
+  Keyboard: props => (
+    <Svg {...props}>
+      <rect x="2" y="4" width="20" height="16" rx="2" />
+      <path d="M6 8h.01" />
+      <path d="M10 8h.01" />
+      <path d="M14 8h.01" />
+      <path d="M18 8h.01" />
+      <path d="M8 12h.01" />
+      <path d="M12 12h.01" />
+      <path d="M16 12h.01" />
+      <path d="M7 16h10" />
     </Svg>
   ),
   Bell: props => (
@@ -543,6 +581,50 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <path d="M18 17V9" />
       <path d="M13 17V5" />
       <path d="M8 17v-3" />
+    </Svg>
+  ),
+  Quote: props => (
+    <Svg {...props}>
+      <path d="M3 21c3 0 7-1 7-8V5c0-1.25-.756-2.017-2-2H4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2 1 0 1 0 1 1v1c0 1-1 2-2 2s-1.008-1.031-1-2H1c0 2.17.83 3 2 3z" />
+      <path d="M15 21c3 0 7-1 7-8V5c0-1.25-.757-2.017-2-2h-4c-1.25 0-2 .75-2 1.972V11c0 1.25.75 2 2 2h.75c0 2.25.25 4-2.75 4v3c0 .5.5 1 1 1z" />
+    </Svg>
+  ),
+  Lock: props => (
+    <Svg {...props}>
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+      <circle cx="12" cy="16" r="1" />
+      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+    </Svg>
+  ),
+  Award: props => (
+    <Svg {...props}>
+      <circle cx="12" cy="8" r="6" />
+      <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+    </Svg>
+  ),
+  Database: props => (
+    <Svg {...props}>
+      <ellipse cx="12" cy="5" rx="9" ry="3" />
+      <path d="M3 5v14c0 1.66 4.03 3 9 3s9-1.34 9-3V5" />
+      <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3" />
+    </Svg>
+  ),
+  Globe: props => (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+      <path d="M2 12h20" />
+    </Svg>
+  ),
+  Star: props => (
+    <Svg {...props}>
+      <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26" />
+    </Svg>
+  ),
+  Pause: props => (
+    <Svg {...props}>
+      <rect x="6" y="4" width="4" height="16" />
+      <rect x="14" y="4" width="4" height="16" />
     </Svg>
   ),
 };

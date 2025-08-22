@@ -164,7 +164,7 @@
 
   "environment_setup": {
     "required_processes": [
-      "API Server: cd apps/api && npm run dev (port 4003)",
+      "API Server: cd apps/api && npm run dev (port 4001)",
       "Web Server: cd apps/web && npm run dev (port 3005)"
     ],
     "test_credentials": {
