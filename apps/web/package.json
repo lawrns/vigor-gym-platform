@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
+    "@next/bundle-analyzer": "^15.5.0",
     "@opentelemetry/exporter-metrics-otlp-http": "^0.41.2",
     "@opentelemetry/exporter-trace-otlp-http": "^0.41.2",
     "@opentelemetry/instrumentation-express": "^0.52.0",

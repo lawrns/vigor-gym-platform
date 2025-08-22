@@ -37,7 +37,7 @@ export async function processMembershipExpirations(): Promise<ExpirationJobResul
     const expiredResult = await prisma.membership.updateMany({
       where: {
         status: {
-          in: ['active', 'past_due'], // Only update active or past_due memberships
+          in: ['active', 'expired'], // Only update active or expired memberships
         },
         endsAt: {
           lt: today, // End date is before today
@@ -45,7 +45,6 @@ export async function processMembershipExpirations(): Promise<ExpirationJobResul
       },
       data: {
         status: 'expired',
-        updatedAt: now,
       },
     });
 
@@ -59,7 +58,7 @@ export async function processMembershipExpirations(): Promise<ExpirationJobResul
     const soonToExpire = await prisma.membership.findMany({
       where: {
         status: {
-          in: ['active', 'past_due'],
+          in: ['active', 'expired'],
         },
         endsAt: {
           gte: today,
@@ -97,7 +96,7 @@ export async function processMembershipExpirations(): Promise<ExpirationJobResul
         logger.info(
           {
             membershipId: membership.id,
-            memberId: membership.member.id,
+            memberId: membership.member?.id,
             companyId: membership.companyId,
             daysUntilExpiry,
           },
@@ -108,7 +107,8 @@ export async function processMembershipExpirations(): Promise<ExpirationJobResul
         // await queueExpirationEmail(membership, daysUntilExpiry);
 
         result.processedCount++;
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         const errorMsg = `Failed to process membership ${membership.id}: ${error.message}`;
         result.errors.push(errorMsg);
         logger.error({ membershipId: membership.id, error: error.message }, errorMsg);
@@ -123,7 +123,8 @@ export async function processMembershipExpirations(): Promise<ExpirationJobResul
     for (const company of companies) {
       try {
         await updateCompanyExpirationMetrics(company.id, today);
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         const errorMsg = `Failed to update metrics for company ${company.id}: ${error.message}`;
         result.errors.push(errorMsg);
         logger.error({ companyId: company.id, error: error.message }, errorMsg);
@@ -144,7 +145,8 @@ export async function processMembershipExpirations(): Promise<ExpirationJobResul
     );
 
     return result;
-  } catch (error) {
+  } catch (e) {
+    const error = e as Error;
     result.executionTime = Date.now() - startTime;
     result.errors.push(`Job failed: ${error.message}`);
 
@@ -172,21 +174,21 @@ async function updateCompanyExpirationMetrics(companyId: string, today: Date): P
     prisma.membership.count({
       where: {
         companyId,
-        status: { in: ['active', 'past_due'] },
+        status: { in: ['active', 'expired'] },
         endsAt: { gte: today, lte: sevenDaysFromNow },
       },
     }),
     prisma.membership.count({
       where: {
         companyId,
-        status: { in: ['active', 'past_due'] },
+        status: { in: ['active', 'expired'] },
         endsAt: { gte: today, lte: fourteenDaysFromNow },
       },
     }),
     prisma.membership.count({
       where: {
         companyId,
-        status: 'past_due',
+        status: 'expired',
       },
     }),
     prisma.membership.count({
@@ -227,21 +229,21 @@ export async function getExpirationSummary(companyId: string): Promise<{
     prisma.membership.count({
       where: {
         companyId,
-        status: { in: ['active', 'past_due'] },
+        status: { in: ['active', 'expired'] },
         endsAt: { gte: today, lte: sevenDaysFromNow },
       },
     }),
     prisma.membership.count({
       where: {
         companyId,
-        status: { in: ['active', 'past_due'] },
+        status: { in: ['active', 'expired'] },
         endsAt: { gte: today, lte: fourteenDaysFromNow },
       },
     }),
     prisma.membership.count({
       where: {
         companyId,
-        status: 'past_due',
+        status: 'expired',
       },
     }),
     prisma.membership.count({

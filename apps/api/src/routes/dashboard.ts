@@ -169,10 +169,10 @@ router.get(
           // Convert to monthly amount based on billing cycle
           const monthlyAmount =
             membership.plan.billingCycle === 'MONTHLY'
-              ? membership.plan.price
+              ? membership.plan.priceMxnCents
               : membership.plan.billingCycle === 'YEARLY'
-                ? membership.plan.price / 12
-                : membership.plan.price; // Default to monthly
+                ? membership.plan.priceMxnCents / 12
+                : membership.plan.priceMxnCents; // Default to monthly
           return total + monthlyAmount;
         }
         return total;
@@ -207,7 +207,7 @@ router.get(
           '30d': expiringCounts[2],
         },
         revenue: {
-          total: revenueData._sum.amount || 0,
+          total: revenueData._sum.paidMxnCents || 0,
           mrr: Math.round(mrr),
           failedPayments,
           transactionCount: revenueData._count,

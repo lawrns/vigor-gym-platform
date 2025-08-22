@@ -21,7 +21,7 @@ const scanRateLimit = isTestMode
       standardHeaders: true,
       legacyHeaders: false,
       handler: async (req: Request, res: Response) => {
-        await logRateLimitHit('checkin.scan', req.ip, req.ip, req.get('User-Agent'));
+        await logRateLimitHit('checkin.scan', req.ip || 'unknown', req.ip || 'unknown', req.get('User-Agent') || 'unknown');
         res.status(429).json({
           message: 'Too many scan attempts, please try again later',
           code: 'RATE_LIMITED',
@@ -41,7 +41,7 @@ const checkoutRateLimit = isTestMode
       standardHeaders: true,
       legacyHeaders: false,
       handler: async (req: Request, res: Response) => {
-        await logRateLimitHit('checkin.checkout', req.ip, req.ip, req.get('User-Agent'));
+        await logRateLimitHit('checkin.checkout', req.ip || 'unknown', req.ip || 'unknown', req.get('User-Agent') || 'unknown');
         res.status(429).json({
           message: 'Too many checkout attempts, please try again later',
           code: 'RATE_LIMITED',
@@ -236,10 +236,10 @@ router.post(
             where: {
               OR: [
                 { status: 'active' },
-                { status: 'past_due' },
-                { status: 'frozen' },
+                { status: 'trial' },
+                { status: 'paused' },
                 { status: 'expired' },
-                { status: 'canceled' },
+                { status: 'cancelled' },
               ],
             },
             orderBy: { createdAt: 'desc' },
@@ -286,7 +286,7 @@ router.post(
         });
       }
 
-      const membership = member.memberships[0];
+      const membership = (member as any).memberships[0];
       if (!membership) {
         await logCheckinScan(
           deviceId,
@@ -416,8 +416,8 @@ router.post(
         visit.id,
         deviceCompanyId,
         visit.gymId,
-        visit.membership.memberId,
-        `${visit.membership.member.firstName} ${visit.membership.member.lastName}`,
+        visit.membership.memberId || 'unknown',
+        `${visit.membership.member?.firstName || 'Unknown'} ${visit.membership.member?.lastName || 'User'}`,
         visit.gym.name
       );
 
@@ -536,9 +536,9 @@ router.post(
         visit.id,
         deviceCompanyId,
         visit.gymId,
-        visit.membership.memberId,
-        `${updatedVisit.membership.member.firstName} ${updatedVisit.membership.member.lastName}`,
-        visit.gym.name,
+        updatedVisit.membership.memberId || 'unknown',
+        `${updatedVisit.membership.member?.firstName || 'Unknown'} ${updatedVisit.membership.member?.lastName || 'User'}`,
+        (visit as any).gym?.name || 'Unknown Gym',
         durationMinutes
       );
 

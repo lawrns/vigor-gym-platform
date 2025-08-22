@@ -213,8 +213,7 @@ export const AuthErrors = {
   INSUFFICIENT_PERMISSIONS: (required: string[]) =>
     forbidden(
       `Insufficient permissions. Required: ${required.join(', ')}`,
-      'INSUFFICIENT_PERMISSIONS',
-      { required }
+      'INSUFFICIENT_PERMISSIONS'
     ),
   TENANT_MISMATCH: () => forbidden('Access denied for this organization', 'TENANT_MISMATCH'),
 } as const;

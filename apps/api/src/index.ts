@@ -18,7 +18,7 @@ import cookieParser from 'cookie-parser';
 import { z } from 'zod';
 import { PrismaClient } from './generated/prisma/index.js';
 import { authRequired, setPrismaInstance as setAuthPrismaInstance } from './middleware/auth.js';
-import { tenantRequired, withTenantFilter, TenantRequest } from './middleware/tenant.js';
+import { tenantRequired, withTenantFilter, validateTenantAccess, TenantRequest } from './middleware/tenant.js';
 import { requestTiming } from './middleware/requestTiming.js';
 
 /**
@@ -294,9 +294,15 @@ app.patch(
       const { id } = req.params;
       const validatedData = updateMemberSchema.parse(req.body);
 
-      // Use tenant-aware update with companyId filter
+      // First validate the member exists and belongs to tenant
+      const existingMember = await prisma.member.findUnique({
+        where: { id },
+      });
+      validateTenantAccess(req, existingMember);
+
+      // Use tenant-aware update
       const member = await prisma.member.update({
-        where: withTenantFilter(req, { id }),
+        where: { id },
         data: validatedData,
         include: {
           company: true,
@@ -330,18 +336,17 @@ app.post(
 
       // Validate that the member belongs to the current tenant
       const member = await prisma.member.findUnique({
-        where: withTenantFilter(req, { id: validatedData.memberId }),
+        where: { id: validatedData.memberId },
         select: { id: true, companyId: true },
       });
 
-      if (!member) {
-        return res.status(404).json({ message: 'Member not found or access denied' });
-      }
+      // Validate tenant access
+      const validatedMember = validateTenantAccess(req, member);
 
       const membership = await prisma.membership.create({
         data: {
           ...validatedData,
-          companyId: member.companyId,
+          companyId: validatedMember.companyId,
           startsAt: new Date(validatedData.startsAt),
           endsAt: validatedData.endsAt ? new Date(validatedData.endsAt) : null,
         },

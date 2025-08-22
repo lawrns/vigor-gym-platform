@@ -35,7 +35,8 @@ export function initializeScheduler(): void {
           },
           'Scheduled membership expiration job completed'
         );
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         logger.error(
           {
             error: error.message,
@@ -46,7 +47,6 @@ export function initializeScheduler(): void {
       }
     },
     {
-      scheduled: true,
       timezone: JOB_TZ,
     }
   );
@@ -58,7 +58,6 @@ export function initializeScheduler(): void {
       logger.info('Job scheduler health check');
     },
     {
-      scheduled: true,
       timezone: JOB_TZ,
     }
   );

@@ -1,11 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-import { UserRole } from '../generated/prisma/index.js';
+import { UserRole, PrismaClient } from '../generated/prisma/index.js';
 
 // We'll inject the prisma instance from the main app
-let prisma: unknown;
+let prisma: PrismaClient;
 
-export function setPrismaInstance(prismaInstance: unknown) {
+export function setPrismaInstance(prismaInstance: PrismaClient) {
   prisma = prismaInstance;
 }
 
@@ -84,7 +84,8 @@ export function verifyToken(token: string): JWTPayload {
       iat: payload.iat,
       exp: payload.exp,
     };
-  } catch (error) {
+  } catch (e) {
+    const error = e as Error;
     // Structured debug for verification failures (no secrets)
     try {
       const parts = token.split('.');
@@ -92,8 +93,8 @@ export function verifyToken(token: string): JWTPayload {
       const decoded = JSON.parse(raw || '{}');
       const now = Math.floor(Date.now() / 1000);
       console.warn('[AUTH][verifyToken] failed', {
-        name: (error as any)?.name,
-        message: (error as any)?.message,
+        name: error.name,
+        message: error.message,
         issuer: process.env.JWT_ISSUER || 'gogym-web',
         audience: process.env.JWT_AUDIENCE || 'gogym-api',
         iat: decoded?.iat,

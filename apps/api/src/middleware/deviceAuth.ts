@@ -131,7 +131,8 @@ export async function verifyDeviceToken(
     });
 
     return payload;
-  } catch (error) {
+  } catch (e) {
+    const error = e as Error;
     if (error instanceof jwt.JsonWebTokenError) {
       await logDeviceLogin(
         'unknown',
@@ -199,7 +200,8 @@ export function deviceAuthRequired() {
       req.device = device;
 
       next();
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       console.error('Device auth middleware error:', error);
       return res.status(401).json({
         message: 'Invalid device authentication',

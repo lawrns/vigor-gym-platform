@@ -143,10 +143,13 @@ export function handleValidationError(error: Record<string, unknown>): AppError 
   if (error.name === 'ValidationError') {
     // Mongoose validation error
     const errors = Object.values(error.errors as Record<string, unknown>).map(
-      (err: Record<string, unknown>) => ({
-        field: err.path,
-        message: err.message,
-      })
+      (err: unknown) => {
+        const errorObj = err as Record<string, unknown>;
+        return {
+          field: errorObj.path,
+          message: errorObj.message,
+        };
+      }
     );
 
     return new AppError('VALIDATION_ERROR', 'Validation failed', 422, { errors });
@@ -154,7 +157,9 @@ export function handleValidationError(error: Record<string, unknown>): AppError 
 
   if (error.code === 'P2002') {
     // Prisma unique constraint error
-    const field = error.meta?.target?.[0] || 'field';
+    const meta = error.meta as Record<string, unknown>;
+    const target = meta?.target as string[] | undefined;
+    const field = target?.[0] || 'field';
     return new AppError('DUPLICATE_ENTRY', `${field} already exists`, 409, { field });
   }
 
@@ -165,12 +170,13 @@ export function handleValidationError(error: Record<string, unknown>): AppError 
 
   if (error.code === 'P2003') {
     // Prisma foreign key constraint
-    const field = error.meta?.field_name || 'reference';
+    const meta = error.meta as Record<string, unknown>;
+    const field = meta?.field_name as string || 'reference';
     return new AppError('INVALID_REFERENCE', `Referenced ${field} does not exist`, 400, { field });
   }
 
-  // Return original error if not recognized
-  return error;
+  // Return generic error if not recognized
+  return new AppError('UNKNOWN_ERROR', 'An unknown error occurred', 500);
 }
 
 /**

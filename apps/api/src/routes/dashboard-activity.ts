@@ -5,7 +5,7 @@
  */
 
 import { Router, Request, Response } from 'express';
-import { requireAuth } from '../middleware/auth';
+import { authRequired } from '../middleware/auth';
 import { PrismaClient } from '../generated/prisma/index.js';
 
 const router = Router();
@@ -27,7 +27,7 @@ interface ActivityQuery {
  * - since: Optional ISO timestamp to get events after
  * - limit: Optional number of events to return (default: 25, max: 100)
  */
-router.get('/activity', requireAuth, async (req: Request, res: Response) => {
+router.get('/activity', authRequired(), async (req: Request, res: Response) => {
   try {
     const { orgId, locationId, since, limit = '25' } = req.query as ActivityQuery;
     const user = (req as any).user;
@@ -60,12 +60,12 @@ router.get('/activity', requireAuth, async (req: Request, res: Response) => {
         ...(locationId && { gymId: locationId }),
         OR: [
           {
-            checkedInAt: {
+            checkIn: {
               gte: sinceDate,
             },
           },
           {
-            checkedOutAt: {
+            checkOut: {
               gte: sinceDate,
             },
           },
@@ -79,7 +79,7 @@ router.get('/activity', requireAuth, async (req: Request, res: Response) => {
         },
         gym: true,
       },
-      orderBy: [{ checkedInAt: 'desc' }, { checkedOutAt: 'desc' }],
+      orderBy: [{ checkIn: 'desc' }, { checkOut: 'desc' }],
       take: limitNum,
     });
 
@@ -88,11 +88,11 @@ router.get('/activity', requireAuth, async (req: Request, res: Response) => {
 
     for (const visit of recentVisits) {
       // Check-in event
-      if (visit.checkedInAt && visit.checkedInAt >= sinceDate) {
+      if (visit.checkIn && visit.checkIn >= sinceDate) {
         events.push({
           id: `visit-checkin-${visit.id}`,
           type: 'visit.checkin',
-          at: visit.checkedInAt.toISOString(),
+          at: visit.checkIn.toISOString(),
           orgId,
           locationId: visit.gymId,
           payload: {
@@ -101,22 +101,22 @@ router.get('/activity', requireAuth, async (req: Request, res: Response) => {
             memberName: `${visit.membership.member.firstName} ${visit.membership.member.lastName}`,
             gymId: visit.gymId,
             gymName: visit.gym.name,
-            checkinAt: visit.checkedInAt.toISOString(),
+            checkinAt: visit.checkIn.toISOString(),
           },
         });
       }
 
       // Check-out event
-      if (visit.checkedOutAt && visit.checkedOutAt >= sinceDate) {
+      if (visit.checkOut && visit.checkOut >= sinceDate) {
         const durationMinutes =
-          visit.checkedInAt && visit.checkedOutAt
-            ? Math.floor((visit.checkedOutAt.getTime() - visit.checkedInAt.getTime()) / 60000)
+          visit.checkIn && visit.checkOut
+            ? Math.floor((visit.checkOut.getTime() - visit.checkIn.getTime()) / 60000)
             : 0;
 
         events.push({
           id: `visit-checkout-${visit.id}`,
           type: 'visit.checkout',
-          at: visit.checkedOutAt.toISOString(),
+          at: visit.checkOut.toISOString(),
           orgId,
           locationId: visit.gymId,
           payload: {
@@ -125,7 +125,7 @@ router.get('/activity', requireAuth, async (req: Request, res: Response) => {
             memberName: `${visit.membership.member.firstName} ${visit.membership.member.lastName}`,
             gymId: visit.gymId,
             gymName: visit.gym.name,
-            checkoutAt: visit.checkedOutAt.toISOString(),
+            checkoutAt: visit.checkOut.toISOString(),
             durationMinutes,
           },
         });

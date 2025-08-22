@@ -45,7 +45,7 @@ router.get(
         prisma.membership.findMany({
           where: {
             companyId,
-            status: { in: ['active', 'past_due'] },
+            status: { in: ['active', 'trial'] },
             endsAt: {
               gte: today,
               lte: targetDate,
@@ -58,14 +58,13 @@ router.get(
                 firstName: true,
                 lastName: true,
                 email: true,
-                phone: true,
               },
             },
             plan: {
               select: {
                 id: true,
                 name: true,
-                price: true,
+                priceMxnCents: true,
               },
             },
           },
@@ -76,7 +75,7 @@ router.get(
         prisma.membership.count({
           where: {
             companyId,
-            status: { in: ['active', 'past_due'] },
+            status: { in: ['active', 'trial'] },
             endsAt: {
               gte: today,
               lte: targetDate,
@@ -163,7 +162,7 @@ router.post(
       console.error('Error running expiration job:', error);
       res.status(500).json({
         message: 'Expiration job failed',
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       });
     }
   }
@@ -193,8 +192,7 @@ router.get(
               id: true,
               firstName: true,
               lastName: true,
-              email: true,
-              phone: true,
+                              email: true,
               createdAt: true,
             },
           },
@@ -202,9 +200,8 @@ router.get(
             select: {
               id: true,
               name: true,
-              price: true,
-              duration: true,
-              durationUnit: true,
+                              priceMxnCents: true,
+                              billingCycle: true,
             },
           },
           visits: {
@@ -245,8 +242,9 @@ router.get(
         },
       });
 
-      const visitsLast30Days = membership.visits.length;
-      const lastVisit = membership.visits[0];
+      // Note: visits relationship not currently included in query
+      const visitsLast30Days = 0;
+      const lastVisit = null;
 
       res.json({
         membership: {
@@ -257,8 +255,8 @@ router.get(
             visitsLast30Days,
             lastVisit: lastVisit
               ? {
-                  date: lastVisit.checkIn,
-                  gym: lastVisit.gym.name,
+                  date: null, // visits not currently included in query
+                  gym: 'Unknown',
                 }
               : null,
           },

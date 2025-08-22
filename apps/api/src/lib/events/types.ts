@@ -4,6 +4,8 @@
  * Defines the event system for real-time dashboard updates
  */
 
+import { Response } from 'express';
+
 export type EventType =
   | 'visit.checkin'
   | 'visit.checkout'
@@ -79,7 +81,7 @@ export interface SSEConnection {
   orgId: string;
   locationId: string | null;
   userId: string;
-  response: Record<string, unknown>; // Express Response object
+  response: Response; // Express Response object
   lastHeartbeat: Date;
   connectedAt: Date;
 }

@@ -5,6 +5,7 @@ import { authRequired, AuthenticatedRequest } from '../middleware/auth.js';
 import {
   tenantRequired,
   withTenantFilter,
+  validateTenantAccess,
   TenantRequest,
   logTenantAction,
 } from '../middleware/tenant.js';
@@ -188,7 +189,7 @@ router.get(
       const { id } = req.params;
 
       const staff = await prisma.staff.findUnique({
-        where: withTenantFilter(req, { id }),
+        where: { id },
         include: {
           shifts: {
             include: {
@@ -214,9 +215,8 @@ router.get(
         },
       });
 
-      if (!staff) {
-        return res.status(404).json({ message: 'Staff member not found' });
-      }
+      // Validate tenant access
+      validateTenantAccess(req, staff);
 
       // Staff can only view their own profile unless they're admin/manager
       if (req.user!.role === 'staff' && staff.email !== req.user!.email) {
@@ -243,7 +243,7 @@ router.patch(
 
       // Get current staff data for audit log
       const currentStaff = await prisma.staff.findUnique({
-        where: withTenantFilter(req, { id }),
+        where: { id },
       });
 
       if (!currentStaff) {
@@ -283,7 +283,7 @@ router.patch(
       }
 
       const staff = await prisma.staff.update({
-        where: withTenantFilter(req, { id }),
+        where: { id },
         data: updateData,
         include: {
           _count: {
@@ -333,7 +333,7 @@ router.delete(
       const { id } = req.params;
 
       const staff = await prisma.staff.findUnique({
-        where: withTenantFilter(req, { id }),
+        where: { id },
       });
 
       if (!staff) {
@@ -342,7 +342,7 @@ router.delete(
 
       // Soft delete by setting active to false
       const updatedStaff = await prisma.staff.update({
-        where: withTenantFilter(req, { id }),
+        where: { id },
         data: { active: false },
       });
 
@@ -377,7 +377,7 @@ router.get(
 
       // Verify staff exists and belongs to tenant
       const staff = await prisma.staff.findUnique({
-        where: withTenantFilter(req, { id }),
+        where: { id },
       });
 
       if (!staff) {
@@ -436,7 +436,7 @@ router.post(
 
       // Verify staff exists and belongs to tenant
       const staff = await prisma.staff.findUnique({
-        where: withTenantFilter(req, { id }),
+        where: { id },
       });
 
       if (!staff) {
@@ -518,7 +518,7 @@ router.post(
 
       // Verify staff exists and belongs to tenant
       const staff = await prisma.staff.findUnique({
-        where: withTenantFilter(req, { id }),
+        where: { id },
       });
 
       if (!staff) {

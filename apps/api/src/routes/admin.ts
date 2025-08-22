@@ -65,7 +65,8 @@ router.post(
         },
         timestamp: new Date().toISOString(),
       });
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       logger.error(
         {
           error: error.message,
@@ -101,9 +102,9 @@ router.get(
           _count: {
             select: {
               members: true,
-              gyms: true,
-              plans: true,
               staff: true,
+              memberships: true,
+              devices: true,
             },
           },
         },
@@ -132,7 +133,7 @@ router.get(
         }),
         prisma.payment.count({
           where: {
-            member: {
+            invoice: {
               companyId,
             },
             createdAt: {
@@ -152,8 +153,8 @@ router.get(
           isDemoCompany,
           counts: {
             members: company._count.members,
-            gyms: company._count.gyms,
-            plans: company._count.plans,
+            memberships: company._count.memberships,
+            devices: company._count.devices,
             staff: company._count.staff,
             visitsLast30Days: visitsCount,
             paymentsLast30Days: paymentsCount,
@@ -166,7 +167,8 @@ router.get(
         },
         timestamp: new Date().toISOString(),
       });
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       logger.error(
         {
           error: error.message,

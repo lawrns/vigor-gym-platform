@@ -1,11 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { randomUUID } from 'crypto';
 import { logRequestMetrics, createChildLogger } from '../utils/logger.js';
+import { Logger } from 'pino';
 
 export interface TimedRequest extends Request {
   startTime?: number;
   requestId?: string;
-  logger?: Record<string, unknown>; // Pino logger instance
+  logger?: Logger; // Pino logger instance
 }
 
 /**
@@ -58,7 +59,7 @@ export function requestTiming(req: TimedRequest, res: Response, next: NextFuncti
     });
 
     // Call original end with proper return
-    return originalEnd(chunk, encoding, cb);
+    return originalEnd(chunk, encoding as BufferEncoding, cb as (() => void) | undefined);
   };
 
   next();

@@ -17,7 +17,8 @@ router.get('/openapi.yaml', (req: Request, res: Response) => {
     const spec = fs.readFileSync(specPath, 'utf8');
     res.setHeader('Content-Type', 'application/x-yaml');
     res.send(spec);
-  } catch (error) {
+  } catch (e) {
+    const error = e as Error;
     console.error('Error serving OpenAPI spec:', error);
     res.status(500).json({ message: 'Error loading OpenAPI specification' });
   }
@@ -37,7 +38,8 @@ router.get('/openapi.json', (req: Request, res: Response) => {
 
     res.setHeader('Content-Type', 'application/json');
     res.json(jsonSpec);
-  } catch (error) {
+  } catch (e) {
+    const error = e as Error;
     console.error('Error serving OpenAPI spec as JSON:', error);
     res.status(500).json({ message: 'Error loading OpenAPI specification' });
   }

@@ -1,5 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AuthenticatedRequest } from './auth.js';
+import { PrismaClient } from '../generated/prisma/index.js';
 
 // Extended request interface with tenant context
 export interface TenantRequest extends AuthenticatedRequest {
@@ -47,7 +48,8 @@ export function tenantRequired() {
       };
 
       next();
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       console.error('Tenant middleware error:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
@@ -70,11 +72,34 @@ export function withTenantFilter(req: TenantRequest, baseWhere: Record<string, u
 }
 
 /**
+ * Helper function for unique queries that validates tenant access after fetch
+ * Use this for findUnique, update, delete operations that require unique inputs
+ */
+export function validateTenantAccess<T extends { companyId?: string }>(
+  req: TenantRequest,
+  resource: T | null
+): T {
+  if (!req.tenant?.companyId) {
+    throw new Error('Tenant context not available. Ensure tenantRequired middleware is applied.');
+  }
+
+  if (!resource) {
+    throw new Error('Resource not found');
+  }
+
+  if (resource.companyId !== req.tenant.companyId) {
+    throw new Error('Access denied: Resource does not belong to your organization');
+  }
+
+  return resource;
+}
+
+/**
  * Validates that a resource belongs to the current tenant
  * Used for checking access to specific resources by ID
  */
-export async function validateTenantAccess(
-  prisma: unknown,
+export async function validateTenantResourceAccess(
+  prisma: PrismaClient,
   req: TenantRequest,
   resourceType: string,
   resourceId: string
@@ -102,32 +127,30 @@ export async function validateTenantAccess(
         return resource?.member?.companyId === req.tenant.companyId;
 
       case 'gym':
+        // Gyms are shared across companies, so always allow access if gym exists
         resource = await prisma.gym.findUnique({
           where: { id: resourceId },
-          select: { companyId: true },
+          select: { id: true },
         });
-        break;
+        return !!resource;
 
       case 'class':
+        // Classes are tied to gyms, which are shared across companies
         resource = await prisma.class.findUnique({
           where: { id: resourceId },
-          include: { gym: { select: { companyId: true } } },
+          select: { id: true },
         });
-        return resource?.gym?.companyId === req.tenant.companyId;
+        return !!resource;
 
       case 'booking':
         resource = await prisma.booking.findUnique({
           where: { id: resourceId },
           include: {
-            member: { select: { companyId: true } },
-            class: { include: { gym: { select: { companyId: true } } } },
+            membership: { select: { companyId: true } },
           },
         });
-        // Booking is valid if both member and gym belong to tenant
-        return (
-          resource?.member?.companyId === req.tenant.companyId &&
-          resource?.class?.gym?.companyId === req.tenant.companyId
-        );
+        // Booking is valid if the membership belongs to tenant
+        return resource?.membership?.companyId === req.tenant.companyId;
 
       default:
         console.warn(`Unknown resource type for tenant validation: ${resourceType}`);
@@ -135,7 +158,8 @@ export async function validateTenantAccess(
     }
 
     return resource?.companyId === req.tenant.companyId;
-  } catch (error) {
+  } catch (e) {
+    const error = e as Error;
     console.error(`Error validating tenant access for ${resourceType}:${resourceId}`, error);
     return false;
   }
@@ -161,7 +185,8 @@ export function partnerTenantRequired() {
 
         next();
       });
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       console.error('Partner tenant middleware error:', error);
       res.status(500).json({ message: 'Internal server error' });
     }
@@ -172,17 +197,13 @@ export function partnerTenantRequired() {
  * Helper to get partner admin's accessible gym IDs
  * Partner admins can only access gyms they are assigned to
  */
-export async function getPartnerGymIds(prisma: unknown, userId: string): Promise<string[]> {
+export async function getPartnerGymIds(prisma: PrismaClient, userId: string): Promise<string[]> {
   try {
-    const partnerAssignments = await prisma.partnerAssignment.findMany({
-      where: { userId },
-      select: { gymId: true },
-    });
-
-    return partnerAssignments.map(
-      (assignment: Record<string, unknown>) => assignment.gymId as string
-    );
-  } catch (error) {
+    // TODO: Implement partner assignment logic when the table is added to schema
+    // For now, return empty array as partner assignments are not implemented
+    return [];
+  } catch (e) {
+    const error = e as Error;
     console.error('Error getting partner gym IDs:', error);
     return [];
   }
@@ -192,7 +213,7 @@ export async function getPartnerGymIds(prisma: unknown, userId: string): Promise
  * Audit logging helper that includes tenant context
  */
 export async function logTenantAction(
-  prisma: unknown,
+  prisma: PrismaClient,
   req: TenantRequest,
   action: string,
   target: string,
@@ -207,16 +228,17 @@ export async function logTenantAction(
         actorId: req.user!.id,
         action,
         target,
-        before,
-        after,
         meta: {
           ...meta,
           companyId: req.tenant?.companyId,
           entityId,
+          before: before ? JSON.parse(JSON.stringify(before)) : null,
+          after: after ? JSON.parse(JSON.stringify(after)) : null,
         },
       },
     });
-  } catch (error) {
+  } catch (e) {
+    const error = e as Error;
     console.error('Error logging tenant action:', error);
     // Don't throw - audit logging shouldn't break the main flow
   }

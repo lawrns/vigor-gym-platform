@@ -5,6 +5,7 @@ import { authRequired, AuthenticatedRequest } from '../middleware/auth.js';
 import {
   tenantRequired,
   withTenantFilter,
+  validateTenantAccess,
   TenantRequest,
   logTenantAction,
 } from '../middleware/tenant.js';
@@ -186,7 +187,7 @@ router.get(
       const { id } = req.params;
 
       const member = await prisma.member.findUnique({
-        where: withTenantFilter(req, { id }),
+        where: { id },
         include: {
           memberships: {
             include: {
@@ -209,9 +210,8 @@ router.get(
         },
       });
 
-      if (!member) {
-        return res.status(404).json({ message: 'Member not found' });
-      }
+      // Validate tenant access
+      validateTenantAccess(req, member);
 
       res.json({ member });
     } catch (error) {
@@ -233,12 +233,11 @@ router.patch(
 
       // Get current member data for audit log
       const currentMember = await prisma.member.findUnique({
-        where: withTenantFilter(req, { id }),
+        where: { id },
       });
 
-      if (!currentMember) {
-        return res.status(404).json({ message: 'Member not found' });
-      }
+      // Validate tenant access
+      validateTenantAccess(req, currentMember);
 
       // Check for email conflicts if email is being updated
       if (validatedData.email && validatedData.email.toLowerCase() !== currentMember.email) {
@@ -256,7 +255,7 @@ router.patch(
       }
 
       const updatedMember = await prisma.member.update({
-        where: withTenantFilter(req, { id }),
+        where: { id },
         data: {
           ...validatedData,
           ...(validatedData.email && { email: validatedData.email.toLowerCase() }),
@@ -318,12 +317,11 @@ router.delete(
 
       // Get member data for audit log
       const member = await prisma.member.findUnique({
-        where: withTenantFilter(req, { id }),
+        where: { id },
       });
 
-      if (!member) {
-        return res.status(404).json({ message: 'Member not found' });
-      }
+      // Validate tenant access
+      validateTenantAccess(req, member);
 
       // Check if member has active memberships
       const activeMemberships = await prisma.membership.count({
@@ -340,7 +338,7 @@ router.delete(
       }
 
       await prisma.member.delete({
-        where: withTenantFilter(req, { id }),
+        where: { id },
       });
 
       // Log audit trail
