@@ -38,6 +38,7 @@ export type IconName =
   | 'AlertTriangle'
   | 'CheckCircle'
   | 'ArrowLeft'
+  | 'ArrowRight'
   | 'ExternalLink'
   | 'Shield'
   | 'Loader2'
@@ -78,7 +79,9 @@ export type IconName =
   | 'Database'
   | 'Globe'
   | 'Star'
-  | 'Pause';
+  | 'Pause'
+  | 'Zap'
+  | 'Headphones';
 
 type SvgProps = React.SVGProps<SVGSVGElement> & { title?: string };
 
@@ -368,6 +371,12 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
       <path d="M19 12H5" />
     </Svg>
   ),
+  ArrowRight: props => (
+    <Svg {...props}>
+      <path d="m5 12 7-7 7 7" />
+      <path d="M5 12h14" />
+    </Svg>
+  ),
   ExternalLink: props => (
     <Svg {...props}>
       <path d="M15 3h6v6" />
@@ -631,6 +640,16 @@ export const Icons: Record<IconName, (props: SvgProps) => JSX.Element> = {
     <Svg {...props}>
       <rect x="6" y="4" width="4" height="16" />
       <rect x="14" y="4" width="4" height="16" />
+    </Svg>
+  ),
+  Zap: props => (
+    <Svg {...props}>
+      <polygon points="13,2 3,14 12,14 11,22 21,10 12,10 13,2" />
+    </Svg>
+  ),
+  Headphones: props => (
+    <Svg {...props}>
+      <path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3" />
     </Svg>
   ),
 };

@@ -6,9 +6,23 @@ import { KPIStatsWithLogos } from '../components/sections/KPIStatsWithLogos';
 import { FeaturesAndActivitiesShowcase } from '../components/sections/FeaturesAndActivitiesShowcase';
 import { AppPromo } from '../components/sections/AppPromo';
 import { PlansAndComparison } from '../components/sections/PlansAndComparison';
-import { IntegrationsWall } from '../components/sections/IntegrationsWall';
-import { TrustAndResults } from '../components/sections/TrustAndResults';
-import { SocialProofAndCTA } from '../components/sections/SocialProofAndCTA';
+import dynamic from 'next/dynamic';
+
+// Lazy load below-the-fold components for better performance
+const IntegrationsWall = dynamic(() => import('../components/sections/IntegrationsWall').then(m => ({ default: m.IntegrationsWall })), {
+  ssr: true,
+  loading: () => <div className="h-96 bg-surface animate-pulse rounded-lg" />
+});
+
+const TrustAndResults = dynamic(() => import('../components/sections/TrustAndResults').then(m => ({ default: m.TrustAndResults })), {
+  ssr: true,
+  loading: () => <div className="h-96 bg-surface animate-pulse rounded-lg" />
+});
+
+const SocialProofAndCTA = dynamic(() => import('../components/sections/SocialProofAndCTA').then(m => ({ default: m.SocialProofAndCTA })), {
+  ssr: true,
+  loading: () => <div className="h-96 bg-surface animate-pulse rounded-lg" />
+});
 
 // Layout primitives
 import { Section } from '../components/primitives/Section';

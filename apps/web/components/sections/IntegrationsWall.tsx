@@ -78,10 +78,13 @@ export function IntegrationsWall({ title, subtitle, integrations }: Integrations
                           className="object-contain"
                         />
                       ) : (
-                        <img
+                        <Image
                           src={integration.logo}
                           alt={`${integration.name} logo`}
+                          width={128}
+                          height={48}
                           className="max-h-full max-w-full object-contain"
+                          loading="lazy"
                         />
                       )}
                     </div>

@@ -118,11 +118,11 @@ export default function PlanesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-bg py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando planes...</p>
+            <p className="mt-4 text-muted">Cargando planes...</p>
           </div>
         </div>
       </div>
@@ -164,13 +164,13 @@ export default function PlanesPage() {
     ];
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-bg py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl">
+            <h1 className="text-4xl font-extrabold text-heading sm:text-5xl">
               Elige tu Plan
             </h1>
-            <p className="mt-4 text-xl text-gray-600 dark:text-gray-400">
+            <p className="mt-4 text-xl text-muted">
               Encuentra el plan perfecto para tu estilo de vida
             </p>
             <div className="mt-8">
@@ -188,10 +188,10 @@ export default function PlanesPage() {
             {staticPlans.map(plan => (
               <div
                 key={plan.id}
-                className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 transition-all duration-200 ${
+                className={`relative bg-card rounded-2xl shadow-card border-2 transition-all duration-200 ${
                   plan.popular
                     ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800'
-                    : 'border-gray-200 dark:border-gray-700'
+                    : 'border-[var(--outline)]'
                 }`}
               >
                 {/* Popular Badge */}
@@ -205,15 +205,15 @@ export default function PlanesPage() {
 
                 <div className="p-8">
                   <div className="text-center">
-                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white">
+                    <h3 className="text-2xl font-bold text-heading">
                       {plan.name}
                     </h3>
-                    <p className="mt-2 text-gray-600 dark:text-gray-400">{plan.description}</p>
+                    <p className="mt-2 text-muted">{plan.description}</p>
                     <div className="mt-4">
-                      <span className="text-3xl font-bold text-gray-900 dark:text-white">
+                      <span className="text-3xl font-bold text-heading">
                         {plan.price}
                       </span>
-                      <span className="text-gray-600 dark:text-gray-400">/mes</span>
+                      <span className="text-muted">/mes</span>
                     </div>
                   </div>
 
@@ -221,7 +221,7 @@ export default function PlanesPage() {
                     {plan.features.map((feature, index) => (
                       <li key={index} className="flex items-center">
                         <Icons.Check className="h-5 w-5 text-green-500 mr-3" />
-                        <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                        <span className="text-text">{feature}</span>
                       </li>
                     ))}
                   </ul>
@@ -232,7 +232,7 @@ export default function PlanesPage() {
                       className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                         plan.popular
                           ? 'bg-blue-600 text-white hover:bg-blue-700'
-                          : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600'
+                          : 'bg-surface text-heading hover:bg-[var(--outline)]'
                       }`}
                     >
                       Seleccionar Plan
@@ -249,14 +249,14 @@ export default function PlanesPage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-bg py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center">
             <Icons.Activity className="h-12 w-12 text-red-500 mx-auto" />
-            <h2 className="mt-4 text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="mt-4 text-xl font-semibold text-heading">
               Error al cargar planes
             </h2>
-            <p className="mt-2 text-gray-600 dark:text-gray-400">{error}</p>
+            <p className="mt-2 text-muted">{error}</p>
             <button
               onClick={loadPlans}
               className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -270,14 +270,14 @@ export default function PlanesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-bg py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-extrabold text-gray-900 dark:text-white sm:text-5xl">
+          <h1 className="text-4xl font-extrabold text-heading sm:text-5xl">
             Elige tu Plan
           </h1>
-          <p className="mt-4 text-xl text-gray-600 dark:text-gray-400">
+          <p className="mt-4 text-xl text-muted">
             Selecciona el plan perfecto para {user?.company?.name || 'tu empresa'}
           </p>
         </div>
@@ -287,10 +287,10 @@ export default function PlanesPage() {
           {plans.map((plan, index) => (
             <div
               key={plan.id}
-              className={`relative bg-white dark:bg-gray-800 rounded-2xl shadow-lg border-2 transition-all duration-200 ${
+              className={`relative bg-card rounded-2xl shadow-card border-2 transition-all duration-200 ${
                 plan.code === 'TP_PRO'
                   ? 'border-blue-500 ring-2 ring-blue-200 dark:ring-blue-800'
-                  : 'border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-600'
+                  : 'border-[var(--outline)] hover:border-blue-300 dark:hover:border-blue-600'
               }`}
             >
               {/* Popular Badge */}
@@ -305,13 +305,13 @@ export default function PlanesPage() {
               <div className="p-8">
                 {/* Plan Header */}
                 <div className="text-center mb-8">
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white">{plan.name}</h3>
+                  <h3 className="text-2xl font-bold text-heading">{plan.name}</h3>
                   <div className="mt-4">
-                    <span className="text-4xl font-extrabold text-gray-900 dark:text-white">
+                    <span className="text-4xl font-extrabold text-heading">
                       {formatPrice(plan.priceMXNFrom)}
                     </span>
                     {plan.priceMXNFrom && (
-                      <span className="text-gray-600 dark:text-gray-400 ml-2">
+                      <span className="text-muted ml-2">
                         /{plan.billingCycle === 'monthly' ? 'mes' : plan.billingCycle}
                       </span>
                     )}
@@ -323,7 +323,7 @@ export default function PlanesPage() {
                   {plan.features.map((feature, featureIndex) => (
                     <li key={featureIndex} className="flex items-start">
                       <Icons.Users className="h-5 w-5 text-green-500 mt-0.5 mr-3 flex-shrink-0" />
-                      <span className="text-gray-700 dark:text-gray-300">{feature}</span>
+                      <span className="text-text">{feature}</span>
                     </li>
                   ))}
                 </ul>
@@ -335,7 +335,7 @@ export default function PlanesPage() {
                   className={`w-full py-3 px-6 rounded-lg font-medium text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                     plan.code === 'TP_PRO'
                       ? 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 disabled:bg-blue-400'
-                      : 'bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-800 dark:hover:bg-gray-100 focus:ring-gray-500 disabled:bg-gray-400'
+                      : 'bg-heading text-white hover:bg-[var(--primary-emph)] focus:ring-gray-500 disabled:bg-gray-400'
                   } disabled:cursor-not-allowed`}
                   data-cta={plan.code === 'TP_PRO' ? 'primary' : 'secondary'}
                 >
@@ -355,33 +355,33 @@ export default function PlanesPage() {
 
         {/* FAQ Section */}
         <div className="mt-16">
-          <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-white mb-8">
+          <h2 className="text-3xl font-bold text-center text-heading mb-8">
             Preguntas Frecuentes
           </h2>
           <div className="max-w-3xl mx-auto space-y-6">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <div className="bg-card rounded-lg p-6 shadow-card">
+              <h3 className="text-lg font-semibold text-heading mb-2">
                 ¿Puedo cambiar de plan después?
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted">
                 Sí, puedes actualizar o cambiar tu plan en cualquier momento desde tu panel de
                 administración.
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <div className="bg-card rounded-lg p-6 shadow-card">
+              <h3 className="text-lg font-semibold text-heading mb-2">
                 ¿Hay período de prueba?
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted">
                 Todos los planes incluyen un período de prueba de 14 días para que puedas evaluar la
                 plataforma.
               </p>
             </div>
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            <div className="bg-card rounded-lg p-6 shadow-card">
+              <h3 className="text-lg font-semibold text-heading mb-2">
                 ¿Qué métodos de pago aceptan?
               </h3>
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted">
                 Aceptamos tarjetas de crédito y débito, transferencias bancarias y pagos con Mercado
                 Pago.
               </p>

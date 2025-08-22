@@ -15,7 +15,9 @@ const baseConfig = {
       'framer-motion',
       '@radix-ui/react-navigation-menu',
       '@radix-ui/react-slot',
+      'posthog-js',
     ],
+    webVitalsAttribution: ['CLS', 'LCP', 'FCP', 'FID', 'TTFB', 'INP'],
   },
   images: {
     formats: ['image/webp', 'image/avif'],
