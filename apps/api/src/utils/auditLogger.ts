@@ -317,7 +317,7 @@ export function checkSecurityAlerts(): Array<{
       alerts.push({
         type: 'device_login_failure_rate',
         message: `Device login failure rate is ${(failureRate * 100).toFixed(1)}% (threshold: 2%)`,
-        severity: failureRate > 0.05 ? 'high' : ('medium' as 'high' | 'medium'),
+        severity: failureRate > 0.05 ? 'high' : 'medium',
       });
     }
   }
@@ -329,7 +329,7 @@ export function checkSecurityAlerts(): Array<{
     alerts.push({
       type: 'duplicate_checkins_spike',
       message: `Duplicate check-ins rate is ${(duplicateRate * 100).toFixed(1)}% (baseline: 1%)`,
-      severity: duplicateRate > 0.05 ? 'high' : ('medium' as 'high' | 'medium'),
+      severity: duplicateRate > 0.05 ? 'high' : 'medium',
     });
   }
 
