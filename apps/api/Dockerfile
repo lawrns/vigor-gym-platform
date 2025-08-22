@@ -14,8 +14,8 @@ RUN apk add --no-cache \
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies with legacy peer deps to handle OpenTelemetry conflicts
-RUN npm ci --legacy-peer-deps --only=production
+# Install all dependencies (including dev deps needed for building)
+RUN npm ci --legacy-peer-deps
 
 # Copy source code
 COPY . .
@@ -25,6 +25,9 @@ RUN npx prisma generate
 
 # Build the application
 RUN npm run build
+
+# Remove dev dependencies to reduce image size
+RUN npm prune --omit=dev
 
 # Expose port
 EXPOSE 4001
