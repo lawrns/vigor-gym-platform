@@ -1,0 +1,14 @@
+[providers.node]
+packageManager = "npm"
+
+[phases.setup]
+nixPkgs = ["nodejs_20", "npm-9_x", "openssl"]
+
+[phases.install]
+cmds = ["cd apps/api && npm ci"]
+
+[phases.build]
+cmds = ["cd apps/api && npm run build"]
+
+[start]
+cmd = "cd apps/api && npm start"
