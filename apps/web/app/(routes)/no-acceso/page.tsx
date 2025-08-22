@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { getServerSession } from '../../../lib/auth/session';
 
+export const dynamic = 'force-dynamic';
+
 interface NoAccessPageProps {
   searchParams: { reason?: string };
 }

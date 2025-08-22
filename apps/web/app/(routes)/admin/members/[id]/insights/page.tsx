@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+export const dynamic = 'force-dynamic';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../../../lib/auth/context';
 import { MemberInsights } from '../../../../../../lib/api/types';

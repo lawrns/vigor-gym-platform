@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+
+export const dynamic = 'force-dynamic';
 import { useAuth } from '../../../../lib/auth/context';
 import { ChurnDashboard } from '../../../../components/analytics/ChurnDashboard';
 import { VisitsByDay } from '../../../../components/dashboard/VisitsByDay';

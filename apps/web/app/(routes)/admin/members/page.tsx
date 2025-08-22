@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+
+export const dynamic = 'force-dynamic';
 import { useAuth } from '../../../../lib/auth/context';
 import { apiClient, isAPIError } from '../../../../lib/api/client';
 import { Icons } from '../../../../lib/icons/registry';

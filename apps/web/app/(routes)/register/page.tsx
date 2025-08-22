@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 export default function RegisterPage() {
   return (
     <main className="max-w-sm mx-auto py-12">

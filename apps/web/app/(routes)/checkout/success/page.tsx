@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, Suspense } from 'react';
+
+export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../../lib/auth/context';
 import { Icons } from '../../../../lib/icons/registry';

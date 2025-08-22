@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
+
+export const dynamic = 'force-dynamic';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../../lib/auth/context';
 import { apiClient, isAPIError } from '../../../lib/api/client';

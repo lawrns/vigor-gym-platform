@@ -1,5 +1,7 @@
 import './globals.css';
 import type { ReactNode } from 'react';
+
+export const dynamic = 'force-dynamic';
 import type { Metadata } from 'next';
 import { defaultSEO } from './next-seo.config';
 import { EnhancedNavbar } from '../components/navigation/EnhancedNavbar';

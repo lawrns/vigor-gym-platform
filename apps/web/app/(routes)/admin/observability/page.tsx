@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+
+export const dynamic = 'force-dynamic';
 import { useAuth } from '../../../../lib/auth/context';
 import { Card, CardContent, CardHeader } from '../../../../components/ui/card';
 import { Icons } from '../../../../lib/icons/registry';
