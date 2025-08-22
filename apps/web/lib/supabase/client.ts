@@ -1,10 +1,7 @@
 // Supabase client disabled - using Railway API instead
-// import { createClient } from '@supabase/supabase-js';
+// All Supabase functionality has been replaced with Railway API calls
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '';
-
-// Mock Supabase client for compatibility
+// Mock Supabase client for compatibility with existing code
 export const supabase = {
   auth: {
     getUser: () => Promise.resolve({ data: { user: null }, error: null }),

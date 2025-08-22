@@ -1,11 +1,8 @@
 import 'server-only';
 // Supabase admin client disabled - using Railway API instead
-// import { createClient } from '@supabase/supabase-js';
+// All Supabase functionality has been replaced with Railway API calls
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
-
-// Mock Supabase admin client for compatibility
+// Mock Supabase admin client for compatibility with existing code
 export const supabaseAdmin = {
   auth: {
     admin: {
