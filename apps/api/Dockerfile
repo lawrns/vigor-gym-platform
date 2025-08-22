@@ -15,10 +15,10 @@ RUN apk add --no-cache \
 COPY package*.json ./
 
 # Install all dependencies (including dev deps needed for building)
-RUN npm ci --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
-# Copy source code
-COPY . .
+# Copy API source code
+COPY . ./
 
 # Generate Prisma client
 RUN npx prisma generate
