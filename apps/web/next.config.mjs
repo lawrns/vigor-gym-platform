@@ -1,5 +1,7 @@
+import bundleAnalyzer from '@next/bundle-analyzer';
+
 /** @type {import('next').NextConfig} */
-const nextConfig = {
+const baseConfig = {
   reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
@@ -9,6 +11,11 @@ const nextConfig = {
   },
   experimental: {
     esmExternals: true,
+    optimizePackageImports: [
+      'framer-motion',
+      '@radix-ui/react-navigation-menu',
+      '@radix-ui/react-slot',
+    ],
   },
   images: {
     formats: ['image/webp', 'image/avif'],
@@ -17,6 +24,28 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days
     dangerouslyAllowSVG: true, // Allow SVG for local development
     remotePatterns: [],
+  },
+  async headers() {
+    return [
+      {
+        source: '/_next/static/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/_next/image',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/images/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+    ];
   },
   async rewrites() {
     return [
@@ -31,5 +60,8 @@ const nextConfig = {
     ];
   },
 };
+
+const withAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === 'true' });
+const nextConfig = withAnalyzer(baseConfig);
 
 export default nextConfig;

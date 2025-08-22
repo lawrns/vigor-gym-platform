@@ -23,6 +23,9 @@
     "perf:k6:load": "k6 run --vus 50 --duration 5m tests/k6/load.js",
     "perf:otel:smoke": "node scripts/otel-smoke.mjs",
     "perf:all": "npm run perf:lighthouse && npm run perf:k6:smoke && npm run perf:otel:smoke",
+    "analyze": "ANALYZE=true next build",
+    "lh:desktop": "lighthouse http://localhost:7777 --preset=desktop --output=json --output-path=./.audit/lh-desktop.json",
+    "lh:mobile": "lighthouse http://localhost:7777 --preset=mobile --output=json --output-path=./.audit/lh-mobile.json",
     "selftest:auth": "node scripts/selftest-auth.mjs"
   },
   "dependencies": {

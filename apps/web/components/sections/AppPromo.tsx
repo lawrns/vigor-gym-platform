@@ -36,9 +36,8 @@ export function AppPromo({
           src="/images/hero-fitness.webp"
           alt="Entrenamiento corporativo"
           fill
-          sizes="(max-width: 768px) 100vw, 50vw"
+          sizes="(min-width:1024px) 600px, 90vw"
           className="object-cover"
-          priority
         />
       </div>
     </section>

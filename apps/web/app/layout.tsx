@@ -6,6 +6,7 @@ import { EnhancedNavbar } from '../components/navigation/EnhancedNavbar';
 import contentV2 from '../lib/content/home.v2.json';
 import { ThemeProvider } from 'next-themes';
 import { AnalyticsBinder } from '../components/AnalyticsBinder';
+import { VitalsBinder } from '../components/VitalsBinder';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { Footer } from '../components/Footer';
 import { Spotlight } from '../components/Spotlight';
@@ -59,6 +60,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <Spotlight />
             <EnhancedNavbar />
             <AnalyticsBinder />
+            <VitalsBinder />
             <div className="fixed bottom-4 right-4">
               <ThemeToggle />
             </div>

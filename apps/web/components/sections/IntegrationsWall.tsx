@@ -1,4 +1,5 @@
 import { Icons } from '../../lib/icons/registry';
+import Image from 'next/image';
 
 type Integration = {
   name: string;
@@ -68,10 +69,13 @@ export function IntegrationsWall({ title, subtitle, integrations }: Integrations
                     {/* Integration Logo */}
                     <div className="flex items-center justify-center h-12 mb-3">
                       {integration.logo.startsWith('http') ? (
-                        <img
+                        <Image
                           src={integration.logo}
                           alt={`${integration.name} logo`}
-                          className="max-h-full max-w-full object-contain"
+                          width={48}
+                          height={48}
+                          sizes="48px"
+                          className="object-contain"
                         />
                       ) : (
                         <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center">

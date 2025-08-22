@@ -13,7 +13,10 @@ import { ComparisonTable } from '../components/sections/ComparisonTable';
 import { IntegrationsWall } from '../components/sections/IntegrationsWall';
 import { ComplianceRibbon } from '../components/sections/ComplianceRibbon';
 import { ROIProofWithScroller } from '../components/sections/ROIProofWithScroller';
-import { TestimonialsCarousel } from '../components/sections/TestimonialsCarousel';
+import dynamic from 'next/dynamic';
+const TestimonialsCarousel = dynamic(() => import('../components/sections/TestimonialsCarousel').then(m => m.TestimonialsCarousel), { ssr: false, loading: () => null });
+
+export const revalidate = 86400;
 
 export default function HomePage() {
   return (
