@@ -26,6 +26,12 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
+# Serve static images from public directory
+[[redirects]]
+  from = "/images/*"
+  to = "/images/:splat"
+  status = 200
+
 # Redirect rules for SPA routing (catch-all for Next.js client-side routing)
 [[redirects]]
   from = "/*"
