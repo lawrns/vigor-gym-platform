@@ -2,10 +2,14 @@
 packageManager = "npm"
 
 [phases.setup]
-nixPkgs = ["nodejs_20", "npm-9_x", "openssl"]
+nixPkgs = ["nodejs_20", "npm-10_x", "openssl"]
 
 [phases.install]
-cmds = ["cd apps/api && npm ci"]
+cmds = [
+  "cd apps/api",
+  "npm cache clean --force",
+  "npm ci --legacy-peer-deps"
+]
 
 [phases.build]
 cmds = ["cd apps/api && npm run build"]
