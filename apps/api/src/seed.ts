@@ -634,7 +634,7 @@ async function createPaymentsAndInvoices(members: any[], plans: any[], days: num
           companyId: member.companyId,
           totalMxnCents: amount,
           status: status === 'succeeded' ? 'paid' : status === 'failed' ? 'issued' : 'void',
-          createdAt: paymentDate,
+          issuedAt: paymentDate,
         },
       });
 
