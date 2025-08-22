@@ -3,6 +3,7 @@
 [![CI](https://github.com/lawrns/vigor-gym-platform/actions/workflows/ci.yml/badge.svg)](https://github.com/lawrns/vigor-gym-platform/actions/workflows/ci.yml)
 [![Production Ready](https://img.shields.io/badge/status-production%20ready-green.svg)](https://github.com/lawrns/vigor-gym-platform)
 [![Test Coverage](https://img.shields.io/badge/tests-100%25%20passing-brightgreen.svg)](https://github.com/lawrns/vigor-gym-platform)
+[![Netlify Status](https://img.shields.io/badge/netlify-build%20fixed-success.svg)](https://github.com/lawrns/vigor-gym-platform)
 
 > **Complete gym management platform for Mexico with AI-powered features, secure authentication, and comprehensive testing infrastructure.**
 
