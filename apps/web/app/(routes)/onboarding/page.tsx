@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { OnboardingWizard } from '../../../components/onboarding/Wizard';
 import { OnboardingProgress } from '../../../components/onboarding/Progress';
-import { useAuth } from '../../../hooks/useAuth';
+import { useAuth } from '../../../lib/auth/context';
 
 interface OnboardingStatus {
   completed: {

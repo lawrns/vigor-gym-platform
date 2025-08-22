@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { API_ORIGIN } from '../../../lib/api/origin';
+const API_ORIGIN = process.env.API_ORIGIN || process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003';
 
 export async function GET(request: NextRequest) {
   try {
