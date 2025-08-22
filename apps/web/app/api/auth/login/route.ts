@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { authenticateUser } from '../../../../lib/auth/supabase-auth';
 
 /**
  * POST /api/auth/login
  *
- * Authenticate user directly with Supabase database.
+ * Authenticate user with Railway API backend.
  */
 export async function POST(request: NextRequest) {
   try {
@@ -15,8 +14,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
-    // Authenticate user with Supabase
-    const authResult = await authenticateUser({ email, password });
+    // Authenticate user with Railway API
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://vigor-gym-platform-production.up.railway.app';
+    const response = await fetch(`${apiUrl}/auth/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({ message: 'Authentication failed' }));
+      return NextResponse.json({ error: errorData.message || 'Authentication failed' }, { status: response.status });
+    }
+
+    const authResult = await response.json();
 
     // Determine secure flag based on environment and proxy headers
     const isSecure =
@@ -26,12 +39,12 @@ export async function POST(request: NextRequest) {
     // Return shape expected by apiClient (top-level tokens)
     const nextResponse = NextResponse.json({
       user: authResult.user,
-      accessToken: authResult.tokens.accessToken,
-      refreshToken: authResult.tokens.refreshToken,
+      accessToken: authResult.accessToken,
+      refreshToken: authResult.refreshToken,
     });
 
     // Set HTTP-only cookies for tokens
-    nextResponse.cookies.set('accessToken', authResult.tokens.accessToken, {
+    nextResponse.cookies.set('accessToken', authResult.accessToken, {
       httpOnly: true,
       secure: isSecure,
       sameSite: isSecure ? 'none' : 'lax',
@@ -39,7 +52,7 @@ export async function POST(request: NextRequest) {
       path: '/',
     });
 
-    nextResponse.cookies.set('refreshToken', authResult.tokens.refreshToken, {
+    nextResponse.cookies.set('refreshToken', authResult.refreshToken, {
       httpOnly: true,
       secure: isSecure,
       sameSite: isSecure ? 'none' : 'lax',

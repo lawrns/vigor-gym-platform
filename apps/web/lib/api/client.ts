@@ -24,11 +24,8 @@ import type {
   StaffCoverage,
 } from '@vigor/shared';
 
-// Configuration - Use same-origin proxy in browser, direct API in server
-const API_BASE_URL =
-  typeof window !== 'undefined'
-    ? '' // Use same-origin proxy for browser requests
-    : process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4003'; // Direct API for server requests
+// Configuration - Use Railway API for all requests
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://vigor-gym-platform-production.up.railway.app';
 
 // Error classes
 export class APIClientError extends Error {

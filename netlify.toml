@@ -22,7 +22,14 @@
 
 # Next.js Image Optimization
 [[redirects]]
-  from = "/_next/image"
+  from = "/_next/image*"
+  to = "/.netlify/images?url=:url&w=:width&q=:quality"
+  status = 200
+  query = {url = ":url", w = ":width", q = ":quality"}
+
+# Handle _ipx image optimization (alternative)
+[[redirects]]
+  from = "/_ipx/*"
   to = "/.netlify/images?url=:url&w=:width&q=:quality"
   status = 200
   query = {url = ":url", w = ":width", q = ":quality"}
