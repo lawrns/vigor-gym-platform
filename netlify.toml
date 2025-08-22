@@ -20,12 +20,18 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Redirect rules for SPA routing
+# Next.js Image Optimization
+[[redirects]]
+  from = "/_next/image"
+  to = "/.netlify/images?url=:url&w=:width&q=:quality"
+  status = 200
+  query = {url = ":url", w = ":width", q = ":quality"}
+
+# Redirect rules for SPA routing (catch-all for Next.js client-side routing)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = {Role = ["admin"]}
 
 # Security headers
 [[headers]]
