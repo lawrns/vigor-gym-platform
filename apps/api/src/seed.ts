@@ -185,7 +185,12 @@ async function createPlans() {
 }
 
 async function createStaff(companyId: string, _gyms: any[]) {
-  const staffData = [
+  const staffData: Array<{
+    firstName: string;
+    lastName: string;
+    email: string;
+    role: 'ADMIN' | 'TRAINER' | 'RECEPTIONIST' | 'MANAGER' | 'MAINTENANCE';
+  }> = [
     {
       firstName: 'Roberto',
       lastName: 'Manager',
@@ -614,7 +619,7 @@ async function createPaymentsAndInvoices(members: any[], plans: any[], days: num
 
       // Determine payment status (82% success, 14% failed, 4% refunded)
       const rand = Math.random();
-      let status = 'succeeded';
+      let status: 'requires_action' | 'succeeded' | 'failed' | 'refunded' = 'succeeded';
       if (rand > 0.96) status = 'refunded';
       else if (rand > 0.82) status = 'failed';
 
@@ -639,7 +644,7 @@ async function createPaymentsAndInvoices(members: any[], plans: any[], days: num
           memberId: member.id,
           companyId: member.companyId,
           totalMxnCents: amount,
-          status: status === 'succeeded' ? 'paid' : status === 'failed' ? 'pending' : 'refunded',
+          status: status === 'succeeded' ? 'paid' : status === 'failed' ? 'issued' : 'void',
           dueAt: paymentDate,
           createdAt: paymentDate,
         },

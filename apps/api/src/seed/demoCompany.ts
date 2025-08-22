@@ -2,7 +2,7 @@ import { PrismaClient } from '../generated/prisma/index.js';
 import { createMemberFactory } from './factories/memberFactory.js';
 import { createVisitFactory } from './factories/visitFactory.js';
 import { createPaymentFactory } from './factories/paymentFactory.js';
-import { createClassFactory } from './factories/classFactory.js';
+// import { createClassFactory } from './factories/classFactory.js';
 
 const prisma = new PrismaClient();
 
@@ -23,22 +23,23 @@ export async function seedDemoCompany(companyId: string): Promise<DemoSeedResult
   return await prisma.$transaction(async tx => {
     // Clean existing data (in correct order to respect foreign keys)
     await tx.visit.deleteMany({ where: { membership: { companyId } } });
-    await tx.payment.deleteMany({ where: { member: { companyId } } });
+    await tx.payment.deleteMany({ where: { invoice: { companyId } } });
     await tx.membership.deleteMany({ where: { companyId } });
     await tx.member.deleteMany({ where: { companyId } });
-    await tx.classBooking.deleteMany({ where: { class: { gym: { companyId } } } });
-    await tx.class.deleteMany({ where: { gym: { companyId } } });
+    // Note: classBooking and class models don't exist in current schema
+    // await tx.classBooking.deleteMany({ where: { class: { gym: { companyId } } } });
+    // await tx.class.deleteMany({ where: { gym: { companyId } } });
     await tx.staff.deleteMany({ where: { companyId } });
 
     // Ensure gyms and plans exist
-    const gyms = await tx.gym.findMany({ where: { companyId } });
+    const gyms = await tx.gym.findMany({});
     if (gyms.length === 0) {
-      throw new Error('No gyms found for company. Run onboarding first.');
+      throw new Error('No gyms found. Run onboarding first.');
     }
 
-    const plans = await tx.plan.findMany({ where: { companyId } });
+    const plans = await tx.plan.findMany({});
     if (plans.length === 0) {
-      throw new Error('No plans found for company. Run onboarding first.');
+      throw new Error('No plans found. Run onboarding first.');
     }
 
     // Create staff with intentional gaps
@@ -154,30 +155,40 @@ export async function seedDemoCompany(companyId: string): Promise<DemoSeedResult
       const paymentCount = Math.floor(Math.random() * 3) + 1; // 1-3 payments per member
 
       for (let p = 0; p < paymentCount; p++) {
-        const paymentData = paymentFactory.create(member.id);
+        // Create invoice first
+        const invoice = await tx.invoice.create({
+          data: {
+            companyId,
+            status: 'paid',
+            totalMxnCents: 129900, // Default amount
+          },
+        });
+
+        const paymentData = paymentFactory.create(invoice.id);
         await tx.payment.create({ data: paymentData });
         paymentsCreated++;
       }
     }
 
     // Create weekly class schedule (28 classes per week)
-    const classFactory = createClassFactory();
-    const classTypes = ['Yoga', 'Spinning', 'CrossFit', 'Pilates', 'Zumba', 'Boxing', 'Aqua'];
+    // Note: Class model doesn't exist in current schema, commenting out for now
+    // const classFactory = createClassFactory();
+    // const classTypes = ['Yoga', 'Spinning', 'CrossFit', 'Pilates', 'Zumba', 'Boxing', 'Aqua'];
     let classesCreated = 0;
 
-    for (let day = 0; day < 7; day++) {
-      const classesPerDay = 4; // 4 classes per day = 28 per week
+    // for (let day = 0; day < 7; day++) {
+    //   const classesPerDay = 4; // 4 classes per day = 28 per week
 
-      for (let c = 0; c < classesPerDay; c++) {
-        const gym = gyms[Math.floor(Math.random() * gyms.length)];
-        const trainer = staff.filter(s => s.role === 'TRAINER')[Math.floor(Math.random() * 3)];
-        const classType = classTypes[Math.floor(Math.random() * classTypes.length)];
+    //   for (let c = 0; c < classesPerDay; c++) {
+    //     const gym = gyms[Math.floor(Math.random() * gyms.length)];
+    //     const trainer = staff.filter(s => s.role === 'TRAINER')[Math.floor(Math.random() * 3)];
+    //     const classType = classTypes[Math.floor(Math.random() * classTypes.length)];
 
-        const classData = classFactory.create(day, c, classType, gym.id, trainer.id);
-        await tx.class.create({ data: classData });
-        classesCreated++;
-      }
-    }
+    //     const classData = classFactory.create(day, c, classType, gym.id, trainer.id);
+    //     await tx.class.create({ data: classData });
+    //     classesCreated++;
+    //   }
+    // }
 
     console.log(
       `✅ Demo seed completed: ${members.length} members, ${visitsCreated} visits, ${paymentsCreated} payments`

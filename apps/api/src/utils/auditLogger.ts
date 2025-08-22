@@ -306,7 +306,11 @@ export function checkSecurityAlerts(): Array<{
   message: string;
   severity: 'low' | 'medium' | 'high';
 }> {
-  const alerts = [];
+  const alerts: Array<{
+    type: string;
+    message: string;
+    severity: 'low' | 'medium' | 'high';
+  }> = [];
 
   // Check device login failure rate
   const totalLogins = metrics.deviceLogins + metrics.authFailures;

@@ -4,9 +4,9 @@
  */
 
 export interface PaymentData {
-  memberId: string;
+  invoiceId: string;
   paidMxnCents: number;
-  status: 'succeeded' | 'failed' | 'refunded';
+  status: 'requires_action' | 'succeeded' | 'failed' | 'refunded';
   provider: 'stripe' | 'mercadopago';
   providerRef: string;
   createdAt: Date;
@@ -46,7 +46,7 @@ export function createPaymentFactory() {
   ];
 
   return {
-    create(memberId: string, dateOffset?: number): PaymentData {
+    create(invoiceId: string, dateOffset?: number): PaymentData {
       // Generate payment date (within last 30 days if no offset provided)
       const maxDaysBack = dateOffset || 30;
       const daysBack = Math.floor(Math.random() * maxDaysBack);
@@ -71,7 +71,7 @@ export function createPaymentFactory() {
           : undefined;
 
       return {
-        memberId,
+        invoiceId,
         paidMxnCents: amount,
         status,
         provider,
