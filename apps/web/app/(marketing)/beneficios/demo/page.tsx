@@ -5,7 +5,8 @@ import { DemoClassPicker } from '../../../../components/marketing/DemoClassPicke
 import { DemoProgressMini } from '../../../../components/marketing/DemoProgressMini';
 import { TrackingProvider } from '../../../../components/marketing/TrackingProvider';
 
-// Client-only rendering for interactive demo
+// Force dynamic rendering for interactive demo
+export const dynamic = 'force-dynamic';
 export default function DemoPage() {
   return (
     <TrackingProvider>

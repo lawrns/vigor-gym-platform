@@ -30,8 +30,8 @@ export const metadata: Metadata = {
   },
 };
 
-// Enable ISR with 1 hour revalidation
-export const revalidate = 3600;
+// Force dynamic rendering due to client components
+export const dynamic = 'force-dynamic';
 
 export default function BeneficiosPage() {
   return (

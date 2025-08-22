@@ -31,7 +31,7 @@ const deviceAuthRateLimit = isTestMode
       standardHeaders: true,
       legacyHeaders: false,
       handler: async (req: Request, res: Response) => {
-        await logRateLimitHit('device.auth', req.ip, req.ip, req.get('User-Agent'));
+        await logRateLimitHit('device.auth', req.ip || 'unknown', req.ip || 'unknown', req.get('User-Agent'));
         res.status(429).json({
           message: 'Too many device authentication attempts, please try again later',
           code: 'RATE_LIMITED',
@@ -84,7 +84,7 @@ router.post(
       });
 
       // Log the action
-      await logTenantAction(req, 'device.registered', {
+      await logTenantAction(prisma, req, 'device.registered', 'device', device.id, undefined, {
         deviceId: device.id,
         deviceName: validatedData.name,
       });

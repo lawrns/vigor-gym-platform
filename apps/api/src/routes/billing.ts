@@ -91,7 +91,7 @@ router.post('/checkout/session', async (req: Request, res: Response) => {
 
     // Normalize response structure
     res.json({
-      sessionId: session.id,
+      sessionId: session.sessionId,
       url: session.url,
     });
   } catch (error) {

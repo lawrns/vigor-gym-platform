@@ -71,7 +71,7 @@ router.post('/', authRequired(['owner']), async (req: AuthenticatedRequest, res:
       'company.created',
       'company',
       result.id,
-      null,
+      undefined,
       {
         name: result.name,
         rfc: result.rfc,

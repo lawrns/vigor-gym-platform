@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithDevBypass, createSessionHeaders } from '../../../lib/auth/session.server';
 import { getStaffCoverage } from '../../../lib/dashboard/supabase-data-service';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     // Get session with development bypass support

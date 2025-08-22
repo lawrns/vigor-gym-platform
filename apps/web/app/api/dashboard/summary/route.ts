@@ -8,6 +8,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSessionWithDevBypass, createSessionHeaders } from '../../../../lib/auth/session.server';
+
+export const dynamic = 'force-dynamic';
 import {
   getDashboardSummary,
   getSampleCompanyId,

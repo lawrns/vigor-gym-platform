@@ -165,15 +165,15 @@ router.get(
       });
 
       const mrr = activeMemberships.reduce((total, membership) => {
-        if (membership.plan?.price) {
+        if (membership.plan?.priceMxnCents) {
           // Convert to monthly amount based on billing cycle
           const monthlyAmount =
-            membership.plan.billingCycle === 'MONTHLY'
+            membership.plan.billingCycle === 'monthly'
               ? membership.plan.priceMxnCents
-              : membership.plan.billingCycle === 'YEARLY'
+              : membership.plan.billingCycle === 'annual'
                 ? membership.plan.priceMxnCents / 12
                 : membership.plan.priceMxnCents; // Default to monthly
-          return total + monthlyAmount;
+          return total + (monthlyAmount || 0);
         }
         return total;
       }, 0);
@@ -235,7 +235,8 @@ router.get(
       );
 
       res.json(summary);
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       logger.error(
         { error: error.message, companyId: req.tenant?.companyId },
         'Dashboard summary error'
@@ -307,7 +308,8 @@ router.get(
               : 0,
         },
       });
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       logger.error(
         { error: error.message, companyId: req.tenant?.companyId },
         'Revenue analytics error'
@@ -409,7 +411,7 @@ router.get(
             payload: {
               visitId: visit.id,
               memberId: visit.membership.memberId,
-              memberName: `${visit.membership.member.firstName} ${visit.membership.member.lastName}`,
+              memberName: `${visit.membership.member?.firstName || ''} ${visit.membership.member?.lastName || ''}`,
               gymId: visit.gymId,
               gymName: visit.gym.name,
               checkinAt: visit.checkIn.toISOString(),
@@ -433,7 +435,7 @@ router.get(
             payload: {
               visitId: visit.id,
               memberId: visit.membership.memberId,
-              memberName: `${visit.membership.member.firstName} ${visit.membership.member.lastName}`,
+              memberName: `${visit.membership.member?.firstName || ''} ${visit.membership.member?.lastName || ''}`,
               gymId: visit.gymId,
               gymName: visit.gym.name,
               checkoutAt: visit.checkOut.toISOString(),
@@ -455,7 +457,8 @@ router.get(
         since: sinceDate.toISOString(),
         generatedAt: new Date().toISOString(),
       });
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       logger.error(
         { error: error.message, companyId: req.tenant?.companyId },
         'Dashboard activity error'

@@ -81,7 +81,7 @@ router.get(
       endOfDay.setHours(23, 59, 59, 999);
 
       // Get classes for the day (handle potential data corruption)
-      let classes = [];
+      let classes: any[] = [];
       try {
         classes = await prisma.class.findMany({
           where: {
@@ -118,7 +118,8 @@ router.get(
             startsAt: 'asc',
           },
         });
-      } catch (error) {
+      } catch (e) {
+        const error = e as Error;
         logger.warn(
           {
             error: error.message,
@@ -137,7 +138,7 @@ router.get(
       const classesWithStats = classes.map(classItem => {
         const allBookings = classItem.bookings;
         const confirmedBookings = allBookings.filter(
-          b => b.status === 'reserved' || b.status === 'confirmed'
+          (b: any) => b.status === 'reserved' || b.status === 'confirmed'
         );
 
         // Calculate estimated end time (assume 1 hour duration)
@@ -161,7 +162,7 @@ router.get(
               : 0,
           gym: classItem.gym,
           trainer: null, // Not available in current schema
-          bookings: confirmedBookings.map(booking => ({
+          bookings: confirmedBookings.map((booking: any) => ({
             id: booking.id,
             member: {
               id: booking.membership.member.id,
@@ -192,7 +193,8 @@ router.get(
               : 0,
         },
       });
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       logger.error(
         {
           error: error.message,
@@ -604,13 +606,14 @@ router.patch(
           attended: null, // Would be updated when schema supports it
           attendanceMarkedAt: null,
           member: {
-            id: booking.membership.member.id,
-            name: `${booking.membership.member.firstName} ${booking.membership.member.lastName}`,
+            id: booking.membership.member?.id || '',
+            name: `${booking.membership.member?.firstName || ''} ${booking.membership.member?.lastName || ''}`,
           },
         },
         note: 'Schema migration needed to support attendance tracking',
       });
-    } catch (error) {
+    } catch (e) {
+      const error = e as Error;
       logger.error(
         {
           error: error.message,

@@ -6,6 +6,8 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '../../../../lib/auth/session';
+
+export const dynamic = 'force-dynamic';
 import {
   getActivityEvents,
   getSampleCompanyId,

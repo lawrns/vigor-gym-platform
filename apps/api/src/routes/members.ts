@@ -153,7 +153,7 @@ router.post(
         'member.created',
         'member',
         member.id,
-        null,
+        undefined,
         {
           email: member.email,
           firstName: member.firstName,

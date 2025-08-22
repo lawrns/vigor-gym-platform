@@ -98,7 +98,7 @@ router.get('/activity', authRequired(), async (req: Request, res: Response) => {
           payload: {
             visitId: visit.id,
             memberId: visit.membership.memberId,
-            memberName: `${visit.membership.member.firstName} ${visit.membership.member.lastName}`,
+            memberName: `${visit.membership.member?.firstName || ''} ${visit.membership.member?.lastName || ''}`,
             gymId: visit.gymId,
             gymName: visit.gym.name,
             checkinAt: visit.checkIn.toISOString(),
@@ -122,7 +122,7 @@ router.get('/activity', authRequired(), async (req: Request, res: Response) => {
           payload: {
             visitId: visit.id,
             memberId: visit.membership.memberId,
-            memberName: `${visit.membership.member.firstName} ${visit.membership.member.lastName}`,
+            memberName: `${visit.membership.member?.firstName || ''} ${visit.membership.member?.lastName || ''}`,
             gymId: visit.gymId,
             gymName: visit.gym.name,
             checkoutAt: visit.checkOut.toISOString(),
@@ -156,9 +156,9 @@ router.get('/activity', authRequired(), async (req: Request, res: Response) => {
     });
 
     for (const membership of expiringMemberships) {
-      const daysLeft = Math.ceil(
+      const daysLeft = membership.endsAt ? Math.ceil(
         (membership.endsAt.getTime() - Date.now()) / (24 * 60 * 60 * 1000)
-      );
+      ) : 0;
 
       // Only include if expiring soon (within 7 days) for activity feed
       if (daysLeft <= 7) {
@@ -171,9 +171,9 @@ router.get('/activity', authRequired(), async (req: Request, res: Response) => {
           payload: {
             membershipId: membership.id,
             memberId: membership.memberId,
-            memberName: `${membership.member.firstName} ${membership.member.lastName}`,
+            memberName: `${membership.member?.firstName || ''} ${membership.member?.lastName || ''}`,
             planName: membership.plan.name,
-            expiresAt: membership.endsAt.toISOString(),
+            expiresAt: membership.endsAt?.toISOString() || '',
             daysLeft,
           },
         });
@@ -192,15 +192,7 @@ router.get('/activity', authRequired(), async (req: Request, res: Response) => {
         },
       },
       include: {
-        invoice: {
-          include: {
-            membership: {
-              include: {
-                member: true,
-              },
-            },
-          },
-        },
+        invoice: true,
       },
       orderBy: {
         createdAt: 'desc',
@@ -209,24 +201,20 @@ router.get('/activity', authRequired(), async (req: Request, res: Response) => {
     });
 
     for (const payment of recentFailedPayments) {
-      if (payment.invoice.membership) {
-        events.push({
-          id: `payment-failed-${payment.id}`,
-          type: 'payment.failed',
-          at: payment.createdAt.toISOString(),
-          orgId,
-          locationId: null, // Payments are org-wide
-          payload: {
-            paymentId: payment.id,
-            invoiceId: payment.invoiceId,
-            memberId: payment.invoice.membership.memberId,
-            memberName: `${payment.invoice.membership.member.firstName} ${payment.invoice.membership.member.lastName}`,
-            amountMxnCents: payment.paidMxnCents || 0,
-            reason: payment.failureReason || 'Unknown error',
-            retryCount: 0, // Would need to track this separately
-          },
-        });
-      }
+      events.push({
+        id: `payment-failed-${payment.id}`,
+        type: 'payment.failed',
+        at: payment.createdAt.toISOString(),
+        orgId,
+        locationId: null, // Payments are org-wide
+        payload: {
+          paymentId: payment.id,
+          invoiceId: payment.invoiceId,
+          amountMxnCents: payment.paidMxnCents || 0,
+          reason: 'Payment failed', // Simplified since failureReason doesn't exist
+          retryCount: 0, // Would need to track this separately
+        },
+      });
     }
 
     // Sort all events by timestamp (most recent first)
@@ -241,7 +229,8 @@ router.get('/activity', authRequired(), async (req: Request, res: Response) => {
       since: sinceDate.toISOString(),
       generatedAt: new Date().toISOString(),
     });
-  } catch (error) {
+  } catch (e) {
+    const error = e as Error;
     console.error('Dashboard activity error:', error);
     res.status(500).json({
       message: 'Failed to fetch dashboard activity',

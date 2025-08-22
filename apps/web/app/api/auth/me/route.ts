@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getServerSession } from '../../../../lib/auth/session';
 import { getUserById } from '../../../../lib/auth/supabase-auth';
 
+export const dynamic = 'force-dynamic';
+
 /**
  * GET /api/auth/me
  *
