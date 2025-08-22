@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useCallback } from 'react';
 import { Icons } from '../../lib/icons/registry';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/ui/Button';
 
 interface BodyScanCameraProps {
   onCapture: (imageData: string) => void;

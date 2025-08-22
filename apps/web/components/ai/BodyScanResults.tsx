@@ -1,7 +1,7 @@
 'use client';
 
 import { Icons } from '../../lib/icons/registry';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader } from '../ui/card';
 
 interface BodyScanResult {

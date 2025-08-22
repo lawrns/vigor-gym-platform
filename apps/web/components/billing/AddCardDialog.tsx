@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { apiClient, isAPIError } from '../../lib/api/client';
-import { Button } from '../ui/Button';
+import { Button } from '@/components/ui/Button';
 import { Icons } from '../../lib/icons/registry';
 
 // Initialize Stripe
