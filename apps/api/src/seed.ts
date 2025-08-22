@@ -628,24 +628,24 @@ async function createPaymentsAndInvoices(members: any[], plans: any[], days: num
       const variation = 0.8 + Math.random() * 0.4; // ±20% variation
       const amount = Math.floor(baseAmount * variation);
 
-      const payment = await prisma.payment.create({
+      // Create invoice first
+      const invoice = await prisma.invoice.create({
         data: {
-          memberId: member.id,
-          paidMxnCents: status === 'succeeded' ? amount : 0,
-          status,
-          provider: Math.random() > 0.5 ? 'stripe' : 'mercadopago',
+          companyId: member.companyId,
+          totalMxnCents: amount,
+          status: status === 'succeeded' ? 'paid' : status === 'failed' ? 'issued' : 'void',
           createdAt: paymentDate,
         },
       });
 
-      // Create corresponding invoice
-      await prisma.invoice.create({
+      // Create payment linked to invoice
+      const payment = await prisma.payment.create({
         data: {
-          memberId: member.id,
-          companyId: member.companyId,
-          totalMxnCents: amount,
-          status: status === 'succeeded' ? 'paid' : status === 'failed' ? 'issued' : 'void',
-          dueAt: paymentDate,
+          invoiceId: invoice.id,
+          paidMxnCents: status === 'succeeded' ? amount : 0,
+          status,
+          provider: Math.random() > 0.5 ? 'stripe' : 'mercadopago',
+          providerRef: `${Math.random() > 0.5 ? 'stripe' : 'mp'}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           createdAt: paymentDate,
         },
       });

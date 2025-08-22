@@ -213,9 +213,9 @@ export function createPaymentFactory() {
  */
 export function validatePaymentData(payment: PaymentData): boolean {
   return !!(
-    payment.memberId &&
+    payment.invoiceId &&
     payment.paidMxnCents > 0 &&
-    ['succeeded', 'failed', 'refunded'].includes(payment.status) &&
+    ['requires_action', 'succeeded', 'failed', 'refunded'].includes(payment.status) &&
     ['stripe', 'mercadopago'].includes(payment.provider) &&
     payment.providerRef &&
     payment.createdAt instanceof Date
