@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '../../../../lib/auth/context';
 import { ChurnDashboard } from '../../../../components/analytics/ChurnDashboard';
 import { VisitsByDay } from '../../../../components/dashboard/VisitsByDay';
-import { Button } from '../../../../components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { Icons } from '../../../../lib/icons/registry';
 
 type AnalyticsTab = 'overview' | 'churn' | 'revenue' | 'engagement';

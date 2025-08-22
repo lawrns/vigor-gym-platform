@@ -5,7 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '../../../../../../lib/auth/context';
 import { apiClient, isAPIError } from '../../../../../../lib/api/client';
 import { PaymentMethod } from '../../../../../../lib/api/types';
-import { Button } from '../../../../../../components/ui/Button';
+import { Button } from '@/components/ui/Button';
 import { Card, CardContent, CardHeader } from '../../../../../../components/ui/card';
 import { Icons } from '../../../../../../lib/icons/registry';
 import { AddCardDialog } from '../../../../../../components/billing/AddCardDialog';
