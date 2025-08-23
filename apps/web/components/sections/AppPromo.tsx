@@ -13,7 +13,7 @@ export function AppPromo({
   appBadges?: boolean;
 }) {
   return (
-    <section className="max-w-6xl mx-auto px-4 py-12 grid md:grid-cols-2 gap-6 items-center">
+    <section className="max-w-6xl mx-auto px-4 py-8 grid md:grid-cols-2 gap-6 items-center">
       <div className="rounded-xl border border-[var(--outline)] bg-[var(--surface)] p-6">
         <h3 className="font-display text-2xl text-heading">{title}</h3>
         <p className="text-text/85 mt-2">{subtitle}</p>
@@ -34,13 +34,13 @@ export function AppPromo({
           </div>
         )}
       </div>
-      <div className="relative h-[420px] flex items-center justify-center">
+      <div className="relative h-[350px] flex items-center justify-center">
         <Image
           src={appImage}
           alt="App móvil de GoGym"
-          width={300}
-          height={400}
-          sizes="(min-width:1024px) 300px, 250px"
+          width={510}
+          height={680}
+          sizes="(min-width:1024px) 510px, 425px"
           className="object-contain max-h-full"
         />
       </div>
