@@ -1,5 +1,8 @@
 import Image from 'next/image';
 
+// Static import for reliable logo loading
+import logoImage from '@/public/images/gogym.png';
+
 type Column = { title: string; links: [string, string][] };
 
 export function Footer({ columns, bottom }: { columns?: Column[]; bottom?: string }) {
@@ -8,7 +11,7 @@ export function Footer({ columns, bottom }: { columns?: Column[]; bottom?: strin
       <div className="max-w-6xl mx-auto px-4 py-10 grid md:grid-cols-4 gap-8 text-sm">
         <div>
           <Image
-            src="/images/gogym.png"
+            src={logoImage}
             alt="GoGym"
             width={100}
             height={32}

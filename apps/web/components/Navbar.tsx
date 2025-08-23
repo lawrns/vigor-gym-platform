@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import Image from 'next/image';
 
+// Static import for reliable logo loading
+import logoImage from '@/public/images/gogym.png';
+
 type Role = 'owner' | 'manager' | 'trainer' | 'staff' | 'member' | 'superadmin';
 
 type NavLink = { href: string; label: string; roles?: Role[] };
@@ -20,7 +23,7 @@ export function Navbar({
       <div className="max-w-6xl mx-auto h-[72px] flex items-center justify-between px-4">
         <Link href="/" className="flex items-center">
           <Image
-            src="/images/gogym.png"
+            src={logoImage}
             alt="GoGym"
             width={100}
             height={32}

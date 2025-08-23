@@ -1,6 +1,10 @@
 import { Icons } from '../../lib/icons/registry';
 import Image from 'next/image';
 
+// Static imports for reliable image loading
+import heroDashboard from '@/public/images/hero-dashboard.webp';
+import heroApp from '@/public/images/hero-app.webp';
+
 type Cta = { label: string; href: string; variant?: 'primary' | 'ghost'; ['data-cta']?: string };
 type Trust = { icon: keyof typeof Icons; label: string };
 
@@ -82,28 +86,24 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
         <div className="grid gap-4">
           <div className="relative h-[340px] md:h-[440px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
             <Image
-              src={config.image?.src || '/images/hero-dashboard.webp'}
+              src={config.image?.src || heroDashboard}
               alt={config.image?.alt || 'Vista del dashboard de Vigor'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
               priority
               unoptimized
-              placeholder="blur"
-              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAyNCcgaGVpZ2h0PSc1NzYnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzEwMjQnIGhlaWdodD0nNTc2JyBmaWxsPScjZjJmNGY4Jy8+PC9zdmc+"
             />
           </div>
           <div className="hidden md:block relative h-[180px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
             <Image
-              src={'/images/hero-app.webp'}
+              src={heroApp}
               alt={'App móvil de Vigor'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               unoptimized
               className="object-cover"
               priority={false}
-              placeholder="blur"
-              blurDataURL="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0nMTAyNCcgaGVpZ2h0PScxODAnIHhtbG5zPSdodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2Zyc+PHJlY3Qgd2lkdGg9JzEwMjQnIGhlaWdodD0nMTgwJyBmaWxsPScjZjFmMmZmJy8+PC9zdmc+"
             />
           </div>
         </div>
