@@ -1,41 +1,18 @@
 [build]
-  # Build command for monorepo - create symlink for node_modules and build
-  command = "npm install && cd apps/web && ln -sf ../../node_modules . && npm run build"
-
-  # Publish directory (Next.js output with Netlify plugin)
+  command = "npm ci && npm --prefix apps/web run build"
   publish = "apps/web/.next"
 
-  # Base directory for the build
-  base = "."
-
 [build.environment]
-  # Node.js version
   NODE_VERSION = "20"
-  
-  # Build optimizations
-  NPM_FLAGS = "--legacy-peer-deps"
-  NEXT_TELEMETRY_DISABLED = "1"
 
-# Next.js plugin configuration
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-  [plugins.inputs]
-    # Tell the plugin where to find the Next.js app in monorepo
-    distDir = "apps/web/.next"
-
-# Static assets served directly (no image optimization)
+# Static assets served directly
 [[headers]]
   for = "/images/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
-
-# Redirect rules for SPA routing (exclude static assets)
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
 
 # Security headers
 [[headers]]
