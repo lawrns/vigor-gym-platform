@@ -45,11 +45,24 @@ export function generateTokens(user: {
     companyId: user.companyId,
   };
 
+  // JWT signing options with issuer and audience claims
+  const jwtOptions = {
+    issuer: process.env.JWT_ISSUER || 'gogym-web',
+    audience: process.env.JWT_AUDIENCE || 'gogym-api',
+    algorithm: 'HS256' as const,
+  };
+
   // Short-lived access token (15 minutes)
-  const accessToken = jwt.sign(payload, jwtSecret, { expiresIn: '15m' });
+  const accessToken = jwt.sign(payload, jwtSecret, {
+    ...jwtOptions,
+    expiresIn: '15m'
+  });
 
   // Long-lived refresh token (7 days)
-  const refreshToken = jwt.sign(payload, jwtSecret, { expiresIn: '7d' });
+  const refreshToken = jwt.sign(payload, jwtSecret, {
+    ...jwtOptions,
+    expiresIn: '7d'
+  });
 
   return { accessToken, refreshToken };
 }
