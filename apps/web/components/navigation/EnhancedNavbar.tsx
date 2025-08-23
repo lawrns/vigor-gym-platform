@@ -16,6 +16,7 @@ export async function EnhancedNavbar({}: EnhancedNavbarProps) {
 
   try {
     session = await getServerSession();
+    console.log('[EnhancedNavbar] Server session result:', session ? { email: session.email, role: session.role } : 'null');
   } catch (error) {
     console.warn('[EnhancedNavbar] Session error:', error);
     // Continue with null session - navigation will show public links
@@ -39,7 +40,7 @@ export async function EnhancedNavbar({}: EnhancedNavbarProps) {
 
           <div className="flex items-center gap-6">
             {/* Session Chip for debugging */}
-            {process.env.NEXT_PUBLIC_DEBUG === '1' && session && (
+            {session && (
               <div
                 data-testid="session-chip"
                 className="hidden lg:flex items-center px-2 py-1 bg-blue-50 dark:bg-blue-900/20 rounded text-xs text-blue-700 dark:text-blue-300"

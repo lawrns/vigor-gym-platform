@@ -55,8 +55,8 @@ export function DashboardV2Client({ locationId }: DashboardV2ClientProps = {}) {
       <ClassRosterToday locationId={locationId} />
 
       {/* Bottom Row - Staff Coverage and Activity Feed */}
-      <StaffCoverageTimeline locationId={locationId} />
-      <LiveActivityFeed locationId={locationId} />
+      <StaffCoverageTimeline locationId={locationId} className="col-span-1 md:col-span-6 lg:col-span-7" />
+      <LiveActivityFeed locationId={locationId} className="col-span-1 md:col-span-6 lg:col-span-5" />
     </DashboardShell>
   );
 }
