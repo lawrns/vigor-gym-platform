@@ -1,7 +1,7 @@
 import Image from 'next/image';
 
 // Static import for reliable image loading
-import heroFitnessImage from '@/public/images/hero-fitness.webp';
+import appImage from '@/public/images/app.png';
 
 export function AppPromo({
   title,
@@ -36,8 +36,8 @@ export function AppPromo({
       </div>
       <div className="relative h-[420px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
         <Image
-          src={heroFitnessImage}
-          alt="Entrenamiento corporativo"
+          src={appImage}
+          alt="App móvil de GoGym"
           fill
           sizes="(min-width:1024px) 600px, 90vw"
           className="object-cover"
