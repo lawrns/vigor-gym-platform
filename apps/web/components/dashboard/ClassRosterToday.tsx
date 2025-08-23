@@ -116,22 +116,39 @@ export function ClassRosterToday({ locationId, className }: ClassRosterTodayProp
         locationId: locationId || undefined,
       });
 
-      // Calculate summary from the classes array
-      const totalBooked = result.reduce((sum, cls) => sum + cls.booked, 0);
-      const totalCapacity = result.reduce((sum, cls) => sum + cls.capacity, 0);
-      const averageUtilization = totalCapacity > 0 ? Math.round((totalBooked / totalCapacity) * 100) : 0;
+      // Handle the Railway API response format which has a different structure
+      // Railway API returns: { classes: [...], summary: {...}, date: "...", total: 123 }
+      // But the old Supabase format was just an array
+      let classesData;
+      let summaryData;
 
-      // Add summary to the data
-      const dataWithSummary = {
-        classes: result,
-        summary: {
+      if (Array.isArray(result)) {
+        // Legacy format (direct array) - calculate summary
+        classesData = result;
+        const totalBooked = result.reduce((sum, cls) => sum + cls.booked, 0);
+        const totalCapacity = result.reduce((sum, cls) => sum + cls.capacity, 0);
+        const averageUtilization = totalCapacity > 0 ? Math.round((totalBooked / totalCapacity) * 100) : 0;
+
+        summaryData = {
           totalBooked,
           totalCapacity,
           averageUtilization
-        }
-      };
+        };
+      } else {
+        // New Railway API format (object with classes property)
+        classesData = result.classes || [];
+        summaryData = result.summary || {
+          totalBooked: 0,
+          totalCapacity: 0,
+          averageUtilization: 0
+        };
+      }
 
-      setData(dataWithSummary);
+      // Set the data in the expected format
+      setData({
+        classes: classesData,
+        summary: summaryData
+      });
     } catch (err) {
       console.error('Error fetching class roster:', err);
       setError(err instanceof Error ? err.message : 'Failed to load class roster');

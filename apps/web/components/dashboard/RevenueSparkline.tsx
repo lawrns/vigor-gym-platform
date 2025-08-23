@@ -32,7 +32,39 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
         period: selectedPeriod,
         locationId: locationId || undefined,
       });
-      setData(result);
+
+      // Handle the Railway API response format which has a different structure
+      // Railway API returns: { dailyRevenue: [...], summary: {...}, sparklineData: [...], period: "7d", dateRange: {...} }
+      // But the frontend expects: { totalRevenue: number, dataPoints: [...], growth: {...}, ... }
+      let adaptedData: RevenueAnalytics;
+
+      if ('dailyRevenue' in result) {
+        // New Railway API format - adapt to expected format
+        const railwayData = result as any;
+        adaptedData = {
+          totalRevenue: railwayData.summary?.totalRevenue || 0,
+          currency: 'MXN',
+          period: {
+            start: railwayData.dateRange?.from || new Date().toISOString(),
+            end: railwayData.dateRange?.to || new Date().toISOString(),
+          },
+          dataPoints: railwayData.dailyRevenue?.map((day: any) => ({
+            date: day.date,
+            amount: day.amount,
+            currency: 'MXN',
+          })) || [],
+          growth: railwayData.summary?.growthPercent !== undefined ? {
+            percentage: railwayData.summary.growthPercent,
+            trend: railwayData.summary.growthPercent > 0 ? 'up' as const :
+                   railwayData.summary.growthPercent < 0 ? 'down' as const : 'stable' as const,
+          } : undefined,
+        };
+      } else {
+        // Legacy format (already in expected format)
+        adaptedData = result as RevenueAnalytics;
+      }
+
+      setData(adaptedData);
     } catch (err) {
       console.error('Error fetching revenue trends:', err);
       setError(err instanceof Error ? err.message : 'Failed to load revenue trends');
@@ -209,14 +241,14 @@ export function RevenueSparkline({ locationId, className }: RevenueSparklineProp
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900 dark:text-white">
               {formatLargeNumber(
-                data.dataPoints.length > 0 ? data.totalRevenue / data.dataPoints.length : 0
+                data.dataPoints && data.dataPoints.length > 0 ? data.totalRevenue / data.dataPoints.length : 0
               )}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">Promedio diario</div>
           </div>
           <div className="text-center">
             <div className="text-lg font-semibold text-gray-900 dark:text-white">
-              {data.dataPoints.length}
+              {data.dataPoints ? data.dataPoints.length : 0}
             </div>
             <div className="text-xs text-gray-500 dark:text-gray-400">Días con datos</div>
           </div>
