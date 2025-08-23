@@ -7,12 +7,12 @@
     "packages/*"
   ],
   "engines": {
-    "node": ">=20.0.0"
+    "node": ">=22.13.0"
   },
   "packageManager": "npm@10.0.0",
   "scripts": {
-    "build": "npm run build -w @gogym/api && npm run build -w @vigor/web && npm run build -w @gogym/mobile",
-    "dev": "PORT=4001 npm run dev -w @gogym/api & npm run dev -w @vigor/web",
+    "build": "npm run build -w @gogym/api && npm run build -w @gogym/web && npm run build -w @gogym/mobile",
+    "dev": "PORT=4001 npm run dev -w @gogym/api & npm run dev -w @gogym/web",
     "typecheck": "npm -ws run typecheck",
     "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
