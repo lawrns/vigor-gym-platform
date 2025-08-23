@@ -38,3 +38,6 @@
 
 [context.branch-deploy.environment]
   NEXT_PUBLIC_APP_ENV = "development"
+
+# Ensure no catch-all redirects interfere with static files
+# The Next.js plugin handles routing automatically
