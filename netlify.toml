@@ -1,12 +1,12 @@
 [build]
-  # Base directory for monorepo - points to the Next.js app
-  base = "apps/web"
-
-  # Build command for the web app
-  command = "npm run build"
+  # Build command for monorepo - use workspace syntax
+  command = "npm install && npm run build -w @vigor/web"
 
   # Publish directory (Next.js output with Netlify plugin)
-  publish = ".next"
+  publish = "apps/web/.next"
+
+  # Base directory for the build
+  base = "."
 
 [build.environment]
   # Node.js version
