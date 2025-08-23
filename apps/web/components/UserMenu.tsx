@@ -5,12 +5,40 @@ import Link from 'next/link';
 import { Icons } from '../lib/icons/registry';
 import { SessionUser } from '../lib/auth/session';
 
+// Client-side User type from auth context
+interface ClientUser {
+  id: string;
+  email: string;
+  fullName: string;
+  role: string;
+  firstName?: string;
+  lastName?: string;
+  company?: {
+    id: string;
+    name: string;
+    rfc: string;
+  } | null;
+}
+
 interface UserMenuProps {
-  user: SessionUser;
+  user: SessionUser | ClientUser;
 }
 
 export function UserMenu({ user }: UserMenuProps) {
   const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // Helper to determine if this is a client-side user or server-side session user
+  const isClientUser = (u: SessionUser | ClientUser): u is ClientUser => {
+    return 'id' in u && 'fullName' in u;
+  };
+
+  const getUserEmail = () => {
+    return user.email;
+  };
+
+  const getUserRole = () => {
+    return user.role;
+  };
 
   const handleLogout = async () => {
     try {
@@ -52,8 +80,8 @@ export function UserMenu({ user }: UserMenuProps) {
           {/* Menu */}
           <div className="absolute right-0 mt-2 w-64 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 z-20">
             <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-              <p className="text-sm font-medium text-gray-900 dark:text-white">{user.email}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{user.role}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white">{getUserEmail()}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{getUserRole()}</p>
             </div>
 
             <div className="py-2">
