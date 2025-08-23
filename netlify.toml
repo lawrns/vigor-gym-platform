@@ -1,12 +1,12 @@
 [build]
-  # Base directory for monorepo - points to the Next.js app
-  base = "apps/web"
-
-  # Build command for the web app
-  command = "npm install && npm run build"
+  # Build command for monorepo - create symlink for node_modules and build
+  command = "npm install && cd apps/web && ln -sf ../../node_modules . && npm run build"
 
   # Publish directory (Next.js output with Netlify plugin)
-  publish = ".next"
+  publish = "apps/web/.next"
+
+  # Base directory for the build
+  base = "."
 
 [build.environment]
   # Node.js version
@@ -19,6 +19,10 @@
 # Next.js plugin configuration
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+  [plugins.inputs]
+    # Tell the plugin where to find the Next.js app in monorepo
+    distDir = "apps/web/.next"
 
 # Static assets served directly (no image optimization)
 [[headers]]
