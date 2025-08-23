@@ -4,6 +4,7 @@ import Image from 'next/image';
 // Static imports for reliable image loading
 import heroDashboard from '@/public/images/hero-dashboard.webp';
 import heroApp from '@/public/images/hero-app.webp';
+import adonisImage from '@/public/images/adonis.png';
 import heroFitnessImage from '@/public/images/hero-fitness.webp';
 import appImage from '@/public/images/app.png';
 
@@ -90,10 +91,10 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
             <Image
               src={
                 config.image?.src === 'static-import' || !config.image?.src || config.image?.src.startsWith('/images/')
-                  ? heroFitnessImage
+                  ? adonisImage
                   : config.image.src
               }
-              alt={config.image?.alt || 'Entrenamiento en gimnasio'}
+              alt={config.image?.alt || 'Vista del dashboard de GoGym'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
@@ -103,8 +104,8 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
           </div>
           <div className="hidden md:block relative h-[180px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
             <Image
-              src={appImage}
-              alt={'App móvil de GoGym'}
+              src={heroFitnessImage}
+              alt={'Entrenamiento en gimnasio'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               unoptimized
