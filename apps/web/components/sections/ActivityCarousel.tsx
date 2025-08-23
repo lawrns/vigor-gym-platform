@@ -54,12 +54,13 @@ export function ActivityCarousel({ title, items }: { title: string; items: Item[
             <div className="relative aspect-[4/3]">
               <Image
                 src={
-                  it.image ||
-                  (i % 3 === 0
-                    ? activityA
-                    : i % 3 === 1
-                      ? activityB
-                      : activityC)
+                  it.image === 'static-import' || !it.image || it.image.startsWith('/images/')
+                    ? (i % 3 === 0
+                        ? activityA
+                        : i % 3 === 1
+                          ? activityB
+                          : activityC)
+                    : it.image
                 }
                 alt={it.label}
                 fill

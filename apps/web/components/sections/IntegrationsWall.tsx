@@ -1,6 +1,9 @@
 import { Icons } from '../../lib/icons/registry';
 import Image from 'next/image';
 
+// Static import for fallback logo
+import logo1Image from '@/public/images/logo-1.webp';
+
 type Integration = {
   name: string;
   logo: string;
@@ -68,9 +71,9 @@ export function IntegrationsWall({ title, subtitle, integrations }: Integrations
                   >
                     {/* Integration Logo */}
                     <div className="flex items-center justify-center h-12 mb-3">
-                      {integration.logo.startsWith('/') ? (
+                      {integration.logo === 'static-import' || integration.logo.startsWith('/images/') ? (
                         <Image
-                          src={integration.logo}
+                          src={logo1Image}
                           alt={`${integration.name} logo`}
                           width={48}
                           height={48}

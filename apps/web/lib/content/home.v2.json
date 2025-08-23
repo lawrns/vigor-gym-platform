@@ -29,7 +29,7 @@
   },
   "HeroCinematic": {
     "bg": "@gradient.hero",
-    "image": { "src": "/images/hero-dashboard.webp", "alt": "Vista del dashboard de Vigor" },
+    "image": { "src": "static-import", "alt": "Vista del dashboard de Vigor" },
     "left": {
       "eyebrow": "Plataforma corporativa de fitness y bienestar",
       "title": "La forma más fácil de ofrecer gimnasios y salud mental a tu equipo",
@@ -46,10 +46,10 @@
   "ActivityCarousel": {
     "title": "Más de 250 actividades",
     "items": [
-      { "label": "Hipertrofia", "image": "/images/activity-a.png" },
-      { "label": "Pilates", "image": "/images/activity-b.png" },
-      { "label": "Natación", "image": "/images/activity-c.png" },
-      { "label": "Circuit Training", "image": "/images/activity-a.png" }
+      { "label": "Hipertrofia", "image": "static-import" },
+      { "label": "Pilates", "image": "static-import" },
+      { "label": "Natación", "image": "static-import" },
+      { "label": "Circuit Training", "image": "static-import" }
     ]
   },
   "AppPromo": {
@@ -68,11 +68,11 @@
   "LogoMarquee": {
     "title": "Confiado por empresas innovadoras",
     "logos": [
-      "/images/logo-1.png",
-      "/images/logo-1.png",
-      "/images/logo-1.png",
-      "/images/logo-1.png",
-      "/images/logo-1.png"
+      "static-import",
+      "static-import",
+      "static-import",
+      "static-import",
+      "static-import"
     ]
   },
   "PlansV2": {
@@ -182,28 +182,28 @@
     "title": "Integraciones que potencian tu gimnasio",
     "subtitle": "Conecta con las herramientas que ya usas para crear un ecosistema completo de gestión",
     "integrations": [
-      { "name": "Stripe", "logo": "/images/integrations/stripe.png", "category": "Pagos", "status": "available" },
-      { "name": "Mercado Pago", "logo": "/images/integrations/mercadopago.png", "category": "Pagos", "status": "available" },
-      { "name": "OXXO Pay", "logo": "/images/integrations/oxxo.png", "category": "Pagos", "status": "available" },
-      { "name": "SPEI", "logo": "/images/integrations/spei.png", "category": "Pagos", "status": "available" },
-      { "name": "WhatsApp Business", "logo": "/images/integrations/whatsapp.png", "category": "Comunicación", "status": "available" },
-      { "name": "Twilio SMS", "logo": "/images/integrations/twilio.png", "category": "Comunicación", "status": "available" },
-      { "name": "SendGrid", "logo": "/images/integrations/sendgrid.png", "category": "Comunicación", "status": "available" },
-      { "name": "Mailchimp", "logo": "/images/integrations/mailchimp.png", "category": "Comunicación", "status": "coming_soon" },
-      { "name": "QuickBooks", "logo": "/images/integrations/quickbooks.png", "category": "Contabilidad", "status": "available" },
-      { "name": "SAT CFDI", "logo": "/images/integrations/sat.png", "category": "Contabilidad", "status": "available" },
-      { "name": "Aspel", "logo": "/images/integrations/aspel.png", "category": "Contabilidad", "status": "coming_soon" },
-      { "name": "ContPAQi", "logo": "/images/integrations/contpaqi.png", "category": "Contabilidad", "status": "coming_soon" },
-      { "name": "Google Analytics", "logo": "/images/integrations/analytics.png", "category": "Analytics", "status": "available" },
-      { "name": "Facebook Pixel", "logo": "/images/integrations/facebook.png", "category": "Analytics", "status": "available" },
-      { "name": "PostHog", "logo": "/images/integrations/posthog.png", "category": "Analytics", "status": "available" },
-      { "name": "Mixpanel", "logo": "/images/integrations/mixpanel.png", "category": "Analytics", "status": "coming_soon" },
-      { "name": "Zapier", "logo": "/images/integrations/zapier.png", "category": "Automatización", "status": "available" },
-      { "name": "Make (Integromat)", "logo": "/images/integrations/make.png", "category": "Automatización", "status": "available" },
-      { "name": "Power Automate", "logo": "/images/integrations/powerautomate.png", "category": "Automatización", "status": "coming_soon" },
-      { "name": "Slack", "logo": "/images/integrations/slack.png", "category": "Productividad", "status": "available" },
-      { "name": "Microsoft Teams", "logo": "/images/integrations/teams.png", "category": "Productividad", "status": "coming_soon" },
-      { "name": "Notion", "logo": "/images/integrations/notion.png", "category": "Productividad", "status": "coming_soon" }
+      { "name": "Stripe", "logo": "static-import", "category": "Pagos", "status": "available" },
+      { "name": "Mercado Pago", "logo": "static-import", "category": "Pagos", "status": "available" },
+      { "name": "OXXO Pay", "logo": "static-import", "category": "Pagos", "status": "available" },
+      { "name": "SPEI", "logo": "static-import", "category": "Pagos", "status": "available" },
+      { "name": "WhatsApp Business", "logo": "static-import", "category": "Comunicación", "status": "available" },
+      { "name": "Twilio SMS", "logo": "static-import", "category": "Comunicación", "status": "available" },
+      { "name": "SendGrid", "logo": "static-import", "category": "Comunicación", "status": "available" },
+      { "name": "Mailchimp", "logo": "static-import", "category": "Comunicación", "status": "coming_soon" },
+      { "name": "QuickBooks", "logo": "static-import", "category": "Contabilidad", "status": "available" },
+      { "name": "SAT CFDI", "logo": "static-import", "category": "Contabilidad", "status": "available" },
+      { "name": "Aspel", "logo": "static-import", "category": "Contabilidad", "status": "coming_soon" },
+      { "name": "ContPAQi", "logo": "static-import", "category": "Contabilidad", "status": "coming_soon" },
+      { "name": "Google Analytics", "logo": "static-import", "category": "Analytics", "status": "available" },
+      { "name": "Facebook Pixel", "logo": "static-import", "category": "Analytics", "status": "available" },
+      { "name": "PostHog", "logo": "static-import", "category": "Analytics", "status": "available" },
+      { "name": "Mixpanel", "logo": "static-import", "category": "Analytics", "status": "coming_soon" },
+      { "name": "Zapier", "logo": "static-import", "category": "Automatización", "status": "available" },
+      { "name": "Make (Integromat)", "logo": "static-import", "category": "Automatización", "status": "available" },
+      { "name": "Power Automate", "logo": "static-import", "category": "Automatización", "status": "coming_soon" },
+      { "name": "Slack", "logo": "static-import", "category": "Productividad", "status": "available" },
+      { "name": "Microsoft Teams", "logo": "static-import", "category": "Productividad", "status": "coming_soon" },
+      { "name": "Notion", "logo": "static-import", "category": "Productividad", "status": "coming_soon" }
     ]
   },
   "ComplianceRibbon": {

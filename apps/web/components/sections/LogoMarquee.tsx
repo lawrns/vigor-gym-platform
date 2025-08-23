@@ -1,5 +1,8 @@
 import Image from 'next/image';
 
+// Static import for reliable logo loading
+import logo1Image from '@/public/images/logo-1.webp';
+
 export function LogoMarquee({ title, logos }: { title?: string; logos: string[] }) {
   return (
     <section className="max-w-6xl mx-auto px-4 py-8">
@@ -8,12 +11,12 @@ export function LogoMarquee({ title, logos }: { title?: string; logos: string[] 
         {logos.map((src, i) => (
           <div key={i} className="flex justify-center">
             <Image
-              src={src}
+              src={src === 'static-import' || src.startsWith('/images/') ? logo1Image : src}
               alt=""
               aria-hidden
               width={120}
               height={40}
-              className="rounded-md object-cover opacity-75"
+              className="rounded-md object-contain opacity-75 hover:opacity-100 transition-opacity duration-200"
             />
           </div>
         ))}

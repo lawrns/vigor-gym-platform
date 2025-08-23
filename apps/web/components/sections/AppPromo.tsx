@@ -1,5 +1,8 @@
 import Image from 'next/image';
 
+// Static import for reliable image loading
+import heroFitnessImage from '@/public/images/hero-fitness.webp';
+
 export function AppPromo({
   title,
   subtitle,
@@ -33,7 +36,7 @@ export function AppPromo({
       </div>
       <div className="relative h-[420px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
         <Image
-          src="/images/hero-fitness.webp"
+          src={heroFitnessImage}
           alt="Entrenamiento corporativo"
           fill
           sizes="(min-width:1024px) 600px, 90vw"

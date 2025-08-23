@@ -89,12 +89,13 @@ export function FeaturesAndActivitiesShowcase({
               <div className="relative aspect-[4/3]">
                 <Image
                   src={
-                    item.image ||
-                    (i % 3 === 0
-                      ? activityA
-                      : i % 3 === 1
-                        ? activityB
-                        : activityC)
+                    item.image === 'static-import' || !item.image || item.image.startsWith('/images/')
+                      ? (i % 3 === 0
+                          ? activityA
+                          : i % 3 === 1
+                            ? activityB
+                            : activityC)
+                      : item.image
                   }
                   alt={item.label}
                   fill
