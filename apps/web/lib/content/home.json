@@ -74,7 +74,7 @@
     ]
   },
   "howItWorks": {
-    "title": "¿Cómo funciona Vigor?",
+    "title": "¿Cómo funciona GoGym?",
     "steps": [
       { "icon": "Building2", "title": "Activa tu empresa", "desc": "Configura membresías y políticas." },
       { "icon": "Users", "title": "Invita a tu equipo", "desc": "Asignación y control por colaborador." },
@@ -110,7 +110,7 @@
       { "title": "Empresa", "links": [["Nosotros", "/about"], ["Contacto", "/contacto"], ["Términos", "/terminos"], ["Privacidad", "/privacidad"]] },
       { "title": "Recursos", "links": [["Blog", "/blog"], ["Ayuda", "/help"], ["Estado", "/status"]] }
     ],
-    "bottom": "© Vigor — Plataforma de gestión de gimnasios para México"
+    "bottom": "© GoGym — Plataforma de gestión de gimnasios para México"
   }
 }
 

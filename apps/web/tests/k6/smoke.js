@@ -41,7 +41,7 @@ export default function () {
 
   const homePageOk = check(response, {
     'homepage status is 200': r => r.status === 200,
-    'homepage contains Vigor': r => r.body.includes('Vigor'),
+    'homepage contains GoGym': r => r.body.includes('GoGym'),
     'homepage loads under 2s': r => r.timings.duration < 2000,
   });
 

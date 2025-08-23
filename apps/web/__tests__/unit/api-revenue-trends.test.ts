@@ -5,7 +5,7 @@
 
 import { NextRequest } from 'next/server';
 import { GET } from '../../app/api/revenue/trends/route';
-import { RevenueAnalyticsSchema } from '@vigor/shared';
+import { RevenueAnalyticsSchema } from '@gogym/shared';
 
 // Mock the session module
 jest.mock('../../lib/auth/session.server', () => ({

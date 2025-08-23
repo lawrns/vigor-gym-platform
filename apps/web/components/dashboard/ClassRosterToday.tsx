@@ -10,7 +10,7 @@ import React, { useState, useEffect } from 'react';
 import { Icons } from '../../lib/icons/registry';
 import { Widget, WidgetEmpty } from './DashboardShell';
 import { apiClient } from '../../lib/api/client';
-import type { ClassesToday } from '@vigor/shared';
+import type { ClassesToday } from '@gogym/shared';
 
 interface ClassItem {
   id: string;

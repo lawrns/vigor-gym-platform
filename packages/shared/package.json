@@ -1,5 +1,5 @@
 {
-  "name": "@vigor/shared",
+  "name": "@gogym/shared",
   "version": "0.0.0",
   "type": "module",
   "main": "dist/index.js",

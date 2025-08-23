@@ -29,11 +29,11 @@
   },
   "HeroCinematic": {
     "bg": "@gradient.hero",
-    "image": { "src": "static-import", "alt": "Vista del dashboard de Vigor" },
+    "image": { "src": "static-import", "alt": "Vista del dashboard de GoGym" },
     "left": {
-      "eyebrow": "Plataforma corporativa de fitness y bienestar",
-      "title": "La forma más fácil de ofrecer gimnasios y salud mental a tu equipo",
-      "subtitle": "Conecta a tus colaboradores con +4,500 gimnasios, clases en vivo y recursos de salud mental. Facturación CFDI 4.0 y reportes claros para tu empresa.",
+      "eyebrow": "Plataforma todo-en-uno para gimnasios",
+      "title": "El todo-en-uno para administrar y hacer crecer tu gimnasio",
+      "subtitle": "Simplifica inscripciones, pagos y membresías con una sola plataforma. Facturación CFDI 4.0, reportes en tiempo real y apps para tus clientes.",
       "primaryCta": { "label": "Solicitar demo", "href": "/demo", "data-cta": "hero-primary" },
       "secondaryCta": { "label": "Ver planes", "href": "#planes", "variant": "secondary", "data-cta": "hero-secondary" },
       "trustBadges": [
@@ -68,7 +68,6 @@
   "LogoMarquee": {
     "title": "Confiado por empresas innovadoras",
     "logos": [
-      "static-import",
       "static-import",
       "static-import",
       "static-import",
@@ -129,7 +128,7 @@
     "footnote": "Resultados reales; pueden variar según el caso."
   },
   "HowItWorks": {
-    "title": "¿Cómo funciona Vigor?",
+    "title": "¿Cómo funciona GoGym?",
     "steps": [
       { "icon": "Building2", "title": "Activa tu empresa", "desc": "Configura membresías y políticas para tu equipo." },
       { "icon": "Users", "title": "Invita a tu equipo", "desc": "Asignación y control por colaborador." },

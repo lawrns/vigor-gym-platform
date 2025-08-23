@@ -51,7 +51,7 @@ const nextConfig = {
     minimumCacheTTL: 60 * 60 * 24 * 7, // 7 days
     dangerouslyAllowSVG: false,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
-    domains: ['staging.vigor-gym.com', 'api-staging.vigor-gym.com'],
+    domains: ['staging.gogym.mx', 'api-staging.gogym.mx'],
   },
 
   // =============================================================================

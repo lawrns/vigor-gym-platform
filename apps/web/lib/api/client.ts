@@ -22,7 +22,7 @@ import type {
   RevenueAnalytics,
   ClassesToday,
   StaffCoverage,
-} from '@vigor/shared';
+} from '@gogym/shared';
 
 // Configuration - Use same-origin proxy in browser, direct API in server
 const API_BASE_URL =

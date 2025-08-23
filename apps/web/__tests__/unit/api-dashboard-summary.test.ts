@@ -3,7 +3,7 @@
  * Tests the /api/dashboard/summary route for proper zod validation and data structure
  */
 
-import { DashboardSummarySchema } from '@vigor/shared';
+import { DashboardSummarySchema } from '@gogym/shared';
 
 // Mock the session module
 jest.mock('../../lib/auth/session.server', () => ({

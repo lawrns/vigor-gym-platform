@@ -5,7 +5,7 @@ export default function Debug() {
       <p>Static SSR page rendered.</p>
       <p>✅ Next.js {process.env.NODE_ENV} mode working</p>
       <p>✅ React 18.3.1 + Next.js 14.2.5 aligned</p>
-      <p>✅ @vigor/shared transpilation configured</p>
+      <p>✅ @gogym/shared transpilation configured</p>
 
       <h2>Environment Check</h2>
       <ul>

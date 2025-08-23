@@ -60,8 +60,8 @@ export async function generateDeviceToken(device: {
   return jwt.sign(payload, deviceJwtSecret, {
     expiresIn: `${ttlMinutes}m`,
     algorithm,
-    issuer: 'vigor-api',
-    audience: 'vigor-devices',
+    issuer: 'gogym-api',
+    audience: 'gogym-devices',
   });
 }
 

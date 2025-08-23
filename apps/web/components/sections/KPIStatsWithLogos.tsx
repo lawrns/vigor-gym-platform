@@ -2,8 +2,10 @@ import Image from 'next/image';
 import { Icons } from '../../lib/icons/registry';
 import { Stack } from '../primitives/Stack';
 
-// Static import for reliable logo loading
+// Static imports for reliable logo loading
 import logo1Image from '@/public/images/logo-1.webp';
+import logo1Svg from '@/public/images/logo1.svg';
+import logo2Png from '@/public/images/logo2.png';
 
 type KPIItem = {
   icon: keyof typeof Icons;
@@ -51,19 +53,30 @@ export function KPIStatsWithLogos({ kpiItems, logoTitle, logos }: KPIStatsWithLo
             {logoTitle}
           </div>
         )}
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-6 items-center opacity-80">
-          {logos.map((src, i) => (
-            <div key={i} className="flex justify-center">
-              <Image
-                src={src === 'static-import' || src.startsWith('/images/') ? logo1Image : src}
-                alt=""
-                aria-hidden
-                width={120}
-                height={40}
-                className="rounded-md object-contain opacity-75 hover:opacity-100 transition-opacity duration-200"
-              />
-            </div>
-          ))}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 items-center opacity-80">
+          {logos.map((src, i) => {
+            // Use logo1.svg and logo2.png alternately (2 times each for 4 total)
+            const getLogoSrc = () => {
+              if (src === 'static-import' || src.startsWith('/images/')) {
+                const logoIndex = i % 2;
+                return logoIndex === 0 ? logo1Svg : logo2Png;
+              }
+              return src;
+            };
+
+            return (
+              <div key={i} className="flex justify-center">
+                <Image
+                  src={getLogoSrc()}
+                  alt=""
+                  aria-hidden
+                  width={120}
+                  height={40}
+                  className="rounded-md object-contain opacity-75 hover:opacity-100 transition-opacity duration-200"
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </Stack>

@@ -92,7 +92,7 @@ export default function HomePage() {
       <Section tone="default" size="lg">
         <Container>
           <HowItWorks
-            title={(contentV2 as any).HowItWorks?.title || '¿Cómo funciona Vigor?'}
+            title={(contentV2 as any).HowItWorks?.title || '¿Cómo funciona GoGym?'}
             steps={((contentV2 as any).HowItWorks?.steps as any) || []}
             cta={(contentV2 as any).HowItWorks?.cta}
           />

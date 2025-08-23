@@ -7,7 +7,7 @@ import { Widget, WidgetEmpty } from '../DashboardShell';
 import { apiClient } from '../../../lib/api/client';
 import { useSSE, SSEEvent } from '../../../lib/hooks/useSSE';
 import { useOrgContext } from '../../../lib/auth/context';
-import type { DashboardSummary } from '@vigor/shared';
+import type { DashboardSummary } from '@gogym/shared';
 
 interface ActiveVisitsWidgetProps {
   locationId?: string;

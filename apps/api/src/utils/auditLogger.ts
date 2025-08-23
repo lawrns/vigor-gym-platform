@@ -28,7 +28,7 @@ const logger = pino({
   },
   timestamp: pino.stdTimeFunctions.isoTime,
   base: {
-    service: 'vigor-api',
+    service: 'gogym-api',
     version: process.env.npm_package_version || '1.0.0',
   },
 });

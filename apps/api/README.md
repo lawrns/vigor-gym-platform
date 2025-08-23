@@ -1,6 +1,6 @@
-# Vigor API - Database Setup and API Implementation
+# GoGym API - Database Setup and API Implementation
 
-This document provides setup instructions for the Vigor gym management platform database and API implementation.
+This document provides setup instructions for the GoGym gym management platform database and API implementation.
 
 ## Overview
 
