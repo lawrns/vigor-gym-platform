@@ -1,6 +1,11 @@
 'use client';
 import Image from 'next/image';
 import React, { useRef } from 'react';
+
+// Static imports for reliable activity image loading
+import activityA from '@/public/images/activity-a.webp';
+import activityB from '@/public/images/activity-b.webp';
+import activityC from '@/public/images/activity-c.webp';
 import { FeatureCard } from '../ui/FeatureCard';
 import { Stack } from '../primitives/Stack';
 
@@ -86,10 +91,10 @@ export function FeaturesAndActivitiesShowcase({
                   src={
                     item.image ||
                     (i % 3 === 0
-                      ? '/images/activity-a.webp'
+                      ? activityA
                       : i % 3 === 1
-                        ? '/images/activity-b.webp'
-                        : '/images/activity-c.webp')
+                        ? activityB
+                        : activityC)
                   }
                   alt={item.label}
                   fill

@@ -3,6 +3,9 @@ import Image from 'next/image';
 import { getServerSession } from '../lib/auth/session';
 import { UserMenu } from './UserMenu';
 
+// Static import for reliable logo loading
+import logoImage from '@/public/images/gogym.png';
+
 type NavLink = { href: string; label: string; roles?: string[] };
 
 interface ServerNavbarProps {
@@ -21,7 +24,7 @@ export async function ServerNavbar({ links = [], cta }: ServerNavbarProps) {
       <div className="max-w-7xl mx-auto h-16 flex items-center justify-between px-4">
         <Link href="/" className="flex items-center">
           <Image
-            src="/images/gogym.png"
+            src={logoImage}
             alt="GoGym"
             width={120}
             height={40}

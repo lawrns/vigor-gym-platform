@@ -4,6 +4,9 @@ import { getServerSession } from '../../lib/auth/session';
 import { UserMenu } from '../UserMenu';
 import { ClientNavigation } from './ClientNavigation';
 
+// Static import for reliable logo loading
+import logoImage from '@/public/images/gogym.png';
+
 interface EnhancedNavbarProps {
   // No logo prop needed - we'll use the GoGym logo directly
 }
@@ -25,7 +28,7 @@ export async function EnhancedNavbar({}: EnhancedNavbarProps) {
         <div className="h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center">
             <Image
-              src="/images/gogym.png"
+              src={logoImage}
               alt="GoGym"
               width={120}
               height={40}
