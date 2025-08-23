@@ -1,7 +1,11 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { Icons } from '../../lib/icons/registry';
+
+// Static import for reliable avatar fallback
+import logo1Image from '@/public/images/logo-1.webp';
 
 type Testimonial = {
   name: string;
@@ -121,11 +125,20 @@ export function TestimonialsCarousel({ title, subtitle, testimonials }: Testimon
               {/* Avatar */}
               <div className="flex-shrink-0">
                 {testimonials[currentIndex]?.avatar ? (
-                  <img
-                    src={testimonials[currentIndex].avatar}
-                    alt={`${testimonials[currentIndex].name} avatar`}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
+                  <div className="relative w-16 h-16 rounded-full overflow-hidden">
+                    <Image
+                      src={
+                        testimonials[currentIndex].avatar === 'static-import' ||
+                        testimonials[currentIndex].avatar.startsWith('/images/')
+                          ? logo1Image
+                          : testimonials[currentIndex].avatar
+                      }
+                      alt={`${testimonials[currentIndex].name} avatar`}
+                      fill
+                      className="object-cover"
+                      sizes="64px"
+                    />
+                  </div>
                 ) : (
                   <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center">
                     <span className="text-white font-semibold text-lg">

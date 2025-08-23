@@ -86,7 +86,11 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
         <div className="grid gap-4">
           <div className="relative h-[340px] md:h-[440px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
             <Image
-              src={config.image?.src || heroDashboard}
+              src={
+                config.image?.src === 'static-import' || !config.image?.src || config.image?.src.startsWith('/images/')
+                  ? heroDashboard
+                  : config.image.src
+              }
               alt={config.image?.alt || 'Vista del dashboard de Vigor'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"

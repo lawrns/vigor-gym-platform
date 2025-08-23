@@ -2,6 +2,9 @@ import Image from 'next/image';
 import { Icons } from '../../lib/icons/registry';
 import { Stack } from '../primitives/Stack';
 
+// Static import for reliable logo loading
+import logo1Image from '@/public/images/logo-1.webp';
+
 type KPIItem = {
   icon: keyof typeof Icons;
   label: string;
@@ -52,7 +55,7 @@ export function KPIStatsWithLogos({ kpiItems, logoTitle, logos }: KPIStatsWithLo
           {logos.map((src, i) => (
             <div key={i} className="flex justify-center">
               <Image
-                src={src}
+                src={src === 'static-import' || src.startsWith('/images/') ? logo1Image : src}
                 alt=""
                 aria-hidden
                 width={120}
