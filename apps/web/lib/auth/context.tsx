@@ -99,7 +99,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
         if (cancelled) return;
 
         if (res.status === 401) {
-          console.debug('[AUTH] Server returned 401, clearing auth state');
+          // 401 is expected on public routes - don't log as error
           setUser(null);
           setAuthToken(null);
           setStatus('guest');
@@ -125,9 +125,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
             telemetry.org.contextSet(data.user.company.id);
           }
         } else {
-          // Handle other HTTP errors
-          const errorData = await res.json().catch(() => ({ message: 'Unknown error' }));
-          console.debug('[AUTH] Authentication failed:', errorData.message);
+          // Handle other HTTP errors (500, etc.) - only log actual errors
+          if (res.status >= 500) {
+            const errorData = await res.json().catch(() => ({ message: 'Unknown error' }));
+            console.debug('[AUTH] Authentication failed:', errorData.message);
+          }
           setUser(null);
           setAuthToken(null);
           setStatus('guest');
