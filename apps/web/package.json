@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
-    "@next/bundle-analyzer": "^15.5.0",
+
     "@opentelemetry/exporter-metrics-otlp-http": "^0.41.2",
     "@opentelemetry/exporter-trace-otlp-http": "^0.41.2",
     "@opentelemetry/instrumentation-express": "^0.52.0",
@@ -58,7 +58,7 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.62.0",
-    "react-is": "^17.0.2",
+
     "recharts": "^3.1.2",
     "server-only": "^0.0.1",
     "tailwind-merge": "^2.5.2",
@@ -81,6 +81,7 @@
     "postcss": "^8.4.39",
     "tailwindcss": "^3.4.10",
     "ts-jest": "^29.4.1",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "@next/bundle-analyzer": "^15.5.0"
   }
 }
