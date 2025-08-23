@@ -5,6 +5,7 @@ import Image from 'next/image';
 import heroDashboard from '@/public/images/hero-dashboard.webp';
 import heroApp from '@/public/images/hero-app.webp';
 import adonisImage from '@/public/images/adonis.png';
+import appImage from '@/public/images/app.png';
 
 type Cta = { label: string; href: string; variant?: 'primary' | 'ghost'; ['data-cta']?: string };
 type Trust = { icon: keyof typeof Icons; label: string };
@@ -102,7 +103,7 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
           </div>
           <div className="hidden md:block relative h-[180px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
             <Image
-              src={heroApp}
+              src={appImage}
               alt={'App móvil de GoGym'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
