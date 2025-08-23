@@ -2,9 +2,9 @@ import React from 'react';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Prueba Vigor en 60 segundos',
+  title: 'Prueba GoGym en 60 segundos',
   description:
-    'Experimenta cómo funciona Vigor sin registrarte. Demo interactivo de check-in, reservas y progreso.',
+    'Experimenta cómo funciona GoGym sin registrarte. Demo interactivo de check-in, reservas y progreso.',
   robots: {
     index: false,
     follow: false,

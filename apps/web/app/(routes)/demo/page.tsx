@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Solicitar Demo - Vigor Gym Platform',
+  title: 'Solicitar Demo - GoGym Platform',
   description:
     'Solicita una demostración personalizada de nuestra plataforma de gestión de gimnasios corporativos.',
 };
@@ -16,7 +16,7 @@ export default function DemoPage() {
           <div className="text-center mb-8">
             <h1 className="text-4xl font-display font-bold text-gray-900 mb-4">Solicitar Demo</h1>
             <p className="text-xl text-gray-600">
-              Descubre cómo Vigor puede transformar el bienestar de tu empresa
+              Descubre cómo GoGym puede transformar el bienestar de tu empresa
             </p>
           </div>
 

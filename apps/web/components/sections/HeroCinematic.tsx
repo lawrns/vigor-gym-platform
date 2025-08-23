@@ -4,7 +4,7 @@ import Image from 'next/image';
 // Static imports for reliable image loading
 import heroDashboard from '@/public/images/hero-dashboard.webp';
 import heroApp from '@/public/images/hero-app.webp';
-import adonisImage from '@/public/images/adonis.png';
+import heroFitnessImage from '@/public/images/hero-fitness.webp';
 import appImage from '@/public/images/app.png';
 
 type Cta = { label: string; href: string; variant?: 'primary' | 'ghost'; ['data-cta']?: string };
@@ -90,10 +90,10 @@ export function HeroCinematic({ config }: { config: HeroConfig }) {
             <Image
               src={
                 config.image?.src === 'static-import' || !config.image?.src || config.image?.src.startsWith('/images/')
-                  ? adonisImage
+                  ? heroFitnessImage
                   : config.image.src
               }
-              alt={config.image?.alt || 'Vista del dashboard de GoGym'}
+              alt={config.image?.alt || 'Entrenamiento en gimnasio'}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"

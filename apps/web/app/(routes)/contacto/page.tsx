@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Contacto - Vigor Gym Platform',
+  title: 'Contacto - GoGym Platform',
   description:
     'Ponte en contacto con nuestro equipo de ventas y soporte para resolver tus dudas sobre la plataforma.',
 };
@@ -154,8 +154,8 @@ export default function ContactoPage() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">Email</h3>
-                      <p className="text-gray-600">ventas@vigor.mx</p>
-                      <p className="text-gray-600">soporte@vigor.mx</p>
+                      <p className="text-gray-600">ventas@gogym.mx</p>
+                      <p className="text-gray-600">soporte@gogym.mx</p>
                     </div>
                   </div>
 

@@ -34,13 +34,14 @@ export function AppPromo({
           </div>
         )}
       </div>
-      <div className="relative h-[420px] rounded-xl border border-[var(--outline)] bg-card overflow-hidden">
+      <div className="relative h-[420px] flex items-center justify-center">
         <Image
           src={appImage}
           alt="App móvil de GoGym"
-          fill
-          sizes="(min-width:1024px) 600px, 90vw"
-          className="object-cover"
+          width={300}
+          height={400}
+          sizes="(min-width:1024px) 300px, 250px"
+          className="object-contain max-h-full"
         />
       </div>
     </section>

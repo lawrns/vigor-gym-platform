@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { Icons } from '../../../lib/icons/registry';
 
 export const metadata = {
-  title: 'Registro | Vigor',
-  description: 'Crea tu cuenta en Vigor y comienza a gestionar tu gimnasio',
+  title: 'Registro | GoGym',
+  description: 'Crea tu cuenta en GoGym y comienza a gestionar tu gimnasio',
 };
 
 export default function RegistroPage() {
@@ -15,7 +15,7 @@ export default function RegistroPage() {
         </div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Crea tu cuenta</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
-          Completa tus datos para comenzar a gestionar tu gimnasio con Vigor
+          Completa tus datos para comenzar a gestionar tu gimnasio con GoGym
         </p>
       </div>
 
@@ -23,7 +23,7 @@ export default function RegistroPage() {
         <div className="grid md:grid-cols-2 gap-8">
           <div>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
-              ¿Por qué elegir Vigor?
+              ¿Por qué elegir GoGym?
             </h2>
             <ul className="space-y-3">
               <li className="flex items-start">
